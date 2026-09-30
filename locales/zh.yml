@@ -78,7 +78,7 @@ home:
     favoriteTools: 你的收藏工具
     allTools: 所有工具
     favoritesDndToolTip: 拖放以重新排序收藏
-  subtitle: 开发者实用工具
+  subtitle: 实用工具
   toggleMenu: 切换菜单
   home: 首页
   uiLib: UI库
@@ -8495,7 +8495,7 @@ tools:
       tag-convert-to-docker-labels: 转换为 Docker 标签
       invalid-blueprint-yaml: 无效的蓝图 YAML
   fitness-computer:
-    title: 健身电脑
+    title: 基础代谢率计算器
     description: 计算基础代谢率 (BMR)、每日总能量消耗 (TDEE / 卡路里)、身体质量指数 (BMI)、理想体重 (Ideal
       Weight)、体脂率 (Bool Fat)、最大心率 (Max HR)：这些是评估整体健康状况和生理健康的关键指标。
     externalAccess: 无效的

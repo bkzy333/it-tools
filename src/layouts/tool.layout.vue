@@ -18,19 +18,19 @@ import type { Tool } from '@/tools/tools.types';
 const route = useRoute();
 
 const head = computed<HeadObject>(() => ({
-  title: `${route.meta.name} - IT Tools`,
+  title: `${route.meta.name} - 在线工具箱`,
   meta: [
     {
       itemprop: 'name',
-      content: `${route.meta.name} - IT Tools`,
+      content: `${route.meta.name} - 在线工具箱`,
     },
     {
       property: 'og:title',
-      content: `${route.meta.name} - IT Tools`,
+      content: `${route.meta.name} - 在线工具箱`,
     },
     {
       property: 'twitter:title',
-      content: `${route.meta.name} - IT Tools`,
+      content: `${route.meta.name} - 在线工具箱`,
     },
     {
       name: 'description',

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 import { NIcon, useThemeVars } from 'naive-ui';
-import IconBrandGithub from '~icons/tabler/brand-github';
 import IconCheck from '~icons/tabler/check';
 import IconDeviceDesktop from '~icons/tabler/device-desktop';
 import IconInfoCircle from '~icons/tabler/info-circle';
@@ -94,19 +93,6 @@ function closeMenuOnSmallScreen() {
 </script>
 
 <template>
-  <c-tooltip :tooltip="$t('home.nav.github')" position="bottom">
-    <c-button
-      circle
-      variant="text"
-      href="https://github.com/sharevb/it-tools"
-      target="_blank"
-      rel="noopener noreferrer"
-      :aria-label="$t('home.nav.githubRepository')"
-    >
-      <n-icon size="25" :component="IconBrandGithub" />
-    </c-button>
-  </c-tooltip>
-
   <c-tooltip :tooltip="$t('home.nav.about')" position="bottom">
     <c-button circle variant="text" to="/about" :aria-label="$t('home.nav.aboutLabel')" @click="closeMenuOnSmallScreen">
       <n-icon size="25" :component="IconInfoCircle" />

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Coffee from '~icons/tabler/coffee';
 import Home2 from '~icons/tabler/home-2';
 import Menu2 from '~icons/tabler/menu-2';
 import { NIcon, useThemeVars } from 'naive-ui';
@@ -9,15 +8,12 @@ import HeroGradient from '../assets/hero-gradient.svg?component';
 import MenuLayout from '../components/MenuLayout.vue';
 import NavbarButtons from '../components/NavbarButtons.vue';
 import CollapsibleToolMenu from '@/components/CollapsibleToolMenu.vue';
-import { config } from '@/config';
 import { useStyleStore } from '@/stores/style.store';
 import { useToolStore } from '@/tools/tools.store';
 import type { ToolCategory } from '@/tools/tools.types';
 
 const themeVars = useThemeVars();
 const styleStore = useStyleStore();
-const version = config.app.version;
-const commitSha = config.app.lastCommitSha.slice(0, 7);
 
 // Expose the navbar height so the mobile menu (MenuLayout.vue) can position
 // itself right under the always-visible top bar.
@@ -46,7 +42,7 @@ const tools = computed<ToolCategory[]>(() => [
       <RouterLink to="/" class="hero-wrapper">
         <HeroGradient class="gradient" />
         <div class="text-wrapper">
-          <div class="title">IT - TOOLS</div>
+          <div class="title">在线工具箱</div>
           <div class="divider" />
           <div class="subtitle">
             {{ $t('home.subtitle') }}
@@ -60,34 +56,6 @@ const tools = computed<ToolCategory[]>(() => [
         </div>
 
         <CollapsibleToolMenu :tools-by-category="tools" />
-
-        <div class="footer">
-          <div>
-            IT-Tools
-
-            <c-link target="_blank" rel="noopener" :href="`https://github.com/sharevb/it-tools/tree/v${version}`">
-              v{{ version }}
-            </c-link>
-
-            <template v-if="commitSha && commitSha.length > 0">
-              -
-              <c-link
-                target="_blank"
-                rel="noopener"
-                type="primary"
-                :href="`https://github.com/sharevb/it-tools/tree/${commitSha}`"
-              >
-                {{ commitSha }}
-              </c-link>
-            </template>
-          </div>
-          <div>
-            © {{ new Date().getFullYear() }}
-            <c-link target="_blank" rel="noopener" href="https://corentin.tech?utm_source=it-tools&utm_medium=footer">
-              Corentin Thomasset
-            </c-link>
-          </div>
-        </div>
       </div>
     </template>
 
@@ -108,18 +76,6 @@ const tools = computed<ToolCategory[]>(() => [
           </c-button>
         </c-tooltip>
 
-        <c-tooltip :tooltip="$t('home.uiLib')" position="bottom">
-          <c-button
-            v-if="config.app.env === 'development'"
-            to="/c-lib"
-            circle
-            variant="text"
-            :aria-label="$t('home.uiLib')"
-          >
-            <icon-mdi:brush-variant text-20px />
-          </c-button>
-        </c-tooltip>
-
         <Suspense>
           <command-palette :key="locale" />
         </Suspense>
@@ -128,19 +84,6 @@ const tools = computed<ToolCategory[]>(() => [
           <NavbarButtons v-if="!styleStore.isSmallScreen" />
         </div>
 
-        <c-tooltip position="bottom" :tooltip="$t('home.support')">
-          <c-button
-            round
-            href="https://www.buymeacoffee.com/sharevb"
-            rel="noopener"
-            target="_blank"
-            class="support-button"
-            :bordered="false"
-          >
-            <span v-if="!styleStore.isSmallScreen" mr-2>{{ $t('home.buyMeACoffee') }}</span>
-            <NIcon :component="Coffee" />
-          </c-button>
-        </c-tooltip>
       </div>
       <!-- 谷歌广告位：顶部横幅（接入前 ADS_ENABLED=false，不渲染任何内容） -->
       <ads-placeholder variant="top" />
@@ -164,26 +107,6 @@ const tools = computed<ToolCategory[]>(() => [
 //     background-position: 0 0, @position @position;
 //     background-size: @size @size;
 // }
-
-.support-button {
-  background: rgb(37, 99, 108);
-  background: linear-gradient(48deg, rgba(37, 99, 108, 1) 0%, rgba(59, 149, 111, 1) 60%, rgba(20, 160, 88, 1) 100%);
-  color: #fff !important;
-  transition: padding ease 0.2s !important;
-
-  &:hover {
-    color: #fff;
-    padding-left: 30px;
-    padding-right: 30px;
-  }
-}
-
-.footer {
-  text-align: center;
-  color: #838587;
-  margin-top: 20px;
-  padding: 20px 0;
-}
 
 .sider-content {
   padding-top: 20px;
@@ -242,7 +165,7 @@ const tools = computed<ToolCategory[]>(() => [
     color: #fff;
 
     .title {
-      font-size: 25px;
+      font-size: 22px;
       font-weight: 600;
     }
 
