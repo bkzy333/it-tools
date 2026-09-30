@@ -142,6 +142,8 @@ const tools = computed<ToolCategory[]>(() => [
           </c-button>
         </c-tooltip>
       </div>
+      <!-- 谷歌广告位：顶部横幅（接入前 ADS_ENABLED=false，不渲染任何内容） -->
+      <ads-placeholder variant="top" />
       <!-- Positioned wrapper so the route-change loading overlay (see router.ts)
            can cover just the page, leaving the nav bar and menu visible. -->
       <div class="page-content">

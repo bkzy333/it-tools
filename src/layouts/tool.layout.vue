@@ -125,6 +125,9 @@ const linkTheme = useTheme();
   <div class="tool-footer">
     <VueMarkdown :source="toolFooter" />
   </div>
+
+  <!-- 谷歌广告位：工具页底部（接入前 ADS_ENABLED=false，不渲染任何内容） -->
+  <ads-placeholder variant="tool-bottom" />
 </template>
 
 <style lang="less">

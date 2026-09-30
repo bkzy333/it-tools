@@ -5,8 +5,11 @@ import { watch } from 'vue';
 import { createI18n } from 'vue-i18n';
 import enBaseMessages from '../../locales/en.yml';
 
-const DEFAULT_LOCALE = String(import.meta.env.VITE_LANGUAGE || 'en');
 const FALLBACK_LOCALE = 'en';
+// 默认语言改为中文（仍可用构建环境变量 VITE_LANGUAGE 覆盖）
+const DEFAULT_APP_LOCALE = 'zh';
+// 记住用户手动切换的语言（上游原版没有持久化，刷新会丢失）
+const LOCALE_STORAGE_KEY = 'it-tools-locale';
 
 // The fallback locale (and its tool-level files) is bundled eagerly so the app always has
 // complete messages at startup; every other locale is compiled into its own lazy chunk and
@@ -25,10 +28,26 @@ function localeOfPath(path: string): string {
 // tree, which makes vue-i18n's generics exceed TS's instantiation depth.
 const enMessages = merge({}, enBaseMessages, ...Object.values(eagerToolMessages)) as Record<string, unknown>;
 
+const allLocales = [FALLBACK_LOCALE, ...Object.keys(lazyBaseMessages).map(localeOfPath)].sort();
+
+// 优先级：用户上次选择的语言 > 构建环境变量 VITE_LANGUAGE > 默认中文
+function getInitialLocale(): string {
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored && allLocales.includes(stored)) {
+      return stored;
+    }
+  }
+
+  const configured = String(import.meta.env.VITE_LANGUAGE || DEFAULT_APP_LOCALE);
+  return allLocales.includes(configured) ? configured : FALLBACK_LOCALE;
+}
+
+const DEFAULT_LOCALE = getInitialLocale();
+
 // VITE_AVAILABLE_LOCALES filters which locales the app offers; unlisted locale chunks are
 // still emitted at build time but never fetched.
 export const appLocales = (() => {
-  const allLocales = [FALLBACK_LOCALE, ...Object.keys(lazyBaseMessages).map(localeOfPath)].sort();
   const available = String(import.meta.env.VITE_AVAILABLE_LOCALES || '*');
   if (available === '*' || available === 'all') {
     return allLocales;
@@ -79,7 +98,12 @@ export const i18nPlugin: Plugin = {
     // avoids depending on vue-i18n's locale ref generics.
     watch(
       () => getCurrentLocale(),
-      (locale) => loadLocaleMessages(locale),
+      (locale) => {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+        }
+        return loadLocaleMessages(locale);
+      },
       { immediate: true },
     );
   },
