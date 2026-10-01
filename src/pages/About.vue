@@ -6,7 +6,7 @@ import { useToolStore } from '@/tools/tools.store';
 
 // ===================== 上线前请改成你自己的信息 =====================
 const SITE_NAME = '在线工具箱';
-const SITE_DOMAIN = 'https://it-tools-cug.pages.dev';
+const SITE_DOMAIN = 'https://gjxtools.com';
 const CONTACT_EMAIL = '【你的联系邮箱】';
 // ==================================================================
 
@@ -82,6 +82,13 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
       <p>问题反馈与建议：{{ CONTACT_EMAIL }}</p>
       <p class="hint">
         如果你发现某个工具计算有误、页面显示异常，或有想要新增的工具，欢迎通过上面的邮箱告诉我们。
+      </p>
+    </n-card>
+
+    <n-card title="隐私政策" mx-auto mt-30px>
+      <p class="hint">
+        本站工具在你的浏览器本地运行，文件和数据不会上传到服务器。详细说明见
+        <c-link to="/privacy">隐私政策</c-link>。
       </p>
     </n-card>
 

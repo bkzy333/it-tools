@@ -56,6 +56,13 @@ const tools = computed<ToolCategory[]>(() => [
         </div>
 
         <CollapsibleToolMenu :tools-by-category="tools" />
+
+        <!-- 站点自身页面入口（AdSense 审核要求隐私政策可一键找到） -->
+        <div class="site-links">
+          <RouterLink to="/about">关于本站</RouterLink>
+          <span mx-1 op-50>·</span>
+          <RouterLink to="/privacy">隐私政策</RouterLink>
+        </div>
       </div>
     </template>
 
@@ -107,6 +114,22 @@ const tools = computed<ToolCategory[]>(() => [
 //     background-position: 0 0, @position @position;
 //     background-size: @size @size;
 // }
+
+.site-links {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: #838587;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: v-bind('themeVars.primaryColor');
+    }
+  }
+}
 
 .sider-content {
   padding-top: 20px;

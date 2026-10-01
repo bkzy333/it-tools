@@ -220,7 +220,7 @@ export default defineConfig({
           generateRobotsTxt: true,
           robots: [{ userAgent: '*', allow: '/' }],
           dynamicRoutes: (() => {
-            const paths = ['/', '/about'];
+            const paths = ['/', '/about', '/privacy'];
             fg.sync('src/tools/*/index.ts').forEach((file) => {
               const content = fs.readFileSync(file, 'utf-8');
               const pathMatch = content.match(/path:\s*['"`]([^'"`]+)['"`]/);
