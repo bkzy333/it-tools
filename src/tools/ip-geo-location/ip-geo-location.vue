@@ -1,71 +1,82 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 import type { CKeyValueListItems } from '@/ui/c-key-value-list/c-key-value-list.types';
-import { useITStorage, useQueryParam } from '@/composable/queryParams';
+import { useQueryParam } from '@/composable/queryParams';
 
-const { t } = useI18n();
-
-const ip = useQueryParam({ tool: 'ip-geo-loc', name: 'ip', defaultValue: '8.8.8.8' });
+const ip = useQueryParam({ tool: 'ip-geo-loc', name: 'ip', defaultValue: '' });
 const errorMessage = ref('');
-
-const fields: Array<{ field: string; name: string }> = [
-  { field: 'ip', name: 'IP' },
-  { field: 'hostname', name: 'Host Name' },
-  { field: 'country', name: 'Country Code' },
-  { field: 'region', name: 'Region/state Code' },
-  { field: 'city', name: 'City' },
-  { field: 'postal', name: 'Postal Code' },
-  { field: 'loc', name: 'Latitude/Longitude' },
-  { field: 'timezone', name: 'Timezone' },
-  { field: 'org', name: 'Organization Name' },
-];
-
 const geoInfos = ref<CKeyValueListItems>([]);
-const geoInfosData = ref<{
-  loc?: string;
-}>({});
+const location = ref<{ latitude?: number; longitude?: number }>({});
 const status = ref<'pending' | 'error' | 'success'>('pending');
-const token = useITStorage('ip-geoloc:token', '');
 
 const openStreetMapUrl = computed(() => {
-  const [gpsLatitude, gpsLongitude] = geoInfosData.value.loc?.split(',') || [];
-  return gpsLatitude && gpsLongitude
-    ? `https://www.openstreetmap.org/?mlat=${gpsLatitude}&mlon=${gpsLongitude}#map=18/${gpsLatitude}/${gpsLongitude}`
+  const { latitude, longitude } = location.value;
+  return latitude !== undefined && longitude !== undefined
+    ? `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=12/${latitude}/${longitude}`
     : undefined;
 });
 
+const flagEmoji = ref('');
+
+async function fetchFromIpwhois(target: string) {
+  const url = target ? `https://ipwho.is/${encodeURIComponent(target)}` : 'https://ipwho.is/';
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  if (!data || data.success === false) {
+    throw new Error(data?.message || '查询失败');
+  }
+
+  flagEmoji.value = data.flag?.emoji ?? '';
+
+  const rows: Array<[string, unknown]> = [
+    ['IP 地址', data.ip],
+    ['类型', data.type],
+    ['大洲', data.continent],
+    ['国家 / 地区', data.country ? `${flagEmoji.value} ${data.country} (${data.country_code})` : undefined],
+    ['省 / 州', data.region],
+    ['城市', data.city],
+    ['邮政编码', data.postal],
+    ['经纬度', data.latitude !== undefined ? `${data.latitude}, ${data.longitude}` : undefined],
+    ['时区', data.timezone?.id],
+    ['电话区号', data.calling_code ? `+${data.calling_code}` : undefined],
+    ['货币', data.currency],
+    ['ASN', data.connection?.asn ? `AS${data.connection.asn}` : undefined],
+    ['运营商', data.connection?.isp],
+    ['组织', data.connection?.org],
+  ];
+
+  location.value = { latitude: data.latitude, longitude: data.longitude };
+
+  return rows.filter(([, value]) => value !== undefined && value !== null && value !== '');
+}
+
 async function onGetInfos() {
+  const target = ip.value.trim();
+
   try {
     status.value = 'pending';
+    errorMessage.value = '';
+    flagEmoji.value = '';
 
-    const geoInfoQueryResponse = await fetch(
-      token.value !== '' ? `//ipinfo.io/${ip.value}/json?token=${token.value}` : `//ipinfo.io/${ip.value}/json`,
-    );
-    if (!geoInfoQueryResponse.ok) {
-      throw geoInfoQueryResponse.statusText;
-    }
+    const rows = await fetchFromIpwhois(target);
 
-    const data = await geoInfoQueryResponse.json();
-
-    const allGeoInfos = [];
-    for (const field of fields) {
-      if (data[field.field]) {
-        allGeoInfos.push({
-          label: field.name,
-          value: data[field.field],
-        });
-      }
-    }
-
+    geoInfos.value = rows.map(([label, value]) => ({ label, value: String(value) }));
     status.value = 'success';
-    geoInfos.value = allGeoInfos;
-    geoInfosData.value = data;
   } catch (e: any) {
-    errorMessage.value = e.toString();
+    errorMessage.value = e?.message ?? String(e);
     status.value = 'error';
-    return [];
   }
 }
+
+// 打开页面就先查一下自己的 IP，省得用户还要点一次
+onMounted(() => {
+  if (!ip.value.trim()) {
+    onGetInfos();
+  }
+});
 </script>
 
 <template>
@@ -73,45 +84,28 @@ async function onGetInfos() {
     <div flex items-center gap-2>
       <c-input-text
         v-model:value="ip"
-        :placeholder="t('tools.ip-geo-location.texts.placeholder-enter-an-ipv4-6')"
-        @update:value="
-          () => {
-            status = 'pending';
-          }
-        "
+        :placeholder="$t('tools.ip-geo-location.texts.placeholder-enter-an-ipv4-6')"
+        clearable
+        @keyup.enter="onGetInfos"
       />
       <c-button align-center @click="onGetInfos">
-        {{ t('tools.ip-geo-location.texts.tag-get-geo-location-infos') }}
+        {{ $t('tools.ip-geo-location.texts.tag-get-geo-location-infos') }}
       </c-button>
     </div>
 
-    <details mt-2>
-      <summary>{{ t('tools.ip-geo-location.texts.tag-optional-ipinfo-io-token') }}</summary>
-      <c-input-text
-        v-model:value="token"
-        :placeholder="t('tools.ip-geo-location.texts.placeholder-optional-ipinfo-io-token')"
-        @update:value="
-          () => {
-            status = 'pending';
-          }
-        "
-      />
-      <n-p>
-        <n-a href="https://ipinfo.io/">
-          {{ t('tools.ip-geo-location.texts.tag-signup-for-a-free-token') }}
-        </n-a>
-      </n-p>
-    </details>
+    <div class="hint" mt-1>
+      {{ $t('tools.ip-geo-location.texts.tag-empty-means-my-ip') }}
+    </div>
 
     <n-divider />
 
     <c-card v-if="status === 'pending'" mt-5>
-      {{ t('tools.ip-geo-location.texts.tag-click-on-button-above-to-get-latest-infos') }}
+      {{ $t('tools.ip-geo-location.texts.tag-loading') }}
     </c-card>
 
     <c-card v-if="status === 'success' && openStreetMapUrl" mt-4>
       <c-button :href="openStreetMapUrl" target="_blank">
-        {{ t('tools.ip-geo-location.texts.tag-localize-on-open-street-map') }}
+        {{ $t('tools.ip-geo-location.texts.tag-localize-on-open-street-map') }}
       </c-button>
     </c-card>
 
@@ -119,8 +113,15 @@ async function onGetInfos() {
       <c-key-value-list :items="geoInfos" />
     </c-card>
 
-    <n-alert v-if="status === 'error'" :title="t('tools.ip-geo-location.texts.title-errors-occured')" type="error" mt-5>
+    <n-alert v-if="status === 'error'" :title="$t('tools.ip-geo-location.texts.title-errors-occured')" type="error" mt-5>
       {{ errorMessage }}
     </n-alert>
   </div>
 </template>
+
+<style lang="less" scoped>
+.hint {
+  font-size: 12px;
+  opacity: 0.6;
+}
+</style>

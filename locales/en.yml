@@ -2470,17 +2470,15 @@ tools:
       label-network-type: Network type
   ip-geo-location:
     title: IP Geo Location
-    description: Retrieve information about an IPv4/6 address or domain location
+    description: Look up the location, ISP, timezone and coordinates of an IPv4/IPv6 address
     texts:
-      placeholder-enter-an-ipv4-6: Enter an IPv4/6
-      placeholder-optional-ipinfo-io-token: Optional ipinfo.io token
-      title-errors-occured: Errors occured
+      placeholder-enter-an-ipv4-6: Enter an IPv4/IPv6 address, leave empty for your own
+      tag-empty-means-my-ip: Leave empty to look up your own public IP
       tag-get-geo-location-infos: Get GEO Location Infos
-      tag-optional-ipinfo-io-token: Optional ipinfo.io token
-      tag-signup-for-a-free-token: Signup for a free token
-      tag-click-on-button-above-to-get-latest-infos: Click on button above to get latest infos
+      tag-loading: Looking up…
+      title-errors-occured: Errors occured
       tag-localize-on-open-street-map: Localize on Open Street Map
-    externalAccess: This tool sends provided IP(s) to https://ipinfo.io/ to get IP
+    externalAccess: This tool sends the IP address you enter to https://ipwho.is to get IP
       Geolocation information
   ip-include-exclude:
     title: IP Subnets Exclude Calculator
@@ -5199,6 +5197,7 @@ tools:
     cheatsheets: Cheatsheets
     forensic: Forensic
     finance: Finance
+    weather: Weather
     default: Default
     toml: TOML
   websocket-tester:
@@ -5412,6 +5411,34 @@ tools:
       tag-1988: "1988"
       tag-format-xml-output: Format XML Output?
       tag-title: Title
+  weather:
+    title: Weather Lookup
+    description: Current weather and a 7 day forecast for any city, Chinese city names supported
+    texts:
+      label-city: City name
+      placeholder-city: Enter a city name, e.g. Hangzhou
+      searching: Searching cities…
+      no-result: No matching city found, try another spelling or Pinyin
+      loading-weather: Loading weather data…
+      something-wrong: Lookup failed
+      hint: Type a city name above and pick a place from the results to see the current weather and the 7 day forecast.
+      feels-like: Feels like
+      humidity: Humidity
+      wind: Wind speed
+      precipitation: Precipitation
+      updated-at: Updated at
+      forecast: Next 7 days
+      today: Today
+      tomorrow: Tomorrow
+      monday: Mon
+      tuesday: Tue
+      wednesday: Wed
+      thursday: Thu
+      friday: Fri
+      saturday: Sat
+      sunday: Sun
+      unknown: Unknown condition
+    externalAccess: This tool sends the city name you enter to https://open-meteo.com for geocoding and weather data. Nothing else is uploaded.
   website:
     text:
       enter-the-url-of-your-website: Enter the url of your website...
@@ -6856,6 +6883,23 @@ tools:
       label-input: "Input:"
       label-output-type: "Output Type:"
       title-output: Output
+  favicon-grabber:
+    title: Website Icon Grabber
+    description: Fetch and download the favicon of any website from its domain
+    texts:
+      label-domain: Website domain
+      placeholder-domain: e.g. github.com or https://www.baidu.com
+      support-hint: Accepts a bare domain or a full URL. Icons are served by icon.horse, which falls back when a site has no dedicated icon.
+      empty-hint: Enter a domain above, e.g. baidu.com
+      loading: Loading icon…
+      load-failed: Failed to load icon
+      copy-url: Copy icon URL
+      copied: Copied to clipboard
+      copy-failed: Copy failed, please select the URL manually
+      download: Download icon
+      download-failed: Download failed
+      source: Icon source icon.horse
+    externalAccess: This tool sends the domain you enter to https://icon.horse in order to fetch the website icon. Nothing else is uploaded.
   favicon-generator:
     title: Favicon Generator
     description: Generate Favicon and corresponding header

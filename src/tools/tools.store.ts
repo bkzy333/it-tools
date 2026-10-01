@@ -28,6 +28,7 @@ const CATEGORY_PRIORITY = [
   'barcodes',
   'generators',
   'web',
+  'weather',
   'network',
   'crypto',
   'data',

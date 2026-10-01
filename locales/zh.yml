@@ -2349,18 +2349,16 @@ tools:
       label-end-ip-address: 结束IP地址
       label-network-type: 网络类型
   ip-geo-location:
-    title: IP地理位置
-    description: 检索IPv4/6地址或域名的位置信息
+    title: IP 地理位置查询
+    description: 查询任意 IPv4/IPv6 地址的归属地、运营商、时区与经纬度
     texts:
-      placeholder-enter-an-ipv4-6: 输入IPv4/6地址
-      placeholder-optional-ipinfo-io-token: 可选ipinfo.io令牌
-      title-errors-occured: 发生错误
-      tag-get-geo-location-infos: 获取地理位置信息
-      tag-optional-ipinfo-io-token: 可选ipinfo.io令牌
-      tag-signup-for-a-free-token: 注册免费令牌
-      tag-click-on-button-above-to-get-latest-infos: 点击上方按钮获取最新信息
-      tag-localize-on-open-street-map: 在OpenStreetMap上定位
-    externalAccess: 此工具会将提供的 IP 地址发送到 https://ipinfo.io/ 以获取 IP 地理位置信息。
+      placeholder-enter-an-ipv4-6: 输入 IPv4/IPv6 地址，留空则查询本机
+      tag-empty-means-my-ip: 留空直接查询你自己当前的公网 IP
+      tag-get-geo-location-infos: 查询地理位置
+      tag-loading: 正在查询…
+      title-errors-occured: 查询失败
+      tag-localize-on-open-street-map: 在 OpenStreetMap 上定位
+    externalAccess: 本工具会向 https://ipwho.is 发送你要查询的 IP 地址，用于获取地理位置信息。
   ip-include-exclude:
     title: IP子网排除计算器
     description: 从允许的IP范围/掩码/CIDR列表中减去不允许的IP范围/掩码/CIDR列表
@@ -4955,6 +4953,7 @@ tools:
     cheatsheets: 备忘单
     forensic: 取证工具
     finance: 金融
+    weather: 天气查询
     default: 默认
     toml: TOML
   websocket-tester:
@@ -5159,6 +5158,34 @@ tools:
       tag-1988: "1988"
       tag-format-xml-output: 格式化XML输出？
       tag-title: 标题
+  weather:
+    title: 天气查询
+    description: 查询任意城市的实时天气与未来 7 天预报，支持中文城市名搜索
+    texts:
+      label-city: 城市名称
+      placeholder-city: 输入城市名，例如「杭州」
+      searching: 正在搜索城市…
+      no-result: 没有找到匹配的城市，换个写法或改用拼音试试
+      loading-weather: 正在获取天气数据…
+      something-wrong: 查询出错
+      hint: 在上方输入城市名，从搜索结果里选一个地点，即可看到实时天气和未来 7 天预报。留空打开页面时会默认显示你上次查过的城市。
+      feels-like: 体感温度
+      humidity: 相对湿度
+      wind: 风速
+      precipitation: 降水量
+      updated-at: 数据更新时间
+      forecast: 未来 7 天预报
+      today: 今天
+      tomorrow: 明天
+      monday: 周一
+      tuesday: 周二
+      wednesday: 周三
+      thursday: 周四
+      friday: 周五
+      saturday: 周六
+      sunday: 周日
+      unknown: 未知天气
+    externalAccess: 本工具会向 https://open-meteo.com 发送你输入的城市名称，用于地理编码和获取天气数据，除此之外不会上传任何其它数据。
   website:
     text:
       enter-the-url-of-your-website: 输入您网站的URL...
@@ -6539,6 +6566,23 @@ tools:
       label-input: 输入：
       label-output-type: 输出类型：
       title-output: 输出
+  favicon-grabber:
+    title: 网站图标抓取
+    description: 输入域名即可抓取任意网站的 favicon 图标并下载
+    texts:
+      label-domain: 网站域名
+      placeholder-domain: 例如 github.com 或 https://www.baidu.com
+      support-hint: 支持裸域名或完整网址，图标来自 icon.horse，取不到时会自动回退到可用的兜底图标
+      empty-hint: 在上方输入一个域名，例如 baidu.com
+      loading: 正在获取图标…
+      load-failed: 获取图标失败
+      copy-url: 复制图标地址
+      copied: 已复制到剪贴板
+      copy-failed: 复制失败，请手动选中地址复制
+      download: 下载图标
+      download-failed: 下载失败
+      source: 图标来源 icon.horse
+    externalAccess: 本工具会向 https://icon.horse 发送你输入的域名，用于抓取该网站的图标，除此之外不会上传任何其它数据。
   favicon-generator:
     title: 网站图标生成器
     description: 生成 Favicon 和相应的 header
