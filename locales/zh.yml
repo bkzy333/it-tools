@@ -77,6 +77,8 @@ home:
     newestTools: 最新工具
     favoriteTools: 你的收藏工具
     allTools: 所有工具
+    popularTools: 热门工具
+    mostUsedTools: 你常用的工具
     favoritesDndToolTip: 拖放以重新排序收藏
   subtitle: 实用工具
   toggleMenu: 切换菜单

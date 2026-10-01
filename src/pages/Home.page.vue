@@ -8,11 +8,42 @@ import ColoredCard from '../components/ColoredCard.vue';
 import ToolCard from '../components/ToolCard.vue';
 import HomeCustom from './Home.custom.vue';
 import { useToolStore } from '@/tools/tools.store';
+import { getMostUsedPaths } from '@/composable/toolUsage';
+import type { ToolWithCategory } from '@/tools/tools.types';
 import { config } from '@/config';
 
 const { t } = useI18n();
 
 const toolStore = useToolStore();
+
+// 精选热门工具：面向大众、上手即用的一类，新访客也能一眼看到。
+// 想调整顺序或增删，直接改这个数组；值是 src/tools/<目录>/index.ts 里的 path，
+// 少数工具的 path 和目录名不一致（例如目录 json-viewer 的 path 是 /json-prettify）。
+const POPULAR_TOOL_PATHS = [
+  '/qrcode-generator', // 二维码生成器
+  '/pdf-compressor', // PDF 压缩
+  '/image-converter', // 图片格式转换
+  '/remove-background', // 去除图片背景
+  '/bmi-calculator', // BMI 计算
+  '/percentage-calculator', // 百分比计算
+  '/date-duration-calculator', // 日期间隔计算
+  '/currency-converter', // 货币换算
+  '/base64-string-converter', // Base64 编解码
+  '/url-encoder', // URL 编解码
+  '/json-prettify', // JSON 格式化
+  '/password-strength-analyser', // 密码强度检测
+];
+
+const findTool = (path: string) => toolStore.tools.find((tool) => tool.path === path);
+
+const popularTools = computed<ToolWithCategory[]>(
+  () => POPULAR_TOOL_PATHS.map(findTool).filter(Boolean) as ToolWithCategory[],
+);
+
+// 本机访问次数最多的工具（没有访问记录时为空，区块自动隐藏）
+const mostUsedTools = computed<ToolWithCategory[]>(
+  () => getMostUsedPaths(8).map(findTool).filter(Boolean) as ToolWithCategory[],
+);
 const desc = t(
   'home.page.text.collection-of-handy-online-tools-for-developers-with-great-ux-it-tools-is-a-free-and-open-source-collection-of-handy-online-tools-for-developers-and-people-working-in-it',
 );
@@ -166,6 +197,24 @@ onUnmounted(() => {
           </Draggable>
         </div>
       </transition>
+
+      <div>
+        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+          {{ t('home.categories.popularTools', '热门工具') }}
+        </h3>
+        <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
+          <ToolCard v-for="tool in popularTools" :key="tool.name" :tool="tool" />
+        </div>
+      </div>
+
+      <div v-if="mostUsedTools.length > 0">
+        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+          {{ t('home.categories.mostUsedTools', '你常用的工具') }}
+        </h3>
+        <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
+          <ToolCard v-for="tool in mostUsedTools" :key="tool.name" :tool="tool" />
+        </div>
+      </div>
 
       <div v-if="toolStore.newTools.length > 0">
         <h3 class="mb-5px mt-25px font-500 text-neutral-400">
