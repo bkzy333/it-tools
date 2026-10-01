@@ -3038,20 +3038,29 @@ tools:
       placeholder-your-string-decoded: Your string decoded
   my-ip:
     title: My IP Address
-    description: Get your client IP Address (IPv4/6) using https://www.ipify.org/
+    description: Look up your public IP address, geolocation, ISP and timezone, and check IPv6 support
     texts:
-      title-your-ipv4-6-address-details: Your IPv4/6 address details
-      label-ipv4: "IPv4:"
-      placeholder-your-ipv4: Your IPv4
-      label-ipv6: "IPv6:"
-      placeholder-your-ipv6: Your IPv6
-      label-country: "Country:"
-      label-country-name: "Country Name:"
-      label-continent-name: "Continent Name:"
+      title-your-ip-address: Your public IP
+      label-ip: IP address
+      label-type: IP version
+      label-country: Country
+      label-region: Region
+      label-city: City
+      label-timezone: Timezone
+      label-isp: ISP
+      label-org: Organization
+      label-asn: ASN
+      label-ipv6-support: IPv6 support
+      ipv6-not-detected: Not detected, your network may not support IPv6
+      checking: Checking…
+      loading: Looking up…
+      error: Lookup failed
+      all-sources-failed: All data sources are temporarily unavailable, please retry later
+      source: Data source
       tag-refresh: Refresh
-    externalAccess: This tool get IPv4/6 using API of https://www.ipify.org/ and
-      download IP Info data from
-      https://cdn.jsdelivr.net/npm/{'@'}iplookup/country-extra/
+    externalAccess: This tool queries public endpoints such as https://ipwho.is for your public
+      IP and geolocation in order to display the result. Nothing else is uploaded.
+
   nano-memo:
     title: Nano CheatSheet
     description: Nano Editor Cheatsheet

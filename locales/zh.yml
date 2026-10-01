@@ -2901,19 +2901,29 @@ tools:
       placeholder-your-string-decoded: 您的字符串解码
   my-ip:
     title: 我的IP地址
-    description: 使用https://www.ipify.org/获取您的客户端IP地址（IPv4/6）
+    description: 查询你当前的公网 IP 地址、归属地、运营商与时区，并检测网络是否支持 IPv6
     texts:
-      title-your-ipv4-6-address-details: 您的IPv4/6地址详情
-      label-ipv4: IPv4：
-      placeholder-your-ipv4: 您的IPv4
-      label-ipv6: IPv6：
-      placeholder-your-ipv6: 您的IPv6
-      label-country: 国家：
-      label-country-name: 国家名称：
-      label-continent-name: 大洲名称：
+      title-your-ip-address: 当前公网 IP
+      label-ip: IP 地址
+      label-type: IP 版本
+      label-country: 国家 / 地区
+      label-region: 省 / 州
+      label-city: 城市
+      label-timezone: 时区
+      label-isp: 运营商
+      label-org: 组织
+      label-asn: ASN
+      label-ipv6-support: IPv6 支持
+      ipv6-not-detected: 未检测到，你的网络可能不支持 IPv6
+      checking: 检测中…
+      loading: 正在查询…
+      error: 查询失败
+      all-sources-failed: 所有数据源暂时都不可用，请稍后重试
+      source: 数据来源
       tag-refresh: 刷新
-    externalAccess: 该工具使用 https://www.ipify.org/ 的 API 获取 IPv4/6 地址，并从
-      https://cdn.jsdelivr.net/npm/{'@'}iplookup/country-extra/ 下载 IP 信息数据。
+    externalAccess: 本工具会向 https://ipwho.is 等公开接口查询你当前的公网 IP 与归属地，用于
+      展示查询结果。除 IP 地址本身外不会上传任何其它数据。
+
   nano-memo:
     title: Nano备忘单
     description: Nano编辑器备忘单
