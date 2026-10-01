@@ -14,13 +14,20 @@ import { useThemeVars } from 'naive-ui';
 import { watch } from 'vue';
 import { useTheme } from '../ui/c-link/c-link.theme';
 import FavoriteButton from '@/components/FavoriteButton.vue';
-import { recordToolVisit } from '@/composable/toolUsage';
+import { recordToolVisit, reportToolVisit } from '@/composable/toolUsage';
 import type { Tool } from '@/tools/tools.types';
 
 const route = useRoute();
 
-// 每次打开工具页就记一次访问次数，用于首页「你常用的工具」排行
-watch(() => route.path, (path) => recordToolVisit(path), { immediate: true });
+// 打开工具页：本机计数（「你常用的工具」）+ 上报服务端（全站「热门工具」）
+watch(
+  () => route.path,
+  (path) => {
+    recordToolVisit(path);
+    reportToolVisit(path);
+  },
+  { immediate: true },
+);
 
 const head = computed<HeadObject>(() => ({
   title: `${route.meta.name} - 在线工具箱`,

@@ -8,7 +8,7 @@ import ColoredCard from '../components/ColoredCard.vue';
 import ToolCard from '../components/ToolCard.vue';
 import HomeCustom from './Home.custom.vue';
 import { useToolStore } from '@/tools/tools.store';
-import { getMostUsedPaths } from '@/composable/toolUsage';
+import { fetchGlobalHotTools, getMostUsedPaths } from '@/composable/toolUsage';
 import type { ToolWithCategory } from '@/tools/tools.types';
 import { config } from '@/config';
 
@@ -36,9 +36,22 @@ const POPULAR_TOOL_PATHS = [
 
 const findTool = (path: string) => toolStore.tools.find((tool) => tool.path === path);
 
-const popularTools = computed<ToolWithCategory[]>(
-  () => POPULAR_TOOL_PATHS.map(findTool).filter(Boolean) as ToolWithCategory[],
-);
+// 全站真实排行（来自 /api/hot + KV）。为空表示接口不可用或还没有数据。
+const globalHotPaths = ref<string[]>([]);
+
+const popularTools = computed<ToolWithCategory[]>(() => {
+  // 全站排行优先；不足 12 个时用精选热门补齐，保证这个区块永远有内容
+  const paths = [...globalHotPaths.value];
+  for (const path of POPULAR_TOOL_PATHS) {
+    if (paths.length >= 12) {
+      break;
+    }
+    if (!paths.includes(path)) {
+      paths.push(path);
+    }
+  }
+  return paths.slice(0, 12).map(findTool).filter(Boolean) as ToolWithCategory[];
+});
 
 // 本机访问次数最多的工具（没有访问记录时为空，区块自动隐藏）
 const mostUsedTools = computed<ToolWithCategory[]>(
@@ -127,6 +140,13 @@ function loadNextBatch() {
 
 // Start intersection observer on component mount
 onMounted(() => {
+  // 拉全站热门排行；失败或没数据时 globalHotPaths 保持为空，自动回退到精选热门
+  fetchGlobalHotTools(12).then((paths) => {
+    if (paths.length > 0) {
+      globalHotPaths.value = paths;
+    }
+  });
+
   nextTick(() => {
     // Load first batch immediately
     loadNextBatch();
