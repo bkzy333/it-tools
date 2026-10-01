@@ -2,8 +2,16 @@
 import { useI18n } from 'vue-i18n';
 import { onMounted, ref } from 'vue';
 import type { BackgroundRemovalPipeline, ProgressInfo } from '@huggingface/transformers';
-import { RawImage, pipeline } from '@huggingface/transformers';
+import { RawImage, env, pipeline } from '@huggingface/transformers';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
+
+// 模型权重的下载源，按顺序尝试，第一个能用就用。
+// 默认走 huggingface.co，国内网络基本连不上（会报 TypeError: Failed to fetch），
+// 所以优先用国内镜像 hf-mirror.com。
+// 如果你把权重托管到了 Cloudflare R2（推荐，长期稳定），把下面的地址改成你的
+// R2 公开域名即可，目录结构保持 <model>/resolve/main/... 不用动其它代码。
+const R2_MODEL_HOST = ''; // 例：https://pub-xxxxxxxx.r2.dev
+const MODEL_HOSTS = [R2_MODEL_HOST, 'https://hf-mirror.com', 'https://huggingface.co'].filter(Boolean);
 
 const { t } = useI18n();
 
@@ -58,6 +66,24 @@ async function onUpload(file: File) {
   outputUrl.value = null;
 }
 
+// 依次尝试各个模型源，避免单一源不可用就整个功能报废
+async function loadPipelineWithFallback(model: string, options: Record<string, unknown>) {
+  let lastError: unknown = new Error('没有可用的模型下载源');
+
+  for (const host of MODEL_HOSTS) {
+    try {
+      env.remoteHost = host;
+      // cast：pipeline 的重载类型过于复杂，这里统一按 any 处理
+      return await (pipeline as any)('background-removal', model, options);
+    } catch (e) {
+      console.warn(`[remove-background] 从 ${host} 加载 ${model} 失败`, e);
+      lastError = e;
+    }
+  }
+
+  throw lastError;
+}
+
 async function loadPipelines() {
   if (rmbgPipeline && (selectedModel.value !== 'modnet' || modnetPipeline)) {
     return;
@@ -74,20 +100,31 @@ async function loadPipelines() {
     }
   };
 
-  if (!rmbgPipeline) {
-    // @ts-expect-error Probably a Typescript bug 'too complex type'
-    rmbgPipeline = await pipeline('background-removal', 'briaai/RMBG-1.4', { progress_callback: update });
-  }
+  try {
+    if (!rmbgPipeline) {
+      // dtype q8：用量化版权重（约 42MB），fp32 版本有 168MB，国内网络基本下不动
+      rmbgPipeline = (await loadPipelineWithFallback('briaai/RMBG-1.4', {
+        dtype: 'q8',
+        progress_callback: update,
+      })) as BackgroundRemovalPipeline;
+    }
 
-  if (webgpuAvailable.value && selectedModel.value === 'modnet' && !modnetPipeline) {
-    modnetPipeline = await pipeline('background-removal', 'Xenova/modnet', {
-      device: 'webgpu',
-      progress_callback: update,
-    });
+    if (webgpuAvailable.value && selectedModel.value === 'modnet' && !modnetPipeline) {
+      modnetPipeline = (await loadPipelineWithFallback('Xenova/modnet', {
+        device: 'webgpu',
+        dtype: 'q8',
+        progress_callback: update,
+      })) as BackgroundRemovalPipeline;
+    }
+  } catch (e) {
+    console.error('[remove-background] 模型加载失败', e);
+    error.value =
+      'AI 模型下载失败。这个工具需要联网下载一次模型（约 6~45MB），请检查网络后重试；也可以换一个模型试试。';
+    throw e;
+  } finally {
+    modelLoading.value = false;
+    modelLoadingProgress.value = 100;
   }
-
-  modelLoading.value = false;
-  modelLoadingProgress.value = 100;
 }
 
 const backgroundRenderers = {
@@ -246,7 +283,8 @@ async function removeBackground() {
 
     outputUrl.value = canvas.toDataURL('image/png')!;
   } catch (e: any) {
-    error.value = e.toString();
+    // loadPipelines 里已经给出更友好的中文提示，这里不要覆盖
+    error.value = error.value || String(e?.message ?? e);
   }
 
   loading.value = false;
@@ -274,6 +312,11 @@ function downloadResult() {
       <n-form-item v-if="webgpuAvailable" :label="t('tools.remove-background.texts.label-model')">
         <n-select v-model:value="selectedModel" :options="modelOptions" />
       </n-form-item>
+
+      <!-- 选了 modnet 但浏览器不支持 WebGPU 时说明一下，避免用户一头雾水 -->
+      <n-alert v-if="selectedModel === 'modnet' && !webgpuAvailable" type="warning" mb-3>
+        当前浏览器不支持 WebGPU，已自动改用 RMBG-1.4 模型（首次使用需下载约 42MB）。
+      </n-alert>
 
       <n-form-item :label="t('tools.remove-background.texts.label-model')">
         <n-select v-model:value="backgroundMode" :options="backgroundOptions" />

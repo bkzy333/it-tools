@@ -115,8 +115,9 @@ const linkTheme = useTheme();
           </n-tooltip>
         </n-h1>
 
-        <div>
+        <div flex items-center>
           <FavoriteButton :tool="{ name: route.meta.name, path: route.path } as Tool" />
+          <tool-feedback-button />
         </div>
       </div>
 
