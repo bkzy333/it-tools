@@ -4,7 +4,7 @@ import { useHead } from '@vueuse/head';
 // ===================== 上线前请改成你自己的信息 =====================
 const SITE_NAME = '在线工具箱';
 const SITE_DOMAIN = 'https://gjxtools.com';
-const CONTACT_EMAIL = '【你的联系邮箱】';
+const CONTACT_EMAIL = 'zhendafang5202023@163.com';
 // ==================================================================
 
 const desc = `${SITE_NAME}的隐私政策：绝大多数工具在你的浏览器本地完成计算，文件和数据不会上传到服务器；本站使用 Cookie 与第三方广告服务。`;
@@ -52,8 +52,10 @@ useHead({
       </p>
       <p>如果你不想看到个性化广告，可以自行关闭：</p>
       <ul class="list">
-        <li>Google 广告设置：<c-link href="https://adssettings.google.com" target="_blank" rel="noopener">https://adssettings.google.com</c-link></li>
-        <li>第三方 Cookie 停用：<c-link href="https://aboutads.info" target="_blank" rel="noopener">https://aboutads.info</c-link></li>
+        <li>Google 广告设置：<c-link href="https://adssettings.google.com" target="_blank"
+            rel="noopener">https://adssettings.google.com</c-link></li>
+        <li>第三方 Cookie 停用：<c-link href="https://aboutads.info" target="_blank"
+            rel="noopener">https://aboutads.info</c-link></li>
       </ul>
       <p class="hint">
         你也可以直接在浏览器设置里清除或屏蔽 Cookie。请注意，屏蔽 Cookie 可能影响本站部分功能的正常使用。

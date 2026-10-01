@@ -7,7 +7,7 @@ import { useToolStore } from '@/tools/tools.store';
 // ===================== 上线前请改成你自己的信息 =====================
 const SITE_NAME = '在线工具箱';
 const SITE_DOMAIN = 'https://gjxtools.com';
-const CONTACT_EMAIL = '【你的联系邮箱】';
+const CONTACT_EMAIL = 'zhendafang5202023@163.com';
 // ==================================================================
 
 useHead({
@@ -60,13 +60,7 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
 
     <n-card title="收藏导入" mx-auto mt-30px>
       <p class="hint">换设备或换浏览器时，把之前导出的内容粘贴到这里，即可恢复收藏列表。</p>
-      <c-input-text
-        v-model:value="importFavoritesJson"
-        placeholder="把之前导出的 JSON 数组粘贴到这里"
-        multiline
-        monospace
-        mb-2
-      />
+      <c-input-text v-model:value="importFavoritesJson" placeholder="把之前导出的 JSON 数组粘贴到这里" multiline monospace mb-2 />
       <c-button @click="importFavorites">导入收藏</c-button>
     </n-card>
 
