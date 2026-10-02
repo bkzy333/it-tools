@@ -4,6 +4,10 @@ import { computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useToolStore } from '@/tools/tools.store';
 import { getToolUsage } from '@/tools/tool-usage';
+// 和 build/seo-prerender.ts 用的是同一份数据：静态 HTML 里写进去的说明/步骤/示例/FAQ，
+// 就是用户在这里看到的这些。两边一旦不同源，就变成了给爬虫和用户看不同内容（cloaking），
+// AdSense 会直接判违规 —— 所以不要在这里另写一套文案。
+import { getToolContent } from '@/seo/content';
 
 const route = useRoute();
 const toolStore = useToolStore();
@@ -20,7 +24,12 @@ const runsOnlyLocally = computed(() => !route.meta.externAccessDescription);
 
 // 登记过的工具显示定制文案，没登记的用工具自身的名称 + 描述拼装，
 // 避免出现 400 个页面共用一段完全相同的话（会被搜索引擎判为低质重复内容）。
-const usage = computed(() => getToolUsage(route.path));
+// L1 深度页走 src/seo/content，其余回退到旧的 tool-usage.ts
+const deep = computed(() => getToolContent(route.path));
+const usage = computed(() => deep.value ?? getToolUsage(route.path));
+
+const example = computed(() => deep.value?.example);
+const faq = computed(() => deep.value?.faq ?? []);
 
 const intro = computed(
   () =>
@@ -66,6 +75,23 @@ const relatedTools = computed(() => {
       <ol>
         <li v-for="(step, index) in steps" :key="index">{{ step }}</li>
       </ol>
+    </div>
+
+    <div v-if="example" class="usage-block">
+      <h2>示例</h2>
+      <p class="example-label">输入</p>
+      <pre class="example-box"><code>{{ example.input }}</code></pre>
+      <p class="example-label">输出</p>
+      <pre class="example-box"><code>{{ example.output }}</code></pre>
+      <p v-if="example.note" class="hint">{{ example.note }}</p>
+    </div>
+
+    <div v-if="faq.length > 0" class="usage-block">
+      <h2>常见问题</h2>
+      <details v-for="(item, index) in faq" :key="index" class="faq-item">
+        <summary>{{ item.q }}</summary>
+        <p>{{ item.a }}</p>
+      </details>
     </div>
 
     <div v-if="tips.length > 0" class="usage-block">
@@ -120,6 +146,43 @@ const relatedTools = computed(() => {
   .hint {
     font-size: 13px;
     opacity: 0.6;
+  }
+}
+
+.example-label {
+  margin: 0 0 4px;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.example-box {
+  background: rgba(128, 128, 128, 0.08);
+  border: 1px solid rgba(128, 128, 128, 0.18);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.faq-item {
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+
+  summary {
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 15px;
+  }
+
+  p {
+    margin: 8px 0 0;
   }
 }
 

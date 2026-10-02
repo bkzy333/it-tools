@@ -57,11 +57,19 @@ const tools = computed<ToolCategory[]>(() => [
 
         <CollapsibleToolMenu :tools-by-category="tools" />
 
-        <!-- 站点自身页面入口（AdSense 审核要求隐私政策可一键找到） -->
+        <!-- 站点自身页面入口（AdSense 审核要求这几页能一键找到，不能藏在页脚深处） -->
         <div class="site-links">
           <RouterLink to="/about">关于本站</RouterLink>
           <span mx-1 op-50>·</span>
           <RouterLink to="/privacy">隐私政策</RouterLink>
+          <span mx-1 op-50>·</span>
+          <RouterLink to="/contact">联系我们</RouterLink>
+          <span mx-1 op-50>·</span>
+          <RouterLink to="/terms">使用条款</RouterLink>
+          <span mx-1 op-50>·</span>
+          <RouterLink to="/cookies">Cookie</RouterLink>
+          <span mx-1 op-50>·</span>
+          <RouterLink to="/open-source">开源声明</RouterLink>
         </div>
       </div>
     </template>

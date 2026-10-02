@@ -19,11 +19,10 @@ import Icons from 'unplugin-icons/vite';
 import IconsResolver from 'unplugin-icons/resolver';
 import VueI18n from '@intlify/unplugin-vue-i18n/vite';
 
-import fs from 'node:fs';
-import fg from 'fast-glob';
-import Sitemap from 'vite-plugin-sitemap';
-
 import { visualizer } from 'rollup-plugin-visualizer';
+
+// 构建期把单一 index.html 展开成每个路由一份的静态 HTML（SEO + AdSense 的关键改造）
+import { seoPrerender } from './build/seo-prerender';
 
 // Where the app will be served from. The build itself is path-agnostic -- `base` below is
 // relative, so every asset URL is resolved against the file that references it -- and this
@@ -214,29 +213,9 @@ export default defineConfig({
     nodePolyfills(),
     wasm(),
     visualizer(),
-    hostname
-      ? Sitemap({
-          hostname,
-          generateRobotsTxt: true,
-          robots: [{ userAgent: '*', allow: '/' }],
-          dynamicRoutes: (() => {
-            const paths = ['/', '/about', '/privacy'];
-            fg.sync('src/tools/*/index.ts').forEach((file) => {
-              const content = fs.readFileSync(file, 'utf-8');
-              const pathMatch = content.match(/path:\s*['"`]([^'"`]+)['"`]/);
-              if (pathMatch) {
-                paths.push(pathMatch[1]);
-              }
-              const redirectMatch = content.match(/redirectFrom:\s*\[([^\]]+)\]/);
-              if (redirectMatch?.[1]) {
-                const redirectPaths = redirectMatch[1].match(/['"`]([^'"`]+)['"`]/g);
-                redirectPaths?.forEach((p) => paths.push(p.replace(/['"`]/g, '')));
-              }
-            });
-            return paths;
-          })(),
-        })
-      : undefined,
+    // 必须排在最后：它读的是 dist/index.html 的最终内容（baseHref、PWA 注入都已生效），
+    // 并且要覆盖 vite-plugin-sitemap 那套（那份 sitemap 不分层、还把 noindex 页也收进去了）
+    seoPrerender(),
   ],
   // Relative, so a built asset is addressed from the chunk that imports it rather than
   // from a path fixed at build time. This is what makes the output portable across
