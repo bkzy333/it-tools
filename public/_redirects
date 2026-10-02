@@ -1,1 +1,18 @@
-/*    /index.html   200
+# 这个站点已经在构建期为每一个路由生成了自己的 index.html（工具页 / 分类页 / 教程页 /
+# 信任页），不再需要 SPA 兜底。
+#
+# 之前这里写的是 `/*  /index.html  200`，作用是「任何路径都返回首页 HTML」。
+# 后果是随便敲一个不存在的地址也返回 200 + 首页内容，也就是软 404：
+# Google 会收录一大批内容完全一样的 URL，是典型的低质量信号。
+# 现在改由 dist/404.html 兜底（Cloudflare Pages 只要有顶层 404.html 就会关掉 SPA 回退），
+# 未知路径返回真正的 404。
+
+# /index.html 是首页的重复入口，统一收敛到 /
+/index.html       /              301
+
+# sitemap 的规范地址是 .xml，裸路径给个 301 方便手工输入
+/sitemap          /sitemap.xml   301
+/sitemap/         /sitemap.xml   301
+
+# robots.txt 同理
+/robots           /robots.txt    301

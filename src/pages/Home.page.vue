@@ -11,6 +11,8 @@ import { useToolStore } from '@/tools/tools.store';
 import { fetchGlobalHotTools, getMostUsedPaths } from '@/composable/toolUsage';
 import type { ToolWithCategory } from '@/tools/tools.types';
 import { config } from '@/config';
+import { categoryMeta } from '@/seo/categories';
+import { GUIDE_INDEX } from '@/seo/guide-index';
 
 const { t } = useI18n();
 
@@ -95,6 +97,20 @@ useHead({
     },
   ],
 });
+
+// 分类导航：构建期生成的静态首页里也有这两个区块，Vue 挂载后如果没了，
+// 渲染型爬虫就抓不到通往 /category/* 和 /guide/* 的内链，聚合页和教程页会成为孤岛。
+const categories = computed(() => {
+  const counts = new Map<string, number>();
+  for (const tool of toolStore.tools) {
+    counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([category, count]) => ({ category, count, meta: categoryMeta(category) }))
+    .sort((a, b) => a.meta.slug.localeCompare(b.meta.slug));
+});
+
+const guides = GUIDE_INDEX;
 
 const favoriteTools = computed(() => toolStore.favoriteTools);
 const isOrderingFavorites = ref(false);
@@ -245,6 +261,29 @@ onUnmounted(() => {
         </div>
       </div>
 
+      <div>
+        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+          {{ t('home.categories.browseByCategory', '按分类浏览') }}
+        </h3>
+        <div class="category-chips">
+          <router-link v-for="item in categories" :key="item.category" class="chip" :to="`/category/${item.meta.slug}`">
+            {{ item.meta.zh }}
+            <span class="count">{{ item.count }}</span>
+          </router-link>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+          {{ t('home.categories.guides', '开发教程') }}
+        </h3>
+        <ul class="guide-links">
+          <li v-for="guide in guides" :key="guide.slug">
+            <router-link :to="`/guide/${guide.slug}`">{{ guide.title }}</router-link>
+          </li>
+        </ul>
+      </div>
+
       <Suspense>
         <HomeCustom />
       </Suspense>
@@ -288,6 +327,60 @@ onUnmounted(() => {
   overflow: hidden;
   opacity: 0;
   margin-bottom: 0;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 999px;
+    font-size: 13px;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: rgba(128, 128, 128, 0.14);
+    }
+
+    .count {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  }
+}
+
+.guide-links {
+  padding-left: 18px;
+  margin: 0;
+  columns: 2;
+  column-gap: 24px;
+
+  @media (max-width: 700px) {
+    columns: 1;
+  }
+
+  li {
+    font-size: 14px;
+    margin-bottom: 6px;
+    break-inside: avoid;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .ghost-favorites-draggable {

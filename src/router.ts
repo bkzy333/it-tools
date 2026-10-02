@@ -76,6 +76,19 @@ const router = createRouter({
       name: 'open-source',
       component: () => import('./pages/TrustPage.vue'),
     },
+    // 分类聚合页 /category/<slug> 和教程页 /guide/<slug>。
+    // 构建期会给这两类路由各生成一份静态 HTML 给搜索引擎，前端必须有对应路由渲染
+    // 同样内容，否则挂载后静态正文会被 NotFound 顶掉（对 AdSense 来说算 cloaking）。
+    {
+      path: '/category/:slug',
+      name: 'category',
+      component: () => import('./pages/CategoryPage.vue'),
+    },
+    {
+      path: '/guide/:slug',
+      name: 'guide',
+      component: () => import('./pages/GuidePage.vue'),
+    },
     ...toolsRoutes,
     ...toolsRedirectRoutes,
     ...demoRoutes,

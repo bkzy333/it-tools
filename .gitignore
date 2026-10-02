@@ -50,3 +50,6 @@ components.d.ts
 *.vsix
 *.tsbuildinfo
 stats.html
+
+# 构建前把旧产物改名留下的备份目录，确认线上没问题后手动删除
+dist-stale-*/

@@ -59,8 +59,21 @@ function esc(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
+/**
+ * 页面绝对地址，统一带尾斜杠。
+ *
+ * Cloudflare Pages 会把 /x/index.html 规范化成 /x/，请求 /x 时返回 308 跳到 /x/。
+ * canonical、sitemap、JSON-LD 里的 url 如果写成不带斜杠的形式，就等于每个页面都
+ * 声明了一个「和实际地址不一致」的规范地址，白白多一层跳转。
+ */
 function url(p: string): string {
-  return `${SITE_URL}${p.startsWith('/') ? p : `/${p}`}`;
+  const full = `${SITE_URL}${p.startsWith('/') ? p : `/${p}`}`;
+  return full.endsWith('/') ? full : `${full}/`;
+}
+
+/** 站内相对链接同样带尾斜杠，减少点击时的跳转 */
+function href(p: string): string {
+  return p.endsWith('/') ? p : `${p}/`;
 }
 
 /** 分类页 URL：/category/json */
@@ -77,7 +90,8 @@ function rewriteHead(html: string, opts: {
   title: string;
   description: string;
   keywords: string;
-  canonical: string;
+  /** 省略就不输出 canonical / og:url / hreflang —— 404 页用，它没有规范的自己 */
+  canonical?: string;
   robots?: string;
   ogType?: string;
   jsonLd: unknown[];
@@ -107,10 +121,10 @@ function rewriteHead(html: string, opts: {
     `<meta name="description" content="${esc(opts.description)}">`,
     opts.keywords ? `<meta name="keywords" content="${esc(opts.keywords)}">` : '',
     opts.robots ? `<meta name="robots" content="${esc(opts.robots)}">` : '',
-    `<link rel="canonical" href="${esc(opts.canonical)}">`,
+    opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : '',
     `<meta property="og:type" content="${opts.ogType ?? 'website'}">`,
     `<meta property="og:site_name" content="${esc(SITE_NAME)}">`,
-    `<meta property="og:url" content="${esc(opts.canonical)}">`,
+    opts.canonical ? `<meta property="og:url" content="${esc(opts.canonical)}">` : '',
     `<meta property="og:title" content="${esc(fullTitle)}">`,
     `<meta property="og:description" content="${esc(opts.description)}">`,
     `<meta property="og:image" content="${SITE_URL}/banner.png?v=2">`,
@@ -120,8 +134,8 @@ function rewriteHead(html: string, opts: {
     `<meta name="twitter:description" content="${esc(opts.description)}">`,
     `<meta name="twitter:image" content="${SITE_URL}/banner.png?v=2">`,
     // 中文主站，其他语言是客户端切换、URL 不变，所以 x-default 指向自己
-    `<link rel="alternate" hreflang="zh-CN" href="${esc(opts.canonical)}">`,
-    `<link rel="alternate" hreflang="x-default" href="${esc(opts.canonical)}">`,
+    opts.canonical ? `<link rel="alternate" hreflang="zh-CN" href="${esc(opts.canonical)}">` : '',
+    opts.canonical ? `<link rel="alternate" hreflang="x-default" href="${esc(opts.canonical)}">` : '',
     ...opts.jsonLd.map(
       (ld) => `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`,
     ),
@@ -163,8 +177,10 @@ const STATIC_STYLE = `
 /** 把静态正文塞进 <div id="app">，Vue mount 后会替换掉（标准 hydration） */
 function injectBody(html: string, bodyHtml: string): string {
   const target = `<div id="app"><div id="seo-static">${bodyHtml}</div></div>`;
-  if (html.includes('<div id="app"></div>')) {
-    return html.replace('<div id="app"></div>', target);
+  // 允许标签里有空白（压缩器可能写成 <div id="app" >），但必须是空的
+  const emptyApp = /<div id="app"\s*>\s*<\/div>/;
+  if (emptyApp.test(html)) {
+    return html.replace(emptyApp, target);
   }
   // 走到这里说明模板没被 stripExistingStatic 处理干净，直接抛错好过静默产出错页
   throw new Error('seo-prerender: 模板里找不到空的 <div id="app"></div>，静态正文无法注入');
@@ -185,10 +201,43 @@ function injectStyle(html: string): string {
  * 全都有着首页的正文。这里先把上一次的痕迹剥掉，保证每次都从干净的空壳出发。
  */
 function stripExistingStatic(html: string): string {
-  return html.replace(
-    /<div id="app">[\s\S]*?<\/div>\s*<\/div>(?=\s*<script)/,
-    '<div id="app"></div>',
-  );
+  const openTag = '<div id="app">';
+  const start = html.indexOf(openTag);
+  if (start === -1) {
+    return html;
+  }
+
+  // 按 div 嵌套深度找到 #app 的配对闭合标签。
+  // 早先这里是正则 + 前瞻 `(?=\s*<script)`，但 Vite 会在 </div> 之后插入
+  // <link rel="preload">（脚本排在后面），前瞻一旦失配就整段失效 —— 几百个页面
+  // 会全部沿用上一次的正文。数深度不依赖后面跟着什么，稳得多。
+  const OPEN = /<div\b/g;
+  const CLOSE = /<\/div>/g;
+  let depth = 1;
+  let pos = start + openTag.length;
+
+  while (depth > 0) {
+    OPEN.lastIndex = pos;
+    CLOSE.lastIndex = pos;
+    const nextOpen = OPEN.exec(html);
+    const nextClose = CLOSE.exec(html);
+    const openIdx = nextOpen ? nextOpen.index : Number.POSITIVE_INFINITY;
+    const closeIdx = nextClose ? nextClose.index : Number.POSITIVE_INFINITY;
+
+    // 标签配不上对，说明模板结构不是预期的，原样返回让后面的 injectBody 报错
+    if (openIdx === Number.POSITIVE_INFINITY && closeIdx === Number.POSITIVE_INFINITY) {
+      return html;
+    }
+    if (closeIdx < openIdx) {
+      depth -= 1;
+      pos = closeIdx + '</div>'.length;
+    } else {
+      depth += 1;
+      pos = openIdx + '<div'.length;
+    }
+  }
+
+  return `${html.slice(0, start)}<div id="app"></div>${html.slice(pos)}`;
 }
 
 function breadcrumbHtml(items: { name: string; href?: string }[]): string {
@@ -281,14 +330,14 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
     parts.push(
       `<h2>相关工具</h2>`,
       `<div class="seo-tags">${related
-        .map((t) => `<a class="seo-tag" href="${esc(t.path)}">${esc(t.title)}</a>`)
+        .map((t) => `<a class="seo-tag" href="${esc(href(t.path))}">${esc(t.title)}</a>`)
         .join('')}</div>`,
     );
   }
 
   parts.push(
     `<h2>同类${esc(tool.categoryZh)}工具</h2>`,
-    `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}">查看全部${esc(tool.categoryZh)}工具</a></p>`,
+    `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}/">查看全部${esc(tool.categoryZh)}工具</a></p>`,
   );
 
   return parts.filter(Boolean).join('\n');
@@ -305,7 +354,7 @@ function renderCategoryPage(category: string, categoryZh: string, seoName: strin
   const list = ordered
     .map(
       (t) =>
-        `<li><a class="seo-link" href="${esc(t.path)}">${esc(t.title)}</a> — ${esc(t.description)}</li>`,
+        `<li><a class="seo-link" href="${esc(href(t.path))}">${esc(t.title)}</a> — ${esc(t.description)}</li>`,
     )
     .join('');
 
@@ -331,7 +380,7 @@ function renderGuidePage(
 ): string {
   const bc = [{ name: '首页', href: '/' }, { name: '教程' }, { name: front.title }];
   const links = front.relatedTools
-    .map((p) => `<a class="seo-tag" href="${esc(p)}">${esc(toolTitleByPath.get(p) ?? p)}</a>`)
+    .map((p) => `<a class="seo-tag" href="${esc(href(p))}">${esc(toolTitleByPath.get(p) ?? p)}</a>`)
     .join('');
 
   return [
@@ -420,58 +469,54 @@ async function loadSeoData(root: string): Promise<{
   };
 }
 
-/** 极简 frontmatter 解析：只认 slug/title/description/keywords/relatedTools */
-function parseFrontmatter(raw: string): {
-  data: Record<string, unknown>;
-  body: string;
-} {
-  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) {
-    return { data: {}, body: raw };
-  }
-  const [, head, body] = m;
-  const data: Record<string, unknown> = {};
-  let currentListKey: string | null = null;
+// 复用了运行时的同一份实现：静态 HTML 和 Vue 渲染出的教程内容必须逐字一致，
+// 解析逻辑分叉会直接造成 cloaking。
+import { parseFrontmatter } from '../src/seo/frontmatter';
+import { GUIDE_INDEX } from '../src/seo/guide-index';
 
-  for (const line of head.split(/\r?\n/)) {
-    const listItem = line.match(/^\s*-\s+(.*)$/);
-    if (listItem && currentListKey) {
-      (data[currentListKey] as string[]).push(listItem[1].trim().replace(/^["']|["']$/g, ''));
-      continue;
-    }
-    const kv = line.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/);
-    if (!kv) {
-      continue;
-    }
-    const [, key, rawValue] = kv;
-    const value = rawValue.trim();
-    if (value === '') {
-      data[key] = [];
-      currentListKey = key;
-    } else if (value.startsWith('[') && value.endsWith(']')) {
-      data[key] = value
-        .slice(1, -1)
-        .split(',')
-        .map((s) => s.trim().replace(/^["']|["']$/g, ''))
-        .filter(Boolean);
-      currentListKey = null;
-    } else {
-      data[key] = value.replace(/^["']|["']$/g, '');
-      currentListKey = null;
+/**
+ * 核对 src/seo/guide-index.ts 和 md 原文里的标题是否一致。
+ * 首页显示教程链接用的是轻量索引，这里保证它不会和实际文章漂移。
+ */
+function assertGuideIndex(actual: Map<string, string>): void {
+  const problems: string[] = [];
+
+  for (const entry of GUIDE_INDEX) {
+    const realTitle = actual.get(entry.slug);
+    if (realTitle === undefined) {
+      problems.push(`索引里有 ${entry.slug}，但 src/seo/guides/ 下找不到对应文章`);
+    } else if (realTitle !== entry.title) {
+      problems.push(`${entry.slug} 标题不一致：索引写「${entry.title}」，md 里是「${realTitle}」`);
     }
   }
-  return { data, body };
+  for (const slug of actual.keys()) {
+    if (!GUIDE_INDEX.some((e) => e.slug === slug)) {
+      problems.push(`文章 ${slug} 没写进 src/seo/guide-index.ts，首页不会显示它的链接`);
+    }
+  }
+
+  if (problems.length > 0) {
+    throw new Error(`seo-prerender: 教程索引和 md 对不上，请修正 src/seo/guide-index.ts：\n- ${problems.join('\n- ')}`);
+  }
 }
 
 // ------------------------------------------------------------------ 插件主体
 
 export function seoPrerender(): Plugin {
+  // Vite 多环境（client / ssr / PWA）下 closeBundle 可能被触发多次。第二次进来时
+  // dist/index.html 已经被上一轮写成了"带静态正文的首页"，再生成一遍纯属浪费，
+  // 而且会让 sitemap 里出现重复条目。这里保证一次进程只跑一次。
+  let hasRendered = false;
+
   return {
     name: 'it-tools:seo-prerender',
     apply: 'build',
     enforce: 'post',
 
     async closeBundle() {
+      if (hasRendered) {
+        return;
+      }
       const root = process.cwd();
       const dist = path.join(root, 'dist');
       const templatePath = path.join(dist, 'index.html');
@@ -637,6 +682,7 @@ export function seoPrerender(): Plugin {
       if (fs.existsSync(guidesDir)) {
         const { default: MarkdownIt } = await import('markdown-it');
         const md = new MarkdownIt({ html: true, linkify: true, typographer: false });
+        const guideTitles = new Map<string, string>();
 
         for (const file of fs.readdirSync(guidesDir).filter((f) => f.endsWith('.md'))) {
           const raw = fs.readFileSync(path.join(guidesDir, file), 'utf-8');
@@ -678,7 +724,13 @@ export function seoPrerender(): Plugin {
           });
           emit(route, html);
           written.push({ loc: route, priority: PRIORITY.guide });
+          guideTitles.set(slug, title);
         }
+
+        // 首页要在 Vue 里显示教程链接，用的是 src/seo/guide-index.ts 里那份轻量索引。
+        // 索引和 md 里的标题一旦对不上，首页链接文案就会和教程页标题不一致，
+        // 所以这里直接卡死，逼着改索引而不是等上线后才发现。
+        assertGuideIndex(guideTitles);
       }
 
       // ---------- 4. 信任页（隐私政策 / 联系我们 / 使用条款 / Cookie / 开源声明） ----------
@@ -745,16 +797,18 @@ export function seoPrerender(): Plugin {
           `<p class="seo-lead">收录 ${tools.filter((t) => t.tier !== 'L3').length} 个免费在线工具：文本处理、JSON 格式化、加密解密、单位换算、图片处理、PDF 工具、日期计算、网络工具等，全部在浏览器本地运行，无需注册，数据不上传服务器。</p>`,
           `<h2>按分类浏览</h2>`,
           `<div class="seo-tags">${homeCategories
-            .map((c) => `<a class="seo-tag" href="/category/${c.slug}">${esc(c.name)}（${c.count}）</a>`)
+            .map((c) => `<a class="seo-tag" href="/category/${c.slug}/">${esc(c.name)}（${c.count}）</a>`)
             .join('')}</div>`,
           `<h2>热门工具</h2>`,
           `<div class="seo-tags">${topTools
-            .map((t) => `<a class="seo-tag" href="${esc(t.path)}">${esc(t.title)}</a>`)
+            .map((t) => `<a class="seo-tag" href="${esc(href(t.path))}">${esc(t.title)}</a>`)
             .join('')}</div>`,
           `<h2>开发教程</h2>`,
-          `<p><a class="seo-link" href="/guide/what-is-jwt">JWT 是什么？怎么看懂和调试 Token</a></p>`,
-          `<p><a class="seo-link" href="/guide/base64-is-not-encryption">Base64 不是加密：什么时候该用</a></p>`,
-          `<p><a class="seo-link" href="/guide/unix-timestamp-guide">Unix 时间戳完全指南</a></p>`,
+          // 用索引而不是写死几篇：Vue 版首页渲染的是同一份 GUIDE_INDEX，
+          // 静态版少列几篇就会变成两套内容
+          `<ul>${GUIDE_INDEX.map(
+            (g) => `<li><a class="seo-link" href="/guide/${esc(g.slug)}/">${esc(g.title)}</a></li>`,
+          ).join('')}</ul>`,
         ].join('\n');
 
         let html = injectStyle(template);
@@ -781,6 +835,45 @@ export function seoPrerender(): Plugin {
         });
         fs.writeFileSync(templatePath, html, 'utf-8');
         written.push({ loc: '/', priority: '1.0' });
+      }
+
+      // ---------- 6.5 404 页 ----------
+      // 必须有顶层 404.html：Cloudflare Pages 只在没有它的时候才启用 SPA 兜底，
+      // 而 SPA 兜底会让任何乱敲的 URL 都返回 200 + 首页内容（软 404），
+      // Google 会把这些当成一大堆重复页面。有了这个文件，未知路径才返回真正的 404。
+      {
+        const topTools = tools.filter((t) => t.tier === 'L1').slice(0, 12);
+        const notFoundBody = [
+          `<h1>页面不存在</h1>`,
+          `<p class="seo-lead">这个地址没有对应的页面，可能是链接过期或者输入有误。下面是本站常用的几个入口。</p>`,
+          `<h2>热门工具</h2>`,
+          `<div class="seo-tags">${topTools
+            .map((t) => `<a class="seo-tag" href="${esc(href(t.path))}">${esc(t.title)}</a>`)
+            .join('')}</div>`,
+          `<h2>按分类浏览</h2>`,
+          `<div class="seo-tags">${[...byCategory.entries()]
+            .filter(([, list]) => list.some((t) => t.tier !== 'L3'))
+            .map(
+              ([category, list]) =>
+                `<a class="seo-tag" href="/category/${categorySlug(category)}/">${esc(list[0].categoryZh)}</a>`,
+            )
+            .join('')}</div>`,
+          `<p><a class="seo-link" href="/">返回首页</a></p>`,
+        ].join('\n');
+
+        let html = injectStyle(template);
+        html = injectBody(html, notFoundBody);
+        html = rewriteHead(html, {
+          title: `页面不存在 - ${SITE_NAME}`,
+          description: `这个地址没有对应的页面，可以看看本站的工具分类和热门工具。`,
+          keywords: '',
+          // 404 页没有「规范的自己」，不输出 canonical / hreflang；
+          // 而且它绝不能进索引，否则会多出一堆垃圾页
+          robots: 'noindex,follow',
+          jsonLd: [],
+        });
+        // 注意：404.html 必须写在 dist 根目录，不能放进 dist/404/index.html
+        fs.writeFileSync(path.join(dist, '404.html'), html, 'utf-8');
       }
 
       // ---------- 7. sitemap.xml ----------
@@ -812,6 +905,7 @@ export function seoPrerender(): Plugin {
       const l1 = tools.filter((t) => t.tier === 'L1').length;
       const l2 = tools.filter((t) => t.tier === 'L2').length;
       const l3 = tools.filter((t) => t.tier === 'L3').length;
+      hasRendered = true;
       this.info(
         `seo-prerender: 工具页 ${tools.length}（L1 ${l1} / L2 ${l2} / L3 noindex ${l3}）+ 分类页 ${byCategory.size} + 教程页 ${
           fs.existsSync(guidesDir) ? fs.readdirSync(guidesDir).filter((f) => f.endsWith('.md')).length : 0

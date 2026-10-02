@@ -147,6 +147,9 @@ for (const { route, kind } of samples) {
   const canonical = html.match(/<link rel="canonical"[^>]*href="([^"]*)"/)?.[1] ?? '';
   if (!canonical) {
     fail(`${label}: 缺 canonical`);
+  } else if (!canonical.endsWith('/')) {
+    // Cloudflare 把 /x 规范化成 /x/，canonical 不带斜杠就多一层 308
+    fail(`${label}: canonical 缺尾斜杠 -> ${canonical}`);
   }
 
   const desc = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '';
@@ -207,7 +210,8 @@ if (!fs.existsSync(sitemapPath)) {
 } else {
   const sitemap = fs.readFileSync(sitemapPath, 'utf-8');
   const locs = [...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
-  const l3Paths = new Set(tools.filter((t) => t.tier === 'L3').map((t) => `https://gjxtools.com${t.path}`));
+  // sitemap 里的 loc 统一带尾斜杠，这里要比对就得跟着带，否则检测会永远"通过"
+  const l3Paths = new Set(tools.filter((t) => t.tier === 'L3').map((t) => `https://gjxtools.com${t.path}/`));
   const leaked = locs.filter((l) => l3Paths.has(l));
   if (leaked.length > 0) {
     fail(`sitemap 混进了 ${leaked.length} 个 noindex 页，例如 ${leaked[0]}`);
@@ -224,7 +228,53 @@ if (!fs.existsSync(sitemapPath)) {
   }
 }
 
-// ---------------------------------------------------------------- 4. 资源路径
+// ---------------------------------------------------------------- 4. 部署层：404 与 _redirects
+// 顶层 404.html 是 Cloudflare Pages 关掉 SPA 兜底的开关：缺了它，任何不存在的 URL
+// 都会返回 200 + 首页内容（软 404），等于给 Google 灌一大堆重复页。
+const notFound = path.join(dist, '404.html');
+if (!fs.existsSync(notFound)) {
+  fail('dist/404.html 不存在，Cloudflare 会退回 SPA 兜底，未知路径变成软 404');
+} else {
+  const html = fs.readFileSync(notFound, 'utf-8');
+  if (!/name="robots" content="noindex/.test(html)) {
+    fail('404.html 缺 noindex，会被当成正常页面收录');
+  }
+}
+
+// _redirects 里一旦出现 /* → /index.html 的兜底，静态子页就白生成了
+const redirectsPath = path.join(dist, '_redirects');
+if (fs.existsSync(redirectsPath)) {
+  const redirects = fs.readFileSync(redirectsPath, 'utf-8');
+  const catchAll = redirects
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .find((line) => /^\/\*/.test(line));
+  if (catchAll) {
+    fail(`_redirects 里有通配兜底规则「${catchAll}」，会覆盖静态子页或造成软 404`);
+  }
+}
+
+// ---------------------------------------------------------------- 5. 前端路由
+// 静态 HTML 有页面但前端没路由的话，Vue 挂载后会被 NotFound 顶掉 —— 静态内容和用户
+// 看到的内容不一致，对 AdSense 来说就是 cloaking。
+const routerPath = path.join(root, 'src/router.ts');
+if (fs.existsSync(routerPath)) {
+  const router = fs.readFileSync(routerPath, 'utf-8');
+  for (const [route, file] of [
+    ['/category/:slug', 'src/pages/CategoryPage.vue'],
+    ['/guide/:slug', 'src/pages/GuidePage.vue'],
+  ]) {
+    if (!router.includes(route)) {
+      fail(`router.ts 缺 ${route} 路由，${file} 渲染不出来`);
+    }
+    if (!fs.existsSync(path.join(root, file))) {
+      fail(`${file} 不存在`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- 6. 资源路径
 // 子目录页里的资源必须解析到根目录，否则 /json-prettify/ 会去找 /json-prettify/assets/
 const probe = readPage(tools[0].path);
 if (probe) {
