@@ -4,8 +4,8 @@ title: 怎么生成和保存一个真正安全的密码
 description: 用信息熵解释为什么长度比符号重要，给出各类密码的熵对照表、NIST SP 800-63B 的关键建议、密码短语的生成代码，以及服务端应该用什么算法存、不该用什么算法存。
 keywords: [密码强度, 信息熵, 密码短语, Argon2, 密码管理器]
 relatedTools:
-  - /password-strength-analyser
-  - /passphrase-generator
+  - /token-generator
+  - /hash-text
 ---
 
 # 怎么生成和保存一个真正安全的密码
@@ -106,5 +106,4 @@ NIST SP 800-63B 给出的建议和很多老系统相反，这几条值得照着�
 
 ## 自己动手试试
 
-- [分析一个密码的实际强度和被破解难度](/password-strength-analyser)
-- [生成一个高熵的密码短语](/passphrase-generator)
+- [生成一串高随机性的随机令牌](/token-generator)

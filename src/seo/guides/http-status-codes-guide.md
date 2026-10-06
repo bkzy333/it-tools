@@ -4,8 +4,8 @@ title: HTTP 状态码：真正需要记住的那些
 description: 按"会不会影响客户端行为"筛选出一二十个必须掌握的状态码，讲清 401/403、301/308、302/303/307、502/503/504 这几组最容易被混淆的区别，以及重试语义和常见的错误用法。
 keywords: [HTTP 状态码, 401 403 区别, 301 302 307 308, 502 504, 429]
 relatedTools:
-  - /http-status-codes
-  - /url-redirection-checker
+  - /api-tester
+  - /url-encoder
 ---
 
 # HTTP 状态码：真正需要记住的那些
@@ -92,5 +92,4 @@ POST 如果需要安全重试，让客户端带 `Idempotency-Key` 头，服务�
 
 ## 自己动手试试
 
-- [查完整状态码列表和含义](/http-status-codes)
-- [跟踪一条 URL 的重定向链，看它用了哪些 3xx](/url-redirection-checker)
+- [发一个请求，亲眼看看接口返回的状态码和响应头](/api-tester)

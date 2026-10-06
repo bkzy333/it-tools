@@ -36,6 +36,27 @@ const { copy: copyText } = useCopy({
   source: textOutput,
   text: t('tools.base64-string-converter.texts.text-string-copied-to-the-clipboard'),
 });
+
+/**
+ * 「一键示例」的数据。
+ *
+ * 约定：每个工具都要有一份自己的 exampleData，写真实、能跑出有代表性结果的内容。
+ * 中文例子是刻意选的 —— 这个工具最常见的翻车点就是中文/Emoji 编码，用纯英文示例
+ * 用户看不出它到底有没有做对 UTF-8。base64 那一段是 text 这一段的编码结果。
+ */
+const exampleData = {
+  text: '在线工具箱 gjxtools.com\n所有工具都在浏览器本地运行，数据不上传服务器。',
+  base64:
+    '5Zyo57q/5bel5YW3566xIGdqeHRvb2xzLmNvbQrmiYDmnInlt6Xlhbfpg73lnKjmtY/op4jlmajmnKzlnLDov5DooYzvvIzmlbDmja7kuI3kuIrkvKDmnI3liqHlmajjgII=',
+};
+
+function loadEncodeExample() {
+  textInput.value = exampleData.text;
+}
+
+function loadDecodeExample() {
+  base64Input.value = exampleData.base64;
+}
 const b64ValidationRules = [
   {
     message: t('tools.base64-string-converter.texts.message-invalid-base64-string'),
@@ -118,6 +139,11 @@ const encodings = [
         searchable
       />
     </n-space>
+    <!-- 两个方向各自有例子：上半区填明文，下半区填密文 -->
+    <div flex justify-end mb-3>
+      <ToolExampleButton @click="loadEncodeExample" />
+    </div>
+
     <c-input-text
       v-model:value="textInput"
       multiline
@@ -161,6 +187,10 @@ const encodings = [
         searchable
       />
     </n-space>
+    <div flex justify-end mb-3>
+      <ToolExampleButton @click="loadDecodeExample" />
+    </div>
+
     <c-input-text
       v-model:value="base64Input"
       multiline

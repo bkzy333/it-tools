@@ -48,6 +48,22 @@ const { t } = useI18n();
 
 const inputDate = useQueryParam({ tool: 'date-time-converter', name: 'date', defaultValue: '' });
 
+/**
+ * 示例用一个 Unix 时间戳（秒）——这是这个工具最高频的用法：
+ * 后端日志里蹦出一个 10 位数字，想知道它是哪年哪月哪日。
+ * 顺带让页面一进来就把下面十几种格式全部算出来，比空着更能说明工具能干什么。
+ */
+const exampleData = {
+  inputDate: '1767225600',
+};
+
+function loadExample() {
+  inputDate.value = exampleData.inputDate;
+  // 直接改 ref 不会触发输入框的 @update:value，所以手动跑一次格式识别，
+  // 保证和用户自己敲进去的行为一致
+  onDateInputChanged(exampleData.inputDate);
+}
+
 const toDate: ToDateMapper = (date) => new Date(date);
 
 const formats: DateFormat[] = [
@@ -227,6 +243,10 @@ function formatDateInTimezone(date: Date | undefined, timezone: string): string 
 
 <template>
   <div>
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadExample" />
+    </div>
+
     <div flex gap-2>
       <c-input-text
         v-model:value="inputDate"

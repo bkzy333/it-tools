@@ -5,7 +5,7 @@ description: 从注释、类型系统、嵌套表达和可维护性四个维度�
 keywords: [YAML, JSON, TOML, 配置文件格式, 格式转换]
 relatedTools:
   - /yaml-to-json-converter
-  - /toml-to-json
+  - /json-to-yaml-converter
 ---
 
 # YAML、JSON、TOML 配置文件怎么选
@@ -125,4 +125,4 @@ print(json.dumps(cfg, ensure_ascii=False, indent=2))
 ## 自己动手试试
 
 - [把 YAML 转成 JSON 并核对结构](/yaml-to-json-converter)
-- [把 TOML 转成 JSON](/toml-to-json)
+- [把 YAML 转成 JSON](/yaml-to-json-converter)

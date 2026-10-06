@@ -5,7 +5,7 @@ description: 用最直白的方式讲清 JWT 的结构、签名原理和常见�
 keywords: [JWT, JSON Web Token, token 调试, 签名验证, 过期时间]
 relatedTools:
   - /jwt-parser
-  - /jwt-generator
+  - /base64-string-converter
 ---
 
 # JWT 是什么？三分钟看懂并学会本地调试 Token
@@ -119,4 +119,4 @@ PyJWT 把 `algorithms` 设计成必填，是有原因的。如果服务端原本
 ## 自己动手试试
 
 - [在线解析和调试 JWT](/jwt-parser)
-- [生成一个测试用的 JWT](/jwt-generator)
+- [解析并查看一个 JWT 里的内容](/jwt-parser)

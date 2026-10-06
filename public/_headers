@@ -1,0 +1,30 @@
+# Cloudflare Pages 自定义响应头
+# 文档：https://developers.cloudflare.com/pages/configuration/headers/
+#
+# 这个文件只负责安全头，不动缓存策略（静态资源的缓存交给 Cloudflare 自己的规则）。
+# 之前站点只带了 nosniff 和 referrer-policy，审计扣了 4 项。
+
+/*
+  # 阻止浏览器猜测 MIME 类型，避免文本被当成脚本执行
+  X-Content-Type-Options: nosniff
+
+  # 不允许第三方站点把本站塞进 iframe（点击劫持）
+  X-Frame-Options: SAMEORIGIN
+
+  # 跨站跳转只带来源，不带完整 URL
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # 强制 HTTPS。站点整体托管在 Cloudflare，主域和子域都有证书，所以带上 includeSubDomains
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+  # 只关掉确实用不到的能力。
+  # 注意：camera / microphone / geolocation 一律不能禁 —— 摄像头录制、录音、
+  # 天气定位这几个工具真的要用，禁了就是直接把功能弄坏。
+  Permissions-Policy: payment=(), usb=(), serial=(), xr-spatial-tracking=()
+
+  # CSP 先上宽松版：
+  #   - naive-ui 会写行内样式，style-src 必须留 'unsafe-inline'
+  #   - ffmpeg.wasm / tesseract 这类用 WebAssembly，需要 'wasm-unsafe-eval'
+  #   - img-src 放 data:/blob: 是因为二维码、图片转换等工具的结果都是本地 blob/DataURL
+  # 部署后逐个工具页看 console 有没有 CSP 报错，确认干净了再往回收紧。
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'

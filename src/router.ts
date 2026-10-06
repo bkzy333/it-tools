@@ -84,6 +84,14 @@ const router = createRouter({
       name: 'category',
       component: () => import('./pages/CategoryPage.vue'),
     },
+    // 教程列表页 /guide：整个教程栏目的入口，构建期同样会生成静态 HTML。
+    // 必须排在 /guide/:slug 之前吗？不用 —— vue-router 按静态段优先匹配，
+    // /guide 精确路径和 /guide/xxx 是两条不同的记录，顺序不影响命中。
+    {
+      path: '/guide',
+      name: 'guide-index',
+      component: () => import('./pages/GuideIndexPage.vue'),
+    },
     {
       path: '/guide/:slug',
       name: 'guide',

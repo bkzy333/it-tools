@@ -13,8 +13,9 @@ const CACHE_KEY = 'ranking:top';
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const TOP_LIMIT = 50;
 const KEY_PREFIX = 'tool:';
-// 只接受形如 /json-prettify 的路径，避免有人乱塞 key 把 KV 写爆
-const TOOL_PATH_RE = /^\/[a-z0-9-]{1,60}$/;
+// 只接受形如 /json-prettify 的路径，避免有人乱塞 key 把 KV 写爆。
+// 尾斜杠放宽：前端历史版本上报的是带尾斜杠的路由路径，一律拒掉会让每个工具页都吃一个 400。
+const TOOL_PATH_RE = /^\/[a-z0-9-]{1,60}\/?$/;
 
 interface KvNamespace {
   get(key: string): Promise<string | null>;
@@ -97,7 +98,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json({ error: 'invalid tool path' }, 400);
   }
 
-  const key = `${KEY_PREFIX}${tool}`;
+  // 存 KV 前去掉尾斜杠，否则 /json-prettify 和 /json-prettify/ 会被记成两个工具
+  const normalizedTool = tool.length > 1 ? tool.replace(/\/+$/, '') : tool;
+  const key = `${KEY_PREFIX}${normalizedTool}`;
   const current = Number((await kv.get(key)) ?? 0) || 0;
   const next = current + 1;
   await kv.put(key, String(next));

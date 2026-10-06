@@ -32,6 +32,25 @@ const base64InputValidation = useValidation({
   ],
 });
 
+/**
+ * 示例是一张 64×64 的 PNG 的 base64（不是 data URI，就是裸的 base64 串）。
+ * 选它是因为工具靠开头的 iVBORw0KGgo 签名自动识别 MIME，
+ * 一粘进来就能自动填上 .png 扩展名并直接出图片预览，
+ * 比放一段文字的 base64 更能说清"这工具能把 base64 还原成文件"。
+ */
+const exampleData = {
+  fileName: '示例图片',
+  fileExtension: 'png',
+  base64Input:
+    'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAd0lEQVR4nO3PMQ3AMBAEQXNyGU6BGFbuA8LF6KVdHYCb9bzf6C3+IIB+EEA/CKAfBNAPAugHAfSDAPpBAP0ggH4QQD8IoB8E0A8C6Ae3gD28ALoAugC6+YAzvAC6ALoAugC6ALoAugC6ALoAugC6ALoAugC68YAf2gId0oN+Iu8AAAAASUVORK5CYII=',
+};
+
+function loadExample() {
+  fileName.value = exampleData.fileName;
+  fileExtension.value = exampleData.fileExtension;
+  base64Input.value = exampleData.base64Input;
+}
+
 watch(base64Input, (newValue, _) => {
   const { mimeType } = getMimeTypeFromBase64({ base64String: newValue });
   if (mimeType) {
@@ -91,6 +110,10 @@ async function onUpload(file: File) {
 </script>
 
 <template>
+  <div flex justify-end mb-2>
+    <ToolExampleButton @click="loadExample" />
+  </div>
+
   <c-card :title="t('tools.base64-file-converter.texts.title-base64-to-file')">
     <n-grid cols="3" x-gap="12">
       <n-gi span="2">

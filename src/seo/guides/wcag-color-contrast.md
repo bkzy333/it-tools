@@ -4,7 +4,6 @@ title: WCAG 对比度怎么算、怎么改到达标
 description: 从相对亮度的 sRGB 计算公式讲到对比度比值，给出 AA 与 AAA 的精确阈值、几个常见配色的实测数值，以及半透明、渐变、禁用态这些特殊情况的判定规则。
 keywords: [WCAG, 对比度, 相对亮度, 无障碍, 配色达标]
 relatedTools:
-  - /color-contrast-checker
   - /color-converter
 ---
 
@@ -135,5 +134,4 @@ Chrome 和 Edge 的 DevTools 里，选中元素后在 Styles 面板点击颜色�
 
 ## 自己动手试试
 
-- [检查两个颜色的对比度是否达到 AA / AAA](/color-contrast-checker)
 - [在 HEX、RGB、HSL 之间换算并调亮调暗](/color-converter)

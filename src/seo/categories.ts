@@ -20,31 +20,25 @@ export interface CategoryMeta {
 }
 
 // key 是 src/tools/<目录>/index.ts 里的 category 字段值，不是 slug
+// 注意：这里只放**当前真实存在**的分类。上次瘦身后 Cheatsheets / Docker / Maths /
+// Physics / TOML / Default 已下线，2026-10-06 又下线了 Gaming / Forensic / Weather。
+// 留着死条目会让 /category/<slug> 生成空分类页（站点地图里出现 0 工具的页面）。
 export const CATEGORIES: Record<string, CategoryMeta> = {
   Barcodes: { zh: '条形码与二维码', seo: '条形码与二维码在线生成', slug: 'barcodes' },
-  Cheatsheets: { zh: '命令速查表', seo: '开发者命令速查表', slug: 'cheatsheets' },
   Converters: { zh: '单位换算', seo: '单位换算在线计算', slug: 'converters' },
   Crypto: { zh: '加密与解密', seo: '加密解密与哈希在线工具', slug: 'crypto' },
   Data: { zh: '数据处理', seo: '数据格式转换工具', slug: 'data' },
   Datetime: { zh: '日期与时间', seo: '日期时间在线计算', slug: 'datetime' },
-  Default: { zh: '其他工具', seo: '实用在线工具', slug: 'default' },
   Development: { zh: '开发工具', seo: '开发者在线工具', slug: 'development' },
-  Docker: { zh: 'Docker', seo: 'Docker 配置在线工具', slug: 'docker' },
   Finance: { zh: '金融计算', seo: '金融与贷款在线计算', slug: 'finance' },
-  Forensic: { zh: '数字取证', seo: '数字取证分析工具', slug: 'forensic' },
-  Gaming: { zh: '游戏工具', seo: '游戏辅助在线工具', slug: 'gaming' },
   Generators: { zh: '随机生成', seo: '随机数与标识生成器', slug: 'generators' },
   Images: { zh: '图片处理', seo: '图片在线处理工具', slug: 'images' },
   JSON: { zh: 'JSON 工具', seo: 'JSON 在线格式化与转换', slug: 'json' },
   Markdown: { zh: 'Markdown', seo: 'Markdown 在线工具', slug: 'markdown' },
-  Maths: { zh: '数学计算', seo: '数学在线计算工具', slug: 'maths' },
   Measurement: { zh: '测量工具', seo: '度量衡单位换算', slug: 'measurement' },
   Network: { zh: '网络工具', seo: '网络与 IP 在线工具', slug: 'network' },
   PDF: { zh: 'PDF 工具', seo: 'PDF 在线处理工具', slug: 'pdf' },
-  Physics: { zh: '物理计算', seo: '物理公式在线计算', slug: 'physics' },
   Text: { zh: '文本处理', seo: '文本处理在线工具', slug: 'text' },
-  TOML: { zh: 'TOML', seo: 'TOML 在线转换工具', slug: 'toml' },
-  Weather: { zh: '天气查询', seo: '天气在线查询', slug: 'weather' },
   Web: { zh: '网页工具', seo: '网页与 URL 在线工具', slug: 'web' },
   XML: { zh: 'XML 工具', seo: 'XML 在线格式化与转换', slug: 'xml' },
   YAML: { zh: 'YAML', seo: 'YAML 在线格式化与转换', slug: 'yaml' },

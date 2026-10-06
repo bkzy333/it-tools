@@ -5,7 +5,6 @@ description: 给出一份可直接落地的 SQL 排版规范（关键字大写�
 keywords: [SQL 格式化, SQL 命名规范, SQL 代码风格, CTE, sqlfluff]
 relatedTools:
   - /sql-prettify
-  - /sql-minifier
 ---
 
 # SQL 怎么写才好看：格式化与命名约定
@@ -152,4 +151,3 @@ sqlfluff fix  --dialect postgres query.sql
 ## 自己动手试试
 
 - [把一段 SQL 格式化成易读的缩进排版](/sql-prettify)
-- [把 SQL 压缩成单行（用于日志或配置）](/sql-minifier)

@@ -4,8 +4,7 @@ import { translate as t } from '@/plugins/i18n.plugin';
 export const tool = defineTool({
   name: t('tools.hash-text.title'),
   path: '/hash-text',
-  description:
-    'Hash a text string using the function you need : MD5, SHA1, SHA256, SHA224, SHA512, SHA384, SHA3, RIPEMD160, ADLER32, CRC32, CRC32C, BLAKE, KECCAK, XXHASH, SM3, WHIRLPOOL or Argon2(i/d/id)',
+  description: t('tools.hash-text.description'),
   keywords: [
     'hash',
     'digest',

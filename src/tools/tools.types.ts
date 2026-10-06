@@ -43,4 +43,11 @@ export interface ToolsFilter {
   includeToolsFilterRegex?: string;
 }
 
-export type ToolWithCategory = Tool & { category: string };
+/**
+ * category 是「当前语言下的分类名」（侧栏分组、面包屑用），
+ * rawCategory 是 index.ts 里的原始英文值（查分类 slug 用）。
+ *
+ * 两者必须分开：CATEGORIES 表以英文为 key，拿中文名去查会查不到，
+ * 退化出来的 slug 会把中文全替换成 `-`，拼出 /category/- 这种死链。
+ */
+export type ToolWithCategory = Tool & { category: string; rawCategory?: string };

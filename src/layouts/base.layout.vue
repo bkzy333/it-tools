@@ -55,6 +55,11 @@ const tools = computed<ToolCategory[]>(() => [
           <NavbarButtons />
         </div>
 
+        <!-- 谷歌广告位：侧边栏（接入前 ADS_ENABLED=false，不渲染任何内容）。
+             放在工具菜单上方而不是插在菜单列表里，是为了让它和导航内容明显区分开 ——
+             AdSense 明确禁止把广告摆成菜单/导航的样子。 -->
+        <ads-placeholder variant="sidebar" />
+
         <CollapsibleToolMenu :tools-by-category="tools" />
 
         <!-- 站点自身页面入口（AdSense 审核要求这几页能一键找到，不能藏在页脚深处） -->
@@ -75,7 +80,9 @@ const tools = computed<ToolCategory[]>(() => [
     </template>
 
     <template #content>
-      <div ref="navbarRef" class="navbar" flex items-center justify-center gap-2>
+      <!-- <header> 而不是 <div>：顶栏落在 main 之外，只有给它一个 banner 地标，
+           才算满足 axe 的 region 规则（所有内容都要被地标包含）。 -->
+      <header ref="navbarRef" class="navbar" flex items-center justify-center gap-2>
         <c-button
           circle
           variant="text"
@@ -99,14 +106,16 @@ const tools = computed<ToolCategory[]>(() => [
           <NavbarButtons v-if="!styleStore.isSmallScreen" />
         </div>
 
-      </div>
+      </header>
       <!-- 谷歌广告位：顶部横幅（接入前 ADS_ENABLED=false，不渲染任何内容） -->
       <ads-placeholder variant="top" />
       <!-- Positioned wrapper so the route-change loading overlay (see router.ts)
-           can cover just the page, leaving the nav bar and menu visible. -->
-      <div class="page-content">
+           can cover just the page, leaving the nav bar and menu visible.
+           用 <main> 而不是 <div>：axe 的 landmark-one-main / region 规则要求每个页面
+           有且只有一个 main 地标，之前全站 0 个，首页有 256 个元素落在地标之外。 -->
+      <main class="page-content">
         <slot />
-      </div>
+      </main>
     </template>
   </MenuLayout>
 </template>

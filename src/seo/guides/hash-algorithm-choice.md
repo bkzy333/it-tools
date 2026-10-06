@@ -5,7 +5,7 @@ description: 从碰撞攻击的工程现状出发，讲清 MD5/SHA-1/SHA-2/SHA-3
 keywords: [MD5, SHA-1, SHA-256, SHA-512, 哈希算法, 碰撞攻击, 密码哈希]
 relatedTools:
   - /hash-text
-  - /file-hasher
+  - /encryption
 ---
 
 # MD5、SHA-1、SHA-256、SHA-512 到底该选哪个
@@ -129,4 +129,4 @@ hashlib.sha256(b'hello').hexdigest()
 ## 自己动手试试
 
 - [对一段文本做 MD5 / SHA-1 / SHA-256 / SHA-512 哈希](/hash-text)
-- [计算一个文件的哈希值](/file-hasher)
+- [在线计算一段文本的哈希值](/hash-text)

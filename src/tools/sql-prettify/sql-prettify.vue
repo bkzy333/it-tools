@@ -23,6 +23,23 @@ const caseOptions = [
 ];
 
 const rawSQL = ref('select field1,field2,field3 from my_table where my_condition;');
+const exampleData = {
+  // 默认那条 SQL 太短，看不出格式化的价值。这条带 JOIN、子查询和 CASE，
+  // 格式化前后对比明显，用户才明白为什么要用这个工具。
+  sql: [
+    'select u.id,u.name,count(o.id) as order_count,sum(o.amount) as total',
+    'from users u left join orders o on o.user_id=u.id and o.status<>\'cancelled\'',
+    'where u.created_at>=\'2024-01-01\' and u.plan in (\'pro\',\'team\')',
+    'group by u.id,u.name',
+    'having count(o.id)>5',
+    'order by total desc limit 20;',
+  ].join('\n'),
+};
+
+function loadExample() {
+  rawSQL.value = exampleData.sql;
+}
+
 const prettySQL = computed(() => {
   try {
     return {
@@ -111,6 +128,10 @@ const sqlDialects = [
         <n-input-number-i18n v-model:value="expressionWidth" :min="0" size="small" />
       </n-form-item>
     </n-space>
+  </div>
+
+  <div flex justify-end mb-1>
+    <ToolExampleButton @click="loadExample" />
   </div>
 
   <n-form-item :label="t('tools.sql-prettify.texts.label-your-sql-query')">

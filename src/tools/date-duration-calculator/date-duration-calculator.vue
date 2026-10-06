@@ -10,10 +10,27 @@ const inputReferenceDate = ref(now);
 const inputDurations = ref('');
 const resultDateAdder = computed(() => addToDate(new Date(inputReferenceDate.value), inputDurations.value));
 const errorsDateAdder = computed(() => resultDateAdder.value.errors.join('\n'));
+
+/**
+ * 示例用"90 天后减 1 周再加 12 小时"这种带负号的多行写法，
+ * 一次把"每行一个时长""可以写负号""单位能混用"三件事都演示出来。
+ * 单位是英文（days / week / hours），因为底层解析器只认英文单位。
+ */
+const exampleData = {
+  inputDurations: '90 days\n-1 week\n12 hours',
+};
+
+function loadExample() {
+  inputDurations.value = exampleData.inputDurations;
+}
 </script>
 
 <template>
   <div>
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadExample" />
+    </div>
+
     <c-card :title="t('tools.date-duration-calculator.texts.title-date-duration-calculator')" mb-2>
       <n-form-item :label="t('tools.date-duration-calculator.texts.label-reference-date')" label-placement="left" mb-1>
         <n-date-picker v-model:value="inputReferenceDate" type="datetime" />

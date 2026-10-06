@@ -1,0 +1,41 @@
+本目录下的 opencc-cn2t.js / opencc-t2cn.js 来自 opencc-js（开放中文转换 JavaScript 版）。
+
+  上游仓库：https://github.com/nk2028/opencc-js
+  包名与版本：opencc-js@1.4.2
+  获取地址：https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/esm/cn2t.js
+            https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/esm/t2cn.js
+  本目录文件名：opencc-cn2t.wrapped.js / opencc-t2cn.wrapped.js
+  许可证：MIT AND Apache-2.0
+          —— 代码部分为 MIT（见下），随包分发的词典数据由 opencc-data 生成，为 Apache-2.0
+             （https://github.com/nk2028/opencc-data）。
+  改动说明：正文与上游**逐字符一致**，只做了一处结构性包裹 —— 把文件内容整体放进
+            `function __openccFactory() { ... }` 内，并把原文末尾的 `export{a as B, ...}`
+            改写为等价的 return + 具名导出（见文件开头注释）。
+            原因：这两个文件是 minify 过的，顶层全是一两个字母的声明，打包器 rolldown
+            在做 scope hoisting 时会因顶层重名报 `It can not be redeclared here`；
+            包进函数作用域后这些名字不再参与顶层去重。脚本见 scripts/wrap-opencc.mjs。
+
+Apache-2.0 全文见 https://www.apache.org/licenses/LICENSE-2.0
+
+---------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2020-2021 The nk2028 Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

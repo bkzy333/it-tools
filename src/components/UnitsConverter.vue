@@ -122,9 +122,7 @@ update(defaultUnit.value);
       <n-checkbox v-model:checked="excludeSIPrefixes">
         {{ $t('tools.UnitsConverter.texts.exclude-si-prefixes') }}
       </n-checkbox>
-      <c-link target="_blank" to="/si-prefixes-converter">
-        {{ $t('tools.UnitsConverter.text.si-converter') }}
-      </c-link>
+      <!-- 原先这里外链到 /si-prefixes-converter（SI 前缀换算），该工具已下线，链接一并移除 -->
     </n-space>
     <n-input-group v-for="[key, { local_title, unit }] in filteredUnits" :key="key" mb-3 w-full>
       <n-input-group-label :style="{ minWidth: labelWidth }">

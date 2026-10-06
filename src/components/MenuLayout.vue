@@ -67,7 +67,10 @@ const siderContentWidthPx = computed(() => `${siderContentWidth.value}px`);
 
 <template>
   <n-layout has-sider>
+    <!-- aria-label：侧栏和教程页的 TOC 都渲染成 <aside>，两个无名 aside 会让
+         axe 的 landmark-unique 判违规，屏幕阅读器也分不清。 -->
     <n-layout-sider
+      aria-label="工具分类导航"
       bordered
       collapse-mode="width"
       :collapsed-width="0"

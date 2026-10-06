@@ -68,7 +68,7 @@ export const useCommandPaletteStore = (locale: string) =>
         icon: BugIcon,
       },
       {
-        name: t('tools.pomodoro-timer.PomodoroApp.text.about'),
+        name: t('home.nav.about'),
         description: t('tools.command-palette.store.texts.learn-more-about-it-tools'),
         to: '/about',
         category: t('tools.command-palette.store.texts.pages'),

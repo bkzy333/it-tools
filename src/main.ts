@@ -23,8 +23,6 @@ import router from './router';
 import { i18nPlugin } from './plugins/i18n.plugin';
 import { toolsSettings } from './tools-settings';
 
-import store from './tools/pomodoro-timer/app/store';
-
 window.addEventListener('vite:preloadError', (event: Event) => {
   console.error('Vite preload error, forcing page reload:', event);
   event.preventDefault(); // Prevent the original error from being thrown again
@@ -93,7 +91,43 @@ app.use(router);
 app.use(naive);
 app.use(plausible);
 app.use(shadow);
-app.use(store, 'pomodoro-store');
 app.use(Vue3Katex);
 
 app.mount('#app');
+
+// naive-ui 的 <n-card title="..."> 把标题渲染成 <div role="heading">，但**不带 aria-level**。
+// role="heading" 没有 aria-level 时，axe 的 aria-required-attr 会直接判违规（「关于」页一页 14 处）。
+// 这在语义上也是真缺陷：屏幕阅读器只知道"这是个标题"，不知道它是几级。
+// 卡片标题在页面结构里就是二级标题（页面 H1 已存在），这里统一补上。
+// 只监听 childList 不监听 attributes，所以补 aria-level 不会把观察者自己再触发一次。
+function patchHeadingLevels() {
+  const apply = () => {
+    for (const el of document.querySelectorAll<HTMLElement>('[role="heading"]:not([aria-level])')) {
+      el.setAttribute('aria-level', '2');
+    }
+  };
+
+  apply();
+  new MutationObserver(apply).observe(document.body, { childList: true, subtree: true });
+}
+
+// naive-ui 的图标组件渲染成 <i role="img">，但不给 alt/aria-label。
+// 这些图标在界面上永远是装饰性的：旁边一定有文字，或者父级 button/a 上已经有
+// aria-label（首页一页 78 处违规就是这么来的）。声明 role="img" 却不给替代文本，
+// 比直接 aria-hidden 更糟 —— 屏幕阅读器会读出一个"空的图片"。这里统一标记为装饰。
+// 只处理既无 aria-label 也无 alt 的，避免误伤真的有意义图形的图标。
+function markDecorativeIcons() {
+  const apply = () => {
+    for (const el of document.querySelectorAll<HTMLElement>('[role="img"]')) {
+      if (!el.getAttribute('aria-label') && !el.getAttribute('alt') && !el.textContent.trim()) {
+        el.setAttribute('aria-hidden', 'true');
+      }
+    }
+  };
+
+  apply();
+  new MutationObserver(apply).observe(document.body, { childList: true, subtree: true });
+}
+
+patchHeadingLevels();
+markDecorativeIcons();

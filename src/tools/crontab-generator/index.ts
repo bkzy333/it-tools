@@ -24,5 +24,5 @@ export const tool = defineTool({
   component: () => import('./crontab-generator.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Alarm')),
   npmPackages: ['cronstrue'],
-  category: 'Network',
+  category: 'Development',
 });

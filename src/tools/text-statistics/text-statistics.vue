@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { formatMsDuration } from '../eta-calculator/eta-calculator.service';
+// 时长格式化原本由 eta-calculator 工具提供，该工具已下线，实现内联到本目录。
+import { formatMsDuration } from './duration-format.service';
 import { getStringSizeInBytes, textStatistics } from './text-statistics.service';
 import { formatBytes } from '@/utils/convert';
 
@@ -8,9 +9,26 @@ const { t } = useI18n();
 
 const text = ref('');
 const stats = computed(() => textStatistics(text.value));
+
+/**
+ * 示例用一段真实的中英混排内容：
+ * 中文没有空格，字符数、字数、字节数三者的差距才是这个工具真正要展示的信息，
+ * 用 "hello world" 这种纯英文例子根本看不出 UTF-8 下一个汉字占 3 个字节这件事。
+ */
+const exampleData = {
+  text: '在线工具箱是一个完全在浏览器里运行的工具集合，所有计算都在本地完成，数据不会上传到服务器。\nIt works offline, and it is free.\n\n第一段用来看中文的字数统计，第二段用来看英文的单词计数。',
+};
+
+function loadExample() {
+  text.value = exampleData.text;
+}
 </script>
 
 <template>
+  <div flex justify-end mb-2>
+    <ToolExampleButton @click="loadExample" />
+  </div>
+
   <c-card>
     <c-input-text
       v-model:value="text"

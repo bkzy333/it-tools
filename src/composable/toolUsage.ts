@@ -11,7 +11,17 @@ const REPORT_TTL_MS = 24 * 60 * 60 * 1000; // 同一个浏览器、同一个工�
 
 const usage = useStorage<Record<string, number>>(STORAGE_KEY, {});
 
-export function recordToolVisit(path: string) {
+/**
+ * 路由里读到的 path 是带尾斜杠的（/json-prettify/），而 /api/hot 只收 /json-prettify
+ * （后端要拿它拼 KV key，尾斜杠会写进去导致同一个工具被记成两个）。
+ * 以前没做这层规范化，每个工具页都会 POST 一个 400，控制台跟着红一片。
+ */
+function normalizeToolPath(path: string): string {
+  return path.length > 1 ? path.replace(/\/+$/, '') : path;
+}
+
+export function recordToolVisit(rawPath: string) {
+  const path = normalizeToolPath(rawPath);
   if (!path) {
     return;
   }
@@ -40,7 +50,8 @@ function canReport(path: string): boolean {
 }
 
 // 上报一次访问给服务端（去重后写入，失败静默）
-export async function reportToolVisit(path: string) {
+export async function reportToolVisit(rawPath: string) {
+  const path = normalizeToolPath(rawPath);
   if (!path || typeof fetch === 'undefined' || !canReport(path)) {
     return;
   }

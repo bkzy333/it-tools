@@ -8,40 +8,29 @@ import { useITStorage } from '@/composable/queryParams';
 
 import { translate as t } from '@/plugins/i18n.plugin';
 
-// 侧栏分类排序：面向大众的分类靠前，开发/数据格式类（Docker、JSON、YAML、XML、TOML、
-// Markdown）挪到最后。列表里没写到的分类按原顺序排在末尾。
+// 侧栏分类排序：面向大众的分类靠前，开发/数据格式类（JSON、YAML、XML、Markdown）挪到最后。
+// 列表里没写到的分类按原顺序排在末尾。
+// 注意：这里必须只保留真实存在的分类（随工具增删同步），否则排序表会留下死条目。
 const CATEGORY_PRIORITY = [
   'favorite-tools',
-  'converter',
   'converters',
-  'images and videos',
   'images',
   'pdf',
   'text',
   'datetime',
-  'math',
-  'maths',
-  'measurement',
   'finance',
-  'physics',
-  'gaming',
+  'measurement',
   'barcodes',
   'generators',
   'web',
-  'weather',
   'network',
   'crypto',
   'data',
-  'cheatsheets',
-  'forensic',
   'development',
   'json',
   'yaml',
   'xml',
-  'toml',
   'markdown',
-  'docker',
-  'default',
 ];
 
 export const useToolStore = defineStore('tools', () => {
@@ -50,14 +39,18 @@ export const useToolStore = defineStore('tools', () => {
   const tools = computed<ToolWithCategory[]>(() =>
     allTools.map((tool) => {
       const toolI18nKey = tool.path.replace(/\//g, '');
-      const category = tool.category || 'Development';
+      // 原始英文分类名（index.ts 里的值）。CATEGORIES 表以它为 key，
+      // 所以必须保留一份未经翻译的值，否则中文名下查不到 slug。
+      const rawCategory = tool.category || 'Development';
+      const category = t(`tools.categories.${rawCategory.toLowerCase()}`, rawCategory);
 
       return {
         ...tool,
         path: tool.path,
         name: t(`tools.${toolI18nKey}.title`, tool.name),
         description: t(`tools.${toolI18nKey}.description`, tool.description),
-        category: t(`tools.categories.${category.toLowerCase()}`, category),
+        category,
+        rawCategory,
       };
     }),
   );

@@ -5,7 +5,7 @@ description: 从 RFC 9562 定义的位布局讲起，说明 UUIDv7 的时间前�
 keywords: [UUID v4, UUID v7, 数据库主键, RFC 9562, 索引局部性]
 relatedTools:
   - /uuid-generator
-  - /uuid-converter
+  - /token-generator
 ---
 
 # UUID v4 和 v7 该选哪个做数据库主键
@@ -139,4 +139,4 @@ ULID 是 UUIDv7 出现之前社区给出的同类方案：同样是 48 位毫秒
 ## 自己动手试试
 
 - [在线生成 UUID（含 v4 / v7）](/uuid-generator)
-- [UUID 格式互转与解析](/uuid-converter)
+- [在线生成 UUID](/uuid-generator)

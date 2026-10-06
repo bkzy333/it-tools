@@ -4,7 +4,6 @@ title: cron 表达式怎么写（含常见写法速查）
 description: 从 5 段字段的取值范围讲到 , - * / 四个特殊字符，给出十几个可直接抄的表达式速查表，并说明"日"与"周"的 OR 语义、Quartz 的 6 段差异，以及时区、重叠执行和输出重定向这几个真实坑。
 keywords: [cron 表达式, crontab, 定时任务, Quartz, 调度]
 relatedTools:
-  - /cron-expression-builder
   - /crontab-generator
 ---
 
@@ -115,5 +114,5 @@ crontab 只在加载文件时做语法检查，字段写错通常不报错，只
 
 ## 自己动手试试
 
-- [可视化生成并校验 cron 表达式](/cron-expression-builder)
+- [可视化生成并校验 cron 表达式](/crontab-generator)
 - [生成可直接粘贴的 crontab 行](/crontab-generator)

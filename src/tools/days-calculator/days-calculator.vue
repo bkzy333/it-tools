@@ -23,7 +23,8 @@ const allTimezones = Object.values(ctz.getAllTimezones()).map((tz) => ({
   label: `${tz.name === browserTimezone ? 'Browser TZ - ' : ''}${tz.name} (${tz.utcOffset === tz.dstOffset ? tz.utcOffsetStr : `${tz.utcOffsetStr}/${tz.dstOffsetStr}`})`,
 }));
 const allCountries = ref(getSupportedCountries());
-const country = useQueryParamOrStorage({ name: 'country', storageName: 'days-calc:ctr', defaultValue: 'FR' });
+// 默认中国，否则中国用户进来看到的是法国节假日
+const country = useQueryParamOrStorage({ name: 'country', storageName: 'days-calc:ctr', defaultValue: 'CN' });
 const possibleStates = computed(() => getSupportedStates(country.value));
 const state = useQueryParamOrStorage({ name: 'state', storageName: 'days-calc:st', defaultValue: '' });
 const possibleRegions = computed(() => getSupportedRegions(country.value, state.value));

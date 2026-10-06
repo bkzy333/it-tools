@@ -13,6 +13,7 @@ import type { ToolWithCategory } from '@/tools/tools.types';
 import { config } from '@/config';
 import { categoryMeta } from '@/seo/categories';
 import { GUIDE_INDEX } from '@/seo/guide-index';
+import { HOME_TITLE, homeDescription, homeLead } from '@/seo/home-heading';
 
 const { t } = useI18n();
 
@@ -33,7 +34,7 @@ const POPULAR_TOOL_PATHS = [
   '/base64-string-converter', // Base64 编解码
   '/url-encoder', // URL 编解码
   '/json-prettify', // JSON 格式化
-  '/password-strength-analyser', // 密码强度检测
+  '/hash-text', // 哈希计算（MD5 / SHA）
 ];
 
 const findTool = (path: string) => toolStore.tools.find((tool) => tool.path === path);
@@ -59,10 +60,13 @@ const popularTools = computed<ToolWithCategory[]>(() => {
 const mostUsedTools = computed<ToolWithCategory[]>(
   () => getMostUsedPaths(8).map(findTool).filter(Boolean) as ToolWithCategory[],
 );
-const desc = t(
-  'home.page.text.collection-of-handy-online-tools-for-developers-with-great-ux-it-tools-is-a-free-and-open-source-collection-of-handy-online-tools-for-developers-and-people-working-in-it',
-);
-const title = t('home.page.text.it-tools-handy-online-tools-for-developers');
+// 首页标题、导语、description 全部取自 src/seo/home-heading.ts —— 构建期写进静态
+// HTML 的也是这一份。以前这里走的是 i18n，zh.yml 里那条值是英文原文，结果爬虫读到
+// 中文标题、用户看到英文标题，属于 cloaking 判定形态。现在两边同源。
+const toolCount = computed(() => toolStore.tools.length);
+const title = HOME_TITLE;
+const desc = computed(() => homeDescription(toolCount.value));
+const leadText = computed(() => homeLead(toolCount.value));
 
 useHead({
   title,
@@ -81,19 +85,19 @@ useHead({
     },
     {
       name: 'description',
-      content: desc,
+      content: desc.value,
     },
     {
       itemprop: 'description',
-      content: desc,
+      content: desc.value,
     } as never,
     {
       property: 'og:description',
-      content: desc,
+      content: desc.value,
     },
     {
       property: 'twitter:description',
-      content: desc,
+      content: desc.value,
     },
   ],
 });
@@ -102,11 +106,21 @@ useHead({
 // 渲染型爬虫就抓不到通往 /category/* 和 /guide/* 的内链，聚合页和教程页会成为孤岛。
 const categories = computed(() => {
   const counts = new Map<string, number>();
+  // 中文分类名 → index.ts 里的原始英文名。categoryMeta 以英文为 key，
+  // 直接拿中文名去查会落到兜底分支，slug 退化成 '-'（/category/- 是死链）。
+  const rawByCategory = new Map<string, string>();
   for (const tool of toolStore.tools) {
     counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
+    rawByCategory.set(tool.category, tool.rawCategory ?? tool.category);
   }
   return [...counts.entries()]
-    .map(([category, count]) => ({ category, count, meta: categoryMeta(category) }))
+    .map(([category, count]) => ({
+      category,
+      count,
+      meta: categoryMeta(rawByCategory.get(category) ?? category),
+    }))
+    // 仍然拿不到有效 slug 的分类，宁可不渲染，也不要给用户和爬虫一条 404 链接
+    .filter((item) => /^[a-z0-9][a-z0-9-]*$/.test(item.meta.slug))
     .sort((a, b) => a.meta.slug.localeCompare(b.meta.slug));
 });
 
@@ -194,6 +208,11 @@ onUnmounted(() => {
 
 <template>
   <div class="home-content pt-50px">
+    <!-- H1 与静态 HTML 同源（src/seo/home-heading.ts）。以前首页只有 <h3>，
+         静态 HTML 里那个 H1 又被 Vue 挂载时整块替换掉了，等于用户这边没有 H1。 -->
+    <h1 class="home-title">{{ title }}</h1>
+    <p class="home-lead">{{ leadText }}</p>
+
     <div class="grid-wrapper">
       <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
         <ColoredCard v-if="config.showBanner" :title="$t('home.follow.title')" :icon="IconHeart">
@@ -212,12 +231,12 @@ onUnmounted(() => {
 
       <transition name="height">
         <div v-if="toolStore.favoriteTools.length > 0">
-          <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+          <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
             {{ $t('home.categories.favoriteTools') }}
             <c-tooltip :tooltip="$t('home.categories.favoritesDndToolTip')">
               <n-icon :component="IconDragDrop" size="18" />
             </c-tooltip>
-          </h3>
+          </h2>
           <Draggable
             :list="favoriteTools"
             class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4"
@@ -235,48 +254,48 @@ onUnmounted(() => {
       </transition>
 
       <div>
-        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+        <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
           {{ t('home.categories.popularTools', '热门工具') }}
-        </h3>
+        </h2>
         <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
           <ToolCard v-for="tool in popularTools" :key="tool.name" :tool="tool" />
         </div>
       </div>
 
       <div v-if="mostUsedTools.length > 0">
-        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+        <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
           {{ t('home.categories.mostUsedTools', '你常用的工具') }}
-        </h3>
+        </h2>
         <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
           <ToolCard v-for="tool in mostUsedTools" :key="tool.name" :tool="tool" />
         </div>
       </div>
 
       <div v-if="toolStore.newTools.length > 0">
-        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+        <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
           {{ t('home.categories.newestTools') }}
-        </h3>
+        </h2>
         <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
           <ToolCard v-for="tool in toolStore.newTools" :key="tool.name" :tool="tool" />
         </div>
       </div>
 
       <div>
-        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+        <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
           {{ t('home.categories.browseByCategory', '按分类浏览') }}
-        </h3>
+        </h2>
         <div class="category-chips">
           <router-link v-for="item in categories" :key="item.category" class="chip" :to="`/category/${item.meta.slug}`">
-            {{ item.meta.zh }}
+            {{ item.category }}
             <span class="count">{{ item.count }}</span>
           </router-link>
         </div>
       </div>
 
       <div>
-        <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+        <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
           {{ t('home.categories.guides', '开发教程') }}
-        </h3>
+        </h2>
         <ul class="guide-links">
           <li v-for="guide in guides" :key="guide.slug">
             <router-link :to="`/guide/${guide.slug}`">{{ guide.title }}</router-link>
@@ -288,9 +307,9 @@ onUnmounted(() => {
         <HomeCustom />
       </Suspense>
 
-      <h3 class="mb-5px mt-25px font-500 text-neutral-400">
+      <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">
         {{ $t('home.categories.allTools') }}
-      </h3>
+      </h2>
       <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
         <ToolCard v-for="tool in visibleTools" :key="tool.name" :tool="tool" />
       </div>
@@ -312,6 +331,27 @@ onUnmounted(() => {
   @media (max-width: 700px) {
     padding-top: 0;
   }
+}
+
+// 首页标题：静态 HTML 里也有同文案的 <h1>，两边只差 Vue 挂载前后的时机，
+// 所以在视觉上做成正常的落地页标题，而不是隐藏文本（隐藏的 H1 同样算 cloaking）。
+.home-title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  @media (max-width: 700px) {
+    font-size: 20px;
+  }
+}
+
+.home-lead {
+  margin: 0 0 18px;
+  max-width: 820px;
+  font-size: 14px;
+  line-height: 1.65;
+  opacity: 0.85;
 }
 
 .height-enter-active,

@@ -40,7 +40,11 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
 
 <template>
   <div class="about-page">
-    <n-card :title="`关于${SITE_NAME}`" mx-auto mt-50px>
+    <!-- 页面唯一的 H1：之前整页只有 n-card 的标题（渲染成 div[role="heading"]），
+         既没有 h1 也没有 aria-level，axe 会同时报 page-has-heading-one 和 aria-required-attr。 -->
+    <h1 class="about-title">关于{{ SITE_NAME }}</h1>
+
+    <n-card mx-auto>
       <p>
         {{ SITE_NAME }}是一个<b>完全免费</b>的在线工具合集，收录了 {{ toolStore.tools.length }} 个实用工具，涵盖
         PDF 处理、图片编辑、文本转换、单位换算、加密解密、日期计算、网络工具等日常场景。
@@ -106,6 +110,13 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
     margin: 0 0 10px;
     line-height: 1.8;
     opacity: 0.85;
+  }
+
+  .about-title {
+    font-size: 27px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 24px 0 16px;
   }
 
   .feature-list {

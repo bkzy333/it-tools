@@ -114,7 +114,7 @@ function rewriteHead(html: string, opts: {
   out = out.replace(/<link\s+rel="canonical"[^>]*>/g, '');
 
   // 2) 换 title
-  out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(opts.title)}</title>`);
+  out = out.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(opts.title)}</title>`);
 
   const fullTitle = opts.title;
   const tags = [
@@ -141,7 +141,11 @@ function rewriteHead(html: string, opts: {
     ),
   ].filter(Boolean);
 
-  return out.replace(/<\/head>/i, `    ${tags.join('\n    ')}\n  </head>`);
+  // 用函数而不是字符串做替换值：字符串形式的替换值里 $& / $$ / $1 会被当成
+  // 特殊替换模式（$& 是「匹配到的整段」、$$ 是字面量 $）。SEO 文案里出现这些
+  // 字符是常态——正则工具页就要讲 $1 和 $& ——写成字符串会把它们替换成 head 标签
+  // 或吃掉一个 $。函数返回值不做这层解析。
+  return out.replace(/<\/head>/i, () => `    ${tags.join('\n    ')}\n  </head>`);
 }
 
 const STATIC_STYLE = `
@@ -157,9 +161,15 @@ const STATIC_STYLE = `
   #seo-static .seo-crumb a:hover{text-decoration:underline}
   #seo-static a.seo-link{color:#185fa5;text-decoration:none}
   #seo-static a.seo-link:hover{text-decoration:underline}
+  #seo-static{max-width:820px;overflow-wrap:break-word}
   #seo-static pre{background:#f5f6f8;border:1px solid #e3e5e8;border-radius:8px;padding:12px 14px;
-    overflow-x:auto;font-size:13px;line-height:1.6;font-family:ui-monospace,Consolas,monospace}
+    overflow-x:auto;max-width:100%;font-size:13px;line-height:1.6;font-family:ui-monospace,Consolas,monospace}
   #seo-static code{font-family:ui-monospace,Consolas,monospace}
+  /* 表格在窄屏会把整页撑宽（实测 375px 视口下 scrollWidth 到 412），
+     改成块级滚动容器，和 GuidePage.vue 的运行时样式保持一致 */
+  #seo-static table{display:block;width:100%;max-width:100%;overflow-x:auto;border-collapse:collapse;
+    font-size:14px;margin:0 0 16px}
+  #seo-static th,#seo-static td{border:1px solid rgba(128,128,128,.28);padding:7px 10px;text-align:left}
   #seo-static details{border:1px solid #e3e5e8;border-radius:8px;padding:10px 14px;margin-bottom:10px}
   #seo-static summary{cursor:pointer;font-weight:500;font-size:15px}
   #seo-static .seo-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -180,7 +190,8 @@ function injectBody(html: string, bodyHtml: string): string {
   // 允许标签里有空白（压缩器可能写成 <div id="app" >），但必须是空的
   const emptyApp = /<div id="app"\s*>\s*<\/div>/;
   if (emptyApp.test(html)) {
-    return html.replace(emptyApp, target);
+    // 函数式替换值：见 rewriteHead 里的说明，正文含 $& / $$ 时字符串形式会被吃掉
+    return html.replace(emptyApp, () => target);
   }
   // 走到这里说明模板没被 stripExistingStatic 处理干净，直接抛错好过静默产出错页
   throw new Error('seo-prerender: 模板里找不到空的 <div id="app"></div>，静态正文无法注入');
@@ -189,7 +200,8 @@ function injectBody(html: string, bodyHtml: string): string {
 function injectStyle(html: string): string {
   // 幂等：模板可能带着上一次构建注入的样式（首页那次会写回 dist/index.html）
   const cleaned = html.replace(/<style id="seo-static-style">[\s\S]*?<\/style>/, '');
-  return cleaned.replace(/<\/head>/i, `    <style id="seo-static-style">${STATIC_STYLE}</style>\n  </head>`);
+  // 同样用函数式替换值，避免文案里的 $& / $$ 被 String.replace 当成替换模式
+  return cleaned.replace(/<\/head>/i, () => `    <style id="seo-static-style">${STATIC_STYLE}</style>\n  </head>`);
 }
 
 /**
@@ -376,6 +388,8 @@ function renderCategoryPage(category: string, categoryZh: string, seoName: strin
 function renderGuidePage(
   front: { title: string; description: string; relatedTools: string[] },
   html: string,
+  toc: GuideTocItem[],
+  neighbors: { prev: { slug: string; title: string } | null; next: { slug: string; title: string } | null },
   toolTitleByPath: Map<string, string>,
 ): string {
   const bc = [{ name: '首页', href: '/' }, { name: '教程' }, { name: front.title }];
@@ -383,9 +397,41 @@ function renderGuidePage(
     .map((p) => `<a class="seo-tag" href="${esc(href(p))}">${esc(toolTitleByPath.get(p) ?? p)}</a>`)
     .join('');
 
+  // 目录的作用不只是给用户导航：这些锚点链接跑在静态 HTML 里，等于给每个小节
+  // 都做了一条内链，爬虫能顺着它们往下抓。必须和 GuidePage.vue 渲染的目录同源，
+  // 所以 toc 来自同一个 renderGuideMarkdown。
+  const tocNav =
+    toc.length === 0
+      ? ''
+      : `<nav class="seo-toc"><h2 class="seo-toc-title">目录</h2><ol class="seo-toc-list">${toc
+          .map(
+            (item) =>
+              `<li class="seo-toc-item seo-toc-level-${item.level}"><a class="seo-toc-link" href="#${esc(
+                item.anchor,
+              )}">${esc(item.text)}</a></li>`,
+          )
+          .join('')}</ol></nav>`;
+
+  // 上一篇 / 下一篇：纯站内锚文本互通，爬虫能顺着把整个教程栏目爬完
+  const neighborNav =
+    neighbors.prev === null && neighbors.next === null
+      ? ''
+      : `<nav class="seo-neighbors">${[
+          neighbors.prev
+            ? `<a class="seo-tag" href="/guide/${esc(neighbors.prev.slug)}/">← ${esc(neighbors.prev.title)}</a>`
+            : '',
+          neighbors.next
+            ? `<a class="seo-tag" href="/guide/${esc(neighbors.next.slug)}/">${esc(neighbors.next.title)} →</a>`
+            : '',
+        ]
+          .filter(Boolean)
+          .join('')}</nav>`;
+
   return [
     breadcrumbHtml(bc),
+    tocNav,
     `<div class="seo-article">${html}</div>`,
+    neighborNav,
     links ? `<h2>相关工具</h2><div class="seo-tags">${links}</div>` : '',
   ]
     .filter(Boolean)
@@ -409,6 +455,41 @@ function renderTrustPage(page: TrustPage): string {
     }
   }
   return parts.join('\n');
+}
+
+/**
+ * 教程列表页 /guide 的静态正文。
+ *
+ * 标题取自 src/seo/guide-index.ts（和 Vue 端的 GuidIndexPage.vue 同源），描述取自
+ * 每篇 md 自己的 frontmatter —— 两边都读同一处，不会出现静态版缺一段字的情况。
+ */
+async function renderGuideIndexPage(root: string): Promise<string> {
+  const guidesDir = path.join(root, 'src/seo/guides');
+
+  const items = GUIDE_INDEX.map((entry) => {
+    const file = path.join(guidesDir, `${entry.slug}.md`);
+    if (!fs.existsSync(file)) {
+      return { ...entry, description: '' };
+    }
+    const { data } = parseFrontmatter(fs.readFileSync(file, 'utf-8'));
+    return { slug: entry.slug, title: entry.title, description: String(data.description ?? '') };
+  });
+
+  const bc = [{ name: '首页', href: '/' }, { name: '教程' }];
+
+  return [
+    breadcrumbHtml(bc),
+    `<h1>开发教程</h1>`,
+    `<p class="seo-lead">这里汇集了 ${items.length} 篇写给开发者的实用教程。每篇都对应本站的真实工具，看完可以直接在线试，不用装环境。</p>`,
+    `<ul>${items
+      .map(
+        (item) =>
+          `<li><a class="seo-link" href="/guide/${esc(item.slug)}/">${esc(item.title)}</a>${
+            item.description ? `<span class="seo-lead-inline">${esc(item.description)}</span>` : ''
+          }</li>`,
+      )
+      .join('')}</ul>`,
+  ].join('\n');
 }
 
 // ------------------------------------------------------------------ 内容加载
@@ -473,6 +554,8 @@ async function loadSeoData(root: string): Promise<{
 // 解析逻辑分叉会直接造成 cloaking。
 import { parseFrontmatter } from '../src/seo/frontmatter';
 import { GUIDE_INDEX } from '../src/seo/guide-index';
+import { renderGuideMarkdown, type GuideTocItem } from '../src/seo/guide-render';
+import { HOME_TITLE, homeDescription, homeLead } from '../src/seo/home-heading';
 
 /**
  * 核对 src/seo/guide-index.ts 和 md 原文里的标题是否一致。
@@ -680,8 +763,6 @@ export function seoPrerender(): Plugin {
       // ---------- 3. 教程页 ----------
       const guidesDir = path.join(root, 'src/seo/guides');
       if (fs.existsSync(guidesDir)) {
-        const { default: MarkdownIt } = await import('markdown-it');
-        const md = new MarkdownIt({ html: true, linkify: true, typographer: false });
         const guideTitles = new Map<string, string>();
 
         for (const file of fs.readdirSync(guidesDir).filter((f) => f.endsWith('.md'))) {
@@ -694,8 +775,15 @@ export function seoPrerender(): Plugin {
           const relatedTools = Array.isArray(data.relatedTools) ? (data.relatedTools as string[]) : [];
           const route = `/guide/${slug}`;
 
-          const articleHtml = md.render(body);
-          const pageBody = renderGuidePage({ title, description, relatedTools }, articleHtml, titleByPath);
+          // 和运行时共用 src/seo/guide-render.ts：标题锚点 id 和目录条目两边完全一致
+          const index = GUIDE_INDEX.findIndex((g) => g.slug === slug);
+          const neighbors = {
+            prev: index > 0 ? GUIDE_INDEX[index - 1] : null,
+            next: index < GUIDE_INDEX.length - 1 ? GUIDE_INDEX[index + 1] : null,
+          };
+
+          const { html: articleHtml, toc } = await renderGuideMarkdown(body);
+          const pageBody = renderGuidePage({ title, description, relatedTools }, articleHtml, toc, neighbors, titleByPath);
 
           let html = injectStyle(template);
           html = injectBody(html, pageBody);
@@ -731,6 +819,36 @@ export function seoPrerender(): Plugin {
         // 索引和 md 里的标题一旦对不上，首页链接文案就会和教程页标题不一致，
         // 所以这里直接卡死，逼着改索引而不是等上线后才发现。
         assertGuideIndex(guideTitles);
+
+        // ---------- 3.5 教程列表页 /guide ----------
+        // 12 篇文章各自有页面，但没有一个汇总入口，爬虫进不了、用户也找不到目录。
+        // 这里按 GuidIndexPage.vue 渲染的同一份 GUIDE_INDEX 生成列表，标题顺序一致。
+        const indexHtml = await renderGuideIndexPage(root);
+        let indexPage = injectStyle(template);
+        indexPage = injectBody(indexPage, indexHtml);
+        indexPage = rewriteHead(indexPage, {
+          title: `开发教程 - ${SITE_NAME}`,
+          description: `收录 ${GUIDE_INDEX.length} 篇面向开发者的实用教程：JWT、Base64、UUID、cron 表达式、Unix 时间戳、正则表达式、HTTP 状态码、哈希算法、WCAG 对比度等，配合本站在线工具一起看效果。`,
+          keywords: '开发教程,编程教程,JWT,Unix时间戳,cron表达式,UUID,正则表达式',
+          canonical: url('/guide'),
+          jsonLd: [
+            {
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'CollectionPage',
+                  name: '开发教程',
+                  description: `${SITE_NAME}的开发者教程合集`,
+                  url: url('/guide'),
+                  inLanguage: 'zh-CN',
+                },
+                breadcrumbLd([{ name: '首页', href: '/' }, { name: '教程' }]),
+              ],
+            },
+          ],
+        });
+        emit('/guide', indexPage);
+        written.push({ loc: '/guide', priority: PRIORITY.page });
       }
 
       // ---------- 4. 信任页（隐私政策 / 联系我们 / 使用条款 / Cookie / 开源声明） ----------
@@ -793,8 +911,8 @@ export function seoPrerender(): Plugin {
 
         const topTools = tools.filter((t) => t.tier === 'L1').slice(0, 40);
         const homeBody = [
-          `<h1>${SITE_NAME} - 免费实用的在线工具合集</h1>`,
-          `<p class="seo-lead">收录 ${tools.filter((t) => t.tier !== 'L3').length} 个免费在线工具：文本处理、JSON 格式化、加密解密、单位换算、图片处理、PDF 工具、日期计算、网络工具等，全部在浏览器本地运行，无需注册，数据不上传服务器。</p>`,
+          `<h1>${HOME_TITLE}</h1>`,
+          `<p class="seo-lead">${esc(homeLead(tools.filter((t) => t.tier !== 'L3').length))}</p>`,
           `<h2>按分类浏览</h2>`,
           `<div class="seo-tags">${homeCategories
             .map((c) => `<a class="seo-tag" href="/category/${c.slug}/">${esc(c.name)}（${c.count}）</a>`)
@@ -814,8 +932,8 @@ export function seoPrerender(): Plugin {
         let html = injectStyle(template);
         html = injectBody(html, homeBody);
         html = rewriteHead(html, {
-          title: `${SITE_NAME} - 免费实用的在线工具合集`,
-          description: `收录 ${tools.filter((t) => t.tier !== 'L3').length} 个免费在线工具：文本、JSON、加密解密、单位换算、图片、PDF、日期计算等，全部浏览器本地运行，无需注册，数据不上传。`,
+          title: HOME_TITLE,
+          description: homeDescription(tools.filter((t) => t.tier !== 'L3').length),
           keywords: '在线工具,在线工具箱,实用工具,JSON格式化,Base64,单位换算,加密解密,二维码生成',
           canonical: `${SITE_URL}/`,
           jsonLd: [

@@ -171,9 +171,21 @@ function mapToJSDate(dates: (DateTime | null)[]): string[] {
   return dates.map((d) => d?.toISODate() || '').filter((d) => d);
 }
 
+/**
+ * date-holidays 自带的地区称谓不符合国内规范（TW 被标成"中華民國"、HK/MO 单独成条），
+ * 下拉框会原样显示给用户，所以这里统一改成规范称谓。
+ */
+const REGION_LABEL_FIX: Record<string, string> = {
+  TW: '中国台湾',
+  HK: '中国香港',
+  MO: '中国澳门',
+};
+
 export function getSupportedCountries() {
   const hd = new Holidays();
-  return Object.entries(hd.getCountries()).map(([code, name]) => ({ value: code, label: name }));
+  return Object.entries(hd.getCountries())
+    .map(([code, name]) => ({ value: code, label: REGION_LABEL_FIX[code] ?? name }))
+    .sort((a, b) => (a.value === 'CN' ? -1 : b.value === 'CN' ? 1 : 0));
 }
 
 export function getSupportedStates(country: string) {

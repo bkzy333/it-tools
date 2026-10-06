@@ -53,6 +53,21 @@ const encoding = useQueryParamOrStorage<Encoding>({
 });
 const clearText = ref('');
 
+/**
+ * 「一键示例」的数据。
+ *
+ * 用中文短句而不是 "hello"：哈希最常见的坑就是同一个字符串在不同编码下摘要完全不同，
+ * 纯 ASCII 示例会让用户误以为工具只处理英文。这条填进去后，上方所有算法会一次性
+ * 算出各自的摘要，正好能对比出「同一种算法、长度不同」这件事。
+ */
+const exampleData = {
+  text: '在线工具箱 gjxtools.com',
+};
+
+function loadExample() {
+  clearText.value = exampleData.text;
+}
+
 const defaultHashWasmValues = {
   adler32: '',
   crc32: '',
@@ -130,6 +145,10 @@ const hashWasmPBKDF2 = computedAsync(async () => {
 <template>
   <div>
     <c-card>
+      <div flex justify-end mb-2>
+        <ToolExampleButton @click="loadExample" />
+      </div>
+
       <c-input-text
         v-model:value="clearText"
         multiline

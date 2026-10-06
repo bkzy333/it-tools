@@ -11,6 +11,8 @@ node_modules
 .DS_Store
 dist
 dist-ssr
+# 构建前把上一版 dist 改名留档的备份目录，不能进仓库
+dist-*
 coverage
 *.local
 
