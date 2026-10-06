@@ -735,6 +735,9 @@ tools:
       tag-1mib-1024kib-1mb-1000kb-1gib-1024mib-1gb-1000mb: 1MiB = 1024KiB ; 1MB = 1000kB ; 1GiB = 1024MiB ; 1GB = 1000MB ;
       tag-see-here-for-details: see here for details
       tag-show-unit: Show unit?
+  date-distance-calculator:
+    title: Date Distance Calculator
+    description: Calculate how many days, weeks, months or years between two dates, with workday and holiday stats, date shifting, live countdown and lunar zodiac info
   date-duration-calculator:
     title: Date+Durations Calculator
     description: Add/substract durations from a specific date

@@ -700,6 +700,9 @@ tools:
       tag-1mib-1024kib-1mb-1000kb-1gib-1024mib-1gb-1000mb: 1MiB = 1024KiB；1MB = 1000kB；1GiB = 1024MiB；1GB = 1000MB；
       tag-see-here-for-details: 详情请查看此处
       tag-show-unit: 显示单位？
+  date-distance-calculator:
+    title: 日期距离计算器
+    description: 在线计算两个日期相差多少天、周、月、年，并统计工作日与法定节假日，支持日期加减推算、实时倒计时与农历干支查询
   date-duration-calculator:
     title: 日期加减计算器
     description: 在线给指定日期加上或减去几天、几个月、几年，算出对应的目标日期，可用于计算截止日、到期日和倒计时

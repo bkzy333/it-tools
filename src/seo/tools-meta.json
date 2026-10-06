@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-05T22:07:33.276Z",
+  "generatedAt": "2026-10-06T12:33:43.292Z",
   "sourceCommit": "extracted at build time",
-  "total": 81,
+  "total": 82,
   "tiers": {
-    "L1": 67,
+    "L1": 68,
     "L2": 13,
     "L3": 1
   },
@@ -557,6 +557,32 @@
       "isExternalAccess": false,
       "title": "日期时间格式转换",
       "description": "在线把日期时间在 ISO 8601、RFC 3339、Unix 时间戳、Excel 序列号、UTC 等多种表示之间互相转换，并支持时区换算",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
+    {
+      "path": "/date-distance-calculator",
+      "slug": "date-distance-calculator",
+      "category": "Datetime",
+      "keywords": [
+        "date",
+        "distance",
+        "days",
+        "difference",
+        "workday",
+        "countdown",
+        "lunar",
+        "干支",
+        "农历",
+        "倒计时",
+        "日期"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "日期距离计算器",
+      "description": "在线计算两个日期相差多少天、周、月、年，并统计工作日与法定节假日，支持日期加减推算、实时倒计时与农历干支查询",
       "categoryZh": "日期与时间",
       "categorySeoName": "日期时间在线计算",
       "tier": "L1"
