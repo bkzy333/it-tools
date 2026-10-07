@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-07T11:29:04.813Z",
+  "generatedAt": "2026-10-07T11:56:20.324Z",
   "sourceCommit": "extracted at build time",
-  "total": 89,
+  "total": 90,
   "tiers": {
     "L1": 75,
-    "L2": 13,
+    "L2": 14,
     "L3": 1
   },
   "categories": {
@@ -1415,6 +1415,27 @@
       "categoryZh": "网络工具",
       "categorySeoName": "网络与 IP 在线工具",
       "tier": "L1"
+    },
+    {
+      "path": "/number-rounding",
+      "slug": "number-rounding",
+      "category": "Data",
+      "keywords": [
+        "number",
+        "round",
+        "rounding",
+        "舍入",
+        "四舍五入",
+        "取整"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "数值舍入",
+      "description": "批量把一列数字按四舍五入、向上/向下取整或银行家舍入规范到指定小数位，并可统一加减乘除后统计合计与平均",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
     },
     {
       "path": "/ocr-image",

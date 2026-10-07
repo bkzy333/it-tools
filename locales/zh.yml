@@ -2560,6 +2560,39 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
+  number-rounding:
+    title: 数值舍入
+    description: 批量把一列数字按四舍五入、向上/向下取整或银行家舍入规范到指定小数位，并可统一加减乘除后统计合计与平均
+    texts:
+      label-input: 数值列表
+      placeholder-input: 每行一个数字，或用逗号、空格分隔；也支持 1,234.5 这种千分位写法
+      message-invalid: 下面这些不是数字
+      label-settings: 舍入设置
+      label-digits: 保留小数位
+      label-mode: 舍入方式
+      mode-half-up: 四舍五入（0.5 远离零）
+      mode-half-even: 四舍六入五成双（银行家）
+      mode-ceil: 向上进位（朝正无穷）
+      mode-floor: 向下舍去（朝负无穷）
+      mode-truncate: 直接截断（朝零）
+      label-operation: 批量运算
+      op-none: 不做运算
+      op-add: 全部加上
+      op-subtract: 全部减去
+      op-multiply: 全部乘以
+      op-divide: 全部除以
+      label-operand: 运算数值
+      title-result: 舍入结果
+      placeholder-result: 结果会实时显示在这里
+      action-copy: 复制
+      action-download: 下载
+      action-clear: 清空
+      summary-count: 个数
+      summary-sum: 合计
+      summary-avg: 平均
+      summary-min: 最小
+      summary-max: 最大
+      message-divide-zero: 除数为 0 的行已保留原值
   text-extract:
     title: 文本提取
     description: 从一段文本里批量提取手机号、邮箱、网址、日期、金额、IP、身份证号等，逐行列出所有命中结果并统计数量

@@ -2443,6 +2443,39 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
+  number-rounding:
+    title: Number Rounding
+    description: Round a column of numbers to a fixed number of decimals with half-up, banker's rounding, ceiling or floor, and apply one uniform arithmetic operation to all of them
+    texts:
+      label-input: Numbers
+      placeholder-input: One number per line, or separated by commas or spaces; 1,234.5 also works
+      message-invalid: These are not numbers
+      label-settings: Rounding
+      label-digits: Decimal places
+      label-mode: Mode
+      mode-half-up: Half-up (0.5 away from zero)
+      mode-half-even: Banker's rounding (round half to even)
+      mode-ceil: Round up (toward positive infinity)
+      mode-floor: Round down (toward negative infinity)
+      mode-truncate: Truncate (toward zero)
+      label-operation: Batch operation
+      op-none: No operation
+      op-add: Add
+      op-subtract: Subtract
+      op-multiply: Multiply
+      op-divide: Divide by
+      label-operand: Value
+      title-result: Result
+      placeholder-result: Results appear here as you type
+      action-copy: Copy
+      action-download: Download
+      action-clear: Clear
+      summary-count: count
+      summary-sum: sum
+      summary-avg: avg
+      summary-min: min
+      summary-max: max
+      message-divide-zero: Rows divided by zero keep their original value
   text-extract:
     title: Text Extract
     description: Extract phone numbers, emails, URLs, dates, money and IDs from text, listing every match
