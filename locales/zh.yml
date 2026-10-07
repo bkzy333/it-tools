@@ -2560,6 +2560,34 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
+  text-extract:
+    title: 文本提取
+    description: 从一段文本里批量提取手机号、邮箱、网址、日期、金额、IP、身份证号等，逐行列出所有命中结果并统计数量
+    texts:
+      placeholder-input: 粘贴任意文本（订单、日志、聊天记录都可以），勾选要提取的类型
+      label-types: 提取类型
+      placeholder-custom-pattern: '填写自定义正则，例如 1[3-9]\d{9} 或 [A-Z]{2}\d{4}'
+      message-invalid-regex: 正则不合法
+      tag-dedupe: 结果去重（按出现顺序保留首次）
+      title-result: 提取结果
+      action-copy-all: 复制全部
+      action-download: 下载
+      action-clear: 清空
+      action-copy: 复制
+      message-no-match: 没找到匹配
+      type-phone: 手机号
+      type-email: 邮箱
+      type-url: 网址
+      type-ip: IP 地址
+      type-date: 日期
+      type-time: 时间
+      type-money: 金额
+      type-id-card: 身份证号
+      type-zip: 邮政编码
+      type-number: 数值
+      type-word: 英文单词
+      type-cjk: 中文
+      type-custom: 自定义正则
   text-dedupe:
     title: 文本去重排序
     description: 对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。

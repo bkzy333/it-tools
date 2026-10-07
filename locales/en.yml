@@ -2443,6 +2443,34 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
+  text-extract:
+    title: Text Extract
+    description: Extract phone numbers, emails, URLs, dates, money and IDs from text, listing every match
+    texts:
+      placeholder-input: Paste any text (order, log, chat message...), then pick the types to extract
+      label-types: Types
+      placeholder-custom-pattern: 'Enter a custom regex, e.g. 1[3-9]\d{9} or [A-Z]{2}\d{4}'
+      message-invalid-regex: Invalid regular expression
+      tag-dedupe: Deduplicate results (keep first occurrence)
+      title-result: Extracted
+      action-copy-all: Copy all
+      action-download: Download
+      action-clear: Clear
+      action-copy: Copy
+      message-no-match: No match found
+      type-phone: Phone
+      type-email: Email
+      type-url: URL
+      type-ip: IP address
+      type-date: Date
+      type-time: Time
+      type-money: Money
+      type-id-card: ID card
+      type-zip: Postal code
+      type-number: Number
+      type-word: English word
+      type-cjk: Chinese
+      type-custom: Custom regex
   text-dedupe:
     title: Text Dedupe and Sort
     description: Remove duplicate lines, sort them, drop blank lines and trim
