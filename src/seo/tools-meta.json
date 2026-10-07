@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-07T00:34:06.975Z",
+  "generatedAt": "2026-10-07T04:04:12.864Z",
   "sourceCommit": "extracted at build time",
-  "total": 84,
+  "total": 88,
   "tiers": {
-    "L1": 70,
+    "L1": 74,
     "L2": 13,
     "L3": 1
   },
@@ -786,7 +786,7 @@
       "npmPackages": [],
       "isExternalAccess": false,
       "title": "文本哈希工具",
-      "description": "在线计算字符串的哈希值，支持 MD5、SHA1、SHA256、SHA512、SHA3、SM3、RIPEMD160、CRC32、BLAKE3、XXHASH、Argon2 等 20 多种摘要算法，全部在浏览器本地计算不上传。",
+      "description": "在线计算字符串的哈希值，支持",
       "categoryZh": "加密与解密",
       "categorySeoName": "加密解密与哈希在线工具",
       "tier": "L1"
@@ -1793,6 +1793,23 @@
       "tier": "L1"
     },
     {
+      "path": "/text-dedupe",
+      "slug": "text-dedupe",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "dedupe"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本去重排序",
+      "description": "对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
       "path": "/text-diff",
       "slug": "text-diff",
       "category": "Text",
@@ -1807,8 +1824,59 @@
       "redirectFrom": [],
       "npmPackages": [],
       "isExternalAccess": false,
-      "title": "文本对比工具（差异比较）",
+      "title": "文本对比",
       "description": "在线对比两段文本并高亮标出增删改的差异，逐行显示哪里被改动，适合比对配置文件、代码和文档版本",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-format",
+      "slug": "text-format",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "format"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本处理",
+      "description": "对文本批量执行去空格、去空行、去前后缀、缩进反缩进、替换、排序与去重，实时预览处理结果。",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-join",
+      "slug": "text-join",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "join"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本拼接",
+      "description": "把多行文本按连接符合并成一行，可选去除首尾空格、删除所有空格并自动丢弃空行。",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-split",
+      "slug": "text-split",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "split"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本分割",
+      "description": "用指定分隔符把文本拆成多行或多段，可排序、去首尾空格、加行号，再用另一个分隔符拼回去。",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"

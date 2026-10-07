@@ -23,6 +23,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   'update:original': [value: string];
   'update:modified': [value: string];
+  /** diff 编辑器实例就绪（第一次挂载完发出），供调用方读 getLineChanges() 之类的统计 */
+  ready: [editor: monaco.editor.IStandaloneDiffEditor];
 }>();
 const { options, original, modified, language, height, testId } = toRefs(props);
 
@@ -117,6 +119,8 @@ onMounted(() => {
     originalModel.onDidChangeContent(() => emit('update:original', originalModel?.getValue() ?? '')),
     modifiedModel.onDidChangeContent(() => emit('update:modified', modifiedModel?.getValue() ?? '')),
   ];
+
+  emit('ready', editor);
 });
 
 onBeforeUnmount(() => {

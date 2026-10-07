@@ -262,7 +262,9 @@ tools:
   yaml-prettify:
     title: YAML prettify and format
     description: Prettify your YAML string into a friendly, human-readable format.
-    externalAccess: This tool downloads the JSON schema catalog from https://www.schemastore.org when the page loads, and downloads individual schema files when validation is requested. No data is sent externally.
+    externalAccess: This tool downloads the JSON schema catalog from
+      https://www.schemastore.org when the page loads, and downloads individual
+      schema files when validation is requested. No data is sent externally.
   base64-file-converter:
     title: Base64 file converter
     description: Convert a string, file, or image into its base64 representation.
@@ -567,9 +569,32 @@ tools:
     title: Text diff
     description: Compare two texts and see the differences between them.
     texts:
-      tag-const-wordwrap-ref-false: const wordWrap = ref(false);
       tag-word-wrap: Word Wrap?
       tag-ignore-whitespaces: Ignore Trailing Whitespaces?
+      title-input-original: Original
+      title-input-modified: Modified
+      placeholder-input-original: Paste the original text, or hit One-click example
+      placeholder-input-modified: Paste the modified text, or edit it right here
+      action-swap: Swap sides
+      action-clear: Clear
+      label-view-mode: View mode
+      opt-view-side-by-side: Side by side
+      opt-view-inline: Inline
+      tag-line-numbers: Line numbers
+      tag-overview-ruler: Diff overview ruler
+      tag-hide-unchanged: Collapse unchanged regions
+      hint-hide-unchanged: Folds identical blocks so you can jump straight to the
+        differences. Off by default, matching the reference site which always
+        expands everything.
+      title-diff-summary: Diff summary
+      title-diff-editor: Diff view
+      title-result: Use the result
+      stat-added: Added
+      stat-removed: Removed
+      stat-modified: Modified
+      stat-unchanged: Unchanged
+      action-copy-modified: Copy modified
+      action-download-modified: Download modified
   url-encoder:
     title: Encode/decode url formatted strings
     description: Encode to url-encoded format (also known as "percent-encoded") or
@@ -738,7 +763,9 @@ tools:
       tag-show-unit: Show unit?
   date-distance-calculator:
     title: Date Distance Calculator
-    description: Calculate how many days, weeks, months or years between two dates, with workday and holiday stats, date shifting, live countdown and lunar zodiac info
+    description: Calculate how many days, weeks, months or years between two dates,
+      with workday and holiday stats, date shifting, live countdown and lunar
+      zodiac info
   date-duration-calculator:
     title: Date+Durations Calculator
     description: Add/substract durations from a specific date
@@ -757,7 +784,8 @@ tools:
         P4DT12H20M20.3S.."
   kinship-calculator:
     title: Chinese kinship calculator
-    description: Work out how to address a relative in Chinese, or reverse-lookup what a kinship term means
+    description: Work out how to address a relative in Chinese, or reverse-lookup
+      what a kinship term means
     texts:
       title-input: Relationship
       title-result: Result
@@ -781,14 +809,16 @@ tools:
       copied: Result copied
   retirement-age-calculator:
     title: China statutory retirement age calculator
-    description: "Work out your statutory retirement age and retirement month under the gradual delay reform, with flexible early or delayed retirement windows and the minimum years of contributions"
+    description: Work out your statutory retirement age and retirement month under
+      the gradual delay reform, with flexible early or delayed retirement
+      windows and the minimum years of contributions
     texts:
       title-input: Your details
       title-result: Result
       label-worker-type: "Worker type:"
       type-male: Male worker
-      type-female-manager: "Female, management post"
-      type-female-worker: "Female, non-management post"
+      type-female-manager: Female, management post
+      type-female-worker: Female, non-management post
       label-birth: "Birth year and month:"
       placeholder-year: Birth year
       label-month: month
@@ -798,7 +828,9 @@ tools:
       unit-age-short: " years "
       unit-date-year: "-"
       unit-date-month: ""
-      hint-input: "Only the year and month matter, the exact day is irrelevant. The reform starts in January 2025, so male workers born before January 1965 are unaffected."
+      hint-input: Only the year and month matter, the exact day is irrelevant. The
+        reform starts in January 2025, so male workers born before January 1965
+        are unaffected.
       label-retire-date-suffix: is when you can retire
       label-original-age: Age before the reform
       label-delay: Delay vs. before
@@ -806,10 +838,18 @@ tools:
       label-latest: Latest flexible retirement
       label-min-contribution: Minimum contribution years
       title-notice: How this is calculated
-      hint-notice: "Based on the Standing Committee decision on gradually raising the statutory retirement age, with the transition running from January 2025 to December 2039. Flexible early retirement is up to 3 years sooner but never before the pre-reform age; flexible delayed retirement is up to 3 years later and requires agreement with your employer. Special-category and medical early retirement are out of scope; your local social insurance office has the final word."
+      hint-notice: Based on the Standing Committee decision on gradually raising the
+        statutory retirement age, with the transition running from January 2025
+        to December 2039. Flexible early retirement is up to 3 years sooner but
+        never before the pre-reform age; flexible delayed retirement is up to 3
+        years later and requires agreement with your employer. Special-category
+        and medical early retirement are out of scope; your local social
+        insurance office has the final word.
   china-holidays:
     title: China public holiday calendar
-    description: "Look up the official Chinese public holiday and make-up workday schedule, with 2026 dates, days off, substitute working weekends and toll-free travel windows"
+    description: Look up the official Chinese public holiday and make-up workday
+      schedule, with 2026 dates, days off, substitute working weekends and
+      toll-free travel windows
     texts:
       title-plan: Schedule
       label-year: "Year:"
@@ -826,15 +866,25 @@ tools:
       tag-free-toll: Toll free
       title-makeup: Make-up workdays
       hint-no-makeup: No make-up workdays this year
-      hint-makeup: "These weekend days are working days, so set your alarm."
+      hint-makeup: These weekend days are working days, so set your alarm.
       title-notice: Data source
-      hint-notice: "Taken from the State Council General Office notice on the 2026 holiday arrangement published on 4 November 2025. No forecast or inferred dates are used. There are 13 statutory holiday days in a year (New Year 1, Spring Festival 4, Qingming 1, Labour Day 2, Dragon Boat 1, Mid-Autumn 1, National Day 3); the rest of the time off comes from weekends and make-up arrangements. Toll-free travel covers only the Spring Festival, Qingming, Labour Day and National Day windows, and only for vehicles with up to 7 seats. Next year’s schedule is normally announced around November and will be added here."
+      hint-notice: Taken from the State Council General Office notice on the 2026
+        holiday arrangement published on 4 November 2025. No forecast or
+        inferred dates are used. There are 13 statutory holiday days in a year
+        (New Year 1, Spring Festival 4, Qingming 1, Labour Day 2, Dragon Boat 1,
+        Mid-Autumn 1, National Day 3); the rest of the time off comes from
+        weekends and make-up arrangements. Toll-free travel covers only the
+        Spring Festival, Qingming, Labour Day and National Day windows, and only
+        for vehicles with up to 7 seats. Next year’s schedule is normally
+        announced around November and will be added here.
       status-passed: Passed
       status-ongoing: In progress
       status-upcoming: Upcoming
   severance-pay-calculator:
     title: China severance pay calculator
-    description: "Estimate statutory severance pay for a terminated Chinese employment contract, with the triple-average-wage cap, the 12-year limit and the double payment for unlawful dismissal"
+    description: Estimate statutory severance pay for a terminated Chinese
+      employment contract, with the triple-average-wage cap, the 12-year limit
+      and the double payment for unlawful dismissal
     texts:
       title-input: Your details
       title-result: Result
@@ -844,7 +894,8 @@ tools:
       unit-yuan-per-month: yuan/month
       label-local-wage: "Local average monthly wage (last year):"
       placeholder-optional: Leave empty if unsure
-      hint-local-wage: "This only matters when your wage is more than three times it. Most people are below the threshold, so you can leave it empty."
+      hint-local-wage: This only matters when your wage is more than three times it.
+        Most people are below the threshold, so you can leave it empty.
       label-compensation: Severance pay (N)
       unit-month: " months"
       hint-times-base: " × base wage "
@@ -855,14 +906,23 @@ tools:
       label-double: Unlawful dismissal (2N)
       title-capped: Triple-average-wage cap applied
       hint-capped-before: Your wage is more than three times the local average monthly wage (
-      hint-capped-after: "), so the base wage is capped at three times that average."
+      hint-capped-after: ), so the base wage is capped at three times that average.
       hint-years-capped: The 12-year ceiling on compensated years also applies.
-      hint-not-capped: "Your wage is below three times the local average, so the actual wage and full length of service are used with no 12-year ceiling."
+      hint-not-capped: Your wage is below three times the local average, so the actual
+        wage and full length of service are used with no 12-year ceiling.
       title-notice: Legal basis and disclaimer
-      hint-notice: "Based on Article 47 of the Chinese Labour Contract Law: one month of wage per full year of service, one year for anything over six months, and half a month for less than six months. The wage is the average of the last 12 months before termination, including bonuses and overtime, not take-home pay. Article 87 doubles the amount for unlawful termination. This is an estimate only; an arbitration body or court decides the final figure."
+      hint-notice: "Based on Article 47 of the Chinese Labour Contract Law: one month
+        of wage per full year of service, one year for anything over six months,
+        and half a month for less than six months. The wage is the average of
+        the last 12 months before termination, including bonuses and overtime,
+        not take-home pay. Article 87 doubles the amount for unlawful
+        termination. This is an estimate only; an arbitration body or court
+        decides the final figure."
   chinese-script-converter:
     title: Chinese simplified / traditional converter
-    description: "Convert between simplified and traditional Chinese using the OpenCC dictionaries, so context-dependent characters are handled correctly, entirely in your browser"
+    description: Convert between simplified and traditional Chinese using the OpenCC
+      dictionaries, so context-dependent characters are handled correctly,
+      entirely in your browser
     texts:
       title-input: Input
       label-direction: "Direction:"
@@ -876,12 +936,18 @@ tools:
       title-stat: Character count
       label-input-length: Input
       label-output-length: Output
-      hint-length: "Counted by character, including punctuation and spaces. Conversion is character-by-character, so the count usually stays the same."
+      hint-length: Counted by character, including punctuation and spaces. Conversion
+        is character-by-character, so the count usually stays the same.
       title-notice: About the dictionary
-      hint-notice: "Powered by OpenCC (MIT and Apache-2.0). The dictionaries are bundled locally, so nothing is uploaded and no network request is made. Only character forms are converted, not regional vocabulary: 软件 becomes 軟件 rather than the Taiwanese 軟體."
+      hint-notice: "Powered by OpenCC (MIT and Apache-2.0). The dictionaries are
+        bundled locally, so nothing is uploaded and no network request is made.
+        Only character forms are converted, not regional vocabulary: 软件 becomes
+        軟件 rather than the Taiwanese 軟體."
   credit-card-installment-calculator:
     title: Credit card installment real interest rate
-    description: "Calculate the true annualised cost of a credit card instalment plan with IRR, showing why a 0.6% monthly fee works out near 13% rather than 7.2%"
+    description: Calculate the true annualised cost of a credit card instalment plan
+      with IRR, showing why a 0.6% monthly fee works out near 13% rather than
+      7.2%
     texts:
       title-input: Your plan
       title-result: Result
@@ -893,7 +959,8 @@ tools:
       label-collection: "Fee collection:"
       collection-installment: Spread over periods
       collection-upfront: Charged upfront
-      hint-fee-rate: "Enter it the way the bank advertises it, so a monthly fee of 0.6% is entered as 0.6."
+      hint-fee-rate: Enter it the way the bank advertises it, so a monthly fee of 0.6%
+        is entered as 0.6.
       label-real-rate: Effective annual rate
       label-real-rate-suffix: This is what the money actually costs you
       label-nominal-rate: Advertised annual rate
@@ -906,9 +973,17 @@ tools:
       label-compound-rate: Compounded annual rate
       title-compare: Across instalment lengths
       tag-current: Current
-      hint-compare: "At the same 0.6% per month the effective annual rate stays around 13% whether you spread it over 3 or 36 periods. A longer term does not lower the real rate, it only increases the total fee."
+      hint-compare: At the same 0.6% per month the effective annual rate stays around
+        13% whether you spread it over 3 or 36 periods. A longer term does not
+        lower the real rate, it only increases the total fee.
       title-notice: About the maths
-      hint-notice: "The effective annual rate is the real monthly rate times 12. The monthly rate is solved by bisection on IRR, the rate that makes the net amount received equal the present value of all repayments. The fee is charged on the full original amount while the balance falls every month, which is why the real cost is far above the advertised figure. Banks must disclose this same effective rate in their contracts; the bank figure prevails if it differs."
+      hint-notice: The effective annual rate is the real monthly rate times 12. The
+        monthly rate is solved by bisection on IRR, the rate that makes the net
+        amount received equal the present value of all repayments. The fee is
+        charged on the full original amount while the balance falls every month,
+        which is why the real cost is far above the advertised figure. Banks
+        must disclose this same effective rate in their contracts; the bank
+        figure prevails if it differs.
   days-calculator:
     title: Days Calculator
     description: Calculate days interval, holidays, difference, business times
@@ -1028,8 +1103,8 @@ tools:
       tag-loading: Looking up…
       title-errors-occured: Errors occured
       tag-localize-on-open-street-map: Localize on Open Street Map
-    externalAccess: This tool sends the IP address you enter to https://ipwho.is to get IP
-      Geolocation information
+    externalAccess: This tool sends the IP address you enter to https://ipwho.is to
+      get IP Geolocation information
   jwt-generator:
     title: JWT Generator
     description: JWT Token generator and editor
@@ -1071,7 +1146,8 @@ tools:
       title-other-units-conversion-tools: Other Units Conversion Tools
   my-ip:
     title: My IP Address
-    description: Look up your public IP address, geolocation, ISP and timezone, and check IPv6 support
+    description: Look up your public IP address, geolocation, ISP and timezone, and
+      check IPv6 support
     texts:
       title-your-ip-address: Your public IP
       label-ip: IP address
@@ -1091,9 +1167,9 @@ tools:
       all-sources-failed: All data sources are temporarily unavailable, please retry later
       source: Data source
       tag-refresh: Refresh
-    externalAccess: This tool queries public endpoints such as https://ipwho.is for your public
-      IP and geolocation in order to display the result. Nothing else is uploaded.
-
+    externalAccess: This tool queries public endpoints such as https://ipwho.is for
+      your public IP and geolocation in order to display the result. Nothing
+      else is uploaded.
   ocr-image:
     title: OCRize image and PDF
     description: Perform OCR (Tesseract) on an image or PDF
@@ -1498,7 +1574,9 @@ tools:
         label-description: Description
   regex-tester:
     title: Regex Tester
-    description: "Debug regular expressions online: live highlighting of every match, capture group values, batch replace, and ready-to-paste code for JavaScript, Python, Java, Go and more."
+    description: "Debug regular expressions online: live highlighting of every
+      match, capture group values, batch replace, and ready-to-paste code for
+      JavaScript, Python, Java, Go and more."
     regex-input: "Regex to test:"
     regex-input-placeholder: Put the regex to test
     guide-link: Common regex patterns
@@ -1537,7 +1615,7 @@ tools:
       tag-xa0: "&#xa0;"
       flags-label: "Flags:"
       replace-input: "Replace with:"
-      replace-input-placeholder: "Replacement text, $1 refers to group 1"
+      replace-input-placeholder: Replacement text, $1 refers to group 1
       replace-button: Replace
       stats-match: Matches
       stats-group: Groups
@@ -1547,15 +1625,16 @@ tools:
       tab-replace: Replace result
       tab-code: Code
       tab-cheat: Cheatsheet
-      empty-highlight: "Enter a regex and test text on the left; matches will be highlighted here."
-      empty-replace: "Enter the replacement text and the result will show up here."
-      empty-code: "Enter a regular expression first."
+      empty-highlight: Enter a regex and test text on the left; matches will be
+        highlighted here.
+      empty-replace: Enter the replacement text and the result will show up here.
+      empty-code: Enter a regular expression first.
       match-position: Position
       copy: Copy
       unit-chars: chars
-      cheat-insert-hint: "Click to insert into the regex field"
-      code-sample-fallback: "test text"
-      matches-truncated: "Showing the first {count} of {total} matches."
+      cheat-insert-hint: Click to insert into the regex field
+      code-sample-fallback: test text
+      matches-truncated: Showing the first {count} of {total} matches.
     groups: Groups
   email-parser:
     title: Email Parser
@@ -2263,13 +2342,16 @@ tools:
   external-self-hosted-required: External Self Hosted Required
   typing-speed-test:
     title: Typing Speed Test
-    description: Test Chinese or English typing speed online with live WPM, CPM, accuracy and error counts, plus custom text and local score history
+    description: Test Chinese or English typing speed online with live WPM, CPM,
+      accuracy and error counts, plus custom text and local score history
   age-calculator:
     title: Age Calculator
-    description: "Calculate your exact age in years, months and days from a date and time of birth, with zodiac sign, Chinese zodiac, birthday countdown and age milestones"
+    description: Calculate your exact age in years, months and days from a date and
+      time of birth, with zodiac sign, Chinese zodiac, birthday countdown and
+      age milestones
     texts:
       label-birth-date: Date of birth
-      label-birth-time: "Time of birth (optional)"
+      label-birth-time: Time of birth (optional)
       label-life-expectancy: Life expectancy
       unit-year: years
       unit-month: months
@@ -2282,7 +2364,7 @@ tools:
       btn-copy: Copy result
       btn-reset: Reset
       hint-empty: Pick a date of birth to see the result
-      err-future: "Date of birth cannot be later than now. Please pick again."
+      err-future: Date of birth cannot be later than now. Please pick again.
       label-age: Age
       label-nominal-age: Nominal age
       label-constellation: Zodiac sign
@@ -2290,12 +2372,13 @@ tools:
       label-lived: Time lived
       label-next-birthday: Countdown to next birthday
       label-life-progress: Life progress
-      life-progress-note: "Based on a life expectancy of {years} years, you have lived {days} days / {weeks} weeks"
+      life-progress-note: Based on a life expectancy of {years} years, you have lived
+        {days} days / {weeks} weeks
       label-birth-weekday: Weekday of birth
       label-next-birthday-weekday: Weekday of next birthday
       label-birthstone: Birthstone
       label-generation: Generation
-      title-fun: "Fun facts (estimates)"
+      title-fun: Fun facts (estimates)
       label-heartbeats: Heartbeats
       label-breaths: Breaths
       label-sleep: Sleep accumulated
@@ -2306,11 +2389,157 @@ tools:
       label-total-weeks: Total weeks
       label-total-seconds: Total seconds
       title-future-birthdays: Upcoming birthdays
-      turning: "Turns {age}"
+      turning: Turns {age}
       title-milestones: Age milestones
       milestone-age: "{age} years old"
       milestones-done: All preset milestones reached
       copied: Result copied
+  text-format:
+    title: Text Format
+    description: Batch clean and reformat text in one pass — trim whitespace, drop
+      empty lines, add or strip prefixes and suffixes, indent or dedent, find
+      and replace, then sort and dedupe, with live preview.
+    texts:
+      label-input: Input
+      placeholder-input: Paste the text to process here, the result updates live
+      label-space: Whitespace
+      opt-remove-left-space: Trim leading whitespace
+      opt-remove-right-space: Trim trailing whitespace
+      opt-remove-all-space: Remove all inline whitespace
+      opt-remove-empty-line: Remove empty lines
+      label-prefix-suffix: Prefix and suffix
+      label-prefix-suffix-mode: Mode
+      opt-prefix-suffix-mode-none: No change
+      opt-prefix-suffix-mode-add: Add
+      opt-prefix-suffix-mode-remove: Remove
+      placeholder-prefix: Prefix to add or remove
+      placeholder-suffix: Suffix to add or remove
+      label-indent: Indentation
+      label-indent-mode: Mode
+      opt-indent-mode-none: No change
+      opt-indent-mode-add: Add indent
+      opt-indent-mode-remove: Remove indent
+      label-indent-method: Unit
+      opt-indent-method-space: Spaces
+      opt-indent-method-tab: Tab
+      label-indent-columns: Spaces per indent
+      label-replace: Replace
+      opt-replace-using: Enable replace
+      label-replace-from: Replace
+      label-replace-to: With
+      opt-replacer-mode-custom: Custom
+      opt-replacer-mode-newline: Newline
+      label-order: Sorting and dedupe
+      label-order-by: Order
+      opt-order-none: Keep order
+      opt-order-asc: Ascending
+      opt-order-desc: Descending
+      opt-remove-repeat: Remove duplicate lines
+      opt-show-line-number: Show line numbers
+      title-result: Result
+      label-total-lines: Total lines
+      label-empty-lines: Empty lines
+      label-duplicate-lines: Duplicates
+      action-copy: Copy result
+      action-download: Download
+      action-clear: Clear
+  text-dedupe:
+    title: Text Dedupe and Sort
+    description: Remove duplicate lines, sort them, drop blank lines and trim
+      whitespace in one pass, with live counts of total, duplicate and empty
+      lines.
+    texts:
+      tab-dedupe: Dedupe and sort
+      tab-count: Duplicate count
+      label-input: Input
+      placeholder-input: Paste the text to process here
+      label-input-delimiter: Input delimiter
+      placeholder-input-delimiter: Custom delimiter, e.g. --- or ***
+      opt-delimiter-newline: Newline[↵]
+      opt-delimiter-tab: Tab[⇥]
+      opt-delimiter-space: Space[ ]
+      opt-delimiter-comma: Comma[,]
+      opt-delimiter-comma-full: Fullwidth comma[，]
+      opt-delimiter-slash: Slash[/]
+      opt-delimiter-semicolon: Semicolon[;]
+      opt-delimiter-semicolon-full: Fullwidth semicolon[；]
+      opt-delimiter-custom: Custom
+      label-order-by: Sort result
+      opt-order-none: Keep order
+      opt-order-asc: Ascending
+      opt-order-desc: Descending
+      label-count-order-by: Sort by count
+      opt-count-order-none: Keep order
+      opt-count-order-desc: By count descending
+      opt-count-order-asc: By count ascending
+      opt-remove-repeat: Remove duplicate lines
+      opt-remove-first-last-space: Trim edges
+      opt-remove-empty-line: Remove blank lines
+      opt-show-line-number: Show line numbers
+      title-result: Result
+      label-total-lines: Total lines
+      label-duplicate-lines: Duplicates
+      label-empty-lines: Blank lines
+      action-copy: Copy result
+      action-download: Download
+      action-download-csv: Export CSV
+      action-clear: Clear
+  text-split:
+    title: Text Split
+    description: Split text into multiple lines or parts with a chosen delimiter,
+      then optionally sort, trim and number them before joining back with a
+      different output delimiter.
+    texts:
+      label-input: Input
+      placeholder-input: Paste the text to split here
+      label-input-delimiter: Input delimiter
+      placeholder-input-delimiter: Custom delimiter, e.g. --- or ***
+      label-output-delimiter: Output delimiter
+      placeholder-output-delimiter: Delimiter used to join the result
+      label-order-by: Sort result
+      opt-order-none: Keep order
+      opt-order-asc: Ascending
+      opt-order-desc: Descending
+      opt-delimiter-newline: Newline[↵]
+      opt-delimiter-tab: Tab[⇥]
+      opt-delimiter-space: Space[ ]
+      opt-delimiter-comma: Comma[,]
+      opt-delimiter-comma-full: Fullwidth comma[，]
+      opt-delimiter-slash: Slash[/]
+      opt-delimiter-semicolon: Semicolon[;]
+      opt-delimiter-semicolon-full: Fullwidth semicolon[；]
+      opt-delimiter-custom: Custom
+      opt-remove-first-last-space: Trim edges
+      opt-show-line-number: Show line numbers
+      title-result: Result
+      label-part-count: Parts
+      hint-unchanged: Delimiter not found, output unchanged
+      action-copy: Copy result
+      action-download: Download
+      action-clear: Clear
+  text-join:
+    title: Text Join
+    description: Merge multiple lines into one with a connection string, optionally
+      trimming the edges or stripping every space, and drop empty lines
+      automatically.
+    texts:
+      label-input: Input
+      placeholder-input: Paste the lines to join here
+      label-connection: Connection
+      placeholder-connection: Connection string
+      opt-connection-empty: None (direct)
+      opt-connection-comma: Comma
+      opt-connection-semicolon: Semicolon
+      opt-connection-tab: Tab
+      opt-connection-newline: Newline
+      opt-connection-custom: Custom
+      opt-remove-first-last-space: Trim edges
+      opt-remove-all-space: Remove all spaces
+      title-result: Result
+      label-line-count: Lines joined
+      action-copy: Copy result
+      action-download: Download
+      action-clear: Clear
 collapsibleToolMenu:
   text:
     expanding: Expanding...
