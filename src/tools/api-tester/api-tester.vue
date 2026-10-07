@@ -59,7 +59,10 @@ async function callAPI() {
     let responseText = await response.text();
     try {
       responseText = JSON.stringify(JSON.parse(responseText), null, 2);
-    } catch (_) {}
+    } catch (_) {
+      // 不是合法 JSON 就保留原始响应文本，不做任何转换——这里是「能美化就美化」，
+      // 不是错误处理路径，别改成抛错（apiCallResult 的 error 字段只用于请求本身失败）。
+    }
     apiCallResult.value = {
       code: response.status,
       error: '',

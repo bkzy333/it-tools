@@ -1,22 +1,28 @@
 import { describe, expect, test } from 'vitest';
+import { translate as t } from '@/plugins/i18n.plugin';
 import { parseQRData } from './qr-code-decoder.service';
+
+// parseQRData 返回的是已经过 i18n 的文案（service 层直接 t() 包装）。
+// 测试在这里仍走同一个 translate 取期望值：中文站断言中文、英文站断言英文，
+// 不会再把「返回什么语言」误判成解析逻辑的 bug。
+const TEXT_KEY = 'tools.qr-code-decoder.service.text';
 
 describe('qr-code-decoder', () => {
   test('parseQRData should parse content correctly', () => {
     expect(parseQRData(null)).toEqual({
-      type: 'Unknown',
+      type: t(`${TEXT_KEY}.unknown`),
       value: '',
     });
     expect(parseQRData('')).toEqual({
-      type: 'Unknown',
+      type: t(`${TEXT_KEY}.unknown`),
       value: '',
     });
     expect(parseQRData('TEL:+33123456')).toEqual({
-      type: 'Phone',
+      type: t(`${TEXT_KEY}.phone`),
       value: '+33123456',
     });
     expect(parseQRData('MATMSG:TO: email@example.com;SUB:email subject;BODY:Email text;;')).toEqual({
-      type: 'Email',
+      type: t(`${TEXT_KEY}.email`),
       value: {
         body: 'Email text',
         subject: 'email subject',
@@ -24,7 +30,7 @@ describe('qr-code-decoder', () => {
       },
     });
     expect(parseQRData('mailto:email@example.com?subject=email subject&body=Email text')).toEqual({
-      type: 'Email',
+      type: t(`${TEXT_KEY}.email`),
       value: {
         body: 'Email text',
         subject: 'email subject',
@@ -32,7 +38,7 @@ describe('qr-code-decoder', () => {
       },
     });
     expect(parseQRData('SMTP:email@example.com:email subject:Email text')).toEqual({
-      type: 'Email',
+      type: t(`${TEXT_KEY}.email-1`),
       value: {
         body: 'Email text',
         subject: 'email subject',
@@ -40,14 +46,14 @@ describe('qr-code-decoder', () => {
       },
     });
     expect(parseQRData('smsto:+33315555:message')).toEqual({
-      type: 'SMS',
+      type: t(`${TEXT_KEY}.sms`),
       value: {
         message: 'message',
         to: '+33315555',
       },
     });
     expect(parseQRData('WIFI:T:nopass;S:ssid;H:true;')).toEqual({
-      type: 'Wifi',
+      type: t(`${TEXT_KEY}.wifi`),
       value: {
         authentication: 'nopass',
         hidden: 'true',
@@ -56,7 +62,7 @@ describe('qr-code-decoder', () => {
       },
     });
     expect(parseQRData('WIFI:T:WPA;S:ssid;P:password;H:false;')).toEqual({
-      type: 'Wifi',
+      type: t(`${TEXT_KEY}.wifi`),
       value: {
         authentication: 'WPA',
         hidden: 'false',
@@ -69,7 +75,7 @@ describe('qr-code-decoder', () => {
         'otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30',
       ),
     ).toEqual({
-      type: 'OTP Auth',
+      type: t(`${TEXT_KEY}.otpauth`),
       value: {
         label: {
           account: 'john.doe@email.com',
@@ -92,7 +98,7 @@ describe('qr-code-decoder', () => {
         'otpauth-migration://offline?data=CigKFFVUVURPbmFMMXd1cDlBSVZHOUVjEgRUZXN0GgRUZXN0IAEoAjACCi8KCkhlbGxvId6tvu8SEGFsaWNlQGdvb2dsZS5jb20aB0V4YW1wbGUgASgBMAE4BxABGAEgAA%3D%3D',
       ),
     ).toEqual({
-      type: 'OTP Migration',
+      type: t(`${TEXT_KEY}.otpmigration`),
       value: [
         {
           label: {
@@ -132,7 +138,7 @@ describe('qr-code-decoder', () => {
         'BEGIN:VCALENDAR\nPRODID:-//xyz Corp//NONSGML PDA Calendar Version 1.0//EN\nVERSION:2.0\nBEGIN:VEVENT\nDTSTAMP:19960704T120000Z\nUID:uid1@example.com\nORGANIZER:mailto:jsmith@example.com\nDTSTART:19960918T143000Z\nDTEND:19960920T220000Z\nSTATUS:CONFIRMED\nCATEGORIES:CONFERENCE\nSUMMARY:Networld+Interop Conference\nDESCRIPTION:Networld+Interop Conference\n  and Exhibit\\nAtlanta World Congress Center\\n\n Atlanta\\, Georgia\nEND:VEVENT\nEND:VCALENDAR',
       ),
     ).toEqual({
-      type: 'iCal',
+      type: t(`${TEXT_KEY}.ical`),
       value: [
         'vcalendar',
         [

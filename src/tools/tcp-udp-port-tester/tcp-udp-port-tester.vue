@@ -64,7 +64,10 @@ function connect() {
         );
         try {
           addLog(`${t('tools.tcp-udp-port-tester.texts.text')} ${new TextDecoder().decode(buffer)}`);
-        } catch {}
+        } catch (_) {
+          // 二进制数据解不出文本时上面已经用十六进制打过一行了，这里只补一条文本视图，
+          // 解码失败就跳过，不影响那行十六进制日志。
+        }
       }
     }
   };

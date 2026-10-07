@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-06T12:33:43.292Z",
+  "generatedAt": "2026-10-07T00:34:06.975Z",
   "sourceCommit": "extracted at build time",
-  "total": 82,
+  "total": 84,
   "tiers": {
-    "L1": 68,
+    "L1": 70,
     "L2": 13,
     "L3": 1
   },
@@ -48,6 +48,35 @@
     "YAML": "YAML 在线格式化与转换"
   },
   "tools": [
+    {
+      "path": "/age-calculator",
+      "slug": "age-calculator",
+      "category": "Datetime",
+      "keywords": [
+        "age",
+        "age calculator",
+        "birthday",
+        "countdown",
+        "zodiac",
+        "constellation",
+        "年龄",
+        "年龄计算器",
+        "周岁",
+        "虚岁",
+        "生日倒计时",
+        "星座",
+        "生肖",
+        "生命进度"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "年龄计算器",
+      "description": "输入出生日期与时间，精确计算周岁、虚岁、星座、生肖，查看生日倒计时与重要年龄节点。",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
     {
       "path": "/api-tester",
       "slug": "api-tester",
@@ -1856,6 +1885,31 @@
       "tier": "L1"
     },
     {
+      "path": "/typing-speed-test",
+      "slug": "typing-speed-test",
+      "category": "Text",
+      "keywords": [
+        "typing",
+        "typing speed test",
+        "wpm",
+        "cpm",
+        "打字速度测试",
+        "打字测试",
+        "在线打字",
+        "打字练习",
+        "打字测速",
+        "准确率"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "打字速度测试",
+      "description": "在线测试中文/英文打字速度，实时统计 WPM、CPM、准确率与错误数，支持自定义文本与历史成绩",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
       "path": "/url-encoder",
       "slug": "url-encoder",
       "category": "Web",
@@ -1977,7 +2031,7 @@
       "npmPackages": [
         "yaml"
       ],
-      "isExternalAccess": false,
+      "isExternalAccess": true,
       "title": "YAML格式化与美化",
       "description": "将您的YAML字符串格式化为友好、易读的格式。",
       "categoryZh": "YAML",

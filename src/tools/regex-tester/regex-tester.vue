@@ -126,6 +126,8 @@ const evaluation = computed<Evaluation>(() => {
     const groupCount = matches.reduce((total, m) => total + m.captures.length + m.groups.length, 0);
     return { matches, groupCount, ms: performance.now() - startedAt };
   } catch (_) {
+    // 非法正则的输入校验在输入框规则层就拦下了（texts['message-invalid-regex']），
+    // 兜底到这里说明是运行时才抛的（极少），此时按「无匹配」展示，避免整页白屏。
     return { matches: [], groupCount: 0, ms: 0 };
   }
 });
@@ -175,6 +177,8 @@ const replacedText = computed(() => {
   try {
     return text.value.replace(new RegExp(regex.value, flags.value), replacement.value);
   } catch (_) {
+    // 替换失败（正则运行时抛错）时退回空串；输入框已校验过正则合法性，
+    // 这里只是兜底，不让异常把页面打崩。
     return '';
   }
 });
@@ -240,7 +244,10 @@ watchEffect(async () => {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     try {
       await render(regexValue, svg);
-    } catch (_) {}
+    } catch (_) {
+      // 正则可视化（regexpass）偶发的渲染异常不该影响页面其余部分，
+      // 失败时下面正常 append 一个空 svg，用户仍能照常用匹配/替换。
+    }
     visualizer.appendChild(svg);
   }
 });

@@ -242,6 +242,7 @@ tools:
   yaml-prettify:
     title: YAML格式化与美化
     description: 将您的YAML字符串格式化为友好、易读的格式。
+    externalAccess: 页面打开时会从 https://www.schemastore.org 下载 JSON 模式目录，勾选模式进行校验时再下载对应的模式文件。不会向外部发送任何数据。
   base64-file-converter:
     title: Base64 文件转换工具
     description: 在线把文件、图片或字符串转成 Base64 编码，也支持把 Base64 还原成原文件，可用于前端内联图片和接口传文件
@@ -1237,6 +1238,8 @@ tools:
         email: 邮箱
         otpauth: 一次性密码认证
         otpmigration: OTP迁移
+        url: 链接
+        other: 文本
   watermarker:
     title: 水印工具
     description: 为单张或多张图片添加水印或logo
@@ -2429,6 +2432,56 @@ tools:
         random-tool: 随机工具
         tools: 工具
   external-self-hosted-required: 需要外部自托管
+  typing-speed-test:
+    title: 打字速度测试
+    description: 在线测试中文/英文打字速度，实时统计 WPM、CPM、准确率与错误数，支持自定义文本与历史成绩
+  age-calculator:
+    title: 年龄计算器
+    description: 输入出生日期与时间，精确计算周岁、虚岁、星座、生肖，查看生日倒计时与重要年龄节点。
+    texts:
+      label-birth-date: 出生日期
+      label-birth-time: 出生时间（可选）
+      label-life-expectancy: 预期寿命
+      unit-year: 岁
+      unit-month: 个月
+      unit-day: 天
+      unit-hour: 小时
+      unit-minute: 分钟
+      unit-second: 秒
+      unit-week: 周
+      unit-times: 次
+      btn-copy: 复制结果
+      btn-reset: 重置
+      hint-empty: 请选择出生日期以查看计算结果
+      err-future: 出生日期不能晚于当前时间，请重新选择。
+      label-age: 周岁
+      label-nominal-age: 虚岁
+      label-constellation: 星座
+      label-zodiac: 生肖
+      label-lived: 已生活
+      label-next-birthday: 下一个生日倒计时
+      label-life-progress: 生命进度
+      life-progress-note: "按预期寿命 {years} 岁估算，已走过 {days} 天 / {weeks} 周"
+      label-birth-weekday: 出生星期
+      label-next-birthday-weekday: 下个生日星期
+      label-birthstone: 出生石
+      label-generation: 世代标签
+      title-fun: 趣味数据（估算）
+      label-heartbeats: 心跳次数
+      label-breaths: 呼吸次数
+      label-sleep: 累计睡眠
+      label-half-birthday: 半生日
+      title-conversion: 时间换算
+      label-total-years: 总年数
+      label-total-months: 总月数
+      label-total-weeks: 总周数
+      label-total-seconds: 总秒数
+      title-future-birthdays: 未来生日
+      turning: "满 {age} 岁"
+      title-milestones: 重要年龄节点
+      milestone-age: "{age} 岁"
+      milestones-done: 已达成全部预设节点
+      copied: 结果已复制
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……

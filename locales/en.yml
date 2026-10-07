@@ -262,6 +262,7 @@ tools:
   yaml-prettify:
     title: YAML prettify and format
     description: Prettify your YAML string into a friendly, human-readable format.
+    externalAccess: This tool downloads the JSON schema catalog from https://www.schemastore.org when the page loads, and downloads individual schema files when validation is requested. No data is sent externally.
   base64-file-converter:
     title: Base64 file converter
     description: Convert a string, file, or image into its base64 representation.
@@ -1263,6 +1264,8 @@ tools:
         email: Email
         otpauth: OTP Auth
         otpmigration: OTP Migration
+        url: Link
+        other: Text
   watermarker:
     title: Watermarker
     description: Add watermark or logo to one or more images
@@ -2258,6 +2261,56 @@ tools:
         random-tool: Random tool
         tools: Tools
   external-self-hosted-required: External Self Hosted Required
+  typing-speed-test:
+    title: Typing Speed Test
+    description: Test Chinese or English typing speed online with live WPM, CPM, accuracy and error counts, plus custom text and local score history
+  age-calculator:
+    title: Age Calculator
+    description: "Calculate your exact age in years, months and days from a date and time of birth, with zodiac sign, Chinese zodiac, birthday countdown and age milestones"
+    texts:
+      label-birth-date: Date of birth
+      label-birth-time: "Time of birth (optional)"
+      label-life-expectancy: Life expectancy
+      unit-year: years
+      unit-month: months
+      unit-day: days
+      unit-hour: hours
+      unit-minute: minutes
+      unit-second: seconds
+      unit-week: weeks
+      unit-times: times
+      btn-copy: Copy result
+      btn-reset: Reset
+      hint-empty: Pick a date of birth to see the result
+      err-future: "Date of birth cannot be later than now. Please pick again."
+      label-age: Age
+      label-nominal-age: Nominal age
+      label-constellation: Zodiac sign
+      label-zodiac: Chinese zodiac
+      label-lived: Time lived
+      label-next-birthday: Countdown to next birthday
+      label-life-progress: Life progress
+      life-progress-note: "Based on a life expectancy of {years} years, you have lived {days} days / {weeks} weeks"
+      label-birth-weekday: Weekday of birth
+      label-next-birthday-weekday: Weekday of next birthday
+      label-birthstone: Birthstone
+      label-generation: Generation
+      title-fun: "Fun facts (estimates)"
+      label-heartbeats: Heartbeats
+      label-breaths: Breaths
+      label-sleep: Sleep accumulated
+      label-half-birthday: Half birthday
+      title-conversion: Time conversion
+      label-total-years: Total years
+      label-total-months: Total months
+      label-total-weeks: Total weeks
+      label-total-seconds: Total seconds
+      title-future-birthdays: Upcoming birthdays
+      turning: "Turns {age}"
+      title-milestones: Age milestones
+      milestone-age: "{age} years old"
+      milestones-done: All preset milestones reached
+      copied: Result copied
 collapsibleToolMenu:
   text:
     expanding: Expanding...

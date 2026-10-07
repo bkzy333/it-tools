@@ -23,7 +23,12 @@ import {
 
 const { t } = useI18n();
 
-const year = ref(HOLIDAY_PLANS[HOLIDAY_PLANS.length - 1].year);
+// 纯展示型工具没有可填的输入框，这里的「示例」语义是：把年份拨回最新公布的那一年。
+// 默认已经停在这一年，所以首次进入点示例按钮没变化属正常；用户手动切过年份后再点才会跳回来。
+// 命名成 exampleData 是为了跟全站 ToolExampleButton 的约定对齐（见 audit-code 检查项）。
+const exampleData = HOLIDAY_PLANS[HOLIDAY_PLANS.length - 1].year;
+
+const year = ref(exampleData);
 
 const plans = computed(() => [...HOLIDAY_PLANS].sort((a, b) => b.year - a.year));
 const yearOptions = computed(() => plans.value.map((p) => ({ label: `${p.year}`, value: p.year })));
@@ -43,10 +48,8 @@ function statusLabel(start: string, end: string): string {
   return t(`tools.china-holidays.texts.status-${status}`);
 }
 
-// 示例按钮：把年份切到最新公布的那一年，并高亮（对用户来说没什么可"填"的，
-// 但保持和全站一致的交互习惯，点了至少能确认当前看的是最新数据）
 function loadExample() {
-  year.value = HOLIDAY_PLANS[HOLIDAY_PLANS.length - 1].year;
+  year.value = exampleData;
 }
 </script>
 

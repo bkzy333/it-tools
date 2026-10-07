@@ -13,6 +13,7 @@ export interface GuideIndexEntry {
 }
 
 export const GUIDE_INDEX: GuideIndexEntry[] = [
+  { slug: 'age-calculator-guide', title: '周岁和虚岁怎么算：年龄计算的规则、边界与常见争议' },
   { slug: 'base64-is-not-encryption', title: 'Base64 不是加密：什么时候该用，什么时候不该用' },
   { slug: 'cron-expression-guide', title: 'cron 表达式怎么写（含常见写法速查）' },
   { slug: 'hash-algorithm-choice', title: 'MD5、SHA-1、SHA-256、SHA-512 到底该选哪个' },
