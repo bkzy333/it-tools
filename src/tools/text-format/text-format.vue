@@ -9,6 +9,9 @@ import {
   type IndentMode,
   type PrefixSuffixMode,
   type ReplacerMode,
+  type ReverseMode,
+  type TruncateMode,
+  type InsertMode,
   type TextFormatOptions,
 } from './text-format.service';
 
@@ -51,6 +54,33 @@ const orderOptions = computed(() => [
   { label: t('tools.text-format.texts.opt-order-none'), value: 'none' as const },
   { label: t('tools.text-format.texts.opt-order-asc'), value: 'asc' as const },
   { label: t('tools.text-format.texts.opt-order-desc'), value: 'desc' as const },
+]);
+
+/* ------------------------------------------------------------------ A9 高级变换选项 */
+const reverseOptions = computed(() => [
+  { label: t('tools.text-format.texts.opt-reverse-none'), value: 'none' as ReverseMode },
+  { label: t('tools.text-format.texts.opt-reverse-chars'), value: 'chars' as ReverseMode },
+  { label: t('tools.text-format.texts.opt-reverse-lines'), value: 'lines' as ReverseMode },
+  { label: t('tools.text-format.texts.opt-reverse-words'), value: 'words' as ReverseMode },
+]);
+
+const scriptOptions = computed(() => [
+  { label: t('tools.text-format.texts.opt-script-none'), value: 'none' as const },
+  { label: t('tools.text-format.texts.opt-script-sub'), value: 'sub' as const },
+  { label: t('tools.text-format.texts.opt-script-super'), value: 'super' as const },
+]);
+
+const truncateOptions = computed(() => [
+  { label: t('tools.text-format.texts.opt-truncate-none'), value: 'none' as TruncateMode },
+  { label: t('tools.text-format.texts.opt-truncate-head'), value: 'head' as TruncateMode },
+  { label: t('tools.text-format.texts.opt-truncate-tail'), value: 'tail' as TruncateMode },
+  { label: t('tools.text-format.texts.opt-truncate-range'), value: 'range' as TruncateMode },
+]);
+
+const insertOptions = computed(() => [
+  { label: t('tools.text-format.texts.opt-insert-none'), value: 'none' as InsertMode },
+  { label: t('tools.text-format.texts.opt-insert-atpos'), value: 'atPos' as InsertMode },
+  { label: t('tools.text-format.texts.opt-insert-everyn'), value: 'everyN' as InsertMode },
 ]);
 
 /* ------------------------------------------------------------------ 计算结果 */
@@ -236,6 +266,74 @@ function loadExample() {
       <n-checkbox v-model:checked="options.showLineNumber">
         {{ t('tools.text-format.texts.opt-show-line-number') }}
       </n-checkbox>
+    </c-card>
+
+    <!-- 6. 高级变换（A9：倒序 / 上下标 / 截取 / 插入） -->
+    <c-card :title="t('tools.text-format.texts.label-advanced')" size="small" mb-2>
+      <p mb-2 text-13px op-70>
+        {{ t('tools.text-format.texts.hint-advanced') }}
+      </p>
+
+      <!-- 倒序 -->
+      <div flex items-center gap-2 mb-2>
+        <span w-90px shrink-0>{{ t('tools.text-format.texts.label-reverse') }}</span>
+        <c-select v-model:value="options.reverseMode" :options="reverseOptions" w-200px />
+      </div>
+
+      <!-- 上下标 -->
+      <div flex items-center gap-2 mb-2>
+        <span w-90px shrink-0>{{ t('tools.text-format.texts.label-script') }}</span>
+        <c-select v-model:value="options.scriptMode" :options="scriptOptions" w-200px />
+      </div>
+
+      <!-- 截取 -->
+      <div flex items-center gap-2 mb-2 flex-wrap>
+        <span w-90px shrink-0>{{ t('tools.text-format.texts.label-truncate') }}</span>
+        <c-select v-model:value="options.truncateMode" :options="truncateOptions" w-200px />
+        <n-input-number-i18n
+          v-if="options.truncateMode === 'head' || options.truncateMode === 'tail'"
+          v-model:value="options.truncateN"
+          :min="0"
+          :show-button="false"
+          w-120px
+        />
+        <template v-if="options.truncateMode === 'range'">
+          <n-input-number-i18n v-model:value="options.truncateFrom" :min="0" :show-button="false" w-100px />
+          <span op-70>~</span>
+          <n-input-number-i18n v-model:value="options.truncateTo" :min="0" :show-button="false" w-100px />
+        </template>
+      </div>
+
+      <!-- 插入 -->
+      <div flex items-center gap-2 mb-2 flex-wrap>
+        <span w-90px shrink-0>{{ t('tools.text-format.texts.label-insert') }}</span>
+        <c-select v-model:value="options.insertMode" :options="insertOptions" w-200px />
+        <n-input
+          v-if="options.insertMode !== 'none'"
+          v-model:value="options.insertText"
+          :placeholder="t('tools.text-format.texts.placeholder-insert-text')"
+          w-200px
+        />
+      </div>
+      <div flex items-center gap-2 mb-1 flex-wrap>
+        <span w-90px shrink-0 op-70>{{ t('tools.text-format.texts.label-insert-pos') }}</span>
+        <n-input-number-i18n
+          v-if="options.insertMode === 'atPos'"
+          v-model:value="options.insertPosition"
+          :min="0"
+          :show-button="false"
+          w-120px
+        />
+        <n-input-number-i18n
+          v-if="options.insertMode === 'everyN'"
+          v-model:value="options.insertInterval"
+          :min="1"
+          :show-button="false"
+          w-120px
+        />
+        <span v-if="options.insertMode === 'atPos'" op-70>{{ t('tools.text-format.texts.hint-insert-atpos') }}</span>
+        <span v-if="options.insertMode === 'everyN'" op-70>{{ t('tools.text-format.texts.hint-insert-everyn') }}</span>
+      </div>
     </c-card>
 
     <!-- 输出 -->

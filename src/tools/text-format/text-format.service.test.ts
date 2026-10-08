@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { applyTextFormat, DEFAULT_TEXT_FORMAT_OPTIONS, type TextFormatOptions } from './text-format.service';
+import {
+  applyTextFormat,
+  DEFAULT_TEXT_FORMAT_OPTIONS,
+  type TextFormatOptions,
+  reverseText,
+  toScript,
+  truncateText,
+  insertText,
+} from './text-format.service';
 
 /** 只开默认项（去左/右空格），便于逐项叠加 */
 function opts(patch: Partial<TextFormatOptions> = {}): TextFormatOptions {
@@ -145,5 +153,123 @@ describe('applyTextFormat 边界', () => {
       orderBy: 'asc',
     }));
     expect(r.output).toBe('# a\n# b');
+  });
+});
+
+describe('A9 reverseText 倒序', () => {
+  it("chars：整段（含换行）当作一个字符序列整体反转", () => {
+    expect(reverseText('a\nb', 'chars')).toBe('b\na');
+    expect(reverseText('abc', 'chars')).toBe('cba');
+  });
+
+  it('lines：只反转行的顺序，行内不变', () => {
+    expect(reverseText('a\nb\nc', 'lines')).toBe('c\nb\na');
+  });
+
+  it('words：逐行反转词序，词之间以单空格重连', () => {
+    expect(reverseText('hello world', 'words')).toBe('world hello');
+    expect(reverseText('a b c', 'words')).toBe('c b a');
+  });
+
+  it("none / 空串直接返回原值", () => {
+    expect(reverseText('abc', 'none')).toBe('abc');
+    expect(reverseText('', 'chars')).toBe('');
+  });
+});
+
+describe('A9 toScript 上下标', () => {
+  it('super：数字与有对应形的字母转上标', () => {
+    expect(toScript('H2O', 'super')).toBe('ᴴ²ᴼ'); // H→ᴴ, 2→², O→ᴼ
+  });
+
+  it('sub：数字与有对应形的字母转下标（大写无对应形则保留）', () => {
+    expect(toScript('h2o', 'sub')).toBe('ₕ₂ₒ'); // h→ₕ, 2→₂, o→ₒ
+    expect(toScript('H2O', 'sub')).toBe('H₂O'); // 大写 H/O 无下标对应形，原样保留
+  });
+
+  it('无对应形的字符（中文、标点、无下标对应形的字母）原样保留', () => {
+    expect(toScript('水1', 'super')).toBe('水¹');
+    expect(toScript('a+b', 'sub')).toBe('ₐ₊b'); // +→₊；b 没有下标对应形，原样保留
+  });
+
+  it('none / 空串直接返回原值', () => {
+    expect(toScript('H2O', 'none')).toBe('H2O');
+    expect(toScript('', 'super')).toBe('');
+  });
+});
+
+describe('A9 truncateText 截取', () => {
+  it('head：保留前 N 个字符', () => {
+    expect(truncateText('abcdef', 'head', 3, 0, 0)).toBe('abc');
+  });
+
+  it('tail：保留后 N 个字符', () => {
+    expect(truncateText('abcdef', 'tail', 2, 0, 0)).toBe('ef');
+  });
+
+  it('range：保留 [from, to)，按字符数（非字节）', () => {
+    expect(truncateText('abcdef', 'range', 0, 1, 4)).toBe('bcd');
+    expect(truncateText('中文字', 'range', 0, 0, 2)).toBe('中文'); // 多字节按字符计
+  });
+
+  it('range：to <= from 时返回空', () => {
+    expect(truncateText('abcdef', 'range', 0, 3, 3)).toBe('');
+    expect(truncateText('abcdef', 'range', 0, 4, 2)).toBe('');
+  });
+
+  it('none / 空串直接返回原值', () => {
+    expect(truncateText('abc', 'none', 1, 0, 1)).toBe('abc');
+    expect(truncateText('', 'head', 3, 0, 0)).toBe('');
+  });
+});
+
+describe('A9 insertText 插入', () => {
+  it('atPos：在第 position 个字符之后插入', () => {
+    expect(insertText('abc', 'atPos', '-', 1, 0)).toBe('a-bc');
+    expect(insertText('abc', 'atPos', '-', 0, 0)).toBe('-abc'); // 最前面
+    expect(insertText('abc', 'atPos', '-', 99, 0)).toBe('abc-'); // 超出则插到末尾
+  });
+
+  it('everyN：每隔 interval 个字符插入一次', () => {
+    expect(insertText('abcdef', 'everyN', '-', 0, 2)).toBe('ab-cd-ef');
+    expect(insertText('abc', 'everyN', '-', 0, 1)).toBe('a-b-c'); // interval<1 按 1
+  });
+
+  it('none / 空串直接返回原值', () => {
+    expect(insertText('abc', 'none', '-', 1, 1)).toBe('abc');
+    expect(insertText('', 'atPos', '-', 0, 0)).toBe('');
+  });
+});
+
+describe('applyTextFormat A9 高级变换集成', () => {
+  it('四个变换默认全关时，行为和旧版流水线完全一致', () => {
+    expect(applyTextFormat('  b  \na', opts({ orderBy: 'asc' })).output).toBe('a\nb');
+    expect(applyTextFormat('a\nb\nc', opts()).output).toBe('a\nb\nc');
+  });
+
+  it('倒序（字符）作为第 5.5 阶段，作用在排序/去重之后', () => {
+    const r = applyTextFormat('c\na', opts({ orderBy: 'asc', reverseMode: 'chars' }));
+    expect(r.output).toBe('a\nc'.split('').reverse().join('')); // 'c\na' 反转
+  });
+
+  it('截取 head：只保留前 N 个字符', () => {
+    const r = applyTextFormat('abcdef', opts({ truncateMode: 'head', truncateN: 3 }));
+    expect(r.output).toBe('abc');
+  });
+
+  it('倒序 + 截取 串联：先倒序整段再截取前 N', () => {
+    const r = applyTextFormat('abcdef', opts({ reverseMode: 'chars', truncateMode: 'head', truncateN: 3 }));
+    expect(r.output).toBe('fed'); // 反转得 fedcba，取前 3 → fed
+  });
+
+  it('行号始终加在最终结果最前面（不被插入挤乱）', () => {
+    // 单行输入避免换行符被当成字符插入的干扰；每隔 1 字符插 | 后再加行号
+    const r = applyTextFormat('abc', opts({
+      insertMode: 'everyN',
+      insertText: '|',
+      insertInterval: 1,
+      showLineNumber: true,
+    }));
+    expect(r.output).toBe('1：a|b|c');
   });
 });

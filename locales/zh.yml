@@ -2591,6 +2591,30 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
+      label-advanced: 高级变换
+      hint-advanced: 下面的四种变换默认都不生效，按需单独开启；多个同时开启时按「倒序 → 上下标 → 截取 → 插入」的顺序串接。
+      label-reverse: 倒序
+      opt-reverse-none: 不倒序
+      opt-reverse-chars: 整段字符倒序
+      opt-reverse-lines: 逐行倒序
+      opt-reverse-words: 逐词倒序
+      label-script: 上下标
+      opt-script-none: 不转换
+      opt-script-sub: 下标
+      opt-script-super: 上标
+      label-truncate: 截取
+      opt-truncate-none: 不截取
+      opt-truncate-head: 保留前 N 个字符
+      opt-truncate-tail: 保留后 N 个字符
+      opt-truncate-range: 保留中间区间
+      label-insert: 插入
+      opt-insert-none: 不插入
+      opt-insert-atpos: 指定位置插入
+      opt-insert-everyn: 每隔 N 个字符插入
+      placeholder-insert-text: 要插入的文本
+      label-insert-pos: 插入位置
+      hint-insert-atpos: 插到第几个字符之后（0 = 最前面）
+      hint-insert-everyn: 每隔几个字符插入一次
   number-rounding:
     title: 数值舍入
     description: 批量把一列数字按四舍五入、向上/向下取整或银行家舍入规范到指定小数位，并可统一加减乘除后统计合计与平均

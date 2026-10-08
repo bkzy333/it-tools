@@ -2473,6 +2473,30 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
+      label-advanced: Advanced transforms
+      hint-advanced: "The four transforms below are off by default; enable them individually. When several are on, they run in order: reverse -> script -> truncate -> insert."
+      label-reverse: Reverse
+      opt-reverse-none: No reverse
+      opt-reverse-chars: Reverse whole text
+      opt-reverse-lines: Reverse lines
+      opt-reverse-words: Reverse words
+      label-script: Sub / super script
+      opt-script-none: No change
+      opt-script-sub: Subscript
+      opt-script-super: Superscript
+      label-truncate: Truncate
+      opt-truncate-none: No truncate
+      opt-truncate-head: Keep first N chars
+      opt-truncate-tail: Keep last N chars
+      opt-truncate-range: Keep a range
+      label-insert: Insert
+      opt-insert-none: No insert
+      opt-insert-atpos: At position
+      opt-insert-everyn: Every N chars
+      placeholder-insert-text: Text to insert
+      label-insert-pos: Insert position
+      hint-insert-atpos: "Insert after the N-th char (0 = at the very front)"
+      hint-insert-everyn: "Insert once every N chars"
   number-rounding:
     title: Number Rounding
     description: Round a column of numbers to a fixed number of decimals with half-up, banker's rounding, ceiling or floor, and apply one uniform arithmetic operation to all of them

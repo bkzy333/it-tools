@@ -27,6 +27,11 @@ export type PrefixSuffixMode = 'none' | 'add' | 'remove';
 export type IndentMode = 'none' | 'add' | 'remove';
 export type ReplacerMode = 'custom' | 'newline';
 
+// A9 高级变换的类型定义
+export type ReverseMode = 'none' | 'chars' | 'lines' | 'words';
+export type TruncateMode = 'none' | 'head' | 'tail' | 'range';
+export type InsertMode = 'none' | 'atPos' | 'everyN';
+
 export interface TextFormatOptions {
   /** 去掉每行开头的空白 */
   removeLeftSpace: boolean;
@@ -57,6 +62,26 @@ export interface TextFormatOptions {
   removeRepeat: boolean;
   /** 结果加行号 */
   showLineNumber: boolean;
+  /** A9 高级变换：倒序方式（整段字符 / 逐行 / 逐词） */
+  reverseMode: ReverseMode;
+  /** A9 高级变换：上下标（下标 / 上标） */
+  scriptMode: 'none' | 'sub' | 'super';
+  /** A9 高级变换：截取方式（开头 / 末尾 / 中间） */
+  truncateMode: TruncateMode;
+  /** 截取：保留前/后 N 个字符 */
+  truncateN: number;
+  /** 截取（中间）：起始位置（含） */
+  truncateFrom: number;
+  /** 截取（中间）：结束位置（不含） */
+  truncateTo: number;
+  /** A9 高级变换：插入方式（指定位置 / 每隔 N 个） */
+  insertMode: InsertMode;
+  /** 插入：要插入的文本 */
+  insertText: string;
+  /** 插入（指定位置）：插到第几个字符之后 */
+  insertPosition: number;
+  /** 插入（每隔 N）：间隔字符数 */
+  insertInterval: number;
 }
 
 export const DEFAULT_TEXT_FORMAT_OPTIONS: TextFormatOptions = {
@@ -78,6 +103,16 @@ export const DEFAULT_TEXT_FORMAT_OPTIONS: TextFormatOptions = {
   orderBy: 'none',
   removeRepeat: false,
   showLineNumber: false,
+  reverseMode: 'none',
+  scriptMode: 'none',
+  truncateMode: 'none',
+  truncateN: 10,
+  truncateFrom: 0,
+  truncateTo: 10,
+  insertMode: 'none',
+  insertText: '',
+  insertPosition: 0,
+  insertInterval: 2,
 };
 
 export interface TextFormatResult {
@@ -178,6 +213,33 @@ export function applyTextFormat(input: string, options: TextFormatOptions): Text
 
   lines = textArraySort(lines, orderByToLegacy(options.orderBy));
 
+  // ---- 5.5 高级变换（A9：倒序 / 上下标 / 截取 / 插入）----
+  // 四个变换按「倒序 → 上下标 → 截取 → 插入」的固定顺序串接，
+  // 但每个都默认关闭，单独开一个也不会影响上面的流水线。
+  // 顺序刻意放在排序之后、行号之前：这样「行号」始终加在最终结果最前面，
+  // 不会被插入挤到中间、也不会被截取削掉。
+  if (
+    options.reverseMode !== 'none' ||
+    options.scriptMode !== 'none' ||
+    options.truncateMode !== 'none' ||
+    options.insertMode !== 'none'
+  ) {
+    let advanced = lines.join('\n');
+    if (options.reverseMode !== 'none') {
+      advanced = reverseText(advanced, options.reverseMode);
+    }
+    if (options.scriptMode !== 'none') {
+      advanced = toScript(advanced, options.scriptMode);
+    }
+    if (options.truncateMode !== 'none') {
+      advanced = truncateText(advanced, options.truncateMode, options.truncateN, options.truncateFrom, options.truncateTo);
+    }
+    if (options.insertMode !== 'none') {
+      advanced = insertText(advanced, options.insertMode, options.insertText, options.insertPosition, options.insertInterval);
+    }
+    lines = advanced.split('\n');
+  }
+
   // ---- 6. 行号（对应参考站 isShowLineNumber） ----
   if (options.showLineNumber) {
     lines = lines.map((line, index) => `${index + 1}：${line}`);
@@ -224,4 +286,127 @@ function stripPrefixSuffix(line: string, prefix: string, suffix: string): string
     }
   }
   return result;
+}
+
+/* ============================================================================
+ * A9 高级变换：倒序 / 上下标 / 截取 / 插入
+ *
+ * 这些函数是「字符串级」变换，和上面基于「行」的流水线（去空格/前后缀/缩进/
+ * 排序）是两套心智模型。它们被 applyTextFormat 在排序之后、行号之前统一调用一次，
+ * 所以拿到的是已经排好序、去完重的整段文本。
+ * ========================================================================== */
+
+/**
+ * 倒序。
+ * - chars：把整段文本（含换行）当作一个字符序列整体反转，换行符也会跑到中间去
+ * - lines：只反转行的顺序（行内字符不变），对应参考站「文本倒序」的逐行语义
+ * - words：逐行把词序反转（按空白切分，词之间以单个空格重连）
+ */
+export function reverseText(text: string, mode: ReverseMode): string {
+  if (mode === 'none' || !text) {
+    return text;
+  }
+  if (mode === 'chars') {
+    return Array.from(text).reverse().join('');
+  }
+  if (mode === 'lines') {
+    return text.split('\n').reverse().join('\n');
+  }
+  // words：逐行反转词序
+  return text
+    .split('\n')
+    .map((line) => line.split(/\s+/).filter(Boolean).reverse().join(' '))
+    .join('\n');
+}
+
+/**
+ * 上下标。把有 Unicode 下标/上标对应形的字符替换掉，没有对应形的字符原样保留。
+ * 覆盖数字 0-9、常用运算符 + - = ( ) 以及一部分拉丁字母；其余字符（中文、标点等）不变。
+ */
+const SUPERSCRIPT_MAP: Record<string, string> = {
+  '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+  '+': '⁺', '-': '⁻', '=': '⁼', '(': '⁽', ')': '⁾',
+  a: 'ᵃ', b: 'ᵇ', c: 'ᶜ', d: 'ᵈ', e: 'ᵉ', f: 'ᶠ', g: 'ᵍ', h: 'ʰ', i: 'ⁱ', j: 'ʲ', k: 'ᵏ', l: 'ˡ',
+  m: 'ᵐ', n: 'ⁿ', o: 'ᵒ', p: 'ᵖ', r: 'ʳ', s: 'ˢ', t: 'ᵗ', u: 'ᵘ', v: 'ᵛ', w: 'ʷ', x: 'ˣ', y: 'ʸ', z: 'ᶻ',
+  A: 'ᴬ', B: 'ᴮ', D: 'ᴰ', E: 'ᴱ', G: 'ᴳ', H: 'ᴴ', I: 'ᴵ', J: 'ᴶ', K: 'ᴷ', L: 'ᴸ', M: 'ᴹ',
+  N: 'ᴺ', O: 'ᴼ', P: 'ᴾ', R: 'ᴿ', T: 'ᵀ', U: 'ᵁ', V: 'ⱽ', W: 'ᵂ',
+};
+const SUBSCRIPT_MAP: Record<string, string> = {
+  '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+  '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
+  a: 'ₐ', e: 'ₑ', h: 'ₕ', k: 'ₖ', l: 'ₗ', m: 'ₘ', n: 'ₙ', o: 'ₒ', p: 'ₚ', s: 'ₛ', t: 'ₜ', x: 'ₓ',
+};
+
+export function toScript(text: string, mode: 'none' | 'sub' | 'super'): string {
+  if (mode === 'none' || !text) {
+    return text;
+  }
+  const map = mode === 'sub' ? SUBSCRIPT_MAP : SUPERSCRIPT_MAP;
+  return Array.from(text).map((ch) => map[ch] ?? ch).join('');
+}
+
+/**
+ * 截取。按字符数（不是字节）截取，跨换行一并计入。
+ * - head：保留前 N 个字符
+ * - tail：保留后 N 个字符
+ * - range：保留 [from, to) 区间（to <= from 时返回空）
+ */
+export function truncateText(
+  text: string,
+  mode: TruncateMode,
+  n: number,
+  from: number,
+  to: number,
+): string {
+  if (mode === 'none' || !text) {
+    return text;
+  }
+  const chars = Array.from(text);
+  if (mode === 'head') {
+    return chars.slice(0, Math.max(0, Math.trunc(n))).join('');
+  }
+  if (mode === 'tail') {
+    return chars.slice(Math.max(0, chars.length - Math.trunc(n))).join('');
+  }
+  if (mode === 'range') {
+    const start = Math.max(0, Math.trunc(from));
+    const end = Math.trunc(to);
+    if (end <= start) {
+      return '';
+    }
+    return chars.slice(start, end).join('');
+  }
+  return text;
+}
+
+/**
+ * 插入。
+ * - atPos：在第 position 个字符之后插入（position <= 0 时插到最前面，>= 文本长度时插到最后面）
+ * - everyN：每隔 interval 个字符插入一次（interval < 1 时按 1 处理）
+ */
+export function insertText(
+  text: string,
+  mode: InsertMode,
+  insert: string,
+  position: number,
+  interval: number,
+): string {
+  if (mode === 'none' || !text) {
+    return text;
+  }
+  const chars = Array.from(text);
+  if (mode === 'atPos') {
+    const pos = Math.max(0, Math.min(chars.length, Math.trunc(position)));
+    return chars.slice(0, pos).join('') + insert + chars.slice(pos).join('');
+  }
+  // everyN
+  const step = Math.max(1, Math.trunc(interval));
+  const out: string[] = [];
+  for (let i = 0; i < chars.length; i += step) {
+    out.push(chars.slice(i, i + step).join(''));
+    if (i + step < chars.length) {
+      out.push(insert);
+    }
+  }
+  return out.join('');
 }
