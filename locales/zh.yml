@@ -1849,11 +1849,23 @@ tools:
       provided-json-is-not-valid: 提供的JSON无效
       try-again-with-repairjsonlabel: 尝试使用"{0}"重新输入
       repair-json: 修复JSON
-  random-numbers-generator:
+  random-picker:
+    title: 随机抽签器
+    description: 生成随机令牌，或从候选名单里不重复抽签、整体打乱顺序、按权重抽样，还能按权重把一笔金额分摊到多人并把尾差随机配平。全程浏览器本地计算，不联网。
     button:
-      refresh: 刷新
+      refresh: 重新抽
       copy: 复制
-    numberPlaceholder: 生成随机数...
+    copied: 结果已复制到剪贴板！
+    length: 长度
+    numberPlaceholder: 结果会显示在这里...
+    tab-token: 随机令牌
+    tab-lottery: 抽签与打乱
+    tab-weighted: 加权抽样
+    tab-split: 按权重分摊
+    tab-token-desc: 生成十六进制或十进制随机令牌，可调长度、字符数和拒绝字符
+    tab-lottery-desc: 从候选名单里抽人，或把整份名单随机重排
+    tab-weighted-desc: 每项带权重，权重越高越容易被抽中
+    tab-split-desc: 按权重把一笔钱分给多人，尾差随机补到某几份上，加总严格等于原额
     texts:
       label-number-of-number-to-generate: 要生成的号码数量：
       placeholder-put-characters-to-deny-from-number: 在此处输入被拒绝的字符...
@@ -1861,10 +1873,29 @@ tools:
       label-toupper: 转为大写数字
       tag-hexadecimal: 十六进制
       tag-decimal: 十进制
-    copied: 数字已复制到剪贴板！
-    length: 长度
-    title: 随机数生成器
-    description: 生成随机数（十进制、十六进制）。使用拒绝字符，您可以生成其他进制。
+      label-candidates: 候选名单
+      placeholder-candidates: 每行一个名字（张三、李四、王五），也可以用逗号或空格分隔
+      label-lottery-mode: 抽签方式
+      mode-pick: 抽 N 个（互不重复）
+      mode-shuffle: 整体打乱顺序
+      label-pick-count: 抽取个数
+      message-candidates-empty: 先在左边填几个候选
+      message-not-enough: 候选只有 {n} 个，抽不出 {m} 个，已把全部候选都给你
+      label-weighted-items: 候选与权重
+      placeholder-weighted-items: 每行一条「名字,权重」，例如：张三,5、李四,1
+      label-weighted-count: 抽取个数
+      label-weighted-unique: 同一个人不重复中
+      message-weighted-empty: 至少要填一行「名字,权重」
+      message-weighted-bad: 下面这些行没写对权重，已忽略
+      label-split-items: 分摊对象
+      placeholder-split-items: 每行一条「名字,权重」，例如：张三,1、李四,2
+      label-amount: 要分摊的金额
+      label-decimals: 保留小数位
+      message-split-empty: 至少要填一行「名字,权重」
+      message-split-bad: 下面这些行没写对权重，已忽略
+      label-split-result: 分摊结果
+      label-split-sum: 合计
+      message-split-balanced: 已配平，加总等于原额
   loan-calculator:
     title: 贷款计算器
     description: 计算车贷、消费贷等贷款的等额本息、等额本金、先息后本和到期一次性还本付息的月供与总利息，输出完整还款计划表
@@ -2593,6 +2624,90 @@ tools:
       summary-min: 最小
       summary-max: 最大
       message-divide-zero: 除数为 0 的行已保留原值
+  table-lookup:
+    title: 表格查询匹配
+    description: 网页版 VLOOKUP。粘贴两段 Excel 表格，按关键字批量查出行并指定返回列，支持精确、包含、前缀三种匹配、多个条件必须同时满足、一对多命中，也能把两张表按关键字直接合并
+    texts:
+      tab-lookup: 按关键字查找
+      tab-merge: 两表合并
+      label-delimiter: 分隔符
+      opt-delimiter-tab: 制表符
+      opt-delimiter-comma: 逗号
+      opt-delimiter-semicolon: 分号
+      opt-delimiter-pipe: 竖线
+      opt-delimiter-custom: 自定义
+      label-custom-delimiter: 自定义分隔符
+      placeholder-custom-delimiter: 填写分隔符，例如 | 或 空格
+      label-source: 数据表
+      placeholder-source: 从 Excel 复制的区域直接粘进来，默认用制表符分隔
+      label-header-row: 首行是表头
+      label-keys: 待查关键字
+      placeholder-keys: 每行一个关键字；要让多个条件同时成立时，就在同一行里用分隔符隔开多个值
+      label-key-column: 关键字所在列
+      label-condition-column: 附加条件列
+      opt-condition-none: 不使用
+      hint-condition: 附加条件列的值必须和关键字同时命中才算匹配
+      label-result-columns: 要返回的列
+      label-match-mode: 匹配方式
+      mode-exact: 精确匹配
+      mode-contains: 包含
+      mode-starts-with: 前缀匹配
+      label-dedupe: 一个关键字命中多行时只取第一条
+      title-result: 查找结果
+      summary-not-found: 有关键字没查到
+      summary-unmatched: 左表未匹配行
+      action-copy: 复制
+      action-download: 下载
+      action-clear: 清空
+      label-left-table: 左表，也就是主表
+      label-right-table: 右表，也就是对照表
+      placeholder-left-table: 粘贴作为主体的表格
+      placeholder-right-table: 粘贴用来补列的表格
+      label-left-key-column: 左表连接列
+      label-right-key-column: 右表连接列
+      label-right-columns: 右表要合并过来的列
+      title-merge-result: 合并结果
+      message-no-result: 没有可显示的结果
+  table-pivot:
+    title: 分组汇总透视
+    description: 按任意几列分组，对金额列做求和、平均值、最值、计数、去重计数与中位数，也能把宽表拆成长表，结果可以直接粘回 Excel
+    texts:
+      tab-aggregate: 分组汇总
+      tab-unpivot: 宽表转长表
+      label-delimiter: 分隔符
+      opt-delimiter-tab: 制表符
+      opt-delimiter-comma: 逗号
+      opt-delimiter-semicolon: 分号
+      opt-delimiter-pipe: 竖线
+      opt-delimiter-custom: 自定义
+      label-custom-delimiter: 自定义分隔符
+      placeholder-custom-delimiter: 填写分隔符，例如 | 或 空格
+      label-source: 数据表
+      placeholder-source: 从 Excel 复制的区域直接粘进来，默认用制表符分隔
+      label-header-row: 首行是表头
+      label-group-columns: 分组列
+      label-value-columns: 要聚合的列
+      label-agg: 聚合方式
+      agg-sum: 求和
+      agg-avg: 平均值
+      agg-min: 最小值
+      agg-max: 最大值
+      agg-count: 非空计数
+      agg-distinct: 去重计数
+      agg-median: 中位数
+      label-add-agg: 再加一列聚合
+      action-add-agg: 添加聚合列
+      action-remove: 移除
+      hint-group: 分组按数据里首次出现的顺序输出，和 Excel 透视表一致
+      title-result: 汇总结果
+      summary-rows: 参与计算的数据行
+      label-unpivot-id-columns: 保留列，也就是每行固定的那些列
+      label-unpivot-value-columns: 要拆开的列
+      title-unpivot-result: 长表结果
+      action-copy: 复制
+      action-download: 下载
+      action-clear: 清空
+      message-no-result: 没有可显示的结果
   text-extract:
     title: 文本提取
     description: 从一段文本里批量提取手机号、邮箱、网址、日期、金额、IP、身份证号等，逐行列出所有命中结果并统计数量

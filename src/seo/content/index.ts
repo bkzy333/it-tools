@@ -10,6 +10,7 @@ import textJson from './text-json';
 import cryptoConvertersNetwork from './crypto-converters-network';
 import mediaDatetimeGenerators from './media-datetime-generators';
 import webDevOthers from './web-dev-others';
+import dataTools from './data-tools';
 import type { ToolContent } from './types';
 
 export type { ToolContent, ToolContentFaq, ToolContentExample } from './types';
@@ -19,6 +20,7 @@ const ALL_CONTENT: Record<string, ToolContent> = {
   ...cryptoConvertersNetwork,
   ...mediaDatetimeGenerators,
   ...webDevOthers,
+  ...dataTools,
 };
 
 export function getToolContent(path: string): ToolContent | undefined {

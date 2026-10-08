@@ -105,7 +105,7 @@ const TOOL_USAGE: Record<string, ToolUsage> = {
     steps: ['选择需要的版本和数量', '点击生成', '复制结果'],
     tips: ['UUID v4 是纯随机的，重复概率极低，日常使用足够安全', '如果要求按时间有序，可选 v1 或 v7'],
   },
-  '/random-numbers-generator': {
+  '/random-picker': {
     intro: '生成指定范围内的随机数或随机序列，支持设置个数、是否允许重复。',
     steps: ['设置最小值、最大值和生成个数', '选择是否允许重复', '点击生成并复制结果'],
     tips: ['抽奖场景记得关掉「允许重复」，避免出现同一个人中两次'],

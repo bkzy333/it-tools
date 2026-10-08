@@ -1852,11 +1852,23 @@ tools:
       provided-json-is-not-valid: Provided JSON is not valid.
       try-again-with-repairjsonlabel: Try again with "{0}"
       repair-json: Repair JSON
-  random-numbers-generator:
+  random-picker:
+    title: Random picker
+    description: Generate random tokens, draw winners without repeats from a candidate list, shuffle it, sample by weight, or split one amount across people proportionally with the rounding remainder spread randomly — all computed locally in your browser.
     button:
-      refresh: Refresh
+      refresh: Redraw
       copy: Copy
-    numberPlaceholder: Generated random numbers...
+    copied: Result copied to clipboard!
+    length: Length
+    numberPlaceholder: The result shows up here...
+    tab-token: Random token
+    tab-lottery: Draw & shuffle
+    tab-weighted: Weighted sample
+    tab-split: Split by weight
+    tab-token-desc: Generate hexadecimal or decimal random tokens with a custom length, charset and denied characters
+    tab-lottery-desc: Draw winners from a candidate list, or shuffle the whole list into a random order
+    tab-weighted-desc: Every item carries a weight, so heavier items get picked more often
+    tab-split-desc: Split one amount across people by weight, with the rounding remainder spread at random so the parts always add up
     texts:
       label-number-of-number-to-generate: "Number of number to generate:"
       placeholder-put-characters-to-deny-from-number: Put denied characters here...
@@ -1864,11 +1876,29 @@ tools:
       label-toupper: To uppercase digits
       tag-hexadecimal: Hexadecimal
       tag-decimal: Decimal
-    copied: Numbers copied to clipboard!
-    length: Length
-    title: Random numbers generator
-    description: Generate random numbers (decimal, hexadecimal). With denied
-      characters, you can generate other bases.
+      label-candidates: Candidates
+      placeholder-candidates: One name per line (Alice, Bob, Cindy), or separated by commas or spaces
+      label-lottery-mode: Mode
+      mode-pick: Draw N (no repeats)
+      mode-shuffle: Shuffle everything
+      label-pick-count: How many to draw
+      message-candidates-empty: Add a few candidates first
+      message-not-enough: Only {n} candidates but you asked for {m}, so all of them are returned
+      label-weighted-items: Candidates and weights
+      placeholder-weighted-items: "One per line as name,weight, e.g. Alice,5 then Bob,1"
+      label-weighted-count: How many to draw
+      label-weighted-unique: No item can be drawn twice
+      message-weighted-empty: Add at least one "name,weight" line
+      message-weighted-bad: These lines have no valid weight and were skipped
+      label-split-items: Recipients
+      placeholder-split-items: "One per line as name,weight, e.g. Alice,1 then Bob,2"
+      label-amount: Amount to split
+      label-decimals: Decimal places
+      message-split-empty: Add at least one "name,weight" line
+      message-split-bad: These lines have no valid weight and were skipped
+      label-split-result: Split result
+      label-split-sum: Total
+      message-split-balanced: Balanced, the parts add up to the original amount
   iana-whois-checker:
     title: Whois Checker
     description: Check whois for a domain using IANA Website
@@ -2476,6 +2506,90 @@ tools:
       summary-min: min
       summary-max: max
       message-divide-zero: Rows divided by zero keep their original value
+  table-lookup:
+    title: Table lookup
+    description: A free VLOOKUP in the browser. Paste two Excel ranges, look rows up by key and choose which columns to return; supports exact, contains and starts-with matching, several conditions that must all match, one-to-many hits and a direct join of the two tables
+    texts:
+      tab-lookup: Lookup by key
+      tab-merge: Merge tables
+      label-delimiter: Delimiter
+      opt-delimiter-tab: Tab
+      opt-delimiter-comma: Comma
+      opt-delimiter-semicolon: Semicolon
+      opt-delimiter-pipe: Pipe
+      opt-delimiter-custom: Custom
+      label-custom-delimiter: Custom delimiter
+      placeholder-custom-delimiter: Type a delimiter, e.g., | or a single space
+      label-source: Data table
+      placeholder-source: Paste a range copied from Excel; tab is the default delimiter
+      label-header-row: First row is the header
+      label-keys: Keys to look up
+      placeholder-keys: One key per line; to require several conditions at once, separate the values with the delimiter in one line
+      label-key-column: Key column
+      label-condition-column: Extra condition column
+      opt-condition-none: Not used
+      hint-condition: The extra condition only applies together with the key, both must hit the same row
+      label-result-columns: Columns to return
+      label-match-mode: Match mode
+      mode-exact: Exact match
+      mode-contains: Contains
+      mode-starts-with: Starts with
+      label-dedupe: Keep only the first row when one key hits several rows
+      title-result: Lookup result
+      summary-not-found: Keys without a match
+      summary-unmatched: Left rows without a match
+      action-copy: Copy
+      action-download: Download
+      action-clear: Clear
+      label-left-table: Left table, the main one
+      label-right-table: Right table, the reference one
+      placeholder-left-table: Paste the table you want to enrich
+      placeholder-right-table: Paste the table you want columns from
+      label-left-key-column: Left join column
+      label-right-key-column: Right join column
+      label-right-columns: Right columns to merge
+      title-merge-result: Merged result
+      message-no-result: No result to show
+  table-pivot:
+    title: Group and pivot
+    description: Group a pasted table by any columns and aggregate the amount columns with sum, average, min, max, count, distinct count or median; also melt a wide table into a long one. The result can be pasted straight back into Excel
+    texts:
+      tab-aggregate: Group and summarize
+      tab-unpivot: Wide to long
+      label-delimiter: Delimiter
+      opt-delimiter-tab: Tab
+      opt-delimiter-comma: Comma
+      opt-delimiter-semicolon: Semicolon
+      opt-delimiter-pipe: Pipe
+      opt-delimiter-custom: Custom
+      label-custom-delimiter: Custom delimiter
+      placeholder-custom-delimiter: Type a delimiter, e.g., | or a single space
+      label-source: Data table
+      placeholder-source: Paste a range copied from Excel; tab is the default delimiter
+      label-header-row: First row is the header
+      label-group-columns: Group columns
+      label-value-columns: Columns to aggregate
+      label-agg: Aggregation
+      agg-sum: Sum
+      agg-avg: Average
+      agg-min: Minimum
+      agg-max: Maximum
+      agg-count: Non-empty count
+      agg-distinct: Distinct count
+      agg-median: Median
+      label-add-agg: Add another aggregation
+      action-add-agg: Add aggregation column
+      action-remove: Remove
+      hint-group: Groups come out in the order they first appear, the same as an Excel pivot table
+      title-result: Summary result
+      summary-rows: Data rows used
+      label-unpivot-id-columns: Columns to keep, the ones fixed per row
+      label-unpivot-value-columns: Columns to melt
+      title-unpivot-result: Long result
+      action-copy: Copy
+      action-download: Download
+      action-clear: Clear
+      message-no-result: No result to show
   text-extract:
     title: Text Extract
     description: Extract phone numbers, emails, URLs, dates, money and IDs from text, listing every match

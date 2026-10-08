@@ -322,7 +322,7 @@ const FORCE_UP = new Set([
   'pgp-keygen',
   'encryption',
   'token-generator',
-  'random-numbers-generator',
+  'random-picker',
   'random-line-picker',
   'dice-roller',
   'coin-flipper',
@@ -346,6 +346,9 @@ const FORCE_UP = new Set([
   'dns-query',
   'dns-tester',
   'api-tester',
+  // Data 分类默认只有 L2，但这两个是完整功能页（带教程正文），按 L1 对待
+  'table-lookup',
+  'table-pivot',
 ]);
 
 function decideTier(slug, category) {

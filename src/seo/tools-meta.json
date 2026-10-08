@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-07T11:56:20.324Z",
+  "generatedAt": "2026-10-08T14:06:41.589Z",
   "sourceCommit": "extracted at build time",
-  "total": 90,
+  "total": 92,
   "tiers": {
-    "L1": 75,
+    "L1": 77,
     "L2": 14,
     "L3": 1
   },
@@ -1597,21 +1597,24 @@
       "tier": "L2"
     },
     {
-      "path": "/random-numbers-generator",
-      "slug": "random-numbers-generator",
+      "path": "/random-picker",
+      "slug": "random-picker",
       "category": "Generators",
       "keywords": [
         "random",
-        "numbers",
-        "decimal",
-        "hexadecimal",
-        "generator"
+        "pick",
+        "lottery",
+        "shuffle",
+        "weighted",
+        "split"
       ],
-      "redirectFrom": [],
+      "redirectFrom": [
+        "/random-numbers-generator"
+      ],
       "npmPackages": [],
       "isExternalAccess": false,
-      "title": "随机数生成器",
-      "description": "生成随机数（十进制、十六进制）。使用拒绝字符，您可以生成其他进制。",
+      "title": "随机抽签器",
+      "description": "生成随机令牌，或从候选名单里不重复抽签、整体打乱顺序、按权重抽样，还能按权重把一笔金额分摊到多人并把尾差随机配平。全程浏览器本地计算，不联网。",
       "categoryZh": "随机生成",
       "categorySeoName": "随机数与标识生成器",
       "tier": "L1"
@@ -1792,6 +1795,48 @@
       "description": "在线格式化和美化您的SQL查询（支持多种SQL方言）。",
       "categoryZh": "开发工具",
       "categorySeoName": "开发者在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/table-lookup",
+      "slug": "table-lookup",
+      "category": "Data",
+      "keywords": [
+        "vlookup",
+        "lookup",
+        "table",
+        "match",
+        "merge",
+        "lookup table"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "表格查询匹配",
+      "description": "网页版 VLOOKUP。粘贴两段 Excel 表格，按关键字批量查出行并指定返回列，支持精确、包含、前缀三种匹配、多个条件必须同时满足、一对多命中，也能把两张表按关键字直接合并",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/table-pivot",
+      "slug": "table-pivot",
+      "category": "Data",
+      "keywords": [
+        "pivot",
+        "group by",
+        "aggregate",
+        "melt",
+        "summary",
+        "数据透视"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "分组汇总透视",
+      "description": "按任意几列分组，对金额列做求和、平均值、最值、计数、去重计数与中位数，也能把宽表拆成长表，结果可以直接粘回 Excel",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
       "tier": "L1"
     },
     {
