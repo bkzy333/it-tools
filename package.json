@@ -161,7 +161,6 @@
     "csstoxpath": "^2.0.0",
     "curlconverter": "^4.12.0",
     "currency-codes-ts": "^3.0.0",
-    "currency-exchanger-js": "^1.0.4",
     "damerau-levenshtein": "^1.0.8",
     "data-guardian": "^1.1.4",
     "date-fns": "^4.4.0",
