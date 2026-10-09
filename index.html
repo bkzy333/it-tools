@@ -52,6 +52,11 @@
 
     <meta name="twitter:image" content="https://gjxtools.com/banner.png?v=2" />
     <meta name="twitter:image:alt" content="在线工具箱 - 免费实用的在线工具合集" />
+
+    <!-- Cloudflare Web Analytics（官方统计脚本）。token 为占位符，启用时替换为 Cloudflare 控制台
+         拿到的 Beacon Token；替换并推送后，PV/UV/来源/设备/热门页面等即开始统计。
+         CSP 已放行 static.cloudflareinsights.com（script-src）与 cloudflareinsights.com（connect-src），无需改 _headers。 -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "REPLACE_WITH_YOUR_CWA_TOKEN"}'></script>
   </head>
   <body>
     <div id="app"></div>
