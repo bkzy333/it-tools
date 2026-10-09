@@ -140,6 +140,9 @@ export default defineConfig({
         // Relative, like every other precache entry: workbox resolves them against the
         // service worker's own URL, so the same sw.js works under any deployment path.
         navigateFallback: 'index.html',
+        // /api/* 是 Cloudflare Pages Functions，必须绕过 Service Worker 的 navigateFallback，
+        // 否则浏览器直接访问 /api/feedback 会被 SW 当成 SPA 未知路由，fallback 到 index.html 导致 404。
+        navigateFallbackDenylist: [/^\/(api|health)(\/.*)?$/],
         runtimeCaching: [
           {
             urlPattern: ({ sameOrigin, request }) =>
