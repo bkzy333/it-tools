@@ -1279,6 +1279,26 @@ tools:
       th-weight: Weight
       th-bmi: BMI
       history-empty: No BMI records yet. Enter your height and weight and click "Save to history".
+      title-input: Enter your body data
+      title-bmi: Your Body Mass Index (BMI)
+      title-metabolism: Metabolic rate & daily energy expenditure
+      label-gender: Gender
+      gender-male: Male
+      gender-female: Female
+      label-age: Age
+      unit-year: yrs
+      label-activity: Daily activity level
+      label-ideal-weight: Ideal weight range
+      label-bmr: BMR (Basal Metabolic Rate)
+      label-tdee: TDEE (Total Daily Energy Expenditure)
+      bmr-desc: Calories needed per day at complete rest (vital functions only).
+      tdee-desc: Actual daily calories burned based on your activity level (to maintain weight).
+      diet-lose: Weight loss goal
+      diet-maintain: Maintenance goal
+      diet-gain: Muscle gain goal
+      diet-lose-desc: About 500 kcal deficit for steady fat loss of ~0.5 kg per week.
+      diet-maintain-desc: Intake balanced with TDEE to keep your current shape and health.
+      diet-gain-desc: About 300 kcal surplus combined with resistance training for muscle growth.
   pdf-concat:
     title: Pdf Concatener
     description: Concatenate PDF into a single one

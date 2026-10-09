@@ -1208,6 +1208,26 @@ tools:
       th-weight: 体重
       th-bmi: BMI
       history-empty: 当前没有任何 BMI 记录。输入身高体重并点击「保存到历史」即可记录。
+      title-input: 输入您的身体数据
+      title-bmi: 您的身体质量指数（BMI）
+      title-metabolism: 代谢速率与每日能量消耗
+      label-gender: 性别
+      gender-male: 男生
+      gender-female: 女生
+      label-age: 年龄
+      unit-year: 岁
+      label-activity: 日常活动强度
+      label-ideal-weight: 理想体重区间
+      label-bmr: BMR 基础代谢率
+      label-tdee: TDEE 每日总能量消耗
+      bmr-desc: 躺平不动（维持生命基本生理机能）每天所需热量。
+      tdee-desc: 结合您的日常活动强度，每天实际消耗的能量（维持体重所需）。
+      diet-lose: 减脂/减重目标
+      diet-maintain: 维持体重目标
+      diet-gain: 增肌/增重目标
+      diet-lose-desc: 形成约 500 大卡热量缺口，每周稳步减轻约 0.5kg 脂肪。
+      diet-maintain-desc: 摄入量与 TDEE 保持平衡，适用于保持现有身材和健康水平。
+      diet-gain-desc: 制造约 300 大卡热量盈余，配合抗阻力训练促进肌肉合成。
   pdf-concat:
     title: PDF合并工具
     description: 将多个PDF合并为一个

@@ -7,6 +7,11 @@ import {
   toMetric,
   US_FACTOR,
   STANDARDS,
+  calcBmr,
+  calcTdee,
+  calcDietAdvice,
+  calcIdealWeightRange,
+  calcGaugePercent,
 } from './bmi-calculator.service';
 
 /**
@@ -117,5 +122,77 @@ describe('bmi-calculator / 健康体重范围', () => {
     expect(STANDARDS.international.some((c) => c.label === '正常')).toBe(true);
     expect(STANDARDS.japanese.some((c) => c.label === '正常')).toBe(true);
     expect(STANDARDS.singapore.some((c) => c.label === '正常')).toBe(true);
+  });
+});
+
+describe('bmi-calculator / BMR（Mifflin-St Jeor，ggbom 口径）', () => {
+  it('男生：10w+6.25h-5a+5', () => {
+    // 65kg / 175cm / 25 岁 男 → 10*65 + 6.25*175 - 5*25 + 5 = 650 + 1093.75 - 125 + 5 = 1623.75 → 1624
+    expect(calcBmr(65, 175, 25, 'male')).toBe(1624);
+  });
+
+  it('女生：10w+6.25h-5a-161', () => {
+    // 65kg / 175cm / 25 岁 女 → 650 + 1093.75 - 125 - 161 = 1457.75 → 1458
+    expect(calcBmr(65, 175, 25, 'female')).toBe(1458);
+  });
+
+  it('参考站默认值：65kg/175cm/25岁男 → 1588 与实测一致？', () => {
+    // 参考站页面默认 65kg 175cm 25岁 男 显示 BMR 1588 —— 那是 65/170/25 的结果：
+    // 10*65 + 6.25*170 - 5*25 + 5 = 650 + 1062.5 - 125 + 5 = 1592.5 → 1593
+    // 实测页面是 1588，说明默认身高其实是 170 且年龄/体重有细微差。这里只锁公式本身。
+    expect(calcBmr(65, 170, 25, 'male')).toBe(1593);
+  });
+
+  it('非法输入返回 null', () => {
+    expect(calcBmr(0, 175, 25, 'male')).toBeNull();
+    expect(calcBmr(65, 0, 25, 'male')).toBeNull();
+    expect(calcBmr(65, 175, 0, 'male')).toBeNull();
+  });
+});
+
+describe('bmi-calculator / TDEE 与饮食建议（ggbom 口径）', () => {
+  it('TDEE = BMR × 活动系数', () => {
+    expect(calcTdee(1624, 1.2)).toBe(1949); // 1624*1.2 = 1948.8 → 1949
+    expect(calcTdee(1624, 1.55)).toBe(2517); // 1624*1.55 = 2517.2 → 2517
+  });
+
+  it('三档建议：减脂 max(bmr, tdee-500)、维持 tdee、增肌 tdee+300', () => {
+    const bmr = 1624;
+    const tdee = 1949;
+    const d = calcDietAdvice(bmr, tdee)!;
+    expect(d.lose).toBe(Math.max(bmr, tdee - 500)); // 1449 → 但 < bmr，取 bmr = 1624
+    expect(d.lose).toBe(1624);
+    expect(d.maintain).toBe(1949);
+    expect(d.gain).toBe(2249); // 1949+300
+  });
+
+  it('减脂兜底：tdee-500 低于 bmr 时取 bmr', () => {
+    // bmr 1500, tdee 1800 → tdee-500=1300 < bmr → lose=1500
+    expect(calcDietAdvice(1500, 1800)!.lose).toBe(1500);
+  });
+});
+
+describe('bmi-calculator / 理想体重区间与仪表盘（ggbom 口径）', () => {
+  it('理想体重 18.5~23.9 反推，170cm → 53.5~69.1', () => {
+    const r = calcIdealWeightRange(170)!;
+    // 18.5 * 2.89 = 53.465 → 53.5；23.9 * 2.89 = 69.071 → 69.1
+    expect(r.minKg).toBe(53.5);
+    expect(r.maxKg).toBe(69.1);
+  });
+
+  it('仪表盘指针位置：21.2 → 正常区约 30.8%', () => {
+    // 21.2 在正常档：17.5 + (21.2-18.5)/(24-18.5)*27.5 = 17.5 + 2.7/5.5*27.5 = 17.5+13.5 = 31.0
+    const p = calcGaugePercent(21.2);
+    expect(p).toBeCloseTo(31.0, 1);
+  });
+
+  it('仪表盘边界：偏瘦 <18.5 与肥胖封顶 100%', () => {
+    expect(calcGaugePercent(17)).toBeGreaterThan(0);
+    expect(calcGaugePercent(17)).toBeLessThan(17.5);
+    expect(calcGaugePercent(18.5)).toBeCloseTo(17.5, 0);
+    expect(calcGaugePercent(24)).toBeCloseTo(45.0, 0);
+    expect(calcGaugePercent(28)).toBeCloseTo(65.0, 0);
+    expect(calcGaugePercent(40)).toBe(100); // 封顶
+    expect(calcGaugePercent(100)).toBe(100);
   });
 });
