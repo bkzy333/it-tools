@@ -562,9 +562,6 @@ importers:
       currency-codes-ts:
         specifier: ^3.0.0
         version: 3.0.0
-      currency-exchanger-js:
-        specifier: ^1.0.4
-        version: 1.0.4
       damerau-levenshtein:
         specifier: ^1.0.8
         version: 1.0.8
@@ -6272,9 +6269,6 @@ packages:
   cross-fetch-ponyfill@1.0.3:
     resolution: {integrity: sha512-uOBkDhUAGAbx/FEzNKkOfx3w57H8xReBBXoZvUnOKTI0FW0Xvrj3GrYv2iZXUqlffC1LMGfQzhmBM/ke+6eTDA==}
 
-  cross-fetch@3.2.0:
-    resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
-
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -6350,9 +6344,6 @@ packages:
   currency-codes-ts@3.0.0:
     resolution: {integrity: sha512-ZJeCpq5uY2t8dDl4xdF15shkp5o8jrHcD4lHftK/O8j8xTHlXg0E5YhpZbRJvnLRaKe+JQh1/q1AI9Wc2Dl3Nw==}
     engines: {node: '>=14'}
-
-  currency-exchanger-js@1.0.4:
-    resolution: {integrity: sha512-znd30Ueuf3IFTwNEuSy45uBEZZXJIUG9Z4Cpym5VxSxafx/CazPCRx5NMrqOFE2ZYPXezo7FfJLa8SuES3PnYw==}
 
   cytoscape-cose-bilkent@4.1.0:
     resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
@@ -17018,12 +17009,6 @@ snapshots:
       abort-controller: 3.0.0
       node-fetch: 3.3.2
 
-  cross-fetch@3.2.0:
-    dependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
-
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -17118,12 +17103,6 @@ snapshots:
   currency-codes-ts@3.0.0:
     dependencies:
       lodash-es: 4.18.1
-
-  currency-exchanger-js@1.0.4:
-    dependencies:
-      cross-fetch: 3.2.0
-    transitivePeerDependencies:
-      - encoding
 
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.34.0):
     dependencies:
