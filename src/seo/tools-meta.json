@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-08T14:56:50.766Z",
+  "generatedAt": "2026-10-09T04:34:38.434Z",
   "sourceCommit": "extracted at build time",
-  "total": 92,
+  "total": 94,
   "tiers": {
-    "L1": 77,
-    "L2": 14,
+    "L1": 78,
+    "L2": 15,
     "L3": 1
   },
   "categories": {
@@ -1739,6 +1739,23 @@
       "tier": "L1"
     },
     {
+      "path": "/sequence-generator",
+      "slug": "sequence-generator",
+      "category": "Generators",
+      "keywords": [
+        "sequence",
+        "generator"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "序列生成器",
+      "description": "按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零",
+      "categoryZh": "随机生成",
+      "categorySeoName": "随机数与标识生成器",
+      "tier": "L1"
+    },
+    {
       "path": "/severance-pay-calculator",
       "slug": "severance-pay-calculator",
       "category": "Finance",
@@ -1838,6 +1855,23 @@
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
       "tier": "L1"
+    },
+    {
+      "path": "/table-transpose",
+      "slug": "table-transpose",
+      "category": "Data",
+      "keywords": [
+        "table",
+        "transpose"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "表格形状转换",
+      "description": "粘贴 TSV/CSV 表格，做转置、按列数分页、展平为一列、合并为一行等形状变换，纯本地处理",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
     },
     {
       "path": "/tcp-udp-port-tester",

@@ -230,3 +230,70 @@ export function formatValue(value: number, digits: number): string {
   if (d === 0) return String(roundTo(value, 0));
   return String(roundTo(value, d));
 }
+
+/* ---------------------------------------------------------------- A3 折入：数字格式互转（小数↔分数 / 文本型数字规范化） */
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
+export interface FractionResult {
+  /** 整数部分（保留符号） */
+  whole: number;
+  /** 真分数部分的分子（已约分） */
+  numerator: number;
+  /** 真分数部分的分母（已约分） */
+  denominator: number;
+  /** 人类可读展示：3/4、1 1/2、-2/3、5 */
+  display: string;
+}
+
+/**
+ * 有限小数 → 分数（约分）。不支持无限循环小数，超出精度按浮点表示截断。
+ * 0.75 → 3/4；1.5 → 1 1/2；-0.2 → -1/5；整数 → 直接返回整数。
+ */
+export function decimalToFraction(value: number): FractionResult | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  const negative = value < 0;
+  const v = Math.abs(value);
+  const whole = Math.floor(v);
+  const frac = v - whole;
+  if (frac === 0) {
+    const w = negative ? -whole : whole;
+    return { whole: w, numerator: 0, denominator: 1, display: String(w) };
+  }
+  const str = frac.toString();
+  const decDigits = str.includes('.') ? str.split('.')[1].length : 0;
+  let num = Math.round(frac * 10 ** decDigits);
+  let den = 10 ** decDigits;
+  const g = gcd(num, den) || 1;
+  num /= g;
+  den /= g;
+  const sign = negative ? '-' : '';
+  const fracPart = den === 1 ? String(num) : `${num}/${den}`;
+  const display = whole === 0 ? `${sign}${fracPart}` : `${sign}${whole} ${fracPart}`;
+  return { whole: negative ? -whole : whole, numerator: num, denominator: den, display };
+}
+
+/** 分数 → 小数。分母为 0 返回 null */
+export function fractionToDecimal(numerator: number, denominator: number): number | null {
+  if (!Number.isFinite(denominator) || denominator === 0) return null;
+  return numerator / denominator;
+}
+
+/**
+ * 文本型数字规范化：去掉千分位逗号（仅当逗号后恰好 3 位数字时）、去掉前导零、按需补尾零。
+ * '007' → '7'；'1,234.5' → '1234.5'；decimals=2 时 '7' → '7.00'。
+ * 无法解析成数字的行原样保留，避免误吞文本。
+ */
+export function normalizeTextNumber(raw: string, decimals: number): string {
+  const t = raw.trim();
+  if (t === '') return '';
+  // 只去掉「逗号后恰好 3 位数字」这种千分位分隔；'1,23' 这种欧式小数点不动
+  const cleaned = t.replace(/(\d),(?=\d{3}\b)/g, '$1');
+  const n = Number(cleaned);
+  if (!Number.isFinite(n)) return t;
+  const d = clampDigits(decimals);
+  if (d === 0) return String(n);
+  return n.toFixed(d);
+}

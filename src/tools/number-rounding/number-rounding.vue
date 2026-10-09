@@ -5,7 +5,10 @@ import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { useCopy } from '@/composable/copy';
 import {
   clampDigits,
+  decimalToFraction,
   formatValue,
+  fractionToDecimal,
+  normalizeTextNumber,
   parseNumbers,
   roundTo,
   summarize,
@@ -96,6 +99,45 @@ const summaryText = computed(() => {
 
 const divideZeroCount = computed(() => rows.value.filter((r) => r.note === 'divide-by-zero').length);
 
+/* ------------------------------------------------------------------ A3 折入：数字格式转换卡 */
+type FmtMode = 'dec2frac' | 'frac2dec' | 'textnum';
+const fmtMode = ref<FmtMode>('dec2frac');
+const fmtDecimal = ref(0.75);
+const fmtNum = ref(3);
+const fmtDen = ref(4);
+const fmtText = ref('007\n1,234.5\n00098.200');
+const fmtDecimals = ref(0);
+
+const fmtModeOptions = computed(() => [
+  { value: 'dec2frac' as FmtMode, label: t('tools.number-rounding.texts.opt-fmt-dec2frac') },
+  { value: 'frac2dec' as FmtMode, label: t('tools.number-rounding.texts.opt-fmt-frac2dec') },
+  { value: 'textnum' as FmtMode, label: t('tools.number-rounding.texts.opt-fmt-textnum') },
+]);
+
+const dec2fracOut = computed(() => {
+  const r = decimalToFraction(Number(fmtDecimal.value));
+  return r ? r.display : '—';
+});
+
+const frac2decOut = computed(() => {
+  const r = fractionToDecimal(Number(fmtNum.value) || 0, Number(fmtDen.value) || 0);
+  return r === null || !Number.isFinite(r) ? '—' : String(r);
+});
+
+const textnumOut = computed(() =>
+  fmtText.value
+    .split(/\r?\n/)
+    .map((line) => normalizeTextNumber(line, Number(fmtDecimals.value) || 0))
+    .join('\n'),
+);
+
+const canCopyFmt = computed(() => textnumOut.value.length > 0 || fmtMode.value !== 'textnum');
+
+function copyFmt() {
+  const text = fmtMode.value === 'dec2frac' ? dec2fracOut.value : fmtMode.value === 'frac2dec' ? frac2decOut.value : textnumOut.value;
+  copy(text);
+}
+
 /* ------------------------------------------------------------------ 动作 */
 async function copyResult() {
   await copy(output.value);
@@ -178,6 +220,61 @@ function clearAll() {
 
       <n-input :value="output" type="textarea" :rows="10" readonly
         :placeholder="t('tools.number-rounding.texts.placeholder-result')" />
+    </c-card>
+
+    <c-card :title="t('tools.number-rounding.texts.title-format')" mt-4>
+      <div mb-3>
+        <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-format-mode') }}</div>
+        <c-select v-model:value="fmtMode" :options="fmtModeOptions" />
+      </div>
+
+      <div v-if="fmtMode === 'dec2frac'" flex items-center gap-3>
+        <div flex-1>
+          <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-decimal') }}</div>
+          <n-input-number v-model:value="fmtDecimal" step="any" style="width: 100%" />
+        </div>
+        <div flex-1>
+          <div mb-1 text-sm>{{ t('tools.number-rounding.texts.fmt-result-dec2frac') }}</div>
+          <n-input :value="dec2fracOut" readonly />
+        </div>
+        <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+      </div>
+
+      <div v-else-if="fmtMode === 'frac2dec'" flex items-center gap-3>
+        <div flex-1>
+          <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-numerator') }}</div>
+          <n-input-number v-model:value="fmtNum" style="width: 100%" />
+        </div>
+        <div flex-1>
+          <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-denominator') }}</div>
+          <n-input-number v-model:value="fmtDen" style="width: 100%" />
+        </div>
+        <div flex-1>
+          <div mb-1 text-sm>{{ t('tools.number-rounding.texts.fmt-result-frac2dec') }}</div>
+          <n-input :value="frac2decOut" readonly />
+        </div>
+        <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+      </div>
+
+      <div v-else>
+        <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-textnum-input') }}</div>
+        <n-input
+          v-model:value="fmtText"
+          type="textarea"
+          :rows="6"
+          :placeholder="t('tools.number-rounding.texts.placeholder-textnum')"
+        />
+        <div flex items-center gap-3 mt-3>
+          <div flex-1>
+            <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-decimals') }}</div>
+            <n-input-number v-model:value="fmtDecimals" :min="0" :max="10" style="width: 100%" />
+          </div>
+          <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+        </div>
+        <div mb-1 text-sm mt-3>{{ t('tools.number-rounding.texts.fmt-result-textnum') }}</div>
+        <n-input :value="textnumOut" type="textarea" :rows="6" readonly
+          :placeholder="t('tools.number-rounding.texts.placeholder-result')" />
+      </div>
     </c-card>
   </div>
 </template>

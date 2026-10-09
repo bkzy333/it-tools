@@ -2530,6 +2530,20 @@ tools:
       summary-min: min
       summary-max: max
       message-divide-zero: Rows divided by zero keep their original value
+      title-format: "Number format conversion"
+      label-format-mode: "Convert:"
+      opt-fmt-dec2frac: "Decimal to fraction"
+      opt-fmt-frac2dec: "Fraction to decimal"
+      opt-fmt-textnum: "Normalize text numbers"
+      label-decimal: Decimal
+      label-numerator: Numerator
+      label-denominator: Denominator
+      label-textnum-input: "Text numbers (one per line)"
+      placeholder-textnum: "e.g. 007 / 1,234.5 / 00098.200"
+      label-decimals: "Decimals to keep (0 = no pad):"
+      fmt-result-dec2frac: Fraction
+      fmt-result-frac2dec: Decimal
+      fmt-result-textnum: Normalized
   table-lookup:
     title: Table lookup
     description: A free VLOOKUP in the browser. Paste two Excel ranges, look rows up by key and choose which columns to return; supports exact, contains and starts-with matching, several conditions that must all match, one-to-many hits and a direct join of the two tables
@@ -2739,6 +2753,72 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
+  sequence-generator:
+    title: Sequence Generator
+    description: Generate ordered sequences by number, letter, roman numeral, Chinese numeral, weekday, month, heavenly stems, earthly branches, or your own custom list, with prefix/suffix and zero-padding.
+    texts:
+      label-settings: "Settings"
+      label-mode: "Mode:"
+      opt-mode-number: Number
+      opt-mode-letter: "Letter (A,B,C)"
+      opt-mode-roman: "Roman numeral"
+      opt-mode-chinese: "Chinese numeral"
+      opt-mode-weekday: Weekday
+      opt-mode-month: Month
+      opt-mode-ganzhi: "Heavenly stems"
+      opt-mode-zodiac: "Earthly branches"
+      opt-mode-custom: Custom
+      label-start: "Start:"
+      label-count: "Count:"
+      label-step: "Step:"
+      label-pad: "Zero-padding:"
+      label-case: "Letter case:"
+      opt-case-upper: Uppercase
+      opt-case-lower: Lowercase
+      label-chinese-style: "Chinese style:"
+      opt-chinese-lower: "Lowercase (一二三)"
+      opt-chinese-upper: "Uppercase (壹贰叁)"
+      label-custom: "Custom sequence"
+      placeholder-custom: "One item per line, or comma-separated; cycles"
+      label-prefix: "Prefix:"
+      label-suffix: "Suffix:"
+      placeholder-prefix: "e.g. NO."
+      placeholder-suffix: "e.g. ;"
+      label-separator: "Separator:"
+      opt-sep-newline: Newline
+      opt-sep-comma: Comma
+      opt-sep-space: Space
+      opt-sep-none: None
+      title-result: Result
+      action-clear: Clear
+      action-copy: Copy
+      action-download: Download
+      placeholder-result: The generated sequence will appear here
+  table-transpose:
+    title: Table Transpose
+    description: Paste a TSV/CSV table to transpose, split into column-blocks, flatten into a single column, or merge into one row. All processing is local.
+    texts:
+      label-input: "Paste table"
+      placeholder-input: "Paste a table copied from Excel (Tab-separated) or CSV text"
+      label-op: "Transform:"
+      opt-op-transpose: "Transpose (swap rows/cols)"
+      opt-op-chunk: "Split by column count"
+      opt-op-flatten: "Flatten to one column"
+      opt-op-merge: "Merge into one row"
+      label-delimiter: "Cell delimiter:"
+      opt-delim-auto: Auto-detect
+      opt-delim-tab: Tab
+      opt-delim-comma: Comma
+      opt-delim-semicolon: Semicolon
+      opt-delim-space: Space
+      label-chunk-cols: "Columns per block:"
+      label-merge-sep: "Merge separator:"
+      placeholder-merge-sep: "e.g. comma or space"
+      title-result: Result
+      action-clear: Clear
+      action-copy: Copy
+      action-download: Download
+      placeholder-result: The transformed result will appear here
 collapsibleToolMenu:
   text:
     expanding: Expanding...

@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   clampDigits,
+  decimalToFraction,
   formatValue,
+  fractionToDecimal,
   MAX_DIGITS,
+  normalizeTextNumber,
   parseNumbers,
   roundTo,
   summarize,
@@ -152,5 +155,54 @@ describe('formatValue', () => {
 
   it('非法值显示破折号', () => {
     expect(formatValue(NaN, 2)).toBe('—');
+  });
+});
+
+describe('decimalToFraction (A3 折入)', () => {
+  it('有限小数约分', () => {
+    expect(decimalToFraction(0.75)?.display).toBe('3/4');
+    expect(decimalToFraction(0.5)?.display).toBe('1/2');
+    expect(decimalToFraction(0.2)?.display).toBe('1/5');
+  });
+  it('带整数', () => {
+    expect(decimalToFraction(1.5)?.display).toBe('1 1/2');
+    expect(decimalToFraction(2.25)?.display).toBe('2 1/4');
+  });
+  it('负数与整数', () => {
+    expect(decimalToFraction(-0.2)?.display).toBe('-1/5');
+    expect(decimalToFraction(5)?.display).toBe('5');
+  });
+  it('非有限数返回 null', () => {
+    expect(decimalToFraction(NaN)).toBeNull();
+    expect(decimalToFraction(Infinity)).toBeNull();
+  });
+});
+
+describe('fractionToDecimal (A3 折入)', () => {
+  it('整除与除不尽', () => {
+    expect(fractionToDecimal(3, 4)).toBe(0.75);
+    expect(fractionToDecimal(1, 3)).toBeCloseTo(0.333333, 5);
+  });
+  it('分母为 0 返回 null', () => {
+    expect(fractionToDecimal(1, 0)).toBeNull();
+  });
+});
+
+describe('normalizeTextNumber (A3 折入)', () => {
+  it('去前导零', () => {
+    expect(normalizeTextNumber('007', 0)).toBe('7');
+    expect(normalizeTextNumber('00', 0)).toBe('0');
+    expect(normalizeTextNumber('-007', 0)).toBe('-7');
+  });
+  it('去千分位逗号', () => {
+    expect(normalizeTextNumber('1,234.5', 0)).toBe('1234.5');
+    expect(normalizeTextNumber('1,234,567', 0)).toBe('1234567');
+  });
+  it('补尾零到 N 位', () => {
+    expect(normalizeTextNumber('7', 2)).toBe('7.00');
+    expect(normalizeTextNumber('1,234.5', 2)).toBe('1234.50');
+  });
+  it('非数字原样保留', () => {
+    expect(normalizeTextNumber('abc', 0)).toBe('abc');
   });
 });

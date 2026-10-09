@@ -2648,6 +2648,20 @@ tools:
       summary-min: 最小
       summary-max: 最大
       message-divide-zero: 除数为 0 的行已保留原值
+      title-format: 数字格式转换
+      label-format-mode: 转换类型
+      opt-fmt-dec2frac: 小数转分数
+      opt-fmt-frac2dec: 分数转小数
+      opt-fmt-textnum: 文本型数字规范化
+      label-decimal: 小数
+      label-numerator: 分子
+      label-denominator: 分母
+      label-textnum-input: 文本型数字（每行一个）
+      placeholder-textnum: 如 007 / 1,234.5 / 00098.200
+      label-decimals: 保留小数位（0=不补零）
+      fmt-result-dec2frac: 分数
+      fmt-result-frac2dec: 小数
+      fmt-result-textnum: 规范化后
   table-lookup:
     title: 表格查询匹配
     description: 网页版 VLOOKUP。粘贴两段 Excel 表格，按关键字批量查出行并指定返回列，支持精确、包含、前缀三种匹配、多个条件必须同时满足、一对多命中，也能把两张表按关键字直接合并
@@ -2851,6 +2865,72 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
+  sequence-generator:
+    title: 序列生成器
+    description: 按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零
+    texts:
+      label-settings: 参数设置
+      label-mode: 序列类型
+      opt-mode-number: 数字
+      opt-mode-letter: 字母 (A,B,C)
+      opt-mode-roman: 罗马数字
+      opt-mode-chinese: 中文数字
+      opt-mode-weekday: 星期
+      opt-mode-month: 月份
+      opt-mode-ganzhi: 天干
+      opt-mode-zodiac: 地支
+      opt-mode-custom: 自定义
+      label-start: 起始值
+      label-count: 生成数量
+      label-step: 步长
+      label-pad: 补零位数
+      label-case: 字母大小写
+      opt-case-upper: 大写
+      opt-case-lower: 小写
+      label-chinese-style: 中文数字样式
+      opt-chinese-lower: 小写（一二三）
+      opt-chinese-upper: 大写（壹贰叁）
+      label-custom: 自定义序列
+      placeholder-custom: 每行一个，或逗号分隔；循环填充
+      label-prefix: 前缀
+      label-suffix: 后缀
+      placeholder-prefix: 如 NO.
+      placeholder-suffix: 如 ;
+      label-separator: 分隔符
+      opt-sep-newline: 换行
+      opt-sep-comma: 逗号
+      opt-sep-space: 空格
+      opt-sep-none: 无
+      title-result: 生成结果
+      action-clear: 清空
+      action-copy: 复制
+      action-download: 下载
+      placeholder-result: 生成结果将显示在这里
+  table-transpose:
+    title: 表格形状转换
+    description: 粘贴 TSV/CSV 表格，做转置、按列数分页、展平为一列、合并为一行等形状变换，纯本地处理
+    texts:
+      label-input: 粘贴表格
+      placeholder-input: 直接粘贴从 Excel 复制的表格（Tab 分隔）或 CSV 文本
+      label-op: 变换方式
+      opt-op-transpose: 转置（行列互换）
+      opt-op-chunk: 按列数分页
+      opt-op-flatten: 展平为一列
+      opt-op-merge: 合并为一行
+      label-delimiter: 单元格分隔符
+      opt-delim-auto: 自动识别
+      opt-delim-tab: Tab
+      opt-delim-comma: 逗号
+      opt-delim-semicolon: 分号
+      opt-delim-space: 空格
+      label-chunk-cols: 每块列数
+      label-merge-sep: 合并分隔符
+      placeholder-merge-sep: 如逗号或空格
+      title-result: 转换结果
+      action-clear: 清空
+      action-copy: 复制
+      action-download: 下载
+      placeholder-result: 转换结果将显示在这里
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……
