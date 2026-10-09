@@ -222,6 +222,9 @@ function loadExample() {
       <n-checkbox v-model:checked="options.replaceUsing">
         {{ t('tools.text-format.texts.opt-replace-using') }}
       </n-checkbox>
+      <p mt-1 mb-2 text-12px op-60>
+        {{ t('tools.text-format.texts.hint-replace-multi') }}
+      </p>
       <div flex items-center gap-2 mt-2>
         <span w-100px shrink-0>{{ t('tools.text-format.texts.label-replace-from') }}</span>
         <c-select

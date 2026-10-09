@@ -36,6 +36,12 @@ export interface DedupeModeOptions extends DedupeBaseOptions {
   orderBy: DedupeOrder;
   removeRepeat: boolean;
   showLineNumber: boolean;
+  /** 输出分隔符 key（复用 text-delimiters 的 DELIMITER_OPTIONS） */
+  outputDelimiterKey: string;
+  /** 输出分隔符自定义内容 */
+  outputDelimiterCustom: string;
+  /** 是否用单引号包裹每个项目（生成 'aa','bb' 数组） */
+  quoteItems: boolean;
 }
 
 export interface CountModeOptions extends DedupeBaseOptions {
@@ -167,7 +173,14 @@ export function runTextDedupe(options: TextDedupeOptions): TextDedupeResult {
     lines = lines.map((line, index) => `${index + 1}：${line}`);
   }
 
-  return { output: lines.join('\n'), stats, items: [] };
+  // 输出分隔符 + 引号包裹（对齐参考站 quchong 的「修改后分隔符」和「'项目',」）
+  const outputDelimiter = resolveDelimiter(options.outputDelimiterKey, options.outputDelimiterCustom);
+  if (options.quoteItems) {
+    lines = lines.map((line) => `'${line}'`);
+  }
+  const joined = lines.join(outputDelimiter);
+
+  return { output: joined, stats, items: [] };
 }
 
 /** 导出 CSV（统计 Tab 专用）：表头「文本,出现次数」，行内容是 key,count。 */

@@ -191,7 +191,13 @@ export function applyTextFormat(input: string, options: TextFormatOptions): Text
     const from = options.replaceFromMode === 'newline' ? '\n' : options.replaceFromText;
     const to = options.replaceToMode === 'newline' ? '\n' : options.replaceToText;
     if (from) {
-      text = text.split(from).join(to); // 字面量全量替换，不走正则
+      // 多组替换：参考站 textreplace 支持「查找目标」用 | 分隔多个文本，
+      // 全部替换成同一个「替换为」。这里对齐：from 含 | 时按 | 拆分逐一替换。
+      // 注意用字面量替换（split/join），不走正则，避免 `.` `(` `$&` 被当正则。
+      const froms = from.split('|');
+      for (const f of froms) {
+        if (f) text = text.split(f).join(to);
+      }
     }
   }
 

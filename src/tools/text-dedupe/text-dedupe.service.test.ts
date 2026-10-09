@@ -27,6 +27,9 @@ function dedupe(patch: Partial<DedupeModeOptions> = {}): DedupeModeOptions {
     orderBy: 'none',
     removeRepeat: true,
     showLineNumber: false,
+    outputDelimiterKey: '1',
+    outputDelimiterCustom: '',
+    quoteItems: false,
     ...patch,
     tab: 'dedupe',
   };
@@ -69,6 +72,18 @@ describe('去重排序 Tab', () => {
   it('参考站原行为：去重关闭时重复行会留在结果里，别顺手「修」', () => {
     const r = runTextDedupe(dedupe({ input: 'a\nb\na', removeRepeat: false }));
     expect(r.output).toBe('a\nb\na');
+  });
+
+  it('输出分隔符：逗号连接', () => {
+    const r = runTextDedupe(dedupe({ input: 'a\nb\na\nc', outputDelimiterKey: '4' }));
+    expect(r.output).toBe('a,b,c');
+  });
+
+  it('引号包裹：生成数组字符串', () => {
+    const r = runTextDedupe(
+      dedupe({ input: 'aa\nbb\ncc\ndd', outputDelimiterKey: '4', quoteItems: true }),
+    );
+    expect(r.output).toBe("'aa','bb','cc','dd'");
   });
 });
 

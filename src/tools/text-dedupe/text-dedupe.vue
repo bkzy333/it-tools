@@ -24,6 +24,9 @@ const removeEmptyLine = ref(true);
 const orderBy = ref<'none' | 'asc' | 'desc'>('none');
 const removeRepeat = ref(true);
 const showLineNumber = ref(false);
+const outputDelimiterKey = ref('1');
+const outputDelimiterCustom = ref('');
+const quoteItems = ref(false);
 
 // 统计 Tab
 const countOrderBy = ref<'none' | 'count-desc' | 'count-asc'>('none');
@@ -52,6 +55,9 @@ const result = computed(() => {
       orderBy: orderBy.value,
       removeRepeat: removeRepeat.value,
       showLineNumber: showLineNumber.value,
+      outputDelimiterKey: outputDelimiterKey.value,
+      outputDelimiterCustom: outputDelimiterCustom.value,
+      quoteItems: quoteItems.value,
     })
     : runTextDedupe({ ...base, tab: 'count', orderBy: countOrderBy.value });
 });
@@ -106,6 +112,9 @@ function loadExample() {
     orderBy.value = 'none';
     removeRepeat.value = true;
     showLineNumber.value = false;
+    outputDelimiterKey.value = '1';
+    outputDelimiterCustom.value = '';
+    quoteItems.value = false;
   } else {
     input.value = exampleData.count;
     inputDelimiterKey.value = '4';
@@ -175,6 +184,24 @@ function loadExample() {
         <n-checkbox v-model:checked="showLineNumber">
           {{ t('tools.text-dedupe.texts.opt-show-line-number') }}
         </n-checkbox>
+        <n-checkbox v-model:checked="quoteItems">
+          {{ t('tools.text-dedupe.texts.opt-quote-items') }}
+        </n-checkbox>
+
+        <c-select
+          v-model:value="outputDelimiterKey"
+          :options="delimiterOptions"
+          :label="t('tools.text-dedupe.texts.label-output-delimiter')"
+          label-width="120px"
+          label-position="left"
+          mb-2
+        />
+        <n-input
+          v-if="outputDelimiterKey === CUSTOM_DELIMITER_KEY"
+          v-model:value="outputDelimiterCustom"
+          :placeholder="t('tools.text-dedupe.texts.placeholder-output-delimiter')"
+          mb-2
+        />
 
         <c-card :title="t('tools.text-dedupe.texts.title-result')" size="small" mt-2>
           <n-input :value="result.output" type="textarea" :rows="10" readonly />

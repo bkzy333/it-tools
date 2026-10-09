@@ -535,6 +535,13 @@ tools:
       label-punctuations: 标点符号数
       label-spaces-chars: 空格字符数
       label-word-count-no-punct: 单词数（不含标点）
+      tab-stats: 字数统计
+      tab-frequency: 词频统计
+      opt-exclude-stopwords: 英文不统计介词
+      opt-exclude-single-cjk: 中文不统计单个字
+      opt-exclude-digits: 不统计纯数字
+      label-top-n: 显示前
+      hint-no-frequency: 当前设置下没有可统计的词，试试取消上面的过滤选项
   text-diff:
     title: 文本对比
     description: 在线对比两段文本并高亮标出增删改的差异，逐行显示哪里被改动，适合比对配置文件、代码和文档版本
@@ -622,6 +629,13 @@ tools:
       tag-download-jpg: 下载JPG
       tag-download-png: 下载PNG
       tag-download-webp: 下载WebP
+      tag-compress-to-target-size: 压缩到目标大小
+      title-drag-and-drop-image-to-compress: 将图像文件拖放到此处进行压缩
+      tag-target-size-kb: 目标大小(KB)
+      tag-max-dimension-px: 最大长宽(px)
+      tag-output-format: 输出格式
+      tag-compressed-size: 压缩后大小
+      tag-download-compressed: 下载压缩图
   api-tester:
     title: API测试器
     description: HTTP API测试器。
@@ -925,6 +939,13 @@ tools:
     description: 在线计算两个日期之间相隔多少天，同时给出工作日天数与节假日信息，可用于核算请假天数、项目工期和账期
     texts:
       title-dates-interval: 日期间隔
+      mode-interval: 日期间隔
+      mode-add-days: 加工作日
+      title-add-business-days: 从开始日期推算结束日期
+      label-add-days-start: 开始日期
+      label-add-days-count: 工作日数
+      label-add-days-result: 结束日期
+      label-add-days-result-iso: 结束日期（ISO）
       label-date-range: 日期范围：
       label-country: 国家：
       label-state: 州/省：
@@ -2640,6 +2661,7 @@ tools:
       opt-replace-using: 执行替换
       label-replace-from: 将
       label-replace-to: 替换成
+      hint-replace-multi: 支持一次替换多个内容：在「将」里用竖线 | 分隔多个目标，它们会被全部替换成「替换成」的内容。
       opt-replacer-mode-custom: 自定义
       opt-replacer-mode-newline: 换行符
       label-order: 排序与去重
@@ -2870,6 +2892,9 @@ tools:
       opt-remove-first-last-space: 去除行首尾空格
       opt-remove-empty-line: 去除空白行
       opt-show-line-number: 显示行号
+      opt-quote-items: 用单引号包裹（生成数组）
+      label-output-delimiter: 输出分隔符
+      placeholder-output-delimiter: 填写自定义分隔符，例如 , 或 ;
       title-result: 处理结果
       label-total-lines: 总行数
       label-duplicate-lines: 重复行数
@@ -2971,6 +2996,196 @@ tools:
       action-copy: 复制
       action-download: 下载
       placeholder-result: 生成结果将显示在这里
+  text-workflow:
+    title: 文本工作流
+    description: 把去空格、大小写、反转、排序、去重、替换、加序号等操作按顺序串成一条流水线，批量处理文本，实时预览每一步的结果
+    texts:
+      label-add-op: 添加操作
+      label-workflow: 当前工作流（按顺序执行）
+      label-input: 输入文本
+      placeholder-input: 在此粘贴要处理的文本
+      title-result: 处理结果
+      placeholder-result: 结果将实时显示在这里
+      hint-no-op: 还没有添加操作，点击上面的按钮添加
+      action-copy: 复制结果
+      action-clear: 清空
+      op-trim: 去首尾空格
+      op-remove-empty: 删除空行
+      op-lowercase: 转小写
+      op-uppercase: 转大写
+      op-reverse: 反转
+      op-sort: 排序
+      op-dedupe: 去重
+      op-replace: 替换
+      op-add-prefix: 加前缀
+      op-add-suffix: 加后缀
+      op-number: 加序号
+      param-mode: 方式
+      param-from: 将
+      param-to: 替换成
+      param-text: 内容
+      param-start: 起始
+      param-step: 步长
+      param-reverse-lines: 按行反转
+      param-reverse-chars: 按字符反转
+      param-sort-asc: 升序
+      param-sort-desc: 降序
+  text-numbering:
+    title: 文本加序号
+    description: 给多行文本的每一行自动添加递增序号，支持多种序号格式、起始值、步长与前置补零
+    texts:
+      label-input: 输入内容
+      placeholder-input: 每行一个项目，将按行添加序号
+      label-format: 序号格式
+      opt-format-dot: 点号
+      opt-format-none: 无
+      opt-format-comma: 半角逗号
+      opt-format-comma-cn: 顿号
+      opt-format-paren: 圆括号
+      opt-format-bracket: 方括号
+      opt-format-hash: 井号
+      opt-format-dash: 短横线
+      label-start: 起始数字
+      label-step: 数字间隔
+      label-pad: 前置补零位数
+      opt-space-after: 序号与内容之间加空格
+      title-result: 结果
+      placeholder-result: 结果将实时显示在这里
+      action-copy: 复制
+      action-download: 下载
+      action-clear: 清空
+  text-similarity:
+    title: 文本查重
+    description: 检测两段文本的内容重复率，按中文字符与英文单词分词比对，高亮重复内容，全部在本地完成、数据不上传
+    texts:
+      label-text-a: 文本 A（参照）
+      placeholder-text-a: 粘贴第一段文本
+      label-text-b: 文本 B（待检测）
+      placeholder-text-b: 粘贴第二段文本
+      label-coverage: 重复率
+      label-jaccard: 相似度
+      label-matched: 命中词条
+      hint-privacy: 本工具完全在浏览器本地运行，两段文本不会上传到任何服务器。
+      title-highlight: 重复内容高亮（文本 B）
+      placeholder-highlight: 填入两段文本后，这里会高亮显示文本 B 中与文本 A 重复的内容
+      action-clear: 清空
+  text-typography:
+    title: 排版纠正
+    description: 自动纠正中英文混排的排版问题：中英文与中文数字之间加空格、半角标点转全角、折叠重复标点，提升文案可读性
+    texts:
+      label-input: 输入内容
+      placeholder-input: 在此粘贴需要纠正排版的文案
+      label-rules: 纠正规则
+      opt-space-cjk-latin: 中英文之间加空格
+      opt-space-cjk-digit: 中文与数字之间加空格
+      opt-half-to-full: 半角标点转全角
+      opt-dedupe-punct: 折叠重复标点
+      title-result: 纠正结果
+      action-copy: 复制
+      action-clear: 清空
+  special-symbols:
+    title: 特殊符号大全
+    description: 分类收录标点、数字序号、数学、单位、货币、箭头、图形等常用特殊符号，点击即可复制
+    texts:
+      hint-click: 点击任意符号即可复制到剪贴板
+      cat-punctuation: 标点符号
+      cat-number: 数字序号
+      cat-math: 数学符号
+      cat-unit: 单位符号
+      cat-currency: 货币符号
+      cat-arrow: 箭头符号
+      cat-shape: 几何图形
+      cat-decor: 装饰符号
+      cat-pinyin: 拼音注音
+      cat-misc: 其他符号
+  english-numbers:
+    title: 数字英文互转
+    description: 阿拉伯数字与英文读数互转，支持连字符与逗号分隔，纯本地处理
+    texts:
+      tab-to-english: 数字转英文
+      tab-to-number: 英文转数字
+      title-input-number: 输入数字
+      placeholder-number: 如 1234567.89
+      opt-hyphenated: 十位与个位之间用连字符
+      opt-comma: 组间用逗号分隔
+      title-result: 转换结果
+      hint-empty: 输入数字或英文后自动显示结果
+      title-input-english: 输入英文读数
+      placeholder-english: 如 one million two hundred thirty-four
+  date-uppercase:
+    title: 日期大写
+    description: 将日期转换为支票/票据用的中文大写（零壹贰叁肆伍陆柒捌玖拾），符合会计日期书写规范
+    texts:
+      title-input: 输入日期
+      placeholder-date: 如 2026-10-09
+      title-result: 大写结果
+      hint-empty: 输入日期后自动显示结果
+      label-year: 年
+      label-month: 月
+      label-day: 日
+  english-amount:
+    title: 英文金额大写
+    description: 将金额转换为英文大写（SAY + 币种 + 金额 + ONLY），支持美元/欧元/英镑/人民币/港元/日元
+    texts:
+      title-input: 输入金额
+      placeholder-amount: 如 1234.56
+      label-currency: 币种
+      opt-full-form: 完整句式（写明币种英文全称）
+      opt-hyphenated: 十位与个位之间用连字符
+      title-result: 大写结果
+      hint-empty: 输入金额后自动显示结果
+  english-date-format:
+    title: 英文日期格式
+    description: 将日期转换为美式/英式英文日期格式（含序数词后缀），共 8 种格式
+    texts:
+      title-input: 输入日期
+      placeholder-date: 如 2022-10-24
+      title-result: 8 种英文日期格式
+  batch-timestamp:
+    title: 批量时间戳转换
+    description: 批量进行时间戳与时间互转，支持秒/毫秒单位、多种时间格式，可导出 CSV
+    texts:
+      mode-ts-to-date: 时间戳转时间
+      mode-date-to-ts: 时间转时间戳
+      unit-s: 秒(s)
+      unit-ms: 毫秒(ms)
+      label-unit: 单位
+      label-format: 时间格式
+      placeholder-input: 每行一个时间戳或时间
+      title-result: 转换结果
+      label-count: 已转换
+      action-copy: 复制
+      action-export-csv: 导出 CSV
+      action-clear: 清空
+      hint-error: 无效
+  wubi-dict:
+    title: 五笔编码查询
+    description: 输入汉字查询 86/98 版五笔字型编码，覆盖 GB2312 常用汉字 6764 字，纯本地离线
+    texts:
+      title-input: 输入汉字
+      placeholder-input: 如 中华人民共和国
+      title-result: 查询结果
+      label-found: 已查
+      label-missing: 未收录
+      hint-missing: 未收录的字符已标注为破折号，本工具仅收录 GB2312 常用汉字
+  lunar-calendar:
+    title: 农历转换
+    description: 公历与农历互转，显示干支纪年、生肖、星座，支持 1900-2100 年
+    texts:
+      tab-solar-to-lunar: 公历转农历
+      tab-lunar-to-solar: 农历转公历
+      title-input-solar: 选择公历日期
+      title-input-lunar: 输入农历日期
+      title-result: 转换结果
+      label-lunar-date: 农历
+      label-ganzhi: 干支
+      label-zodiac: 生肖
+      label-constellation: 星座
+      label-year: 年
+      label-month: 月
+      label-day: 日
+      opt-leap: 闰月
+      hint-lunar-not-found: 未找到对应的公历日期，请检查输入的农历日期是否正确
   table-transpose:
     title: 表格形状转换
     description: 粘贴 TSV/CSV 表格，做转置、按列数分页、展平为一列、合并为一行等形状变换，纯本地处理

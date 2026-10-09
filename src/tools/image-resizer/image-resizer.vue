@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n';
 import { computed, ref, watch } from 'vue';
 import { IconLock, IconLockOpen2, IconReload } from '@tabler/icons-vue';
+import { compressImage, type CompressResult } from './image-compress.service';
 
 const { t } = useI18n();
 
@@ -352,7 +353,6 @@ async function resizeImage() {
 
 // Function to download resized image with validation and correct format conversion
 function downloadImage(format: string) {
-  // Validate dimensions before download
   if (!imageFile.value || !originalImageUrl.value) {
     console.warn('No image available for download');
     return;
@@ -420,6 +420,48 @@ function downloadImage(format: string) {
     link.download = newFilename;
     link.click();
   };
+}
+
+// ---- 压缩到目标大小（参考 tinyimg） ----
+const compressFile = ref<File | null>(null);
+const compressTargetKb = ref(300);
+const compressMaxDim = ref(0);
+const compressFormat = ref<'jpeg' | 'webp'>('jpeg');
+const compressStatus = ref<'idle' | 'processing' | 'done' | 'error'>('idle');
+const compressResult = ref<CompressResult | null>(null);
+const compressError = ref('');
+
+async function handleCompressFile(uploadedFile: File) {
+  compressFile.value = uploadedFile;
+  compressResult.value = null;
+  compressStatus.value = 'processing';
+  compressError.value = '';
+  try {
+    const result = await compressImage(uploadedFile, {
+      targetKb: compressTargetKb.value,
+      maxDimension: compressMaxDim.value,
+      format: compressFormat.value,
+    });
+    compressResult.value = result;
+    compressStatus.value = 'done';
+  } catch (e: any) {
+    compressError.value = e.toString();
+    compressStatus.value = 'error';
+  }
+}
+
+function downloadCompressed() {
+  if (!compressResult.value || !compressFile.value) {
+    return;
+  }
+  const url = URL.createObjectURL(compressResult.value.blob);
+  const originalFilename = compressFile.value.name.replace(/\.[^/.]+$/, '');
+  const ext = compressFormat.value === 'jpeg' ? 'jpg' : 'webp';
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${originalFilename}-compressed.${ext}`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 </script>
 
@@ -594,6 +636,42 @@ function downloadImage(format: string) {
           </div>
         </div>
       </div>
+    </div>
+  </n-card>
+
+  <n-card mt-3>
+    <h3 style="margin: 0 0 12px">{{ t('tools.image-resizer.texts.tag-compress-to-target-size') }}</h3>
+
+    <c-file-upload
+      mb-2
+      accept="image/*"
+      :title="t('tools.image-resizer.texts.title-drag-and-drop-image-to-compress')"
+      @file-upload="handleCompressFile"
+    />
+
+    <n-space mb-3 align="end">
+      <n-form-item :label="t('tools.image-resizer.texts.tag-target-size-kb')" label-placement="left">
+        <n-input-number v-model:value="compressTargetKb" :min="1" :max="100000" />
+      </n-form-item>
+      <n-form-item :label="t('tools.image-resizer.texts.tag-max-dimension-px')" label-placement="left">
+        <n-input-number v-model:value="compressMaxDim" :min="0" :max="32767" />
+      </n-form-item>
+      <n-form-item :label="t('tools.image-resizer.texts.tag-output-format')" label-placement="left">
+        <n-select v-model:value="compressFormat" :options="[{ label: 'JPEG', value: 'jpeg' }, { label: 'WebP', value: 'webp' }]" style="width: 120px" />
+      </n-form-item>
+    </n-space>
+
+    <n-spin v-if="compressStatus === 'processing'" size="small" />
+    <div v-if="compressStatus === 'error'" style="color: red; margin-top: 8px">{{ compressError }}</div>
+    <div v-if="compressStatus === 'done' && compressResult" style="margin-top: 8px">
+      <p>
+        {{ t('tools.image-resizer.texts.tag-compressed-size') }}:
+        <strong>{{ compressResult.sizeKb.toFixed(1) }} KB</strong>
+        ({{ compressResult.width }}x{{ compressResult.height }}px)
+      </p>
+      <n-button type="primary" @click="downloadCompressed">
+        {{ t('tools.image-resizer.texts.tag-download-compressed') }}
+      </n-button>
     </div>
   </n-card>
 </template>

@@ -181,6 +181,59 @@ const REGION_LABEL_FIX: Record<string, string> = {
   MO: '中国澳门',
 };
 
+/**
+ * 反向推算：从开始日期往后加 N 个工作日（跳过周末 + 节假日），返回结束日期。
+ *
+ * 复用 BusinessTime.addBusinessSecondsToDate 的精确逻辑。
+ * 工作日口径与 diffDateTimes 完全一致：includeWeekDays 指定哪些算工作日，
+ * includeHolidays 决定是否跳过节假日。
+ */
+export function addBusinessDays({
+  date,
+  businessDaysToAdd,
+  country,
+  state,
+  region,
+  businessTimezone,
+  includeWeekDays = allWeekDays,
+  includeHolidays = true,
+}: {
+  date: Date;
+  businessDaysToAdd: number;
+  country: string;
+  state?: string;
+  region?: string;
+  businessTimezone: string;
+  includeWeekDays?: Weekdays[];
+  includeHolidays?: boolean;
+}): Date {
+  const startDateTime = DateTime.fromJSDate(date).startOf('day');
+
+  const hd = new Holidays(country, state || '', region || '');
+  const holidays: Array<HolidaysTypes.Holiday> = [];
+  // 覆盖推算可能跨的年份（往前多算两年防节假日跨年）
+  for (let year = startDateTime.year - 1; year <= startDateTime.year + 3; year += 1) {
+    holidays.push(...hd.getHolidays(year));
+  }
+  const holidaysDates = holidays
+    .map((h) => DateTime.fromJSDate(h.start).toFormat('dd/MM/yyyy') as Holiday)
+    .filter((d) => {
+      const dt = DateTime.fromFormat(d, 'dd/MM/yyyy');
+      return dt && dt >= startDateTime;
+    });
+
+  const computer = new BusinessTime({
+    businessDays: includeWeekDays,
+    businessTimezone,
+    holidays: includeHolidays ? holidaysDates : [],
+    businessHours: [0, 24],
+  });
+
+  // 加 N 天 = 加 N*24 小时
+  const seconds = businessDaysToAdd * 24 * 3600;
+  return computer.addBusinessSecondsToDate({ datetime: startDateTime, seconds }).toJSDate();
+}
+
 export function getSupportedCountries() {
   const hd = new Holidays();
   return Object.entries(hd.getCountries())

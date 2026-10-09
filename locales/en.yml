@@ -565,6 +565,13 @@ tools:
       label-punctuations: Punctuations
       label-spaces-chars: Spaces chars
       label-word-count-no-punct: Word count (no punct)
+      tab-stats: Statistics
+      tab-frequency: Word frequency
+      opt-exclude-stopwords: Exclude English stopwords
+      opt-exclude-single-cjk: Exclude single Chinese characters
+      opt-exclude-digits: Exclude pure numbers
+      label-top-n: Top
+      hint-no-frequency: No words to count under the current settings. Try turning off a filter above.
   text-diff:
     title: Text diff
     description: Compare two texts and see the differences between them.
@@ -658,6 +665,13 @@ tools:
       tag-download-jpg: Download JPG
       tag-download-png: Download PNG
       tag-download-webp: Download WebP
+      tag-compress-to-target-size: "Compress to target size"
+      title-drag-and-drop-image-to-compress: "Drag and drop an image file here to compress"
+      tag-target-size-kb: "Target size (KB)"
+      tag-max-dimension-px: "Max dimension (px)"
+      tag-output-format: "Output format"
+      tag-compressed-size: "Compressed size"
+      tag-download-compressed: "Download compressed image"
   api-tester:
     title: API Tester
     description: HTTP API Tester
@@ -1004,6 +1018,13 @@ tools:
     description: Calculate days interval, holidays, difference, business times
     texts:
       title-dates-interval: Dates Interval
+      mode-interval: "Dates interval"
+      mode-add-days: "Add business days"
+      title-add-business-days: "Calculate end date from a start date"
+      label-add-days-start: "Start date"
+      label-add-days-count: "Business days"
+      label-add-days-result: "End date"
+      label-add-days-result-iso: "End date (ISO)"
       label-date-range: "Date Range:"
       label-country: "Country:"
       label-state: "State:"
@@ -2521,6 +2542,7 @@ tools:
       opt-replace-using: Enable replace
       label-replace-from: Replace
       label-replace-to: With
+      hint-replace-multi: "Replace multiple targets at once: separate them with a pipe | in the 'Replace' field, and they will all be replaced with the 'With' value."
       opt-replacer-mode-custom: Custom
       opt-replacer-mode-newline: Newline
       label-order: Sorting and dedupe
@@ -2753,6 +2775,9 @@ tools:
       opt-remove-first-last-space: Trim edges
       opt-remove-empty-line: Remove blank lines
       opt-show-line-number: Show line numbers
+      opt-quote-items: Wrap items in single quotes (build an array)
+      label-output-delimiter: Output delimiter
+      placeholder-output-delimiter: Custom delimiter, e.g. , or ;
       title-result: Result
       label-total-lines: Total lines
       label-duplicate-lines: Duplicates
@@ -2858,6 +2883,196 @@ tools:
       action-copy: Copy
       action-download: Download
       placeholder-result: The generated sequence will appear here
+  text-workflow:
+    title: Text Workflow
+    description: Chain operations like trim, case change, reverse, sort, dedupe, replace and numbering into an ordered pipeline to batch-process text with live preview.
+    texts:
+      label-add-op: "Add operation"
+      label-workflow: "Current workflow (runs in order)"
+      label-input: "Input text"
+      placeholder-input: "Paste the text to process here"
+      title-result: Result
+      placeholder-result: The result will appear here in real time
+      hint-no-op: "No operations yet. Click a button above to add one."
+      action-copy: "Copy result"
+      action-clear: Clear
+      op-trim: "Trim spaces"
+      op-remove-empty: "Remove empty lines"
+      op-lowercase: lowercase
+      op-uppercase: UPPERCASE
+      op-reverse: Reverse
+      op-sort: Sort
+      op-dedupe: Dedupe
+      op-replace: Replace
+      op-add-prefix: "Add prefix"
+      op-add-suffix: "Add suffix"
+      op-number: "Add numbering"
+      param-mode: Mode
+      param-from: From
+      param-to: To
+      param-text: Text
+      param-start: Start
+      param-step: Step
+      param-reverse-lines: "Reverse lines"
+      param-reverse-chars: "Reverse chars"
+      param-sort-asc: Ascending
+      param-sort-desc: Descending
+  text-numbering:
+    title: "Text Numbering"
+    description: "Add incrementing numbers to each line of text, with multiple number formats, start value, step and zero-padding."
+    texts:
+      label-input: Input
+      placeholder-input: "One item per line; numbers are added per line"
+      label-format: "Number format"
+      opt-format-dot: Dot
+      opt-format-none: None
+      opt-format-comma: Comma
+      opt-format-comma-cn: "Ideographic comma"
+      opt-format-paren: Parentheses
+      opt-format-bracket: Brackets
+      opt-format-hash: Hash
+      opt-format-dash: Dash
+      label-start: "Start number"
+      label-step: Step
+      label-pad: "Zero-padding width"
+      opt-space-after: "Add a space after the number"
+      title-result: Result
+      placeholder-result: The result will appear here in real time
+      action-copy: Copy
+      action-download: Download
+      action-clear: Clear
+  text-similarity:
+    title: "Text Similarity"
+    description: "Detect the duplication ratio between two texts by tokenizing Chinese characters and English words, highlight the overlapping content, all computed locally with no data upload."
+    texts:
+      label-text-a: "Text A (reference)"
+      placeholder-text-a: "Paste the first text"
+      label-text-b: "Text B (to check)"
+      placeholder-text-b: "Paste the second text"
+      label-coverage: "Duplication"
+      label-jaccard: Similarity
+      label-matched: "Matched tokens"
+      hint-privacy: "This tool runs entirely in your browser; neither text is uploaded to any server."
+      title-highlight: "Highlighted overlap (Text B)"
+      placeholder-highlight: "After entering both texts, this area highlights the parts of Text B that overlap with Text A"
+      action-clear: Clear
+  text-typography:
+    title: "Typography Fixer"
+    description: "Fix CJK/Latin mixed typography: add spaces between Chinese and English/digits, convert half-width punctuation to full-width, and collapse repeated punctuation."
+    texts:
+      label-input: Input
+      placeholder-input: "Paste the copy you want to fix"
+      label-rules: "Fixing rules"
+      opt-space-cjk-latin: "Add spaces between Chinese and English"
+      opt-space-cjk-digit: "Add spaces between Chinese and digits"
+      opt-half-to-full: "Convert half-width punctuation to full-width"
+      opt-dedupe-punct: "Collapse repeated punctuation"
+      title-result: Result
+      action-copy: Copy
+      action-clear: Clear
+  special-symbols:
+    title: "Special Symbols"
+    description: "Browse and copy common special symbols by category: punctuation, numbers, math, units, currency, arrows, shapes and more."
+    texts:
+      hint-click: "Click any symbol to copy it to the clipboard"
+      cat-punctuation: Punctuation
+      cat-number: "Numbered list"
+      cat-math: Math
+      cat-unit: Units
+      cat-currency: Currency
+      cat-arrow: Arrows
+      cat-shape: Shapes
+      cat-decor: Decorative
+      cat-pinyin: Pinyin
+      cat-misc: Miscellaneous
+  english-numbers:
+    title: "Numbers to English"
+    description: "Convert between Arabic numerals and English words, with optional hyphenation and comma grouping. All local."
+    texts:
+      tab-to-english: "Number to English"
+      tab-to-number: "English to Number"
+      title-input-number: "Enter a number"
+      placeholder-number: "e.g. 1234567.89"
+      opt-hyphenated: "Hyphenate tens and ones"
+      opt-comma: "Separate groups with commas"
+      title-result: Result
+      hint-empty: "Result appears once you enter a number or words"
+      title-input-english: "Enter English words"
+      placeholder-english: "e.g. one million two hundred thirty-four"
+  date-uppercase:
+    title: "Chinese Date in Uppercase"
+    description: "Convert a date to the uppercase form used on checks and bills (零壹贰叁肆伍陆柒捌玖拾), following accounting date conventions."
+    texts:
+      title-input: "Enter a date"
+      placeholder-date: "e.g. 2026-10-09"
+      title-result: "Uppercase result"
+      hint-empty: "Result appears once you enter a date"
+      label-year: Year
+      label-month: Month
+      label-day: Day
+  english-amount:
+    title: "English Amount in Words"
+    description: "Convert an amount to English uppercase (SAY + currency + amount + ONLY), supporting USD/EUR/GBP/CNY/HKD/JPY."
+    texts:
+      title-input: "Enter an amount"
+      placeholder-amount: "e.g. 1234.56"
+      label-currency: Currency
+      opt-full-form: "Full form (spell out the currency name)"
+      opt-hyphenated: "Hyphenate tens and ones"
+      title-result: Result
+      hint-empty: "Result appears once you enter an amount"
+  english-date-format:
+    title: "English Date Format"
+    description: "Convert a date into American and British English date formats (with ordinal suffixes), 8 formats in total."
+    texts:
+      title-input: "Enter a date"
+      placeholder-date: "e.g. 2022-10-24"
+      title-result: "8 English date formats"
+  batch-timestamp:
+    title: "Batch Timestamp Converter"
+    description: "Convert between timestamps and dates in bulk, with second/millisecond units, multiple formats, and CSV export."
+    texts:
+      mode-ts-to-date: "Timestamp to date"
+      mode-date-to-ts: "Date to timestamp"
+      unit-s: "Second (s)"
+      unit-ms: "Millisecond (ms)"
+      label-unit: Unit
+      label-format: "Date format"
+      placeholder-input: "One timestamp or date per line"
+      title-result: Result
+      label-count: Converted
+      action-copy: Copy
+      action-export-csv: "Export CSV"
+      action-clear: Clear
+      hint-error: Invalid
+  wubi-dict:
+    title: "Wubi Code Lookup"
+    description: "Look up 86/98-version Wubi (Chinese five-stroke) codes for Chinese characters, covering 6764 GB2312 common characters. Fully offline."
+    texts:
+      title-input: "Enter Chinese characters"
+      placeholder-input: "e.g. 中华人民共和国"
+      title-result: Result
+      label-found: Found
+      label-missing: Missing
+      hint-missing: "Unlisted characters are shown as a dash. This tool only covers GB2312 common characters."
+  lunar-calendar:
+    title: "Lunar Calendar Converter"
+    description: "Convert between Gregorian and Chinese lunar calendar, showing sexagenary year, zodiac and constellation. Supports 1900-2100."
+    texts:
+      tab-solar-to-lunar: "Gregorian to Lunar"
+      tab-lunar-to-solar: "Lunar to Gregorian"
+      title-input-solar: "Pick a Gregorian date"
+      title-input-lunar: "Enter a lunar date"
+      title-result: Result
+      label-lunar-date: Lunar
+      label-ganzhi: Ganzhi
+      label-zodiac: Zodiac
+      label-constellation: Constellation
+      label-year: Year
+      label-month: Month
+      label-day: Day
+      opt-leap: "Leap month"
+      hint-lunar-not-found: "No matching Gregorian date found. Please check the lunar date."
   table-transpose:
     title: Table Transpose
     description: Paste a TSV/CSV table to transpose, split into column-blocks, flatten into a single column, or merge into one row. All processing is local.

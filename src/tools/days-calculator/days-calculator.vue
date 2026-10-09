@@ -10,10 +10,13 @@ import {
   getSupportedStates,
 } from './days-calculator.service';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
+import { addBusinessDays } from './days-calculator.service';
 
 const { t } = useI18n();
 
 const now = Date.now();
+
+const calcMode = ref<'interval' | 'add-days'>('interval');
 
 const inputDateRange = ref<[number, number]>([now, now + 86400]);
 
@@ -87,11 +90,62 @@ const inputProps = {
   readonly: true,
   'mb-2': '',
 } as const;
+
+// ---- 反向推算：开始日期 + 工作日数 → 结束日期 ----
+const addDaysStart = ref<number>(now);
+const addDaysCount = ref(10);
+const addDaysError = ref('');
+const addDaysResult = computed(() => {
+  try {
+    addDaysError.value = '';
+    return addBusinessDays({
+      date: new Date(addDaysStart.value),
+      businessDaysToAdd: addDaysCount.value,
+      country: country.value,
+      state: state.value,
+      region: region.value,
+      businessTimezone: businessTimezone.value,
+      includeWeekDays: includeWeekDays.value,
+      includeHolidays: includeHolidays.value,
+    });
+  } catch (e: any) {
+    addDaysError.value = e.toString();
+    return null;
+  }
+});
 </script>
 
 <template>
   <div>
-    <c-card :title="t('tools.days-calculator.texts.title-dates-interval')" mb-2>
+    <n-radio-group v-model:value="calcMode" mb-3>
+      <n-radio-button value="interval">{{ t('tools.days-calculator.texts.mode-interval') }}</n-radio-button>
+      <n-radio-button value="add-days">{{ t('tools.days-calculator.texts.mode-add-days') }}</n-radio-button>
+    </n-radio-group>
+
+    <c-card v-if="calcMode === 'add-days'" :title="t('tools.days-calculator.texts.title-add-business-days')" mb-2>
+      <n-form-item :label="t('tools.days-calculator.texts.label-add-days-start')" label-placement="left" label-width="100px" mb-1>
+        <n-date-picker v-model:value="addDaysStart" type="datetime" />
+      </n-form-item>
+      <n-form-item :label="t('tools.days-calculator.texts.label-add-days-count')" label-placement="left" label-width="100px" mb-2>
+        <n-input-number-i18n v-model:value="addDaysCount" :min="0" :max="100000" />
+      </n-form-item>
+
+      <c-alert v-if="addDaysError" type="error">{{ addDaysError }}</c-alert>
+      <c-card v-if="addDaysResult" :title="t('tools.days-calculator.texts.title-result')">
+        <input-copyable
+          :label="t('tools.days-calculator.texts.label-add-days-result')"
+          :value="addDaysResult.toString()"
+          readonly
+        />
+        <input-copyable
+          :label="t('tools.days-calculator.texts.label-add-days-result-iso')"
+          :value="addDaysResult.toISOString()"
+          readonly
+        />
+      </c-card>
+    </c-card>
+
+    <c-card v-else :title="t('tools.days-calculator.texts.title-dates-interval')" mb-2>
       <n-form-item
         :label="t('tools.days-calculator.texts.label-date-range')"
         label-placement="left"

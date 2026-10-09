@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-09T11:37:09.521Z",
+  "generatedAt": "2026-10-09T15:03:10.342Z",
   "sourceCommit": "extracted at build time",
-  "total": 95,
+  "total": 107,
   "tiers": {
-    "L1": 79,
-    "L2": 15,
+    "L1": 90,
+    "L2": 16,
     "L3": 1
   },
   "categories": {
@@ -206,6 +206,30 @@
       "description": "简单地将字符串编码为Base64格式，或解码Base64字符串回原字符串。",
       "categoryZh": "单位换算",
       "categorySeoName": "单位换算在线计算",
+      "tier": "L1"
+    },
+    {
+      "path": "/batch-timestamp",
+      "slug": "batch-timestamp",
+      "category": "Datetime",
+      "keywords": [
+        "批量时间戳",
+        "时间戳批量转换",
+        "时间戳转时间",
+        "时间转时间戳",
+        "unix时间戳",
+        "批量转换",
+        "时间戳导出",
+        "batch timestamp",
+        "unix timestamp batch"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "批量时间戳转换",
+      "description": "批量进行时间戳与时间互转，支持秒/毫秒单位、多种时间格式，可导出 CSV",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
       "tier": "L1"
     },
     {
@@ -637,6 +661,30 @@
       "tier": "L1"
     },
     {
+      "path": "/date-uppercase",
+      "slug": "date-uppercase",
+      "category": "Datetime",
+      "keywords": [
+        "日期大写",
+        "支票日期",
+        "票据日期",
+        "会计日期大写",
+        "出票日期",
+        "大写日期",
+        "日期转大写",
+        "date uppercase",
+        "chinese date uppercase"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "日期大写",
+      "description": "将日期转换为支票/票据用的中文大写（零壹贰叁肆伍陆柒捌玖拾），符合会计日期书写规范",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
+    {
       "path": "/days-calculator",
       "slug": "days-calculator",
       "category": "Datetime",
@@ -717,6 +765,79 @@
       "description": "在线对文本做加密和解密，支持 AES、TripleDES、Rabbit、RC4 等算法，可自定义密钥，全部在浏览器本地计算，密钥不会上传服务器",
       "categoryZh": "加密与解密",
       "categorySeoName": "加密解密与哈希在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/english-amount",
+      "slug": "english-amount",
+      "category": "Data",
+      "keywords": [
+        "英文金额大写",
+        "美元大写",
+        "金额英文",
+        "英文数字大写",
+        "金额大写英文",
+        "SAY ONLY",
+        "english amount",
+        "amount in words",
+        "美元金额大写",
+        "票据英文金额"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "英文金额大写",
+      "description": "将金额转换为英文大写（SAY + 币种 + 金额 + ONLY），支持美元/欧元/英镑/人民币/港元/日元",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
+    },
+    {
+      "path": "/english-date-format",
+      "slug": "english-date-format",
+      "category": "Datetime",
+      "keywords": [
+        "英文日期",
+        "英文日期格式",
+        "美式日期",
+        "英式日期",
+        "日期格式转换",
+        "english date format",
+        "american date",
+        "british date",
+        "日期英文"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "英文日期格式",
+      "description": "将日期转换为美式/英式英文日期格式（含序数词后缀），共 8 种格式",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
+    {
+      "path": "/english-numbers",
+      "slug": "english-numbers",
+      "category": "Text",
+      "keywords": [
+        "数字转英文",
+        "英文转数字",
+        "数字英文",
+        "英文读数",
+        "英文数字转换",
+        "number to words",
+        "english numbers",
+        "阿拉伯数字英文",
+        "金额英文"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "数字英文互转",
+      "description": "阿拉伯数字与英文读数互转，支持连字符与逗号分隔，纯本地处理",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
       "tier": "L1"
     },
     {
@@ -1275,6 +1396,34 @@
       "tier": "L1"
     },
     {
+      "path": "/lunar-calendar",
+      "slug": "lunar-calendar",
+      "category": "Datetime",
+      "keywords": [
+        "农历",
+        "阴历",
+        "农历转换",
+        "公历转农历",
+        "农历转公历",
+        "干支",
+        "生肖",
+        "星座",
+        "农历生日",
+        "万年历",
+        "lunar calendar",
+        "chinese calendar",
+        "农历查询"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "农历转换",
+      "description": "公历与农历互转，显示干支纪年、生肖、星座，支持 1900-2100 年",
+      "categoryZh": "日期与时间",
+      "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
+    {
       "path": "/many-units-converter",
       "slug": "many-units-converter",
       "category": "Converters",
@@ -1812,6 +1961,27 @@
       "tier": "L1"
     },
     {
+      "path": "/special-symbols",
+      "slug": "special-symbols",
+      "category": "Text",
+      "keywords": [
+        "symbol",
+        "special",
+        "符号",
+        "特殊符号",
+        "emoji",
+        "character"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "特殊符号大全",
+      "description": "分类收录标点、数字序号、数学、单位、货币、箭头、图形等常用特殊符号，点击即可复制",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
       "path": "/sql-prettify",
       "slug": "sql-prettify",
       "category": "Development",
@@ -2010,6 +2180,48 @@
       "tier": "L1"
     },
     {
+      "path": "/text-numbering",
+      "slug": "text-numbering",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "number",
+        "numbering",
+        "line",
+        "序号",
+        "编号"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本加序号",
+      "description": "给多行文本的每一行自动添加递增序号，支持多种序号格式、起始值、步长与前置补零",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-similarity",
+      "slug": "text-similarity",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "similarity",
+        "duplicate",
+        "查重",
+        "重复率",
+        "similar"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本查重",
+      "description": "检测两段文本的内容重复率，按中文字符与英文单词分词比对，高亮重复内容，全部在本地完成、数据不上传",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
       "path": "/text-split",
       "slug": "text-split",
       "category": "Text",
@@ -2046,6 +2258,48 @@
       "isExternalAccess": false,
       "title": "字数统计工具",
       "description": "在线统计文本的字符数、单词数、行数、字节大小与中文汉字数，实时出结果，可用于检查文章字数和数据库字段长度",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-typography",
+      "slug": "text-typography",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "typography",
+        "排版",
+        "中英文混排",
+        "空格",
+        "标点"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "排版纠正",
+      "description": "自动纠正中英文混排的排版问题：中英文与中文数字之间加空格、半角标点转全角、折叠重复标点，提升文案可读性",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-workflow",
+      "slug": "text-workflow",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "workflow",
+        "pipeline",
+        "工作流",
+        "文本处理",
+        "批处理"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "文本工作流",
+      "description": "把去空格、大小写、反转、排序、去重、替换、加序号等操作按顺序串成一条流水线，批量处理文本，实时预览每一步的结果",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
@@ -2188,6 +2442,32 @@
       "description": "为单张或多张图片添加水印或logo",
       "categoryZh": "图片处理",
       "categorySeoName": "图片在线处理工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/wubi-dict",
+      "slug": "wubi-dict",
+      "category": "Text",
+      "keywords": [
+        "五笔",
+        "五笔编码",
+        "五笔查询",
+        "五笔字型",
+        "五笔86",
+        "五笔98",
+        "五笔反查",
+        "汉字五笔",
+        "wubi",
+        "五笔码",
+        "五笔字根"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": false,
+      "title": "五笔编码查询",
+      "description": "输入汉字查询 86/98 版五笔字型编码，覆盖 GB2312 常用汉字 6764 字，纯本地离线",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
       "tier": "L1"
     },
     {

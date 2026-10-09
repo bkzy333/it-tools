@@ -247,6 +247,39 @@ const CONTENT: Record<string, ToolContent> = {
       note: '把「变换方式」改成「按列数分页」+ 每块 2 列，会得到「姓名/语文」和「数学/英语」两块',
     },
   },
+  '/english-amount': {
+    intro:
+      '把数字金额转成英文大写写法，格式为「SAY + 币种 + 金额 + ONLY」，支持美元、欧元、英镑、人民币、港元、日元 6 种币种。开信用证、写英文合同、填英文票据、做外贸单据时用它。',
+    steps: [
+      '在输入框里输入金额（整数或两位小数），下方实时显示英文大写',
+      '选币种：USD（美元）、EUR（欧元）、GBP（英镑）、CNY（人民币）、HKD（港元）、JPY（日元）',
+      '勾选「完整句式」会用币种英文全称（US DOLLARS），取消则用货币代码（USD）',
+      '勾选「连字符」控制 twenty-one 还是 twenty one 的写法',
+      '点「一键示例」看 1234.56 美元的完整写法',
+    ],
+    tips: [
+      '金额的小数部分自动转成「分」（CENTS）：1234.56 是 AND FIFTY-SIX CENTS；没有小数时结尾不加分。',
+      '「完整句式」和「简洁句式」是两种规范：前者写全币种名（合同、法律文件），后者用代码（单据、简易协议）。',
+    ],
+    faq: [
+      {
+        q: '英文金额大写为什么要全大写？',
+        a: '票据和合同里的金额大写（UPPERCASE）是为了防止涂改，和中文大写金额同理。全大写是规范写法。',
+      },
+      {
+        q: '人民币用哪个币种名？',
+        a: '人民币的规范英文是 CHINESE YUAN（货币代码 CNY），单位用 YUAN，分用 FEN。',
+      },
+      {
+        q: '支持负数吗？',
+        a: '支持，负数会在前面加 MINUS。',
+      },
+    ],
+    example: {
+      input: '1234.56（币种 USD）',
+      output: 'SAY US DOLLARS ONE THOUSAND, TWO HUNDRED THIRTY-FOUR DOLLARS AND FIFTY-SIX CENTS ONLY',
+    },
+  },
 };
 
 export default CONTENT;

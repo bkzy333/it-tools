@@ -106,6 +106,11 @@ describe('applyTextFormat 替换', () => {
     const r = applyTextFormat('$&', opts({ replaceUsing: true, replaceFromText: '&', replaceToText: 'X' }));
     expect(r.output).toBe('$X');
   });
+
+  it('多组替换：from 用 | 分隔，全部替换成同一个 to', () => {
+    const r = applyTextFormat('苹果和香蕉', opts({ replaceUsing: true, replaceFromText: '苹果|香蕉', replaceToText: '水果' }));
+    expect(r.output).toBe('水果和水果');
+  });
 });
 
 describe('applyTextFormat 排序 / 去重 / 行号', () => {
