@@ -1172,17 +1172,42 @@ tools:
       tag-print-ie-use-a-pdf-printer-to-get-a-pdf-file: 打印（例如，使用PDF打印机获取PDF文件）
   bmi-calculator:
     title: BMI 计算器（身体质量指数）
-    description: 在线计算 BMI 身体质量指数，支持公制（厘米+公斤）与英制（英尺英寸+磅）单位，自动给出偏瘦、正常、超重、肥胖的判定结果
+    description: 在线计算 BMI 身体质量指数，支持公制（厘米+公斤）与英制（英寸+磅），四种判定标准（国际/中国/日本/新加坡），自动给出偏瘦、正常、过重、肥胖的判定结果，并记录 BMI 历史
     texts:
-      label-metric-kg-m: 公制（kg, m）
-      label-us-lbs-in: 英制（lbs, in）
-      title-bmi-calculator: BMI计算器
-      label-select-units: 选择单位：
+      label-metric-kg-cm: 公制（kg, cm）
+      label-us-lbs-in: 英制（lb, in）
+      label-select-units: 单位制
+      label-standard: BMI 标准
+      label-weight: 体重
+      label-height: 身高
       placeholder-enter-weight: 输入体重
       placeholder-enter-height: 输入身高
-      title-result: 结果
       label-bmi: BMI：
       label-category: 分类：
+      label-healthy-range: 健康体重范围
+      label-autosave: 自动保存历史记录
+      unit-kg: kg
+      unit-lb: lb
+      unit-cm: cm
+      unit-in: in
+      std-international: 国际标准
+      std-chinese: 中国标准
+      std-japanese: 日本标准
+      std-singapore: 新加坡标准
+      btn-copy: 复制结果
+      btn-save: 保存到历史
+      btn-clear: 清空
+      btn-delete: 删除
+      hint-empty: 请输入体重和身高以查看计算结果
+      title-standard-table: 分类对照表
+      title-history: 我的 BMI 历史记录
+      th-category: 分类
+      th-range: BMI 范围
+      th-date: 日期
+      th-height: 身高
+      th-weight: 体重
+      th-bmi: BMI
+      history-empty: 当前没有任何 BMI 记录。输入身高体重并点击「保存到历史」即可记录。
   pdf-concat:
     title: PDF合并工具
     description: 将多个PDF合并为一个

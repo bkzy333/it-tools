@@ -1243,17 +1243,42 @@ tools:
       tag-print-ie-use-a-pdf-printer-to-get-a-pdf-file: Print (ie, use a PDF Printer to get a PDF file)
   bmi-calculator:
     title: BMI Calculator
-    description: Body Mass Index Calculator (us or metric units)
+    description: Body Mass Index calculator with metric (cm+kg) and imperial (in+lb) units, four standards (International/Chinese/Japanese/Singapore), and BMI history tracking
     texts:
-      label-metric-kg-m: Metric (kg, m)
-      label-us-lbs-in: US (lbs, in)
-      title-bmi-calculator: BMI Calculator
-      label-select-units: "Select Units:"
+      label-metric-kg-cm: "Metric (kg, cm)"
+      label-us-lbs-in: "US (lb, in)"
+      label-select-units: "Units:"
+      label-standard: "BMI Standard:"
+      label-weight: Weight
+      label-height: Height
       placeholder-enter-weight: Enter weight
       placeholder-enter-height: Enter height
-      title-result: Result
       label-bmi: "BMI:"
       label-category: "Category:"
+      label-healthy-range: Healthy weight range
+      label-autosave: Auto-save history
+      unit-kg: kg
+      unit-lb: lb
+      unit-cm: cm
+      unit-in: in
+      std-international: International
+      std-chinese: Chinese
+      std-japanese: Japanese
+      std-singapore: Singapore
+      btn-copy: Copy result
+      btn-save: Save to history
+      btn-clear: Clear
+      btn-delete: Delete
+      hint-empty: Enter weight and height to see the result
+      title-standard-table: Classification table
+      title-history: My BMI history
+      th-category: Category
+      th-range: BMI range
+      th-date: Date
+      th-height: Height
+      th-weight: Weight
+      th-bmi: BMI
+      history-empty: No BMI records yet. Enter your height and weight and click "Save to history".
   pdf-concat:
     title: Pdf Concatener
     description: Concatenate PDF into a single one
