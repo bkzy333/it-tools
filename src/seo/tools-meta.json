@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-09T11:07:40.742Z",
+  "generatedAt": "2026-10-09T11:37:09.521Z",
   "sourceCommit": "extracted at build time",
-  "total": 94,
+  "total": 95,
   "tiers": {
-    "L1": 78,
+    "L1": 79,
     "L2": 15,
     "L3": 1
   },
@@ -717,6 +717,34 @@
       "description": "在线对文本做加密和解密，支持 AES、TripleDES、Rabbit、RC4 等算法，可自定义密钥，全部在浏览器本地计算，密钥不会上传服务器",
       "categoryZh": "加密与解密",
       "categorySeoName": "加密解密与哈希在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/free-ssl",
+      "slug": "free-ssl",
+      "category": "Network",
+      "keywords": [
+        "ssl",
+        "tls",
+        "https",
+        "certificate",
+        "letsencrypt",
+        "证书",
+        "通配符",
+        "wildcard",
+        "免费",
+        "acme"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [
+        "node-forge",
+        "jose"
+      ],
+      "isExternalAccess": true,
+      "title": "免费SSL证书申请",
+      "description": "在浏览器内免费申请 Let's Encrypt 可信 SSL/TLS 证书，支持通配符与多域名、DNS 与 HTTP 验证，私钥不出浏览器",
+      "categoryZh": "网络工具",
+      "categorySeoName": "网络与 IP 在线工具",
       "tier": "L1"
     },
     {

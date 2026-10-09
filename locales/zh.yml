@@ -672,7 +672,9 @@ tools:
     texts:
       title-currency-converter: 货币转换器
       label-from: 从
-      label-amount: 金额：
+      label-to: 到
+      label-amount: 金额
+      label-result: 换算结果
       label-for-date: 针对日期：
       title-converted-currencies: 转换后的货币
       placeholder-please-select-a-currency: 请选择货币
@@ -680,7 +682,21 @@ tools:
       label-country: 国家
       title-currencies-to-countries: 货币到国家
       label-currency: 货币
-    externalAccess: 此工具从 https://cdn.jsdelivr.net/npm/{'@'}fawazahmed0/currency-api 下载最新的货币数据
+      loading: 正在加载汇率数据…
+      last-updated: 最后更新：
+      updated-now: 刚刚
+      updated-minutes: '{n} 分钟前'
+      updated-hours: '{n} 小时前'
+      updated-fallback: 未知
+      fetch-error: 获取实时汇率失败，当前展示的是内置参考汇率。
+      swap: 交换货币
+      refresh: 刷新汇率
+      title-popular: 热门货币
+      title-rates-table: 实时汇率表（相对 USD）
+      col-currency: 货币
+      col-code: 代码
+      col-rate: 汇率
+    externalAccess: 此工具打开时会从 https://api.fxratesapi.com/latest 下载实时汇率数据
   data-storage-unit-converter:
     title: 数据存储单位转换器
     description: |
@@ -2976,6 +2992,60 @@ tools:
       action-copy: 复制
       action-download: 下载
       placeholder-result: 转换结果将显示在这里
+  free-ssl:
+    title: "免费SSL证书申请"
+    description: "在浏览器内免费申请 Let's Encrypt 可信 SSL/TLS 证书，支持通配符与多域名、DNS 与 HTTP 验证，私钥不出浏览器"
+    externalAccess: "本工具在你的浏览器内直连 Let's Encrypt 的 ACME 接口完成域名验证与证书签发，私钥仅在本地生成、不会上传到任何服务器，本站也不存储任何数据"
+    texts:
+      title-free-ssl: "免费 SSL 证书申请"
+      label-env: "环境"
+      opt-staging: "测试环境（Staging，证书不被浏览器信任，仅用于试跑）"
+      opt-production: "正式环境（Production，签发受信任证书）"
+      label-key-type: "密钥类型"
+      opt-rsa-2048: "RSA-2048"
+      opt-rsa-4096: "RSA-4096"
+      label-challenge: "验证方式"
+      opt-dns-01: "DNS 验证（推荐，支持通配符）"
+      opt-http-01: "HTTP 验证（需可访问的 Web 服务）"
+      label-email: "邮箱（可选，用于证书到期提醒）"
+      placeholder-email: "you{'@'}example.com"
+      label-domains: "域名（每行一个，支持通配符 *.example.com）"
+      placeholder-domains: "example.com 或 *.example.com"
+      btn-start: "生成密钥并创建订单"
+      btn-verify: "我已配置好，开始验证"
+      btn-reset: "重新申请"
+      step-config: "填写信息"
+      step-verify: "配置验证"
+      step-issue: "签发与下载"
+      title-challenges: "域名验证配置"
+      dns-instruction: "在域名 {domain} 的 DNS 解析中添加一条 TXT 记录："
+      http-instruction: "在域名 {domain} 的服务器上，使以下 URL 返回该文件内容："
+      label-record-name: "记录名"
+      label-record-value: "记录值"
+      label-http-url: "验证文件 URL"
+      label-http-content: "文件内容"
+      title-result: "申请成功，下载你的证书"
+      label-private-key: "私钥（private-key.pem，务必妥善保存）"
+      label-csr: "证书签名请求（csr.pem）"
+      label-cert: "证书（含中间证书 fullchain.pem）"
+      log-title: "日志"
+      status-working: "处理中…"
+      log-init: "正在连接 Let's Encrypt 目录…"
+      log-account: "已创建 ACME 账号（密钥本地生成）"
+      log-order: "已创建证书订单，请按提示配置域名验证"
+      log-verify-start: "已提交验证请求，正在等待 Let's Encrypt 校验域名所有权…"
+      log-verify-ok: "域名验证通过"
+      log-issue: "正在签发证书…"
+      log-done: "证书已签发，可下载"
+      warning-staging: "当前为测试环境：签发的证书不被浏览器信任，仅用于验证流程。确认无误后再切换到正式环境签发受信任证书。"
+      warning-rate-limit: "正式环境限速：每个注册域名每周最多 50 张证书、相同证书每周最多 5 张。建议先在测试环境试跑。"
+      warning-private-key: "私钥在你的浏览器内生成，绝不会离开本机，本站也不存储任何数据。请自行保管；泄露后需立即吊销。"
+      warning-renew: "Let's Encrypt 证书有效期 90 天。本工具不提供自动续期，生产环境建议使用 certbot / acme.sh 等客户端自动续期。"
+      error-title: "出错了"
+      error-no-domain: "请至少填写一个域名"
+      error-bad-domain: "域名格式不正确"
+      error-wildcard-http: "HTTP 验证不支持通配符域名，请改用 DNS 验证或去掉通配符"
+
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……

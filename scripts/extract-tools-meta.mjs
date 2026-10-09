@@ -346,6 +346,8 @@ const FORCE_UP = new Set([
   'dns-query',
   'dns-tester',
   'api-tester',
+  // 免费 SSL 证书申请：中文搜索量真实存在，且为用户指定要主推的工具，提升到 L1 收录
+  'free-ssl',
   // Data 分类默认只有 L2，但这两个是完整功能页（带教程正文），按 L1 对待
   'table-lookup',
   'table-pivot',

@@ -704,11 +704,13 @@ tools:
       tag-decoded: Decoded
   currency-converter:
     title: Currency Converter
-    description: Convert currency values using https://github.com/fawazahmed0/exchange-api
+    description: Convert currency values using live exchange rates
     texts:
       title-currency-converter: Currency Converter
       label-from: From
-      label-amount: "Amount:"
+      label-to: To
+      label-amount: Amount
+      label-result: Result
       label-for-date: "For Date:"
       title-converted-currencies: Converted currencies
       placeholder-please-select-a-currency: Please select a currency
@@ -716,8 +718,21 @@ tools:
       label-country: Country
       title-currencies-to-countries: Currencies to Countries
       label-currency: Currency
-    externalAccess: This tool downloads fresh currency data from
-      https://cdn.jsdelivr.net/npm/{'@'}fawazahmed0/currency-api
+      loading: Loading exchange rates…
+      last-updated: "Last updated:"
+      updated-now: just now
+      updated-minutes: '{n} min ago'
+      updated-hours: '{n} hours ago'
+      updated-fallback: unknown
+      fetch-error: Failed to fetch live rates, showing built-in reference rates.
+      swap: Swap currencies
+      refresh: Refresh rates
+      title-popular: Popular currencies
+      title-rates-table: Live rates (vs USD)
+      col-currency: Currency
+      col-code: Code
+      col-rate: Rate
+    externalAccess: This tool downloads live exchange rates from https://api.fxratesapi.com/latest
   data-storage-unit-converter:
     title: Data Storage Unit converter
     description: Convert data storage or transfer units (bytes, bibytes, bits, kilobytes...)
@@ -2864,6 +2879,60 @@ tools:
       action-copy: Copy
       action-download: Download
       placeholder-result: The transformed result will appear here
+  free-ssl:
+    title: "Free SSL Certificate"
+    description: "Apply for free Let's Encrypt trusted SSL/TLS certificates in your browser, with wildcard and multi-domain support, DNS and HTTP validation, private key never leaves the browser"
+    externalAccess: "This tool talks directly to Let's Encrypt's ACME API from your browser to validate domains and issue certificates. The private key is generated locally and never uploaded to any server, and this site stores nothing."
+    texts:
+      title-free-ssl: "Free SSL Certificate"
+      label-env: "Environment"
+      opt-staging: "Staging (certificates are not trusted by browsers, for testing only)"
+      opt-production: "Production (issues trusted certificates)"
+      label-key-type: "Key type"
+      opt-rsa-2048: "RSA-2048"
+      opt-rsa-4096: "RSA-4096"
+      label-challenge: "Validation method"
+      opt-dns-01: "DNS validation (recommended, supports wildcards)"
+      opt-http-01: "HTTP validation (requires a reachable web server)"
+      label-email: "Email (optional, for expiry reminders)"
+      placeholder-email: "you{'@'}example.com"
+      label-domains: "Domains (one per line, wildcards like *.example.com supported)"
+      placeholder-domains: "example.com or *.example.com"
+      btn-start: "Generate key & create order"
+      btn-verify: "I've configured it, start validation"
+      btn-reset: "Start over"
+      step-config: "Fill in details"
+      step-verify: "Configure validation"
+      step-issue: "Issue & download"
+      title-challenges: "Domain validation setup"
+      dns-instruction: "Add a TXT record to the DNS of {domain}:"
+      http-instruction: "Make the following URL on {domain} return this file content:"
+      label-record-name: "Record name"
+      label-record-value: "Record value"
+      label-http-url: "Challenge file URL"
+      label-http-content: "File content"
+      title-result: "Success! Download your certificate"
+      label-private-key: "Private key (private-key.pem, keep it safe)"
+      label-csr: "Certificate signing request (csr.pem)"
+      label-cert: "Certificate (with intermediate, fullchain.pem)"
+      log-title: "Log"
+      status-working: "Working..."
+      log-init: "Connecting to the Let's Encrypt directory..."
+      log-account: "ACME account created (key generated locally)"
+      log-order: "Certificate order created, configure domain validation as instructed"
+      log-verify-start: "Validation requested, waiting for Let's Encrypt to verify domain ownership..."
+      log-verify-ok: "Domain validation passed"
+      log-issue: "Issuing certificate..."
+      log-done: "Certificate issued, ready to download"
+      warning-staging: "You are on the staging environment: issued certificates are not trusted by browsers and are for testing the flow only. Switch to production once you're confident."
+      warning-rate-limit: "Production rate limits: at most 50 certificates per registered domain per week, and at most 5 duplicate certificates per week. Test on staging first."
+      warning-private-key: "The private key is generated in your browser and never leaves your machine, and this site stores nothing. Keep it safe; if leaked, revoke immediately."
+      warning-renew: "Let's Encrypt certificates are valid for 90 days. This tool does not auto-renew; for production use certbot / acme.sh or similar for automatic renewal."
+      error-title: "Something went wrong"
+      error-no-domain: "Please enter at least one domain"
+      error-bad-domain: "Invalid domain format"
+      error-wildcard-http: "HTTP validation does not support wildcard domains; use DNS validation or remove the wildcard"
+
 collapsibleToolMenu:
   text:
     expanding: Expanding...
