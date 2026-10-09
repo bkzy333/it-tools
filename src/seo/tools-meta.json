@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-09T04:34:38.434Z",
+  "generatedAt": "2026-10-09T11:07:40.742Z",
   "sourceCommit": "extracted at build time",
   "total": 94,
   "tiers": {
@@ -221,7 +221,7 @@
       "npmPackages": [],
       "isExternalAccess": false,
       "title": "BMI 计算器（身体质量指数）",
-      "description": "在线计算 BMI 身体质量指数，支持公制（厘米+公斤）与英制（英尺英寸+磅）单位，自动给出偏瘦、正常、超重、肥胖的判定结果",
+      "description": "在线计算 BMI 身体质量指数，支持公制（厘米+公斤）与英制（英寸+磅），四种判定标准（国际/中国/日本/新加坡），自动给出偏瘦、正常、过重、肥胖的判定结果，并记录 BMI 历史",
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
       "tier": "L2"
