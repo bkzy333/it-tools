@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { get } from '@vueuse/core';
-import { formatJson } from './json.models';
+import { chineseToUnicode, formatJson, unicodeToChinese } from './json.models';
+import JsonTree from './JsonTree.vue';
 import { useJsonSchemaValidation } from './useJsonSchemaValidation';
 import { withDefaultOnError } from '@/utils/defaults';
 import { useValidation } from '@/composable/validation';
@@ -26,6 +27,34 @@ const cleanJson = computed(() =>
     '',
   ),
 );
+
+// 解析后的 JSON 值，用于树形视图（含大数处理，避免精度丢失）
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+const parsedJsonTree = computed<JsonValue | undefined>(() => {
+  try {
+    const formatted = formatJson({
+      rawJson,
+      indentSize: 0,
+      sortKeys,
+      unescapeUnicode,
+      unescapeJsonString,
+      repairJson,
+    });
+    return JSON.parseBigNum(formatted) as JsonValue;
+  } catch {
+    return undefined;
+  }
+});
+
+// Unicode 转中文：把输入框里的 \uXXXX 直接还原成中文字符（就地替换输入）
+function applyUnicodeToChinese() {
+  rawJson.value = unicodeToChinese(rawJson.value);
+}
+
+// 中文转 Unicode：把输入框里的非 ASCII 字符转成 \uXXXX（就地替换输入）
+function applyChineseToUnicode() {
+  rawJson.value = chineseToUnicode(rawJson.value);
+}
 
 const rawJsonValidation = useValidation({
   source: rawJson,
@@ -131,6 +160,15 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
     />
   </n-form-item>
 
+  <div mb-2 flex items-center gap-2>
+    <c-button secondary @click="applyUnicodeToChinese">
+      {{ t('tools.json-viewer.texts.button-unicode-to-chinese') }}
+    </c-button>
+    <c-button secondary @click="applyChineseToUnicode">
+      {{ t('tools.json-viewer.texts.button-chinese-to-unicode') }}
+    </c-button>
+  </div>
+
   <div v-if="validationErrors.length > 0" mb-2 mt-2>
     <n-alert :title="t('tools.json-viewer.texts.title-schema-validation-errors')" type="error">
       <ul v-for="error in validationErrors" :key="error">
@@ -151,6 +189,16 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
     <n-tab-pane name="editable" :tab="t('tools.json-viewer.texts.label-viewer')">
       <CodeBlockCopyable :value="cleanJson" language="json" download-file-name="output.json" />
     </n-tab-pane>
+    <n-tab-pane name="tree" :tab="t('tools.json-viewer.texts.label-tree-view')">
+      <c-card>
+        <div v-if="parsedJsonTree !== undefined" class="json-tree-scroll">
+          <JsonTree :value="parsedJsonTree" />
+        </div>
+        <div v-else text-muted px-2 py-4>
+          {{ t('tools.json-viewer.texts.message-invalid-json-for-tree') }}
+        </div>
+      </c-card>
+    </n-tab-pane>
   </n-tabs>
 </template>
 
@@ -162,5 +210,11 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
     top: 10px;
     right: 10px;
   }
+}
+
+.json-tree-scroll {
+  overflow: auto;
+  max-height: 600px;
+  padding: 12px 16px;
 }
 </style>

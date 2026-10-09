@@ -1906,6 +1906,10 @@ tools:
       title-schema-validation-errors: 架构验证错误
       label-unescape-json-string: 转义 JSON 字符串：
       label-viewer: 预览
+      label-tree-view: 树形视图
+      button-unicode-to-chinese: Unicode 转中文
+      button-chinese-to-unicode: 中文转 Unicode
+      message-invalid-json-for-tree: 当前 JSON 无法解析，无法展示树形视图。
     text:
       provided-json-is-not-valid: 提供的JSON无效
       try-again-with-repairjsonlabel: 尝试使用"{0}"重新输入

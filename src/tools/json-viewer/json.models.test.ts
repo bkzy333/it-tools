@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatJson, sortObjectKeys } from './json.models';
+import { chineseToUnicode, formatJson, sortObjectKeys, unicodeToChinese } from './json.models';
 
 describe('json models', () => {
   describe('sortObjectKeys', () => {
@@ -127,6 +127,47 @@ describe('json models', () => {
 
     it('handles invalid JSON input', () => {
       expect(() => formatJson({ rawJson: 'invalid json' })).toThrow();
+    });
+  });
+
+  describe('unicodeToChinese', () => {
+    it('把 \\uXXXX 转成中文', () => {
+      expect(unicodeToChinese('\\u9524\\u5b50\\u5728\\u7ebf')).toBe('锤子在线');
+    });
+
+    it('代理对转成 emoji', () => {
+      expect(unicodeToChinese('\\uD83D\\uDE00')).toBe('😀');
+    });
+
+    it('非 unicode 序列原样保留', () => {
+      expect(unicodeToChinese('hello 123 abc')).toBe('hello 123 abc');
+    });
+
+    it('混合内容只转 unicode 部分', () => {
+      expect(unicodeToChinese('name=\\u5f20\\u4e09, age=25')).toBe('name=张三, age=25');
+    });
+  });
+
+  describe('chineseToUnicode', () => {
+    it('中文转成 \\uXXXX（小写）', () => {
+      expect(chineseToUnicode('锤子')).toBe('\\u9524\\u5b50');
+    });
+
+    it('ASCII 原样保留', () => {
+      expect(chineseToUnicode('hello 123')).toBe('hello 123');
+    });
+
+    it('emoji 拆成代理对', () => {
+      expect(chineseToUnicode('😀')).toBe('\\ud83d\\ude00');
+    });
+
+    it('混合内容只转非 ASCII', () => {
+      expect(chineseToUnicode('name=张三, age=25')).toBe('name=\\u5f20\\u4e09, age=25');
+    });
+
+    it('与 unicodeToChinese 互逆', () => {
+      const src = '锤子在线工具网 😀 OK';
+      expect(unicodeToChinese(chineseToUnicode(src))).toBe(src);
     });
   });
 });

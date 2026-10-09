@@ -1908,6 +1908,10 @@ tools:
       title-schema-validation-errors: Schema Validation Errors
       label-unescape-json-string: "Unescape JSON string:"
       label-viewer: Viewer
+      label-tree-view: Tree view
+      button-unicode-to-chinese: Unicode to Chinese
+      button-chinese-to-unicode: Chinese to Unicode
+      message-invalid-json-for-tree: The current JSON cannot be parsed, so the tree view is unavailable.
     text:
       provided-json-is-not-valid: Provided JSON is not valid.
       try-again-with-repairjsonlabel: Try again with "{0}"
