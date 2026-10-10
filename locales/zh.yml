@@ -785,7 +785,11 @@ tools:
       col-currency: 货币
       col-code: 代码
       col-rate: 汇率
-    externalAccess: 此工具打开时会从 https://api.fxratesapi.com/latest 下载实时汇率数据
+      label-to-multiple: 目标货币（可多选）
+      no-target: 请至少选择一个目标货币
+      also-in: 亦流通于：
+      label-source: 数据源
+    externalAccess: 此工具打开时会从公开汇率接口（open.er-api.com 等）获取实时汇率数据，仅用于换算，不上传任何数据。
   data-storage-unit-converter:
     title: 数据存储单位转换器
     description: |

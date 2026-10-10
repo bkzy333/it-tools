@@ -821,7 +821,11 @@ tools:
       col-currency: Currency
       col-code: Code
       col-rate: Rate
-    externalAccess: This tool downloads live exchange rates from https://api.fxratesapi.com/latest
+      label-to-multiple: "Target currencies (multiple)"
+      no-target: Please select at least one target currency
+      also-in: "also in:"
+      label-source: Source
+    externalAccess: This tool fetches live exchange rates from public APIs (open.er-api.com etc.) for conversion only; no data is uploaded.
   data-storage-unit-converter:
     title: Data Storage Unit converter
     description: Convert data storage or transfer units (bytes, bibytes, bits, kilobytes...)
