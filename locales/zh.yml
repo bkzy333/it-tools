@@ -845,12 +845,11 @@ tools:
       label-reference-date: 参考日期：
       label-result-date: 结果日期：
       label-result-iso-date: 结果ISO日期：
-      label-elapsed-seconds: 距起点（秒）：
       label-steps: 变化步骤
       btn-add-step: ＋ 添加一步
       btn-remove-step: 删除
-      op-after: 往后
-      op-before: 往前
+      op-after: 往后+
+      op-before: 往前-
       unit-year: 年
       unit-month: 月
       unit-week: 周
@@ -858,14 +857,20 @@ tools:
       unit-hour: 时
       unit-minute: 分
       unit-second: 秒
-      result-summary: "星期{wd} · 距起点 {sec} 秒 · 共 {n} 步"
+      result-summary: "星期{wd} · 共 {n} 步"
       step-n: "第 {n} 步"
       trace-title: 计算过程
       col-step: 步骤
       col-op: 操作
       col-result: 中间结果
-      help-calendar: 年和月按日历计算（如 1月31日加1个月为2月28/29日），其余按固定时长换算。
+      help-calendar: 支持多步链式运算：选择「往前-/往后+」方向、填数量并选单位（年/月/周/天/时/分/秒），可添加多步依次计算。年、月按日历进位（如 1月31日加1个月 = 2月28/29日），其余按固定时长。点「复制分享链接」可把当前起点与步骤生成链接分享他人。
       msg-at-least-one: 至少保留一步
+      btn-copy-result: 复制结果时间戳
+      btn-share: 复制分享链接
+      share-copied: 分享链接已复制到剪贴板
+      result-copied: 结果时间戳已复制
+      share-hint: 把当前起点日期与全部步骤带入链接，方便分享与复现
+      err-bad-link: 分享链接参数无法解析，已忽略
   kinship-calculator:
     title: 亲戚关系计算器
     description: 在线计算亲戚称呼，输入「爸爸的妈妈」立刻知道该叫什么，也能反过来由一个称呼查出对方是你的哪种亲戚

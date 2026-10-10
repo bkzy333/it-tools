@@ -882,12 +882,11 @@ tools:
       label-reference-date: "Reference Date:"
       label-result-date: "Result Date:"
       label-result-iso-date: "Result ISO Date:"
-      label-elapsed-seconds: "Elapsed (seconds):"
       label-steps: Steps
       btn-add-step: "+ Add step"
       btn-remove-step: Remove
-      op-after: Add
-      op-before: Subtract
+      op-after: "Add +"
+      op-before: "Subtract -"
       unit-year: year
       unit-month: month
       unit-week: week
@@ -895,14 +894,20 @@ tools:
       unit-hour: hour
       unit-minute: minute
       unit-second: second
-      result-summary: "Weekday {wd} · {sec}s from start · {n} steps"
+      result-summary: "Weekday {wd} · {n} steps"
       step-n: "Step {n}"
       trace-title: Calculation trace
       col-step: Step
       col-op: Operation
       col-result: Result after step
-      help-calendar: "Years and months use calendar math (e.g. Jan 31 + 1 month = Feb 28/29); other units use fixed durations."
+      help-calendar: "Chain multiple steps: pick a direction (Earlier - / Later +), enter an amount and unit (year/month/week/day/hour/minute/second), then add steps to apply in sequence. Years and months use calendar math (e.g. Jan 31 + 1 month = Feb 28/29); other units use fixed durations. Use 'Copy share link' to embed the start date and all steps into a link."
       msg-at-least-one: Keep at least one step
+      btn-copy-result: "Copy result timestamp"
+      btn-share: "Copy share link"
+      share-copied: "Share link copied to clipboard"
+      result-copied: "Result timestamp copied"
+      share-hint: "Embed the start date and all steps into a link to share or reproduce"
+      err-bad-link: "Could not parse the share link parameters, ignored"
   kinship-calculator:
     title: Chinese kinship calculator
     description: Work out how to address a relative in Chinese, or reverse-lookup

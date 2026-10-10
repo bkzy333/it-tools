@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMessage } from 'naive-ui';
 import { applySteps, type DateStepUnit } from './date-duration-calculator.service';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
+import { useCopy } from '@/composable/copy';
 
 const { t, locale } = useI18n();
 const message = useMessage();
@@ -113,6 +114,11 @@ function fmtDate(d: Date): string {
   return `${y}-${mo}-${day} ${h}:${mi}:${s}`;
 }
 
+function fmtLocalISO(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
 const WEEKDAYS = computed(() =>
   locale.value === 'zh'
     ? ['日', '一', '二', '三', '四', '五', '六']
@@ -133,6 +139,73 @@ const exampleData: { steps: Step[] } = {
 
 function loadExample() {
   steps.value = exampleData.steps.map((s) => ({ ...s }));
+}
+
+const VALID_UNITS: DateStepUnit[] = ['y', 'M', 'w', 'd', 'h', 'm', 's'];
+
+// 从分享链接恢复状态（仅浏览器端执行）
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search);
+  const from = params.get('from');
+  const stepsParam = params.get('steps');
+
+  if (from) {
+    const t0 = new Date(from).getTime();
+    if (!Number.isNaN(t0)) {
+      inputReferenceDate.value = t0;
+    }
+  }
+
+  if (stepsParam) {
+    try {
+      const arr = JSON.parse(stepsParam);
+      if (Array.isArray(arr)) {
+        const parsed = arr
+          .filter((x): x is unknown[] => Array.isArray(x) && x.length >= 3)
+          .map((x) => ({
+            op: x[0] === 'sub' ? ('sub' as const) : ('add' as const),
+            amount: Number(x[1]) || 0,
+            unit: (VALID_UNITS.includes(x[2] as DateStepUnit) ? x[2] : 'd') as DateStepUnit,
+          }));
+        if (parsed.length > 0) {
+          steps.value = parsed;
+        }
+      }
+    } catch {
+      message.warning(t('tools.date-duration-calculator.texts.err-bad-link'));
+    }
+  }
+});
+
+// 分享链接：把当前起点日期与全部步骤编码进 URL
+const shareUrl = computed(() => {
+  const clean = steps.value
+    .filter((s) => s.amount !== null && !Number.isNaN(Number(s.amount)))
+    .map((s) => [s.op, String(Number(s.amount)), s.unit] as [string, string, string]);
+  const params = new URLSearchParams();
+  if (inputReferenceDate.value) {
+    params.set('from', fmtLocalISO(new Date(inputReferenceDate.value)));
+  }
+  params.set('steps', JSON.stringify(clean));
+  const { origin, pathname } = window.location;
+  return `${origin}${pathname}?${params.toString()}`;
+});
+
+const { copy: copyShare } = useCopy();
+function copyShareLink() {
+  copyShare(shareUrl.value, {
+    notificationMessage: t('tools.date-duration-calculator.texts.share-copied'),
+  });
+}
+
+const { copy: copyResult } = useCopy();
+function copyTimestamp() {
+  if (!result.value) {
+    return;
+  }
+  copyResult(result.value.date.toISOString(), {
+    notificationMessage: t('tools.date-duration-calculator.texts.result-copied'),
+  });
 }
 </script>
 
@@ -199,18 +272,15 @@ function loadExample() {
           :value="result.date.toISOString()"
           mb-1
         />
-        <input-copyable
-          :label="t('tools.date-duration-calculator.texts.label-elapsed-seconds')"
-          label-position="left"
-          label-width="150px"
-          :value="result.elapsedSeconds"
-          mb-1
-        />
+        <div flex items-center gap-2 mb-2>
+          <c-button secondary size="small" @click="copyTimestamp">
+            {{ t('tools.date-duration-calculator.texts.btn-copy-result') }}
+          </c-button>
+        </div>
         <n-p>
           {{
             t('tools.date-duration-calculator.texts.result-summary', {
               wd: WEEKDAYS[result.weekdayIndex],
-              sec: result.elapsedSeconds.toLocaleString(),
               n: result.steps.length,
             })
           }}
@@ -233,6 +303,14 @@ function loadExample() {
             </tr>
           </tbody>
         </n-table>
+
+        <n-divider />
+        <n-p depth="3">{{ t('tools.date-duration-calculator.texts.share-hint') }}</n-p>
+        <div flex items-center gap-2>
+          <c-button secondary @click="copyShareLink">
+            {{ t('tools.date-duration-calculator.texts.btn-share') }}
+          </c-button>
+        </div>
       </template>
     </c-card>
   </div>
