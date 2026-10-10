@@ -102,3 +102,10 @@ function rmb(value: number) {
     { type: 'cut', value: '整' },
   ];
 }
+
+// 纯文本大写金额（用于复制、批量导出），由 rmb() 的片段拼接而成
+export function rmbText(value: number): string {
+  return rmb(value)
+    .map((fragment: { type: string; value: string }) => fragment.value)
+    .join('');
+}

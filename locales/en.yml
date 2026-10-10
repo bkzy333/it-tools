@@ -1313,6 +1313,23 @@ tools:
       title-lower-case-amount: Lower Case Amount
       placeholder-enter-the-amount-in-lowercase-example-1314-52: "Enter the amount in lowercase (example: 1314.52)"
       title-amount-in-capital-letters: Amount in Capital Letters
+      label-input: Amounts to convert
+      label-separator: Separator
+      sep-newline: New line (one per line)
+      sep-comma: Comma
+      sep-pause: Enumeration comma (、)
+      sep-custom: Custom
+      placeholder-custom-separator: Enter a custom separator (e.g. | or ;)
+      btn-convert: Convert
+      btn-copy: Copy
+      btn-copy-all: Copy all results
+      btn-export-excel: Export to Excel (CSV)
+      col-input: Input amount
+      col-output: Capitalized amount
+      msg-empty: Please enter at least one amount before converting
+      msg-copied: Copied to clipboard
+      text-invalid: Unrecognized amount
+      tip-batch: "Batch supported: one amount per line, or split multiple amounts by the selected separator (thousands commas and the ¥ symbol are allowed)"
   timezone-converter:
     title: Timezone Converter
     description: Convert Date-Time from a timezone to others and get timezone vs

@@ -1243,6 +1243,23 @@ tools:
       title-lower-case-amount: 小写金额
       placeholder-enter-the-amount-in-lowercase-example-1314-52: 输入小写金额（示例：1314.52）
       title-amount-in-capital-letters: 大写金额
+      label-input: 录入金额
+      label-separator: 分隔符
+      sep-newline: 换行符（每行一个）
+      sep-comma: 逗号
+      sep-pause: 顿号
+      sep-custom: 自定义
+      placeholder-custom-separator: 输入自定义分隔符（如 | 或 ;）
+      btn-convert: 转换
+      btn-copy: 复制
+      btn-copy-all: 复制全部结果
+      btn-export-excel: 导出 Excel（CSV）
+      col-input: 录入金额
+      col-output: 大写金额
+      msg-empty: 请输入至少一个金额后再转换
+      msg-copied: 已复制到剪贴板
+      text-invalid: 无法识别的金额
+      tip-batch: 支持批量：每行一个金额，或用所选分隔符拆分多个金额（可含千分位逗号、¥ 符号）
   timezone-converter:
     title: 时区转换器
     description: |
