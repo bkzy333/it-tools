@@ -1,27 +1,138 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { addToDate } from './date-duration-calculator.service';
+import { useMessage } from 'naive-ui';
+import { applySteps, type DateStepUnit } from './date-duration-calculator.service';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const message = useMessage();
 
 const now = Date.now();
-
 const inputReferenceDate = ref(now);
-const inputDurations = ref('');
-const resultDateAdder = computed(() => addToDate(new Date(inputReferenceDate.value), inputDurations.value));
-const errorsDateAdder = computed(() => resultDateAdder.value.errors.join('\n'));
+
+interface Step {
+  op: 'add' | 'sub';
+  amount: number | null;
+  unit: DateStepUnit;
+}
+
+const steps = ref<Step[]>([{ op: 'add', amount: 10, unit: 'd' }]);
+
+function addStep(partial?: Partial<Step>) {
+  steps.value.push({ op: partial?.op ?? 'add', amount: partial?.amount ?? 1, unit: partial?.unit ?? 'd' });
+}
+
+function removeStep(index: number) {
+  if (steps.value.length <= 1) {
+    message.warning(t('tools.date-duration-calculator.texts.msg-at-least-one'));
+    return;
+  }
+  steps.value.splice(index, 1);
+}
+
+function appendQuick(amount: number, unit: DateStepUnit) {
+  addStep({ op: 'add', amount, unit });
+}
+
+const result = computed(() => {
+  if (!inputReferenceDate.value) {
+    return null;
+  }
+  const clean = steps.value
+    .filter((s) => s.amount !== null && s.amount !== undefined && !Number.isNaN(Number(s.amount)))
+    .map((s) => ({ op: s.op, amount: Number(s.amount) as number, unit: s.unit }));
+  if (clean.length === 0) {
+    return null;
+  }
+  return applySteps(new Date(inputReferenceDate.value), clean);
+});
+
+function unitLabel(u: DateStepUnit): string {
+  switch (u) {
+    case 'y':
+      return t('tools.date-duration-calculator.texts.unit-year');
+    case 'M':
+      return t('tools.date-duration-calculator.texts.unit-month');
+    case 'w':
+      return t('tools.date-duration-calculator.texts.unit-week');
+    case 'd':
+      return t('tools.date-duration-calculator.texts.unit-day');
+    case 'h':
+      return t('tools.date-duration-calculator.texts.unit-hour');
+    case 'm':
+      return t('tools.date-duration-calculator.texts.unit-minute');
+    case 's':
+      return t('tools.date-duration-calculator.texts.unit-second');
+  }
+}
+
+const opOptions = computed(() => [
+  { label: t('tools.date-duration-calculator.texts.op-after'), value: 'add' as const },
+  { label: t('tools.date-duration-calculator.texts.op-before'), value: 'sub' as const },
+]);
+
+const unitOptions = computed<{ label: string; value: DateStepUnit }[]>(() => [
+  { label: unitLabel('y'), value: 'y' },
+  { label: unitLabel('M'), value: 'M' },
+  { label: unitLabel('w'), value: 'w' },
+  { label: unitLabel('d'), value: 'd' },
+  { label: unitLabel('h'), value: 'h' },
+  { label: unitLabel('m'), value: 'm' },
+  { label: unitLabel('s'), value: 's' },
+]);
+
+const quickOptions = computed(() => [
+  { amount: 1, unit: 'd' as DateStepUnit },
+  { amount: 7, unit: 'd' as DateStepUnit },
+  { amount: 1, unit: 'M' as DateStepUnit },
+  { amount: 1, unit: 'y' as DateStepUnit },
+  { amount: 1, unit: 'h' as DateStepUnit },
+  { amount: 30, unit: 'm' as DateStepUnit },
+]);
+
+function stepOpText(step: { op: 'add' | 'sub'; amount: number; unit: DateStepUnit }): string {
+  const dir =
+    step.op === 'sub'
+      ? t('tools.date-duration-calculator.texts.op-before')
+      : t('tools.date-duration-calculator.texts.op-after');
+  return `${dir} ${step.amount} ${unitLabel(step.unit)}`;
+}
+
+function fmtDate(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  const y = d.getFullYear();
+  const mo = p(d.getMonth() + 1);
+  const day = p(d.getDate());
+  const h = p(d.getHours());
+  const mi = p(d.getMinutes());
+  const s = p(d.getSeconds());
+  if (locale.value === 'zh') {
+    return `${y}年${mo}月${day}日 ${h}:${mi}:${s}`;
+  }
+  return `${y}-${mo}-${day} ${h}:${mi}:${s}`;
+}
+
+const WEEKDAYS = computed(() =>
+  locale.value === 'zh'
+    ? ['日', '一', '二', '三', '四', '五', '六']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+);
 
 /**
- * 示例用"90 天后减 1 周再加 12 小时"这种带负号的多行写法，
- * 一次把"每行一个时长""可以写负号""单位能混用"三件事都演示出来。
- * 单位是英文（days / week / hours），因为底层解析器只认英文单位。
+ * 示例演示"链式多步"：以当前时间为起点，往后 10 天 → 往前 1 年 → 往后 10 小时。
+ * 用步骤数组而非文本，符合新 UI 的数据结构。
  */
-const exampleData = {
-  inputDurations: '90 days\n-1 week\n12 hours',
+const exampleData: { steps: Step[] } = {
+  steps: [
+    { op: 'add', amount: 10, unit: 'd' },
+    { op: 'sub', amount: 1, unit: 'y' },
+    { op: 'add', amount: 10, unit: 'h' },
+  ],
 };
 
 function loadExample() {
-  inputDurations.value = exampleData.inputDurations;
+  steps.value = exampleData.steps.map((s) => ({ ...s }));
 }
 </script>
 
@@ -32,62 +143,97 @@ function loadExample() {
     </div>
 
     <c-card :title="t('tools.date-duration-calculator.texts.title-date-duration-calculator')" mb-2>
-      <n-form-item :label="t('tools.date-duration-calculator.texts.label-reference-date')" label-placement="left" mb-1>
+      <n-form-item
+        :label="t('tools.date-duration-calculator.texts.label-reference-date')"
+        label-placement="left"
+        mb-2
+      >
         <n-date-picker v-model:value="inputReferenceDate" type="datetime" />
       </n-form-item>
 
-      <c-input-text
-        v-model:value="inputDurations"
-        multiline
-        rows="5"
-        :label="t('tools.date-duration-calculator.texts.label-duration-s')"
-        :placeholder="
-          t('tools.date-duration-calculator.texts.placeholder-please-enter-duration-one-per-line-with-optional-sign')
-        "
-        mb-2
-      />
-      <n-p>{{
-        t('tools.date-duration-calculator.texts.tag-supports-comment-line-hh-mm-ss-fff-3d-1h-3s-p4dt12h20m20-3s')
-      }}</n-p>
+      <div flex items-center justify-between mb-2>
+        <span font-medium>{{ t('tools.date-duration-calculator.texts.label-steps') }}</span>
+        <c-button secondary size="small" @click="addStep()">
+          {{ t('tools.date-duration-calculator.texts.btn-add-step') }}
+        </c-button>
+      </div>
 
-      <c-card v-if="errorsDateAdder" :title="t('tools.date-duration-calculator.texts.title-lines-errors')">
-        <textarea-copyable :value="errorsDateAdder" />
-      </c-card>
+      <div v-for="(step, i) in steps" :key="i" flex items-center gap-2 mb-2>
+        <span w-6 text-center text-sm text-neutral-400>{{ i + 1 }}</span>
+        <n-select v-model:value="step.op" :options="opOptions" style="width: 92px" />
+        <n-input-number v-model:value="step.amount" :min="0" :step="1" style="width: 112px" />
+        <n-select v-model:value="step.unit" :options="unitOptions" style="width: 84px" />
+        <c-button secondary size="small" @click="removeStep(i)">
+          {{ t('tools.date-duration-calculator.texts.btn-remove-step') }}
+        </c-button>
+      </div>
+
+      <div flex flex-wrap gap-2 mt-1 mb-2>
+        <c-button
+          v-for="opt in quickOptions"
+          :key="`${opt.amount}-${opt.unit}`"
+          secondary
+          size="small"
+          @click="appendQuick(opt.amount, opt.unit)"
+        >
+          +{{ opt.amount }} {{ unitLabel(opt.unit) }}
+        </c-button>
+      </div>
+
+      <n-p depth="3" mt-1>{{ t('tools.date-duration-calculator.texts.help-calendar') }}</n-p>
 
       <n-divider />
 
-      <input-copyable
-        v-if="resultDateAdder"
-        :label="t('tools.date-duration-calculator.texts.label-result-date')"
-        label-position="left"
-        label-width="150px"
-        :value="resultDateAdder.date.toString()"
-        mb-1
-      />
-      <input-copyable
-        v-if="resultDateAdder"
-        :label="t('tools.date-duration-calculator.texts.label-result-iso-date')"
-        label-position="left"
-        label-width="150px"
-        :value="resultDateAdder.date.toISOString()"
-        mb-1
-      />
-      <input-copyable
-        v-if="resultDateAdder"
-        :label="t('tools.date-duration-calculator.texts.label-duration-seconds')"
-        label-position="left"
-        label-width="150px"
-        :value="resultDateAdder.durationSeconds"
-        mb-1
-      />
-      <input-copyable
-        v-if="resultDateAdder"
-        :label="t('tools.date-duration-calculator.texts.label-duration')"
-        label-position="left"
-        label-width="150px"
-        :value="resultDateAdder.durationPretty"
-        mb-1
-      />
+      <template v-if="result">
+        <input-copyable
+          :label="t('tools.date-duration-calculator.texts.label-result-date')"
+          label-position="left"
+          label-width="150px"
+          :value="fmtDate(result.date)"
+          mb-1
+        />
+        <input-copyable
+          :label="t('tools.date-duration-calculator.texts.label-result-iso-date')"
+          label-position="left"
+          label-width="150px"
+          :value="result.date.toISOString()"
+          mb-1
+        />
+        <input-copyable
+          :label="t('tools.date-duration-calculator.texts.label-elapsed-seconds')"
+          label-position="left"
+          label-width="150px"
+          :value="result.elapsedSeconds"
+          mb-1
+        />
+        <n-p>
+          {{
+            t('tools.date-duration-calculator.texts.result-summary', {
+              wd: WEEKDAYS[result.weekdayIndex],
+              sec: result.elapsedSeconds.toLocaleString(),
+              n: result.steps.length,
+            })
+          }}
+        </n-p>
+
+        <n-h3 mt-3 mb-1>{{ t('tools.date-duration-calculator.texts.trace-title') }}</n-h3>
+        <n-table :bordered="false" :single-line="false" size="small">
+          <thead>
+            <tr>
+              <th>{{ t('tools.date-duration-calculator.texts.col-step') }}</th>
+              <th>{{ t('tools.date-duration-calculator.texts.col-op') }}</th>
+              <th>{{ t('tools.date-duration-calculator.texts.col-result') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="st in result.steps" :key="st.index">
+              <td>{{ t('tools.date-duration-calculator.texts.step-n', { n: st.index }) }}</td>
+              <td>{{ stepOpText(st) }}</td>
+              <td>{{ fmtDate(st.date) }}</td>
+            </tr>
+          </tbody>
+        </n-table>
+      </template>
     </c-card>
   </div>
 </template>

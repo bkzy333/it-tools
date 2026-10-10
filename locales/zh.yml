@@ -843,14 +843,29 @@ tools:
     texts:
       title-date-duration-calculator: 日期+持续时间计算器
       label-reference-date: 参考日期：
-      label-duration-s: 持续时间（s）
-      placeholder-please-enter-duration-one-per-line-with-optional-sign: 请输入持续时间（每行一个，可选符号）
-      title-lines-errors: 行错误
       label-result-date: 结果日期：
       label-result-iso-date: 结果ISO日期：
-      label-duration-seconds: 持续时间（秒）：
-      label-duration: 持续时间：
-      tag-supports-comment-line-hh-mm-ss-fff-3d-1h-3s-p4dt12h20m20-3s: 支持：注释（# 行）、HH:MM:SS.FFF、3d 1h 3s...、P4DT12H20M20.3S..
+      label-elapsed-seconds: 距起点（秒）：
+      label-steps: 变化步骤
+      btn-add-step: ＋ 添加一步
+      btn-remove-step: 删除
+      op-after: 往后
+      op-before: 往前
+      unit-year: 年
+      unit-month: 月
+      unit-week: 周
+      unit-day: 天
+      unit-hour: 时
+      unit-minute: 分
+      unit-second: 秒
+      result-summary: "星期{wd} · 距起点 {sec} 秒 · 共 {n} 步"
+      step-n: "第 {n} 步"
+      trace-title: 计算过程
+      col-step: 步骤
+      col-op: 操作
+      col-result: 中间结果
+      help-calendar: 年和月按日历计算（如 1月31日加1个月为2月28/29日），其余按固定时长换算。
+      msg-at-least-one: 至少保留一步
   kinship-calculator:
     title: 亲戚关系计算器
     description: 在线计算亲戚称呼，输入「爸爸的妈妈」立刻知道该叫什么，也能反过来由一个称呼查出对方是你的哪种亲戚

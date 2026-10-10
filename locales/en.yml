@@ -880,16 +880,29 @@ tools:
     texts:
       title-date-duration-calculator: Date + Duration Calculator
       label-reference-date: "Reference Date:"
-      label-duration-s: Duration(s)
-      placeholder-please-enter-duration-one-per-line-with-optional-sign: Please enter duration, one per line with optional sign
-      title-lines-errors: Lines errors
       label-result-date: "Result Date:"
       label-result-iso-date: "Result ISO Date:"
-      label-duration-seconds: "Duration (seconds):"
-      label-duration: "Duration:"
-      tag-supports-comment-line-hh-mm-ss-fff-3d-1h-3s-p4dt12h20m20-3s:
-        "Supports: comment (# line), HH:MM:SS.FFF, 3d 1h 3s...,
-        P4DT12H20M20.3S.."
+      label-elapsed-seconds: "Elapsed (seconds):"
+      label-steps: Steps
+      btn-add-step: "+ Add step"
+      btn-remove-step: Remove
+      op-after: Add
+      op-before: Subtract
+      unit-year: year
+      unit-month: month
+      unit-week: week
+      unit-day: day
+      unit-hour: hour
+      unit-minute: minute
+      unit-second: second
+      result-summary: "Weekday {wd} · {sec}s from start · {n} steps"
+      step-n: "Step {n}"
+      trace-title: Calculation trace
+      col-step: Step
+      col-op: Operation
+      col-result: Result after step
+      help-calendar: "Years and months use calendar math (e.g. Jan 31 + 1 month = Feb 28/29); other units use fixed durations."
+      msg-at-least-one: Keep at least one step
   kinship-calculator:
     title: Chinese kinship calculator
     description: Work out how to address a relative in Chinese, or reverse-lookup
