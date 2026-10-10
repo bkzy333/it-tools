@@ -13,16 +13,22 @@
 //      （≥warn）时才以 RATE_SAMPLE 概率采样写，把写次数压到「请求数 / RATE_SAMPLE」。
 //   3) 用量记账 addUsage：只真实调用腾讯云后才记，且仅以 USAGE_SAMPLE 概率采样写，
 //      写入值 ×USAGE_SAMPLE 估算总量。80/90/95% 是软闸，估算误差可接受。
-//   4) 真正的硬限速交给 Cloudflare WAF Rate Limiting Rule（见下方 WAF_RULE 注释），
-//      零代码、零 KV 消耗，免费版即有，是抗滥用的主防线。
+//   4) 真正的硬限速交给 Cloudflare「速率限制规则」（见下方说明），零代码、零 KV 消耗，
+//      免费版即有，是抗滥用的主防线；流量不大时也可先不加，靠预算闸兜底。
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// 推荐在 Cloudflare 控制台加一条 WAF / Rate Limiting 规则（免费版即可，零 KV）：
+// 可选的一道免费边缘防线：Cloudflare「速率限制规则」（Rate limiting rules）。
+// 免费版即有 1 条，零 KV 消耗，但免费版限制很硬，照抄网上的正则表达式会配不出来：
+//   - 只能匹配 Path / Verified Bot 两个字段（没有 Host / Query / 正则）；
+//   - 计数周期固定 10 秒、缓解时间固定 10 秒、按 IP 计数，不可自定义。
+// 配置位置是「域级」菜单（**不是**账户级的「账户级 WAF」，那是 Enterprise 附加产品）：
+//   选中域名 gjxtools.com → 安全(Security) → WAF → 速率限制规则 → 创建规则
 //   名称：translate-rate-limit
-//   匹配表达式：(http.request.uri.path matches "^/api/(translate|image-translate)$")
-//   规则：当某个 IP 在 1 分钟内请求 > 30 次 → 动作 Managed Challenge（不是直接 Block，
-//         避免把公司 NAT / 校园网 / 运营商 CGNAT 的共享 IP 真人误杀）。
-//   这样边缘就把刷额度的脚本挡掉，后端 KV 限流只作次级兜底。
+//   表达式：(http.request.uri.path eq "/api/translate") or (http.request.uri.path eq "/api/image-translate")
+//   当 10 秒内请求 > 10 次（≈每分钟 60 次） → 动作 Managed Challenge
+//     （不要用 Block，避免把公司 NAT / 校园网 / 运营商 CGNAT 的共享 IP 真人误杀）
+// 这样边缘就能挡掉刷额度的脚本，后端 KV 软限流只作次级兜底。
+// 流量不大时也可以先不加这条规则——真正兜底的是下面「全局预算闸 80/90/95%」。
 
 const ALLOWED_HOSTS = ['gjxtools.com', 'localhost'];
 
