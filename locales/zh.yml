@@ -733,7 +733,7 @@ tools:
       placeholder-param-name: 参数名称
       placeholder-header-name: 请求头名称
 
-    externalAccess: 此工具仅调用您在浏览器中提供的 API 端点。
+    externalAccess: 此工具会按您填写的地址发起 HTTP 请求：默认经本站服务端代理转发（请求由 gjxtools.com 服务器发出），也可切换为浏览器直连；请求目标与内容完全由您控制，不会另作他用。
   barcode-generator:
     title: 条形码生成器
     description: 条形码生成器。

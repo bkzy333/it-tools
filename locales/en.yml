@@ -769,7 +769,7 @@ tools:
       placeholder-param-name: Param Name
       placeholder-header-name: Header Name
 
-    externalAccess: This tool calls API endpoint you provide in you browser only.
+    externalAccess: This tool sends HTTP requests to the URL you provide. By default it uses this site's server-side proxy (the request is made from gjxtools.com servers); you can also switch to direct browser mode. You fully control the target and content.
   barcode-generator:
     title: Barcode generator
     description: Barcode generator
