@@ -19,7 +19,7 @@ async function sha256Hex(msg: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function hmac(keyBytes: Uint8Array, msg: string): Promise<Uint8Array> {
+async function hmac(keyBytes: Uint8Array<ArrayBuffer>, msg: string): Promise<Uint8Array<ArrayBuffer>> {
   const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
   return new Uint8Array(sig);
@@ -40,8 +40,10 @@ export async function callTmt(
   region = 'ap-guangzhou',
   timeoutMs = 25_000,
 ): Promise<{ Response?: { Error?: { Code: string; Message: string } } & Record<string, unknown> }> {
-  const secretId = env.TENCENT_SECRET_ID;
-  const secretKey = env.TENCENT_SECRET_KEY;
+  // trim 兜底：在 Cloudflare 后台粘贴密钥时极易带入首尾空格或换行，
+  // 那会让派生密钥整体错位、返回值同样是 AuthFailure.SignatureFailure。
+  const secretId = env.TENCENT_SECRET_ID?.trim();
+  const secretKey = env.TENCENT_SECRET_KEY?.trim();
   if (!secretId || !secretKey) {
     throw new Error('TENCENT_SECRET_ID / TENCENT_SECRET_KEY 未配置');
   }
@@ -50,7 +52,11 @@ export async function callTmt(
   const t = Math.floor(Date.now() / 1000);
   const date = new Date(t * 1000).toISOString().slice(0, 10);
   const hashedPayload = await sha256Hex(payload);
-  const canonicalHeaders = `content-type:application/json; charset=utf-8\nhost:${HOST}`;
+  // ⚠️ 结尾的 \n 绝对不能省。腾讯云 TC3 的 CanonicalHeaders 本身必须以换行符收尾，
+  //    再叠加拼接公式里的 '\n'，规范请求串在 `host:...` 之后会出现一个空行。
+  //    少了它 → 规范请求串哈希不同 → 必然 AuthFailure.SignatureFailure。
+  //    官方 SDK（tencentcloud-sdk-nodejs/common/sign.js 的 sign3）就是 headers += `host:...\n`。
+  const canonicalHeaders = `content-type:application/json; charset=utf-8\nhost:${HOST}\n`;
   const signedHeaders = 'content-type;host';
   const canonicalRequest = ['POST', '/', '', canonicalHeaders, signedHeaders, hashedPayload].join('\n');
   const scope = `${date}/${SERVICE}/tc3_request`;
