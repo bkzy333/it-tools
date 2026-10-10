@@ -10,7 +10,8 @@ const { t } = useI18n();
 const jsonSchemaInputElement = ref<HTMLElement>();
 
 const rawYaml = useITStorage('yaml-prettify:raw-yaml', '');
-const schemaData = useITStorage('yaml-prettify:schema-data', '');
+// storage key 带 v2：作废浏览器 localStorage 里残留的 schema 内容（与 json-viewer 同理）。
+const schemaData = useITStorage('yaml-prettify:schema-data-v2', '');
 const indentSize = useITStorage('yaml-prettify:indent-size', 2);
 const sortKeys = useITStorage('yaml-prettify:sort-keys', false);
 

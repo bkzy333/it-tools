@@ -19,7 +19,9 @@ const repairJsonLabel = t('tools.json-viewer.text.repair-json');
 // 会以同一个 key 存在 localStorage 里，换 key 等于一次性作废这些历史值，保证所有人
 // 打开都是干净的空白框。
 const rawJson = useITStorage('json-prettify:raw-json-v2', '');
-const schemaData = useITStorage('json-prettify:schema-data', '');
+// storage key 带 v2：和 raw-json 同理，作废浏览器 localStorage 里从别的工具站残留的
+// schema 内容（曾出现「锤子在线工具网」等广告文案）。换 key 后所有人打开都是干净的空白框。
+const schemaData = useITStorage('json-prettify:schema-data-v2', '');
 const indentSize = useITStorage('json-prettify:indent-size', 3);
 const sortKeys = useITStorage('json-prettify:sort-keys', true);
 const unescapeUnicode = useITStorage('json-prettify:unescape-unicode', false);
@@ -62,6 +64,28 @@ const exampleData = '{"name":"张三","age":28,"skills":["Vue","TS"]}';
 
 function loadExample() {
   rawJson.value = exampleData;
+}
+
+// 与 exampleData 配套的 JSON Schema 示例：选了「自定义」后点「Schema 示例」填入，
+// 能校验出 exampleData 里 name/age/skills 的类型与必填字段（对标 lddgo 那种
+// 「打开就有配套示例」的体验，但用干净的自创数据，不带任何第三方站品牌）。
+const exampleSchema = [
+  '{',
+  '  "type": "object",',
+  '  "properties": {',
+  '    "name": { "type": "string" },',
+  '    "age": { "type": "number" },',
+  '    "skills": {',
+  '      "type": "array",',
+  '      "items": { "type": "string" }',
+  '    }',
+  '  },',
+  '  "required": ["name", "age"]',
+  '}',
+].join('\n');
+
+function loadSchemaExample() {
+  schemaData.value = exampleSchema;
 }
 
 // Unicode 转中文：把输入框里的 \uXXXX 直接还原成中文字符（就地替换输入）
@@ -150,19 +174,23 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
       mb-4
     />
   </n-form-item>
-  <c-input-text
-    v-if="schemaUrl === 'custom'"
-    ref="jsonSchemaInputElement"
-    v-model:value="schemaData"
-    :placeholder="t('tools.json-viewer.texts.placeholder-paste-your-json-schema-here')"
-    rows="8"
-    multiline
-    autocomplete="off"
-    autocorrect="off"
-    autocapitalize="off"
-    spellcheck="false"
-    monospace
-  />
+  <div v-if="schemaUrl === 'custom'">
+    <c-input-text
+      ref="jsonSchemaInputElement"
+      v-model:value="schemaData"
+      :placeholder="t('tools.json-viewer.texts.placeholder-paste-your-json-schema-here')"
+      rows="8"
+      multiline
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      monospace
+    />
+    <div flex justify-end mt-2>
+      <ToolExampleButton label="Schema 示例" hint="填入与上方示例 JSON 配套的 JSON Schema" @click="loadSchemaExample" />
+    </div>
+  </div>
 
   <n-form-item
     :label="t('tools.json-viewer.texts.label-your-raw-json')"
