@@ -2,8 +2,27 @@
 // 未配置时跳过该层，绝不让接口崩溃。Cloudflare Pages Functions 跑在边缘，用 Web Crypto 做哈希。
 //
 // 复用的 KV：TOOLS_USAGE（与 /api/hot、/api/feedback 同一个命名空间，全部以 tx: 前缀隔离）。
-// 可选的 R2：TRANSLATE_R2（未绑定则图片缓存回退到 KV，接口依旧可用）。
+// 可选的 R2：TRANSLATE_R2（未绑定则缓存回退到 KV，接口依旧可用）。
 // 可选的告警：TG_BOT_TOKEN + TG_CHAT_ID（Telegram 机器人），未配则只 console.warn。
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// KV 写入限额（免费版每天仅 1000 次写入）是头号约束，本文件的设计全部围绕它收敛：
+//   1) 缓存优先走 R2（文本 + 图片都支持）。只有未绑 R2 时才回退 KV；回退写入失败时
+//      一律「静默跳过」，用户只是少了缓存加速、绝不会报错崩接口。
+//   2) IP 软限流的 KV 计数：平时（预算 ok）完全不写 KV，只交给下面的 WAF；只有预算偏紧
+//      （≥warn）时才以 RATE_SAMPLE 概率采样写，把写次数压到「请求数 / RATE_SAMPLE」。
+//   3) 用量记账 addUsage：只真实调用腾讯云后才记，且仅以 USAGE_SAMPLE 概率采样写，
+//      写入值 ×USAGE_SAMPLE 估算总量。80/90/95% 是软闸，估算误差可接受。
+//   4) 真正的硬限速交给 Cloudflare WAF Rate Limiting Rule（见下方 WAF_RULE 注释），
+//      零代码、零 KV 消耗，免费版即有，是抗滥用的主防线。
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// 推荐在 Cloudflare 控制台加一条 WAF / Rate Limiting 规则（免费版即可，零 KV）：
+//   名称：translate-rate-limit
+//   匹配表达式：(http.request.uri.path matches "^/api/(translate|image-translate)$")
+//   规则：当某个 IP 在 1 分钟内请求 > 30 次 → 动作 Managed Challenge（不是直接 Block，
+//         避免把公司 NAT / 校园网 / 运营商 CGNAT 的共享 IP 真人误杀）。
+//   这样边缘就把刷额度的脚本挡掉，后端 KV 限流只作次级兜底。
 
 const ALLOWED_HOSTS = ['gjxtools.com', 'localhost'];
 
@@ -23,10 +42,19 @@ function hostOf(url: string | null): string | null {
 
 export function isOriginAllowed(req: Request): boolean {
   const o = hostOf(req.headers.get('Origin'));
-  const r = hostOf(req.headers.get('Referer'));
-  const ok = (h: string | null) =>
-    !h || ALLOWED_HOSTS.some((base) => h === base || h.endsWith('.' + base)) || h.endsWith('.pages.dev');
-  return ok(o) && ok(r);
+  const valid = (h: string | null) =>
+    h !== null && (ALLOWED_HOSTS.some((base) => h === base || h.endsWith('.' + base)) || h.endsWith('.pages.dev'));
+  // 防套壳（挡「浏览器内第三方站点把 /api/translate 嵌进自己页面烧额度」这一场景）：
+  //   浏览器跨域 POST 必然带 Origin，第三方站点嵌入时 Origin=其域名（非法）→ 直接拦截。
+  //   以下一律放行，避免误杀：
+  //     - 同源 / 预览域名(*.pages.dev) → 合法 Origin；
+  //     - Cloudflare 健康检查 / 隐私浏览器 stripping 头 → Origin 缺失；
+  //     - Origin 缺失（哪怕 Referer 是第三方）→ 交给 WAF Rate Limiting Rule 与下面的预算闸处理，
+  //       因为 Referer 客户端完全可控，且同源真实用户永远带合法 Origin，无需靠 Referer 判黑。
+  if (o !== null && !valid(o)) {
+    return false;
+  }
+  return true;
 }
 
 // 预检响应：缓存一天，且 Access-Control-Allow-Origin 写死本站，绝不用 *。
@@ -74,7 +102,15 @@ async function sha256Hex(msg: string): Promise<string> {
 }
 
 export function normalizeText(s: string): string {
-  return s.replace(/\r\n/g, '\n').replace(/[ \t]+/g, ' ').trim();
+  // 归一化顺序很关键：先 NFKC 把全角字母/数字/空格统一成半角（否则全角空格能骗出不同缓存 key），
+  // 再剔除零宽字符（U+200B–U+200D、U+FEFF）避免用不可见字符制造「看似不同」的文本绕过缓存命中，
+  // 最后才是换行/制表符折叠与首尾去空白。
+  return s
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
 }
 
 export async function textCacheKey(text: string, from: string, to: string): Promise<string> {
@@ -82,30 +118,65 @@ export async function textCacheKey(text: string, from: string, to: string): Prom
   return `tx:t:${from}:${to}:${h.slice(0, 32)}`;
 }
 
+// 图片缓存 key：对收到的 base64 整体做 SHA-256。
+// 前端在上传前已把图片统一缩放（长边 ≤1920）并压缩（JPEG 0.85），所以「同一张图的不同大分辨率版本」
+// 在 ≥1920 这一主流场景下会被压成同一份字节 → 命中同一 key，免掉重复 OCR。
+// 已是 <1920 的小图之间不会互命中，属于可接受边界（缓存错失只是多调一次 OCR，不影响正确性）。
 export async function imageCacheKey(imageBase64: string): Promise<string> {
   const h = await sha256Hex(imageBase64);
   return `tx:img:${h.slice(0, 32)}`;
 }
 
+// base64 解码后的真实字节数（base64 比原图膨胀约 1.33 倍，体积护栏要用解码值才准）。
+export function base64DecodedSize(b64: string): number {
+  const pad = (b64.match(/=+$/) || [''])[0].length;
+  return Math.floor((b64.length * 3) / 4) - pad;
+}
+
 // 读 / 写文本缓存（TTL 30 天）。命中 = 0 字符消耗、不限速、不记账。
-export async function getTextCache(kv: KvLike | undefined, key: string): Promise<string | null> {
+// 与图片缓存一致：R2 优先（KV 只存指针），未绑 R2 才直存 KV；写失败一律静默跳过。
+export async function getTextCache(
+  kv: KvLike | undefined,
+  r2: R2Like | undefined,
+  key: string,
+): Promise<string | null> {
   if (!kv) {
     return null;
   }
   try {
-    return await kv.get(key);
+    const ptr = await kv.get(key);
+    if (!ptr) {
+      return null;
+    }
+    if (ptr.startsWith('r2:') && r2) {
+      const obj = await r2.get(ptr.slice(3));
+      return obj ? await obj.text() : null;
+    }
+    return ptr;
   } catch {
     return null;
   }
 }
-export async function putTextCache(kv: KvLike | undefined, key: string, value: string): Promise<void> {
+export async function putTextCache(
+  kv: KvLike | undefined,
+  r2: R2Like | undefined,
+  key: string,
+  value: string,
+): Promise<void> {
   if (!kv) {
     return;
   }
   try {
-    await kv.put(key, value, { expirationTtl: 30 * 24 * 3600 });
+    if (r2) {
+      const sha = key.split(':').pop() ?? 'x';
+      const objKey = `tx:txtobj:${sha}`;
+      await r2.put(objKey, value);
+      await kv.put(key, `r2:${objKey}`, { expirationTtl: 30 * 24 * 3600 });
+    } else {
+      await kv.put(key, value, { expirationTtl: 30 * 24 * 3600 }); // 未绑 R2 直存 KV；写失败静默跳过
+    }
   } catch {
-    /* 缓存写失败不影响主流程 */
+    /* 缓存写失败不影响主流程（最多少了缓存加速） */
   }
 }
 
@@ -156,6 +227,11 @@ export async function putImageCache(
 }
 
 // —— IP 软限流（KV 按小时 / 按天分桶，自带过期）——
+// 采样率：调用方只在「预算偏紧」时，以 1/RATE_SAMPLE 的概率真正读写 KV 计数器，
+// 把 KV 写次数压到「请求数 / RATE_SAMPLE」，避免打爆免费版每天 1000 次写入限额。
+// 平时（预算 ok）完全不写 KV，硬限速交给 WAF。
+export const RATE_SAMPLE = 20;
+
 const TXT_PER_HOUR = 200;
 const IMG_PER_HOUR = 5;
 const IMG_PER_DAY = 20;
@@ -245,6 +321,10 @@ function yesterday(ymd: string): string {
 }
 
 // 累加用量 + 突增检测 + 阈值一次性告警。仅在「真实调用腾讯云」后调用（缓存命中不记账）。
+// 采样记账：每 USAGE_SAMPLE 次真实调用只写 1 次 KV，写入值 ×USAGE_SAMPLE 估算总量，
+// 把 KV 写次数压到「真实调用数 / USAGE_SAMPLE」。80/90/95% 是软闸，估算误差可接受。
+const USAGE_SAMPLE = 20;
+
 export async function addUsage(
   kv: KvLike | undefined,
   env: TranslateEnv,
@@ -254,6 +334,10 @@ export async function addUsage(
   if (!kv) {
     return;
   }
+  if (Math.random() >= 1 / USAGE_SAMPLE) {
+    return; // 采样命中才记账，省 KV 写
+  }
+  const amt = amount * USAGE_SAMPLE; // 用放大值估算总量
   const now = new Date();
   const ym = now.toISOString().slice(0, 7);
   const ymd = now.toISOString().slice(0, 10);
@@ -266,19 +350,19 @@ export async function addUsage(
   const mu = Number((await kv.get(monthKey)) ?? 0) || 0;
   const hu = Number((await kv.get(hourKey)) ?? 0) || 0;
   const du = Number((await kv.get(dayKey)) ?? 0) || 0;
-  const newMu = mu + amount;
-  const newHu = hu + amount;
+  const newMu = mu + amt;
+  const newHu = hu + amt;
   await kv.put(monthKey, String(newMu));
   await kv.put(hourKey, String(newHu), { expirationTtl: 48 * 3600 });
-  await kv.put(dayKey, String(du + amount), { expirationTtl: 48 * 3600 });
+  await kv.put(dayKey, String(du + amt), { expirationTtl: 48 * 3600 });
 
-  // 突增：本小时 > 昨日同时段 ×3（每小时最多告警一次）
+  // 突增：本小时 > 昨日同时段 ×3（每小时最多告警一次）。本月/今日都按放大值估算，比值不变。
   const yest = Number((await kv.get(`tx:hr:${kind}:${yesterday(ymd)}-${hh}`)) ?? 0) || 0;
   if (yest > 0 && newHu > yest * 3) {
     const flag = `tx:spk:${kind}:${ymd}-${hh}`;
     if (!(await kv.get(flag))) {
       await kv.put(flag, '1', { expirationTtl: 3600 });
-      await sendAlert(env, `⚠️ 翻译突增[${kind}]：本小时 ${newHu} vs 昨日同时段 ${yest}，超 3 倍`);
+      await sendAlert(env, `⚠️ 翻译突增[${kind}]：本小时约 ${newHu} vs 昨日同时段 ${yest}，超 3 倍`);
     }
   }
 
@@ -288,7 +372,7 @@ export async function addUsage(
     const wk = `tx:warn:${kind}:${ymd}`;
     if (!(await kv.get(wk))) {
       await kv.put(wk, '1', { expirationTtl: 24 * 3600 });
-      await sendAlert(env, `⚠️ 翻译用量达 ${Math.round(pct * 100)}%（${kind}），月免费额度 ${kind === 'txt' ? TXT_FREE : IMG_FREE}`);
+      await sendAlert(env, `⚠️ 翻译用量达 ${Math.round(pct * 100)}%（${kind}），月免费额度 ${kind === 'txt' ? TXT_FREE : IMG_FREE}（采样估算）`);
     }
   }
 }

@@ -52,7 +52,9 @@ async function compressImage(file: File, maxEdge = 1920, maxBytes = 3 * 1024 * 1
   ctx.drawImage(bitmap, 0, 0, w, h);
   bitmap.close?.();
 
-  let quality = 0.92;
+  // 主压缩质量固定 0.85：腾讯 OCR 在 0.85 附近识别率与体积折中最优，过低（如 0.6）会掉字，
+  // 过高则文件大、浪费图片额度。仅当 0.85 仍超 maxBytes 才逐级降质兜底。
+  let quality = 0.85;
   let dataUrl = canvas.toDataURL('image/jpeg', quality);
   while (dataUrl.length > maxBytes && quality > 0.5) {
     quality -= 0.07;

@@ -1,7 +1,8 @@
 // Cloudflare Pages Functions：图片翻译（腾讯云 TMT ImageTranslate）+ 多层防护。
 //
-// 防护链路：防套壳 → 体积护栏 → 缓存命中(先 hash 再决定是否调 OCR) → IP 软限流(每日 20/小时 5)
-//   → 全局预算闸 → miss 才调 ImageTranslate + 存结果(R2 优先/KV 兜底) + 累加用量。
+// 防护链路：防套壳 → 体积护栏(解码后 ≤4MB) → 缓存命中(优先前端规范哈希) → 预算闸(读)
+//   → IP 软限流(采样兜底，仅预算偏紧时启用) → miss 才调 ImageTranslate + 存结果(R2 优先/KV 兜底) + 累加用量。
+//   真正的硬限速交给 Cloudflare WAF Rate Limiting Rule（见 _translate-common.ts 顶部说明），零 KV 消耗。
 //
 // 腾讯云图片翻译仅支持「中文 ↔ 英文」互译，前端已锁死，这里二次校验。
 // 图片是短板：每月仅 1 万次免费（文本是 500 万字符），所以限流严格得多。
@@ -10,6 +11,7 @@ import { callTmt } from './_tmt';
 import {
   addUsage,
   budgetState,
+  base64DecodedSize,
   corsResponse,
   getImageCache,
   imageCacheKey,
@@ -17,6 +19,7 @@ import {
   json,
   putImageCache,
   rateLimited,
+  RATE_SAMPLE,
   type TranslateEnv,
 } from './_translate-common';
 
@@ -42,9 +45,10 @@ export async function onRequestPost(context: { request: Request; env: TranslateE
   if (!image) {
     return json({ err: '图片数据为空' }, 400);
   }
-  // 体积护栏：base64 上限对应约 4.5MB 原图（前端应已压缩到 3MB / 长边 1920px）。
-  if (image.length > 6_000_000) {
-    return json({ err: '图片过大，请压缩到 4MB 以内再试' }, 413);
+  // 体积护栏：用「解码后真实字节数」判断（base64 比原图膨胀约 1.33 倍）。
+  // 前端应已压缩到 ≤3MB(base64，解码约 2.25MB)，这里留到 4MB 解码值给足余量，也给直连 API 的客户端设上限。
+  if (base64DecodedSize(image) > 4 * 1024 * 1024) {
+    return json({ err: '图片过大（解码后超过 4MB），请压缩后再试' }, 413);
   }
 
   const source = typeof body.source === 'string' && body.source ? body.source : 'zh';
@@ -53,7 +57,7 @@ export async function onRequestPost(context: { request: Request; env: TranslateE
     return json({ err: '图片翻译仅支持「中文 ↔ 英文」互译' }, 400);
   }
 
-  // ① 缓存命中：先 hash 再决定是否调 OCR——重复截图/模板图直接免 OCR。
+  // ① 缓存命中：对收到的 base64 整体哈希——前端已统一缩放到 1920 再压缩，大图的不同分辨率版本会命中同一 key。
   const ik = await imageCacheKey(image);
   const hit = await getImageCache(kv, r2, ik);
   if (hit) {
@@ -64,16 +68,20 @@ export async function onRequestPost(context: { request: Request; env: TranslateE
     }
   }
 
-  // ② IP 软限流（图片更严：每小时 5、每天 20）
-  const rl = await rateLimited(kv, context.request, 'img');
-  if (rl.limited) {
-    return json({ err: '图片翻译次数已达上限（每 IP 每日 20 次、每小时 5 次），请明日再试', challenge: true }, 429);
-  }
-
-  // ③ 预算闸
+  // ② 预算闸（读 KV，免费）：先读，决定后面要不要启用 KV 软限流。
   const bs = await budgetState(kv, 'img');
   if (bs.level === 'stop') {
     return json({ err: '本月免费额度已用完，将于下月 1 日恢复' }, 503);
+  }
+
+  // ③ IP 软限流（次级兜底，平时不写 KV）：仅预算偏紧(≥warn)时按 RATE_SAMPLE 概率采样写；
+  //    图片本身额度极紧（1 万次/月），更依赖 Cloudflare WAF 硬限速。限流更严：每小时 5、每天 20。
+  let rl = { limited: false, count: 0 };
+  if (kv && (bs.level === 'warn' || bs.level === 'limit') && Math.random() < 1 / RATE_SAMPLE) {
+    rl = await rateLimited(kv, context.request, 'img');
+  }
+  if (rl.limited) {
+    return json({ err: '图片翻译次数已达上限（每 IP 每日 20 次、每小时 5 次），请明日再试', challenge: true }, 429);
   }
   if (bs.level === 'limit') {
     return json({ err: '当前用量偏高，已临时限速，请稍后再试' }, 429);
