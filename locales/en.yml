@@ -3260,6 +3260,39 @@ tools:
       error-no-domain: "Please enter at least one domain"
       error-bad-domain: "Invalid domain format"
       error-wildcard-http: "HTTP validation does not support wildcard domains; use DNS validation or remove the wildcard"
+  text-translate:
+    title: Text Translate
+    description: Translate text into 18 languages via Tencent Cloud Machine Translation, with automatic source-language detection.
+    externalAccess: The input text is sent to Tencent Cloud Machine Translation (TMT) for translation, forwarded by a server-side proxy so the secret key is never exposed to the browser.
+    texts:
+      title-text-translate: Text Translate
+      label-input: Text to translate
+      placeholder-input: Enter text to translate……
+      label-from: From
+      label-to: To
+      swap: Swap languages
+      button-translate: Translate
+      label-output: Translation
+      error-empty: Please enter some text to translate
+      error-network: Translation service is temporarily unavailable, please try again later
+  image-translate:
+    title: Image Translate
+    description: Upload an image, recognize the text and translate it; the translated text is drawn back onto the image and can be downloaded. Chinese to English and vice versa only.
+    externalAccess: The uploaded image is sent to Tencent Cloud Machine Translation (Image Translate) for recognition and translation, forwarded by a server-side proxy so the secret key is never exposed to the browser.
+    texts:
+      title-image-translate: Image Translate
+      tip-only-zh-en: Image translation supports Chinese to English only. Use a white-background document image, up to 4MB per file.
+      label-from: From
+      label-to: To
+      swap: Swap languages
+      button-translate: Translate Image
+      button-download: Download translated image
+      status-translating: Translating……
+      status-done: Translated {n} lines ({from} → {to})
+      example-hint: Choose an image with text (PNG/JPG, up to 4MB) and click Translate Image.
+      error-too-large: Image exceeds 4MB, please compress it first.
+      error-no-result: No translatable text was detected.
+      error-network: Translation service is temporarily unavailable, please try again later
 
 collapsibleToolMenu:
   text:

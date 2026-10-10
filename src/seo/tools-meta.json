@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-09T15:03:10.342Z",
+  "generatedAt": "2026-10-10T07:23:20.683Z",
   "sourceCommit": "extracted at build time",
-  "total": 107,
+  "total": 109,
   "tiers": {
-    "L1": 90,
+    "L1": 92,
     "L2": 16,
     "L3": 1
   },
@@ -1109,6 +1109,25 @@
       "isExternalAccess": false,
       "title": "图像调整器",
       "description": "更改图像的宽度和高度，以所需的格式预览和下载。",
+      "categoryZh": "图片处理",
+      "categorySeoName": "图片在线处理工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/image-translate",
+      "slug": "image-translate",
+      "category": "Images",
+      "keywords": [
+        "image",
+        "translate",
+        "图片翻译",
+        "ocr"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": true,
+      "title": "图片翻译",
+      "description": "上传图片识别文字并翻译，译文绘制回原图可下载，仅支持中英互译",
       "categoryZh": "图片处理",
       "categorySeoName": "图片在线处理工具",
       "tier": "L1"
@@ -2258,6 +2277,25 @@
       "isExternalAccess": false,
       "title": "字数统计工具",
       "description": "在线统计文本的字符数、单词数、行数、字节大小与中文汉字数，实时出结果，可用于检查文章字数和数据库字段长度",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-translate",
+      "slug": "text-translate",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "translate",
+        "翻译",
+        "机器翻译"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "isExternalAccess": true,
+      "title": "文本翻译",
+      "description": "基于腾讯云机器翻译，支持 18 种语言互译并自动检测源语言",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"

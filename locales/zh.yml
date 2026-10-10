@@ -3375,6 +3375,39 @@ tools:
       error-no-domain: "请至少填写一个域名"
       error-bad-domain: "域名格式不正确"
       error-wildcard-http: "HTTP 验证不支持通配符域名，请改用 DNS 验证或去掉通配符"
+  text-translate:
+    title: 文本翻译
+    description: 基于腾讯云机器翻译，支持 18 种语言互译并自动检测源语言
+    externalAccess: 输入的文本会发送至腾讯云机器翻译（TMT）接口进行翻译，由服务端代理转发，密钥不会暴露给浏览器。
+    texts:
+      title-text-translate: 文本翻译
+      label-input: 待翻译文本
+      placeholder-input: 输入要翻译的文本……
+      label-from: 源语言
+      label-to: 目标语言
+      swap: 交换语言
+      button-translate: 翻译
+      label-output: 译文
+      error-empty: 请输入要翻译的文本
+      error-network: 翻译服务暂时不可用，请稍后重试
+  image-translate:
+    title: 图片翻译
+    description: 上传图片识别文字并翻译，译文绘制回原图可下载，仅支持中英互译
+    externalAccess: 上传的图片会发送至腾讯云机器翻译（图片翻译）接口进行识别与翻译，由服务端代理转发，密钥不会暴露给浏览器。
+    texts:
+      title-image-translate: 图片翻译
+      tip-only-zh-en: 图片翻译仅支持「中文 ↔ 英文」互译，建议白底文档图、单张不超过 4MB。
+      label-from: 源语言
+      label-to: 目标语言
+      swap: 交换语言
+      button-translate: 翻译图片
+      button-download: 下载译文图
+      status-translating: 翻译中……
+      status-done: 共翻译 {n} 行（{from} → {to}）
+      example-hint: 选择一张包含文字的图片（PNG/JPG，≤4MB），点「翻译图片」即可。
+      error-too-large: 图片超过 4MB，请压缩后再试。
+      error-no-result: 未识别到可翻译的文字。
+      error-network: 翻译服务暂时不可用，请稍后重试
 
 collapsibleToolMenu:
   text:
