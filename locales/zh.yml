@@ -645,12 +645,7 @@ tools:
       placeholder-base-api-url: 基础API URL
       label-http-method: HTTP方法：
       title-headers: 请求头
-      placeholder-header-name: 请求头名称
-      placeholder-value: 值
-      label-content-type: 内容类型：
       title-query-parameters: 查询参数
-      placeholder-param-name: 参数名称
-      label-body: 请求体
       placeholder-http-query-body: HTTP查询体
       title-error-while-calling-api: 调用API时出错
       title-api-call-result: API调用结果
@@ -658,6 +653,86 @@ tools:
       tag-add-a-new-query-parameter: 添加新的查询参数
       tag-no-cors: 无CORS
       tag-call-api: 调用API
+      section-request: 请求配置
+      label-url: 请求 URL
+      placeholder-url: 请输入接口地址，如 https://api.example.com/v1/xxx
+      label-method: 请求方法
+      label-use-proxy-on: 通过服务端代理发送（绕开跨域）
+      label-use-proxy-off: 浏览器直连（仅限允许跨域的接口）
+      tip-proxy: 代理由 gjxtools.com 服务端转发请求，可访问任意接口；部署后生效，本地预览不可用。
+      tab-query: 查询参数
+      tab-headers: 请求头
+      tab-body: 请求体
+      tab-import: 导入
+      tag-add-param: 添加参数
+      btn-batch-add: 批量添加
+      placeholder-batch-kv: '支持 a=1&b=2、JSON 对象，或逐行 Key=Value / Key: Value'
+      btn-apply: 应用
+      btn-cancel: 取消
+      tag-add-header: 添加请求头
+      placeholder-batch-headers: '支持逐行 "Key: Value" 或从抓包工具复制的 Header 文本，也支持 JSON 对象'
+      label-body-mode: 请求体类型
+      body-mode-none: 无
+      body-mode-form: 表单 (x-www-form-urlencoded)
+      body-mode-raw: 原始 (Raw)
+      btn-format-json: 格式化 JSON
+      btn-compress-json: 压缩 JSON
+      placeholder-body: 请求体内容
+      body-mode-none-hint: 当前方法无请求体（GET/HEAD），或请选择上方「请求体类型」。
+      import-curl: curl
+      import-powershell: PowerShell
+      import-fetch: fetch
+      import-map: Map
+      placeholder-import: 粘贴 curl / PowerShell / fetch / Java Map 代码
+      tip-import-map: Map 导入会解析键值对并填充到「请求头」。
+      btn-parse-import: 解析并填充
+      btn-send: 发送请求
+      title-error: 请求失败
+      title-response: 响应结果
+      tag-proxy: 代理
+      btn-copy: 复制
+      tab-response-headers: 返回头
+      tab-request-headers: 请求头（已发送）
+      tab-response-body: 响应体
+      response-view-pretty: 美化
+      response-view-raw: 原始
+      title-codegen: 代码生成
+      tip-codegen: 根据当前请求配置生成各语言代码，一键复制即可使用。
+      title-examples: 场景示例与帮助
+      collapse-examples: 场景示例
+      title-guide: 操作说明
+      guide-text: |
+        1. 在「请求 URL」填入完整接口地址。
+        2. 选择请求方法（GET / POST / PUT / DELETE / PATCH / HEAD / OPTIONS）。
+        3. 在「查询参数」「请求头」里逐行添加，或点「批量添加」一次性粘贴 a=1&b=2 / JSON / 抓包得到的 Header 文本。
+        4. 需要请求体时，切到「请求体」选择表单或原始内容；原始内容支持「格式化 / 压缩」JSON。
+        5. 也可在「导入」里粘贴 curl、PowerShell、fetch 或 Java Map 代码，一键解析填充。
+        6. 点「发送请求」：默认走服务端代理（绕开浏览器跨域）；如遇代理不可用，关闭开关改用浏览器直连（仅能访问允许跨域的接口）。
+        7. 响应区可查看状态码、耗时、请求头、返回头（均可一键复制）与响应体（可美化 / 压缩 / 复制 / 下载）。
+        8. 在「代码生成」里一键复制 Python / C# / Java / Go / Node.js / PHP / cURL 代码片段。
+      title-cors: 跨域访问配置说明
+      cors-text: |
+        为什么会跨域（CORS）？
+        浏览器出于安全，禁止网页向「不同源」的接口发请求，除非对方服务器返回允许跨域的响应头（Access-Control-Allow-Origin）。因此纯前端直连很多第三方接口会被浏览器拦截，表现为「调用报错」。
+        
+        两种解决方式：
+        · 服务端代理（默认开启）：请求先发到本站的 /api/proxy，由服务端（Cloudflare）代为转发再返回。请求发生在服务器而非浏览器，不受浏览器跨域限制，可访问任意接口。
+        · 浏览器直连：关闭代理开关后由浏览器直接请求目标接口，仅适用于对方服务器允许跨域（返回了 CORS 头）的情况；否则仍会被拦截。
+        
+        提示：若你自己的后端希望被本站调用，请在响应里加上 Access-Control-Allow-Origin: *（或指定来源）等 CORS 头。
+      btn-load-example: 载入此示例
+      msg-json-invalid: 不是合法的 JSON，未做处理
+      msg-import-fail: 解析失败，请检查粘贴的内容格式
+      msg-import-ok: 已解析并填充到上方表单
+      msg-proxy-unavailable: 代理函数未部署或不可用，请切换为「浏览器直连」模式，或部署后重试。
+      binary-content: 二进制内容
+
+      label-content-type: 内容类型
+      label-body: 请求体
+      placeholder-value: 值
+      placeholder-param-name: 参数名称
+      placeholder-header-name: 请求头名称
+
     externalAccess: 此工具仅调用您在浏览器中提供的 API 端点。
   barcode-generator:
     title: 条形码生成器

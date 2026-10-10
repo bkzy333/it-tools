@@ -681,12 +681,7 @@ tools:
       placeholder-base-api-url: Base API Url
       label-http-method: "HTTP Method:"
       title-headers: Headers
-      placeholder-header-name: Header Name
-      placeholder-value: Value
-      label-content-type: "Content-Type:"
       title-query-parameters: Query Parameters
-      placeholder-param-name: Param Name
-      label-body: Body
       placeholder-http-query-body: HTTP Query body
       title-error-while-calling-api: Error while calling API
       title-api-call-result: API Call result
@@ -694,6 +689,86 @@ tools:
       tag-add-a-new-query-parameter: Add a new Query Parameter
       tag-no-cors: No CORS
       tag-call-api: Call API
+      section-request: Request config
+      label-url: Request URL
+      placeholder-url: Full API URL, e.g. https://api.example.com/v1/xxx
+      label-method: Method
+      label-use-proxy-on: Send via server proxy (bypass CORS)
+      label-use-proxy-off: Direct browser request (CORS-enabled only)
+      tip-proxy: The proxy forwards requests from the gjxtools.com server and can reach any endpoint. Requires deployment; unavailable in local preview.
+      tab-query: Query params
+      tab-headers: Headers
+      tab-body: Body
+      tab-import: Import
+      tag-add-param: Add param
+      btn-batch-add: Batch add
+      placeholder-batch-kv: 'Supports a=1&b=2, JSON object, or lines of Key=Value / Key: Value'
+      btn-apply: Apply
+      btn-cancel: Cancel
+      tag-add-header: Add header
+      placeholder-batch-headers: 'Supports lines of "Key: Value" or header text copied from devtools, also JSON object'
+      label-body-mode: Body type
+      body-mode-none: None
+      body-mode-form: Form (x-www-form-urlencoded)
+      body-mode-raw: Raw
+      btn-format-json: Format JSON
+      btn-compress-json: Compress JSON
+      placeholder-body: Request body
+      body-mode-none-hint: Current method has no body (GET/HEAD), or pick a body type above.
+      import-curl: curl
+      import-powershell: PowerShell
+      import-fetch: fetch
+      import-map: Map
+      placeholder-import: Paste curl / PowerShell / fetch / Java Map code
+      tip-import-map: Map import parses key-value pairs into Headers.
+      btn-parse-import: Parse and fill
+      btn-send: Send request
+      title-error: Request failed
+      title-response: Response
+      tag-proxy: Proxy
+      btn-copy: Copy
+      tab-response-headers: Response headers
+      tab-request-headers: Request headers (sent)
+      tab-response-body: Response body
+      response-view-pretty: Pretty
+      response-view-raw: Raw
+      title-codegen: Code generation
+      tip-codegen: Generate code for the current request config; copy and run.
+      title-examples: Examples & help
+      collapse-examples: Examples
+      title-guide: How to use
+      guide-text: |
+        1. Enter the full API URL in "Request URL".
+        2. Choose the method (GET / POST / PUT / DELETE / PATCH / HEAD / OPTIONS).
+        3. Add query params / headers row by row, or use "Batch add" to paste a=1&b=2 / JSON / header text.
+        4. For a body, switch to "Body" and choose form or raw; raw supports JSON format/compress.
+        5. Or paste curl / PowerShell / fetch / Java Map code in "Import" to auto-fill.
+        6. Click "Send request": it uses the server proxy by default (bypasses CORS); if the proxy is unavailable, turn it off to use direct browser requests (CORS-enabled endpoints only).
+        7. The response shows status, elapsed time, request/response headers (copyable) and body (pretty / raw / copy / download).
+        8. Use "Code generation" to copy Python / C# / Java / Go / Node.js / PHP / cURL snippets.
+      title-cors: Cross-origin (CORS) notes
+      cors-text: |
+        Why CORS?
+        Browsers block web pages from calling APIs on a different origin unless the server returns CORS headers (Access-Control-Allow-Origin). So direct browser calls to many third-party APIs are blocked, showing as "request error".
+        
+        Two approaches:
+        · Server proxy (default on): the request goes to this site's /api/proxy and is forwarded by the Cloudflare server, so the browser's CORS limit does not apply and any endpoint is reachable.
+        · Direct browser request: turn off the proxy switch; the browser calls the target directly and only works if the target allows CORS.
+        
+        Tip: if you want your own backend to be callable from this site, add CORS headers such as Access-Control-Allow-Origin: * (or a specific origin).
+      btn-load-example: Load example
+      msg-json-invalid: Not valid JSON, nothing changed
+      msg-import-fail: Parse failed, check the pasted format
+      msg-import-ok: Parsed and filled into the form above
+      msg-proxy-unavailable: Proxy function is not deployed or unavailable. Switch to "Direct browser" mode or deploy first.
+      binary-content: (binary content)
+
+      label-content-type: Content-Type
+      label-body: Body
+      placeholder-value: Value
+      placeholder-param-name: Param Name
+      placeholder-header-name: Header Name
+
     externalAccess: This tool calls API endpoint you provide in you browser only.
   barcode-generator:
     title: Barcode generator
