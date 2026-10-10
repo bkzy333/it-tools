@@ -23,19 +23,20 @@ const lunarYear = ref(2020);
 const lunarMonth = ref(9);
 const lunarDay = ref(7);
 const lunarIsLeap = ref(false);
-const lunarError = ref('');
-const lunarResult = computed(() => {
-  lunarError.value = '';
+
+// 结果用「单一 computed 派生出 { result, error }」表达，避免在 computed 里写 ref
+const lunarComputed = computed(() => {
   if (!lunarYear.value || !lunarMonth.value || !lunarDay.value) {
-    return null;
+    return { result: null, error: '' };
   }
   const r = lunarToSolar(lunarYear.value, lunarMonth.value, lunarDay.value, lunarIsLeap.value);
   if (!r) {
-    lunarError.value = t('tools.lunar-calendar.texts.hint-lunar-not-found');
-    return null;
+    return { result: null, error: t('tools.lunar-calendar.texts.hint-lunar-not-found') };
   }
-  return r;
+  return { result: r, error: '' };
 });
+const lunarResult = computed(() => lunarComputed.value.result);
+const lunarError = computed(() => lunarComputed.value.error);
 
 const exampleData = {
   solar: '2020-10-23',

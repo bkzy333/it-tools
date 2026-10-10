@@ -60,8 +60,10 @@ export function diffDateTimes({
   includeEndDate?: boolean;
   includeWeekDays?: Array<Weekdays>;
   includeHolidays?: boolean;
-  businessStartHour: number;
-  businessEndHour: number;
+  // 这两个默认值原本永远用不上：参数被声明成必填 number，解构默认值只在 undefined 时生效。
+  // 改成可选后 9 / 18 才是真正可用的默认值。
+  businessStartHour?: number;
+  businessEndHour?: number;
   businessTimezone: string;
 }): DateTimeRange {
   function getHolidaysBetween(date1: DateTime, date2: DateTime) {

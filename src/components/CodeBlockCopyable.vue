@@ -244,7 +244,7 @@ const { download } = useDownloadFileFromBase64({
         style="z-index: 10; background: var(--bg-color); border-radius: 50%; padding: 2px"
       >
         <c-tooltip v-if="value && copyPlacement !== 'outside'" :tooltip="tooltipText" position="left">
-          <c-button circle important:h-10 important:w-10 @click="copy()">
+          <c-button circle important:h-10 important:w-10 :aria-label="tooltipText" @click="copy()">
             <n-icon size="22" :component="Copy" />
           </c-button>
         </c-tooltip>

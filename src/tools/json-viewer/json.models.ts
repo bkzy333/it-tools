@@ -47,7 +47,9 @@ export function unicodeToChinese(str: string): string {
  * - ASCII（含数字、字母、常用标点）原样保留
  */
 export function chineseToUnicode(str: string): string {
-  return str.replace(/[^\x00-\x7F]/g, (ch) => {
+  // 用 \p{ASCII} 代替 \x00-\x7F：语义相同，但正则里不再出现控制字符字面量。
+  // /u 让 replace 按码位遍历，代理对会作为一个整体进入回调（结果与逐码元处理一致）。
+  return str.replace(/[^\p{ASCII}]/gu, (ch) => {
     const code = ch.codePointAt(0)!;
     if (code > 0xffff) {
       // 代理对拆成两个 \uXXXX

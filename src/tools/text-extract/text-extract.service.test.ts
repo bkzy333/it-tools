@@ -1,13 +1,10 @@
 import { expect, describe, it } from 'vitest';
 import {
-  EXTRACT_OPTIONS,
   extractFromText,
   totalMatches,
   type ExtractGroup,
   type ExtractType,
 } from './text-extract.service';
-
-const PATTERN_BY_KEY = new Map(EXTRACT_OPTIONS.map((o) => [o.key, o.pattern]));
 
 function matchesOf(key: ExtractType, text: string, dedupe = false, custom = ''): string[] {
   const group = extractFromText(text, { types: [key], dedupe }, custom)[0];

@@ -70,6 +70,10 @@ textareaCopyable:
   copy: 复制到剪贴板
   copied: 已复制！
   download: 下载
+inputText:
+  clear: 清空
+  show-password: 显示密码
+  hide-password: 隐藏密码
 locale-selector:
   select-a-language: 选择语言
 home:
@@ -80,6 +84,8 @@ home:
     popularTools: 热门工具
     mostUsedTools: 你常用的工具
     favoritesDndToolTip: 拖放以重新排序收藏
+    browseByCategory: 按分类浏览
+    guides: 开发教程
   subtitle: 实用工具
   toggleMenu: 切换菜单
   home: 首页
@@ -638,7 +644,7 @@ tools:
       tag-download-compressed: 下载压缩图
   api-tester:
     title: API测试器
-    description: HTTP API测试器。
+    description: 在线 HTTP API 测试器：支持 GET/POST/PUT/DELETE，可自定义请求头、查询参数与请求体，一键生成 curl、Python、Go、Java 等调用代码。
     texts:
       title-api-calling: API调用
       label-base-api-url: 基础API URL
@@ -2607,13 +2613,15 @@ tools:
     texts:
       label-left: 左边
       label-center: 中心
-      label-right: 正确的
+      label-right: 右边
       label-paste-clipboard-table-data-here: 把剪贴板表格数据粘贴到这里：
       placeholder-paste-your-table-to-edit: 粘贴表格进行编辑……
       label-generated-markdown-table: 生成的 Markdown 表格：
       tag-import-table-data: 导入表数据
       tag-add-row: 添加行
       tag-add-column: 添加列
+      action-remove-row: 删除此行
+      action-remove-column: 删除此列
   salary-calculator:
     title: 工资计算器
     description: 输入税前月薪与社保公积金比例，算出全年 12 个月到手工资、五险一金个人与单位缴纳明细和个税，并支持反推税前工资

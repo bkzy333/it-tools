@@ -113,15 +113,20 @@ describe('闰月', () => {
 
   it('同一年内的农历日号不会重复（闰月只是多一个月，不是多一天）', () => {
     const seen = new Set<string>();
+    // 不在循环里写 expect：条件命中不到时断言会被静默跳过，测试看起来是绿的其实什么都没验证
+    const duplicates: string[] = [];
     for (const [date] of LUNAR_ANCHORS) {
-      const info = getLunar(date)!;
-      if (!info) continue;
+      const info = getLunar(date);
+      if (!info) {
+        continue;
+      }
       const key = `${info.year}-${info.month}-${info.isLeap ? 'L' : 'N'}-${info.day}`;
-      if (info.day === 1) {
-        expect(seen.has(key), `${date} 重复命中 ${key}`).toBe(false);
+      if (info.day === 1 && seen.has(key)) {
+        duplicates.push(`${date} 重复命中 ${key}`);
       }
       seen.add(key);
     }
+    expect(duplicates).toEqual([]);
   });
 });
 

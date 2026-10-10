@@ -6,21 +6,21 @@ import { allEnglishDateFormats } from './english-date-format.service';
 const { t } = useI18n();
 
 const input = ref('2022-10-24');
-const error = ref('');
 
-const formats = computed(() => {
+// 结果用「单一 computed 派生出 { formats, error }」表达，避免在 computed 里写 ref
+const result = computed(() => {
   if (!input.value.trim()) {
-    error.value = '';
-    return null;
+    return { formats: null, error: '' };
   }
   try {
-    error.value = '';
-    return allEnglishDateFormats(input.value);
-  } catch (e) {
-    error.value = (e as Error).message;
-    return null;
+    return { formats: allEnglishDateFormats(input.value), error: '' };
+  }
+  catch (e) {
+    return { formats: null, error: (e as Error).message };
   }
 });
+const formats = computed(() => result.value.formats);
+const error = computed(() => result.value.error);
 
 const exampleData = { date: '2022-10-24' };
 

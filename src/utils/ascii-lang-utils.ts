@@ -299,7 +299,9 @@ export function escapeForLanguage(
     typeof langConfig.escape === 'function'
       ? langConfig.escape
       : function (line: string) {
-          return langConfig.escape ? line.replace(new RegExp(`([${langConfig.escape}])`, 'g'), '\\$1') : line;
+          // escape 到此已确定不是函数（函数分支在上面），转成字符串再进字符类，
+          // 避免把非字符串直接插进模板造成 "[object Object]" 这种正则
+          return langConfig.escape ? line.replace(new RegExp(`([${String(langConfig.escape)}])`, 'g'), '\\$1') : line;
         };
   const escapeMultiLine = function (s: string) {
     const result = escape(s);

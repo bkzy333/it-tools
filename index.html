@@ -56,7 +56,9 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
-    <link rel="preload" href="home.custom.md" as="fetch" crossorigin="anonymous" />
+    <!-- home.custom.md 只有首页的 Home.custom.vue 会消费，且当前内容为空；
+         放在 index.html 里做全站预载会让每个子页都去请求 <子路径>/home.custom.md 并报 404 警告，
+         因此移除。首页需要时由组件自行 fetch。 -->
     <link rel="preload" href="tools-filter.json" as="fetch" crossorigin="anonymous" />
     <link rel="preload" href="external-tools.json" as="fetch" crossorigin="anonymous" />
     <link rel="preload" href="tools-settings.json" as="fetch" crossorigin="anonymous" />

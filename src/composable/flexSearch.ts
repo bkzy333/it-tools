@@ -97,7 +97,8 @@ export function useFlexSearch<Data extends Record<string, any>>({
       indices.forEach(({ key }) => {
         const value = key.split('.').reduce((obj, path) => obj?.[path], item);
         if (value) {
-          values.set(key, String(value));
+          // 对象 / 数组不能直接 String()，否则索引里存的是 "[object Object]"，搜不到内容
+          values.set(key, typeof value === 'object' ? (JSON.stringify(value) ?? '') : String(value));
         }
       });
 
@@ -135,7 +136,9 @@ export function useFlexSearch<Data extends Record<string, any>>({
   };
 
   // Initialize on creation
-  initializeIndices();
+  // 初始化是异步的，这里刻意不 await（调用方是同步的 composable）。
+  // 加 void 明确表达「有意忽略返回的 Promise」，避免未处理的 rejection。
+  void initializeIndices();
 
   // Function to search across all indices with weight consideration
   const searchAllIndices = (query: string, searchLimit: number) => {
@@ -236,7 +239,8 @@ export function useFlexSearch<Data extends Record<string, any>>({
         normalizedKeys.forEach(({ name, weight }) => {
           const value = name.split('.').reduce((obj, path) => obj?.[path], item);
           if (value) {
-            const similarity = calculateSimilarity(query, String(value));
+            const asText = typeof value === 'object' ? (JSON.stringify(value) ?? '') : String(value);
+            const similarity = calculateSimilarity(query, asText);
             const weightedSimilarity = similarity * weight;
 
             if (weightedSimilarity > bestWeightedSimilarity) {

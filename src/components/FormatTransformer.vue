@@ -3,6 +3,7 @@ import * as _ from 'es-toolkit/compat';
 import { Base64 } from 'js-base64';
 import type { UseValidationRule } from '@/composable/validation';
 import CInputText from '@/ui/c-input-text/c-input-text.vue';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { useDownloadFileFromBase64 } from '@/composable/downloadBase64';
 import { translate as t } from '@/plugins/i18n.plugin';
 import { useAppTheme } from '@/ui/theme/themes';
@@ -22,12 +23,18 @@ const props = withDefaults(
     inputLineNumbers?: boolean;
     inputMaxRows?: number;
     inputAutosize?: boolean;
+    /**
+     * 打开就填进输入框的示例内容。传了才显示「一键示例」按钮。
+     * 组件刻意保持可选：老工具不传就完全没有变化，不会被动改到。
+     */
+    exampleData?: string;
   }>(),
   {
     transformer: _.identity,
     inputValidationRules: () => [],
     inputLabel: t('formatTransformer.input'),
     inputDefault: '',
+    exampleData: '',
     inputPlaceholder: t('formatTransformer.input-placeholder'),
     outputLabel: t('formatTransformer.output'),
     outputLanguage: '',
@@ -54,6 +61,7 @@ const {
   inputLineNumbers,
   inputMaxRows,
   inputAutosize,
+  exampleData,
 } = toRefs(props);
 
 const appTheme = useAppTheme();
@@ -79,8 +87,13 @@ const textareaElement = computed(() => {
   return null;
 });
 
-const input = ref(inputDefault.value);
+// 有示例就默认填上：用户打开立刻看到转换结果，不用先猜该粘什么进来。
+const input = ref(inputDefault.value || exampleData.value);
 const output = computed(() => transformer.value(input.value));
+
+function loadExample() {
+  input.value = exampleData.value;
+}
 
 const lineCount = computed(() => {
   if (input.value === '') {
@@ -173,6 +186,10 @@ const { download } = useDownloadFileFromBase64({
 </script>
 
 <template>
+  <div v-if="exampleData !== ''" flex justify-end mb-2>
+    <ToolExampleButton @click="loadExample" />
+  </div>
+
   <CInputText
     ref="inputElement"
     v-model:value="input"

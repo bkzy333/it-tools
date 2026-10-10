@@ -50,12 +50,6 @@ const exampleData = {
   ].join('\n'),
 };
 
-function loadExample() {
-  regex.value = exampleData.regex;
-  text.value = exampleData.text;
-  activeTab.value = 'highlight';
-}
-
 function applyPreset(preset: RegexPreset) {
   regex.value = preset.pattern;
   text.value = preset.text;
@@ -267,6 +261,13 @@ const sample = computed(() => {
     return '';
   }
 });
+
+/* loadExample 会写 activeTab，因此定义在所有 ref 之后，避免「先使用后声明」。 */
+function loadExample() {
+  regex.value = exampleData.regex;
+  text.value = exampleData.text;
+  activeTab.value = 'highlight';
+}
 </script>
 
 <template>

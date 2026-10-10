@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { useNetworkUtilsConfig } from '@/tools/network-utils/network-utils-config';
 import { expandCidr } from 'cidr-tools';
 import { Base64 } from 'js-base64';
@@ -23,9 +24,17 @@ interface PingResult {
 
 const MAX_CIDR_IPS = 1024;
 
-const rawTargets = ref('');
+// 这个工具本来就支持一行一个目标，示例刻意给「IP + 域名」两种形态，
+// 让用户知道这里能填什么。不放 CIDR 段——/24 会一次展开上百个地址，太重。
+const exampleData = ['1.1.1.1', '8.8.8.8', 'gjxtools.com'].join('\n');
+
+const rawTargets = ref(exampleData);
 const count = ref(1);
 const timeout = ref(2);
+
+function loadExample() {
+  rawTargets.value = exampleData;
+}
 
 const loading = ref(false);
 const results = ref<PingResult[]>([]);
@@ -185,6 +194,10 @@ async function runPingBatch() {
         </n-p>
       </n-card>
     </details>
+
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadExample" />
+    </div>
 
     <c-input-text
       :label="t('tools.ping.texts.label-targets-ips-cidrs-hostnames-one-per-line-or-or')"

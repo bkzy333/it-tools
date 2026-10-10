@@ -9,7 +9,7 @@
  * 公历→农历用 getLunar；农历→公历在 1900-2100 范围内逐日反查。
  */
 
-import { formatDateMs, getConstellation, getLunar, MAX_LUNAR_YEAR, MIN_LUNAR_YEAR, parseDateMs } from '../date-distance-calculator/lunar.service';
+import { formatDateMs, getConstellation, getLunar, MAX_LUNAR_YEAR, MIN_LUNAR_YEAR } from '../date-distance-calculator/lunar.service';
 
 export interface SolarToLunarResult {
   solar: string;
@@ -39,7 +39,6 @@ export function solarToLunar(date: string): SolarToLunarResult | null {
   if (!lunar) {
     return null;
   }
-  const [y] = date.split('-').map(Number);
   return {
     solar: date,
     lunarYear: lunar.year,

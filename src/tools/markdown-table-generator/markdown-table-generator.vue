@@ -116,6 +116,7 @@ function onPasteMarkdownTable(markdownContent: string) {
                       size="small"
                       variant="text"
                       :disabled="table.headers.length <= 1"
+                      :aria-label="t('tools.markdown-table-generator.texts.action-remove-column')"
                       @click="removeColumn(columnIndex)"
                     >
                       <icon-mdi-delete-outline />
@@ -144,6 +145,7 @@ function onPasteMarkdownTable(markdownContent: string) {
                   size="small"
                   variant="text"
                   :disabled="table.rows.length <= 1"
+                  :aria-label="t('tools.markdown-table-generator.texts.action-remove-row')"
                   @click="removeRow(rowIndex)"
                 >
                   <icon-mdi-delete-outline />

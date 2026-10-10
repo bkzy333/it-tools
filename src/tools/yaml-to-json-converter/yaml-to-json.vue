@@ -8,6 +8,21 @@ import { withDefaultOnError } from '@/utils/defaults';
 
 const { t } = useI18n();
 
+// 示例覆盖缩进层级、列表、注释和中文值，转换后能直接看出键名的嵌套关系。
+const exampleData = [
+  'name: 在线工具箱',
+  'version: 2.1.0',
+  'enabled: true',
+  'tools:',
+  '  - slug: yaml-to-json',
+  '    hot: true',
+  '  - slug: rmb-numbers',
+  '    hot: false',
+  'author:',
+  '  name: chao',
+  '  site: gjxtools.com',
+].join('\n');
+
 const nestify = ref(false);
 
 function transformer(value: string) {
@@ -49,6 +64,7 @@ const rules: UseValidationRule<string>[] = [
     output-language="json"
     :input-validation-rules="rules"
     :transformer="transformer"
+    :example-data="exampleData"
     download-file-name="output.json"
   />
 </template>

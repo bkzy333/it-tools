@@ -124,7 +124,8 @@ function highlightText(text: string, setA: Set<string>): string {
 /** 中文段内，对每个 bigram 判断是否命中；命中的两个字符都标黄（重叠则顺延）。 */
 function highlightChineseSegment(seg: string, setA: Set<string>): string {
   const chars = Array.from(seg);
-  const marked = new Array<boolean>(chars.length).fill(false);
+  // 不用 new Array(n)：单参数形式在长度来自变量时容易写成列向量，且语义不如 Array.from 直白
+  const marked = Array.from({ length: chars.length }, () => false);
 
   for (let k = 0; k < chars.length - 1; k++) {
     const gram = chars[k] + chars[k + 1];

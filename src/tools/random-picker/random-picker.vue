@@ -13,25 +13,6 @@ const { t } = useI18n();
 /** 四种玩法 */
 const activeTab = ref<'token' | 'lottery' | 'weighted' | 'split'>('token');
 
-/* ------------------------------------------------------------------ 一键示例 */
-const exampleData = {
-  length: 32,
-  count: 5,
-  candidates: '张三\n李四\n王五\n赵六\n孙七',
-  weightedInput: '张三,5\n李四,3\n王五,1',
-  splitInput: '房东,2\n二房东,1\n租户,1',
-  splitAmount: 10000,
-};
-
-function loadExample() {
-  length.value = exampleData.length;
-  count.value = exampleData.count;
-  candidates.value = exampleData.candidates;
-  weightedInput.value = exampleData.weightedInput;
-  splitInput.value = exampleData.splitInput;
-  splitAmount.value = exampleData.splitAmount;
-}
-
 /* ------------------------------------------------------------------ 1. 随机令牌 */
 const count = useQueryParamOrStorage({ name: 'count', storageName: 'rnd-pick:count', defaultValue: 1 });
 const length = useQueryParamOrStorage({ name: 'length', storageName: 'rnd-pick:length', defaultValue: 64 });
@@ -180,6 +161,28 @@ const splitResult = computed(() => {
     + (sum === target ? ` · ${t('tools.random-picker.texts.message-split-balanced')}` : '');
 });
 const { copy: copySplit } = useCopy({ source: splitResult, text: t('tools.random-picker.copied') });
+
+/* ------------------------------------------------------------------ 一键示例
+   放在所有 ref 声明之后：loadExample 会写入 length / count / candidates / weightedInput /
+   splitInput / splitAmount，若定义在它们之前，阅读顺序与初始化顺序相反，
+   一旦将来有人在 setup 阶段直接调用就会踩到 TDZ。 */
+const exampleData = {
+  length: 32,
+  count: 5,
+  candidates: '张三\n李四\n王五\n赵六\n孙七',
+  weightedInput: '张三,5\n李四,3\n王五,1',
+  splitInput: '房东,2\n二房东,1\n租户,1',
+  splitAmount: 10000,
+};
+
+function loadExample() {
+  length.value = exampleData.length;
+  count.value = exampleData.count;
+  candidates.value = exampleData.candidates;
+  weightedInput.value = exampleData.weightedInput;
+  splitInput.value = exampleData.splitInput;
+  splitAmount.value = exampleData.splitAmount;
+}
 </script>
 
 <template>

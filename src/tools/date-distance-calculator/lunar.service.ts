@@ -311,7 +311,6 @@ export function getLunar(date: string): LunarInfo | null {
     carry -= m.days;
   }
 
-  const yearStemIndex = ((year - 4) % 10 + 10) % 10;
   return {
     year,
     month: found.month,

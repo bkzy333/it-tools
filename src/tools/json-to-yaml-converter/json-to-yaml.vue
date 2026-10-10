@@ -8,6 +8,21 @@ import { withDefaultOnError } from '@/utils/defaults';
 
 const { t } = useI18n();
 
+// 示例刻意带上嵌套对象、数组、中文和几种数据类型，
+// 让用户一眼看出 JSON 转 YAML 之后层级是怎么表达的。
+const exampleData = [
+  '{',
+  '  "name": "在线工具箱",',
+  '  "version": "2.1.0",',
+  '  "enabled": true,',
+  '  "tools": [',
+  '    { "slug": "json-to-yaml", "hot": true },',
+  '    { "slug": "rmb-numbers", "hot": false }',
+  '  ],',
+  '  "author": { "name": "chao", "site": "gjxtools.com" }',
+  '}',
+].join('\n');
+
 const transformer = (value: string) => withDefaultOnError(() => stringify(JSON.parseBigNum(value)), '');
 
 const rules: UseValidationRule<string>[] = [
@@ -26,6 +41,7 @@ const rules: UseValidationRule<string>[] = [
     output-language="yaml"
     :input-validation-rules="rules"
     :transformer="transformer"
+    :example-data="exampleData"
     download-file-name="output.yaml"
   />
 </template>

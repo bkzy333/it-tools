@@ -9,29 +9,33 @@ const amount = ref('1234.56');
 const currencyCode = ref('USD');
 const fullForm = ref(true);
 const hyphenated = ref(true);
-const error = ref('');
 
 const currencyOptions = computed(() =>
   CURRENCIES.map((c) => ({ label: `${c.code} - ${c.name}`, value: c.code })),
 );
 
-const output = computed(() => {
-  if (!amount.value.trim()) {
-    error.value = '';
-    return '';
+// 结果用「单一 computed 派生出 { output, error }」表达，避免在 computed 里写 ref
+const computedOutput = computed(() => {
+  const input = amount.value.trim();
+  if (!input) {
+    return { output: '', error: '' };
   }
   try {
-    error.value = '';
-    return amountToEnglish(amount.value.trim(), {
-      currencyCode: currencyCode.value,
-      fullForm: fullForm.value,
-      hyphenated: hyphenated.value,
-    });
-  } catch (e) {
-    error.value = (e as Error).message;
-    return '';
+    return {
+      output: amountToEnglish(input, {
+        currencyCode: currencyCode.value,
+        fullForm: fullForm.value,
+        hyphenated: hyphenated.value,
+      }),
+      error: '',
+    };
+  }
+  catch (e) {
+    return { output: '', error: (e as Error).message };
   }
 });
+const output = computed(() => computedOutput.value.output);
+const error = computed(() => computedOutput.value.error);
 
 const exampleData = { amount: '1234.56', currency: 'USD' };
 

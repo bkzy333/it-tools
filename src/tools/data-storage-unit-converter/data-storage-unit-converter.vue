@@ -1,16 +1,30 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import InputCopyable from '../../components/InputCopyable.vue';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { type AllSupportedUnits, convertStorageAndRateUnitsDisplay } from './data-storage-unit-converter.service';
 
 const { t } = useI18n();
 
-const input = ref<{ size: string; unit: string }>({ size: '0', unit: 'KB' });
+// 原来默认 size 是 '0'，等于打开什么也没有。给一组能立刻看出「1024 KiB ≠ 1000 KB」
+// 这种差别的示例，正好也演示了页面上那句 1 MiB = 1024 KiB / 1 MB = 1000 KB 的说明。
+const exampleData = { size: '1024', unit: 'KiB', outputUnit: 'MiB', precision: 3, appendUnit: true };
+
+const input = ref<{ size: string; unit: string }>({ size: exampleData.size, unit: exampleData.unit });
 const output = ref<{ unit: string; precision: number; appendUnit: boolean }>({
-  unit: 'MB',
-  precision: 3,
-  appendUnit: false,
+  unit: exampleData.outputUnit,
+  precision: exampleData.precision,
+  appendUnit: exampleData.appendUnit,
 });
+
+function loadExample() {
+  input.value = { size: exampleData.size, unit: exampleData.unit };
+  output.value = {
+    unit: exampleData.outputUnit,
+    precision: exampleData.precision,
+    appendUnit: exampleData.appendUnit,
+  };
+}
 
 const allUnits = [
   { value: 'B', label: t('tools.data-storage-unit-converter.texts.label-bytes-b') },
@@ -67,6 +81,10 @@ const convertedValue = computed(() => {
     </n-p>
 
     <c-card>
+      <div flex justify-end mb-2>
+        <ToolExampleButton @click="loadExample" />
+      </div>
+
       <n-form-item :label="t('tools.data-storage-unit-converter.texts.label-input-size')" label-placement="left" mb-1>
         <c-input-text
           v-model:value="input.size"

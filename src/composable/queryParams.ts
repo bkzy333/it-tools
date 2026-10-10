@@ -112,7 +112,8 @@ function getITToolsSetting<T>(key: string, defaultValue: MaybeRef<T>) {
   }
 }
 
-let itToolsSettings: Record<string, Record<string, any> | any>;
+// `Record<string, any> | any` 里的 any 会把整个联合吞掉，写成 any 更诚实
+let itToolsSettings: Record<string, any>;
 function useITToolsSettings(): Record<string, Record<string, any>> {
   if (!itToolsSettings) {
     const vm = getCurrentInstance();

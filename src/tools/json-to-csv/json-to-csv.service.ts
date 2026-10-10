@@ -19,7 +19,11 @@ function serializeValue(value: unknown): string {
     return '';
   }
 
-  const valueAsString = String(value)
+  // 数组 / 嵌套对象这类非标量不能直接 String()，否则整格变成 "[object Object]"。
+  // flatten 之后原则上只剩标量，但数组会原样保留，这里兜一层。
+  const raw = typeof value === 'object' ? (JSON.stringify(value) ?? '') : String(value);
+
+  const valueAsString = raw
     .replace(/\\/g, '\\\\')
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')

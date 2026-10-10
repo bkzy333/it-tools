@@ -12,35 +12,40 @@ const hyphenated = ref(true);
 const useComma = ref(true);
 const englishInput = ref('');
 
-const numberError = ref('');
-const numberOutput = computed(() => {
-  if (!numberInput.value.trim()) {
-    numberError.value = '';
-    return '';
+// 结果用「单一 computed 派生出 { output, error }」表达，避免在 computed 里写 ref
+// （副作用会让依赖追踪失真，并可能触发额外的渲染周期）。
+const numberResult = computed(() => {
+  const input = numberInput.value.trim();
+  if (!input) {
+    return { output: '', error: '' };
   }
   try {
-    numberError.value = '';
-    return numberToEnglish(numberInput.value.trim(), { hyphenated: hyphenated.value, useComma: useComma.value });
-  } catch (e) {
-    numberError.value = (e as Error).message;
-    return '';
+    return {
+      output: numberToEnglish(input, { hyphenated: hyphenated.value, useComma: useComma.value }),
+      error: '',
+    };
+  }
+  catch (e) {
+    return { output: '', error: (e as Error).message };
   }
 });
+const numberOutput = computed(() => numberResult.value.output);
+const numberError = computed(() => numberResult.value.error);
 
-const englishError = ref('');
-const englishOutput = computed(() => {
-  if (!englishInput.value.trim()) {
-    englishError.value = '';
-    return '';
+const englishResult = computed(() => {
+  const input = englishInput.value.trim();
+  if (!input) {
+    return { output: '', error: '' };
   }
   try {
-    englishError.value = '';
-    return englishToNumber(englishInput.value.trim());
-  } catch (e) {
-    englishError.value = (e as Error).message;
-    return '';
+    return { output: englishToNumber(input), error: '' };
+  }
+  catch (e) {
+    return { output: '', error: (e as Error).message };
   }
 });
+const englishOutput = computed(() => englishResult.value.output);
+const englishError = computed(() => englishResult.value.error);
 
 const exampleData = {
   number: '1234567.89',

@@ -6,21 +6,21 @@ import { dateStringToUppercase } from './date-uppercase.service';
 const { t } = useI18n();
 
 const input = ref('2026-10-09');
-const error = ref('');
 
-const result = computed(() => {
+// 结果用「单一 computed 派生出 { result, error }」表达，避免在 computed 里写 ref
+const computedResult = computed(() => {
   if (!input.value.trim()) {
-    error.value = '';
-    return null;
+    return { result: null, error: '' };
   }
   try {
-    error.value = '';
-    return dateStringToUppercase(input.value);
-  } catch (e) {
-    error.value = (e as Error).message;
-    return null;
+    return { result: dateStringToUppercase(input.value), error: '' };
+  }
+  catch (e) {
+    return { result: null, error: (e as Error).message };
   }
 });
+const result = computed(() => computedResult.value.result);
+const error = computed(() => computedResult.value.error);
 
 const exampleData = { date: '2026-10-09' };
 

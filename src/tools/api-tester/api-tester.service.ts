@@ -2,6 +2,9 @@
 // 解析目标：批量参数 / Header 文本、curl / PowerShell / fetch / Map 导入。
 // 生成目标：curl / Python(requests) / C#(HttpClient) / Java 11+ / Go / Node.js(fetch) / PHP(cURL)。
 
+import { parse as parseJson5 } from 'json5';
+import { jsonrepair } from 'jsonrepair';
+
 export interface KeyValue {
   key: string;
   value: string;
@@ -26,6 +29,25 @@ export interface ParsedRequest {
   bodyMode: BodyMode;
   contentType: string;
   formParams: KeyValue[];
+}
+
+/**
+ * 把任意 JSON 值转成可展示/可发送的字符串。
+ * 不能直接 String(v)：对象会变成 "[object Object]"，嵌套结构就丢了。
+ */
+function toDisplayValue(v: unknown): string {
+  if (v == null) {
+    return '';
+  }
+  if (typeof v === 'object') {
+    try {
+      return JSON.stringify(v) ?? '';
+    }
+    catch {
+      return '';
+    }
+  }
+  return String(v);
 }
 
 export function emptyRequest(): ParsedRequest {
@@ -54,7 +76,7 @@ export function parseKeyValueText(text: string): KeyValue[] {
   if (trimmed.startsWith('{')) {
     try {
       const obj = JSON.parse(trimmed);
-      for (const [k, v] of Object.entries(obj)) out.push({ key: k, value: v == null ? '' : String(v) });
+      for (const [k, v] of Object.entries(obj)) out.push({ key: k, value: toDisplayValue(v) });
       return out;
     } catch {
       // 不是 JSON，继续按其它格式解析
@@ -90,7 +112,7 @@ export function parseHeadersText(text: string): KeyValue[] {
   if (trimmed.startsWith('{')) {
     try {
       const obj = JSON.parse(trimmed);
-      for (const [k, v] of Object.entries(obj)) out.push({ key: k, value: v == null ? '' : String(v) });
+      for (const [k, v] of Object.entries(obj)) out.push({ key: k, value: toDisplayValue(v) });
       return out;
     } catch {
       // 继续
@@ -343,6 +365,42 @@ export function parsePowerShell(cmd: string): ParsedRequest {
 // fetch(JS) 解析
 // ---------------------------------------------------------------------------
 
+/**
+ * 把一段「JS 字面量」（可能是不带引号的 key、单引号、尾逗号等非法 JSON）安全地转成 JSON 字符串。
+ *
+ * 这里曾经用 `eval` 实现，会把用户粘贴的内容当脚本执行 —— 粘贴任意文本即可在同源下跑任意 JS。
+ * 改为纯解析降级链：严格 JSON → JSON5 → jsonrepair 修复后再严格解析，全程不执行任何代码。
+ * 三种策略都失败时返回 ''（与旧的 eval 抛错分支行为一致）。
+ */
+function stringifyJsLiteral(source: string): string {
+  const text = extractBalanced(source).trim();
+  if (!text) {
+    return '';
+  }
+
+  const strategies: Array<() => unknown> = [
+    () => JSON.parse(text),
+    () => parseJson5(text),
+    () => JSON.parse(jsonrepair(text)),
+  ];
+
+  for (const parse of strategies) {
+    try {
+      const value = parse();
+      if (value === undefined) {
+        continue;
+      }
+      // 与旧实现保持一致：无论解析出什么类型，最终都以 JSON 字符串形式作为请求体
+      return JSON.stringify(value) ?? '';
+    }
+    catch {
+      // 该策略解析失败，继续尝试下一种
+    }
+  }
+
+  return '';
+}
+
 function parseJsObjectOrArray(str: string): KeyValue[] {
   const out: KeyValue[] = [];
   const trimmed = str.trim();
@@ -381,11 +439,7 @@ export function parseFetch(code: string): ParsedRequest {
       if (b.startsWith('JSON.stringify')) {
         const inner = b.match(/JSON\.stringify\(\s*([\s\S]*?)\)/);
         if (inner) {
-          try {
-            b = JSON.stringify(eval(`(${extractBalanced(inner[1])})`));
-          } catch {
-            b = '';
-          }
+          b = stringifyJsLiteral(inner[1]);
         }
       } else if (b.startsWith('`') || b.startsWith("'") || b.startsWith('"')) {
         b = b.slice(1, -1);

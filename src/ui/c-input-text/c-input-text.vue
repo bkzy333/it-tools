@@ -311,11 +311,26 @@ defineExpose({
           @paste="onPasteInputHtml"
         />
 
-        <c-button v-if="clearable && value" variant="text" circle size="small" @click="value = ''">
+        <c-button
+          v-if="clearable && value"
+          variant="text"
+          circle
+          size="small"
+          :aria-label="$t('inputText.clear')"
+          @click="value = ''"
+        >
           <icon-mdi-close />
         </c-button>
 
-        <c-button v-if="type === 'password'" variant="text" circle size="small" @click="showPassword = !showPassword">
+        <c-button
+          v-if="type === 'password'"
+          variant="text"
+          circle
+          size="small"
+          :aria-label="showPassword ? $t('inputText.hide-password') : $t('inputText.show-password')"
+          :aria-pressed="showPassword"
+          @click="showPassword = !showPassword"
+        >
           <icon-mdi-eye v-if="!showPassword" />
           <icon-mdi-eye-off v-if="showPassword" />
         </c-button>

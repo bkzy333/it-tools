@@ -6,6 +6,7 @@ import markdownitSub from 'markdown-it-sub';
 import markdownitMark from 'markdown-it-mark';
 import { align } from '@mdit/plugin-align';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 
 const handleHtml = ref(true);
 const sanitize = ref(true);
@@ -13,7 +14,34 @@ const handleAlign = ref(false);
 const handleSubSup = ref(false);
 const handleMark = ref(false);
 
-const inputMarkdown = ref('');
+// 打开即有值：空文本域最容易让人秒退。示例刻意覆盖标题、列表、表格、引用、
+// 行内代码，用户一眼看出这个工具支持哪些语法，不用先去翻文档。
+const exampleData = [
+  '# 在线工具箱',
+  '',
+  '一个**免费**的开发者工具集合，打开即用。',
+  '',
+  '## 特性',
+  '',
+  '- 无需注册，数据不出浏览器',
+  '- 支持一次处理多行内容',
+  '- 结果可一键复制或导出',
+  '',
+  '## 示例表格',
+  '',
+  '| 工具 | 说明 |',
+  '| --- | --- |',
+  '| JSON 格式化 | 美化压缩后的 JSON |',
+  '| 人民币大写 | 金额转中文大写 |',
+  '',
+  '> 提示：把上面的内容换成你自己的再导出。',
+].join('\n');
+
+const inputMarkdown = ref(exampleData);
+
+function loadExample() {
+  inputMarkdown.value = exampleData;
+}
 const outputHtml = computed(() => {
   let md = markdownit({ html: handleHtml.value });
   if (handleHtml.value && sanitize.value) {
@@ -44,6 +72,10 @@ function printHtml() {
 
 <template>
   <div>
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadExample" />
+    </div>
+
     <c-input-text
       v-model:value="inputMarkdown"
       multiline

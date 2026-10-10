@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import { css as cssBeautify, js as jsBeautify } from 'js-beautify';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { useStyleStore } from '@/stores/style.store';
 import { withDefaultOnError } from '@/utils/defaults';
 
@@ -16,8 +17,35 @@ const languages = [
 const selectedLanguage = ref('javascript');
 const indentSize = ref('2');
 
-const prettifyInput = ref('');
-const minifyInput = ref('');
+// 打开即有值。两块输入场景相反：上面是「压缩过的代码 → 理顺」，
+// 下面是「写好的代码 → 压成一行」，所以各给一份对口的示例。
+const exampleData = {
+  prettify: `function calc(a,b){if(a>b){return a-b;}else{return b-a;}}const list=[1,2,3].map(function(n){return n*2;});`,
+  minify: [
+    'function calc(a, b) {',
+    '  if (a > b) {',
+    '    return a - b;',
+    '  } else {',
+    '    return b - a;',
+    '  }',
+    '}',
+    '',
+    'const list = [1, 2, 3].map(function (n) {',
+    '  return n * 2;',
+    '});',
+  ].join('\n'),
+};
+
+const prettifyInput = ref(exampleData.prettify);
+const minifyInput = ref(exampleData.minify);
+
+function loadPrettifyExample() {
+  prettifyInput.value = exampleData.prettify;
+}
+
+function loadMinifyExample() {
+  minifyInput.value = exampleData.minify;
+}
 
 const prettifyOutput = computed(() =>
   withDefaultOnError(() => {
@@ -78,6 +106,10 @@ const minifyOutput = computed(() =>
   </div>
 
   <c-card :title="t('tools.css-js-prettify-minify.texts.title-prettify')">
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadPrettifyExample" />
+    </div>
+
     <n-form-item :label="t('tools.css-js-prettify-minify.texts.label-your-code')">
       <c-input-text
         v-model:value="prettifyInput"
@@ -94,6 +126,10 @@ const minifyOutput = computed(() =>
   </c-card>
 
   <c-card :title="t('tools.css-js-prettify-minify.texts.title-minify')" mt-5>
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadMinifyExample" />
+    </div>
+
     <n-form-item :label="t('tools.css-js-prettify-minify.texts.label-your-code')">
       <c-input-text
         v-model:value="minifyInput"

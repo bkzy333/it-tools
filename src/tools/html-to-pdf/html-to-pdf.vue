@@ -1,15 +1,40 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import { useITStorage } from '@/composable/queryParams';
 import { Base64 } from 'js-base64';
 import { useNetworkUtilsConfig } from '../network-utils/network-utils-config';
 
 const { t } = useI18n();
 
-const url = ref('');
-const html = ref('');
+// 三个页签的输入原本全空，而「URL / HTML / 批量 URL」到底该填什么差别很大，
+// 各给一份对口的示例，省得用户先去猜格式。
+const exampleData = {
+  url: 'https://example.com',
+  html: [
+    '<h1>月度报表</h1>',
+    '<p>生成时间：2026-10-11</p>',
+    '<table border="1" cellpadding="6">',
+    '  <tr><th>项目</th><th>金额</th></tr>',
+    '  <tr><td>机械键盘</td><td>¥499.00</td></tr>',
+    '  <tr><td>显示器</td><td>¥1299.00</td></tr>',
+    '</table>',
+  ].join('\n'),
+  batchUrls: ['https://example.com', 'https://gjxtools.com'].join('\n'),
+};
+
+const url = ref(exampleData.url);
+const html = ref(exampleData.html);
 const error = ref('');
 const isRunning = ref(false);
+
+function loadUrlExample() {
+  url.value = exampleData.url;
+}
+
+function loadHtmlExample() {
+  html.value = exampleData.html;
+}
 
 const { serverHost, serverAuth, hasFixedConfig } = useNetworkUtilsConfig({
   urlStorageKey: 'html-to-pdf:url',
@@ -132,7 +157,12 @@ async function generateFromHtml() {
   isRunning.value = false;
 }
 
-const batchUrls = ref('');
+const batchUrls = ref(exampleData.batchUrls);
+
+// 放在 batchUrls 声明之后：否则函数引用了尚未初始化的变量，oxlint 会报 use-before-define
+function loadBatchExample() {
+  batchUrls.value = exampleData.batchUrls;
+}
 
 const batchResults = ref<{ url: string; status: 'success' | 'error'; pdfBlob?: Blob; error?: string }[]>([]);
 const batchProgress = ref(0);
@@ -222,6 +252,10 @@ async function generateBatch() {
     <NTabs type="line">
       <NTabPane name="url" :tab="t('tools.html-to-pdf.texts.tab-url-pdf')">
         <NForm label-placement="left">
+          <div flex justify-end mb-2>
+            <ToolExampleButton @click="loadUrlExample" />
+          </div>
+
           <NFormItem :label="t('tools.html-to-pdf.texts.label-url')">
             <NInput v-model:value="url" :placeholder="t('tools.html-to-pdf.texts.placeholder-https-example-com')" />
           </NFormItem>
@@ -240,6 +274,10 @@ async function generateBatch() {
 
       <NTabPane name="html" :tab="t('tools.html-to-pdf.texts.tab-html-pdf')">
         <NForm label-placement="top">
+          <div flex justify-end mb-2>
+            <ToolExampleButton @click="loadHtmlExample" />
+          </div>
+
           <NFormItem :label="t('tools.html-to-pdf.texts.label-html-content')">
             <NInput v-model:value="html" type="textarea" :autosize="{ minRows: 10 }" />
           </NFormItem>
@@ -258,6 +296,10 @@ async function generateBatch() {
 
       <NTabPane name="batch" :tab="t('tools.html-to-pdf.texts.tab-batch-url-pdf')">
         <NForm label-placement="top">
+          <div flex justify-end mb-2>
+            <ToolExampleButton @click="loadBatchExample" />
+          </div>
+
           <NFormItem :label="t('tools.html-to-pdf.texts.label-urls-one-per-line')">
             <NInput v-model:value="batchUrls" type="textarea" :autosize="{ minRows: 8 }" />
           </NFormItem>

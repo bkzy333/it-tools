@@ -125,7 +125,8 @@ function applyOp(input: string, op: WorkflowOp): string {
     }
     case 'sort': {
       const mode = op.params.mode ?? 'asc';
-      const lines = [...input.split('\n')];
+      // split 已经返回新数组，再展开一次只是多分配一个数组
+      const lines = input.split('\n');
       lines.sort((a, b) => (mode === 'desc' ? b.localeCompare(a) : a.localeCompare(b)));
       return lines.join('\n');
     }

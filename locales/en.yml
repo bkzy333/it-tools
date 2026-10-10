@@ -82,6 +82,10 @@ textareaCopyable:
   copy: Copy to clipboard
   copied: Copied!
   download: Download
+inputText:
+  clear: Clear
+  show-password: Show password
+  hide-password: Hide password
 locale-selector:
   select-a-language: Select a language
 home:
@@ -92,6 +96,8 @@ home:
     popularTools: Popular tools
     mostUsedTools: Your most used tools
     favoritesDndToolTip: Drag and drop to reorder favorites
+    browseByCategory: Browse by category
+    guides: Guides
   subtitle: Handy tools for developers
   toggleMenu: Toggle menu
   home: Home
@@ -674,7 +680,7 @@ tools:
       tag-download-compressed: "Download compressed image"
   api-tester:
     title: API Tester
-    description: HTTP API Tester
+    description: "Online HTTP API tester: send GET/POST/PUT/DELETE requests with custom headers, query params and body, then generate curl, Python, Go or Java client code."
     texts:
       title-api-calling: API Calling
       label-base-api-url: Base API Url
@@ -2530,6 +2536,233 @@ tools:
       tag-import-table-data: Import Table Data
       tag-add-row: Add row
       tag-add-column: Add column
+      action-remove-row: Remove this row
+      action-remove-column: Remove this column
+  chinese-pinyin-converter:
+    title: Chinese to Pinyin
+    description: Convert Chinese characters to pinyin with tone marks, tone numbers, no tone or initials, with per-character breakdown and polyphone hints — all done locally in your browser.
+    texts:
+      title-input: Input Chinese text
+      placeholder-input: Paste or type Chinese here
+      label-style: Pinyin format
+      label-separator: Separator
+      style-tone: Tone marks (zhōng)
+      style-number: Tone numbers (zhong1)
+      style-plain: No tone (zhong)
+      style-initial: Initials (Z)
+      sep-space: Space
+      sep-none: None
+      sep-dash: Hyphen
+      btn-convert: Convert
+      title-output: Result
+      title-detail: Character breakdown
+      hint-polyphone: Characters marked with * are polyphonic; the most common reading is used here. Word-level disambiguation needs a dictionary.
+      hint-error: Failed to load the pinyin dictionary. Check your network and try again.
+  fullwidth-halfwidth-converter:
+    title: Fullwidth / Halfwidth Converter
+    description: Convert fullwidth characters to halfwidth or vice versa, with live conversion and fullwidth ratio stats; Chinese punctuation is preserved.
+    texts:
+      title-input: Input text
+      placeholder-input: Paste the text to convert here
+      label-mode: Direction
+      mode-to-half: Fullwidth → Halfwidth
+      mode-to-full: Halfwidth → Fullwidth
+      title-output: Result
+      btn-copy: Copy result
+      state-copied: Copied
+      state-failed: Copy failed. Select and copy manually.
+      hint-stats: Character stats
+      unit-char: characters
+      label-full: Fullwidth
+      label-half: Halfwidth
+      label-neutral: Chinese & others
+      label-keep-punct: Keep punctuation as-is
+      hint-keep-punct: When enabled, punctuation like ，；：？！（） won't be converted, so Chinese sentences keep their punctuation.
+      hint-note: 。and 、are outside the fullwidth range and are never converted; ，；：？！（）are controlled by the toggle above.
+  id-card-parser:
+    title: Chinese ID Card Validator & Parser
+    description: Validate the check digit of an 18-digit Chinese ID number and parse the issuing region, birth date, gender and zodiac sign — all done locally in your browser.
+    texts:
+      title-input: Input ID number
+      placeholder-id: Enter an 18-digit ID number (15-digit legacy numbers are upgraded automatically)
+      hint-privacy: The number is only processed in your browser and never uploaded.
+      title-result: Result
+      verdict-valid: Check digit is correct; the number format is valid (does not mean it really exists)
+      hint-upgraded: Upgraded to 18 digits per the rules
+      label-region: Issuing region
+      label-birthday: Birth date
+      label-gender: Gender
+      label-age: Age
+      label-zodiac: Zodiac
+      label-constellation: Constellation
+      title-about: About this tool
+      hint-disclaimer: A valid check digit only means the number passes the checksum, not that it exists or was issued. Region info is based on GB/T 2260 codes and may have minor discrepancies.
+  income-tax-calculator:
+    title: Personal Income Tax Calculator
+    description: Calculate annual comprehensive income tax on salary per current rules, including social insurance, housing fund and six special additional deductions, and compare two bonus tax treatments.
+    texts:
+      title-income: Income & annual bonus
+      title-social: Social insurance & housing fund
+      title-additional: Special additional deductions
+      title-result: Result
+      title-bonus-compare: Annual bonus tax comparison
+      label-monthly-salary: Monthly pre-tax salary (CNY)
+      label-annual-bonus: Annual bonus (CNY)
+      label-social-base: Social insurance base (CNY/month)
+      label-housing-fund-rate: Housing fund personal rate (%)
+      label-infants: Infants under 3 (count)
+      label-children: Children's education (count)
+      label-education: Continuing education
+      label-medical: Serious illness medical (CNY/year)
+      label-housing: Housing deduction
+      label-elderly: Supporting the elderly
+      option-housing-none: None
+      option-housing-loan: Mortgage interest 1000 CNY/month
+      option-housing-rent-high: Rent 1500 CNY/month (municipalities, provincial capitals, etc.)
+      option-housing-rent-mid: Rent 1100 CNY/month (districts with over 1M registered population)
+      option-housing-rent-low: Rent 800 CNY/month (districts with up to 1M registered population)
+      option-elderly-none: None
+      option-elderly-only: Only child 3000 CNY/month
+      option-elderly-shared: Shared among siblings 1500 CNY/month
+      hint-social-formula: Personal social insurance & housing fund (pension 8% + medical 2% + unemployment 0.5% + housing fund)
+      hint-additional-total: Total special additional deductions
+      unit-per-month: CNY/month
+      label-taxable-income: Taxable income
+      label-tax-rate: Applicable tax rate
+      label-quick-deduction: Quick deduction
+      label-salary-tax: Salary tax payable
+      label-bonus-separate: Bonus taxed separately
+      label-bonus-combined: Bonus merged into comprehensive income
+      hint-better-separate: Separate taxation is better — saves {0} CNY
+      hint-better-combined: Merged taxation is better — saves {0} CNY
+      label-total-tax: Total annual tax
+      label-net-annual: After-tax annual income (take-home)
+      label-monthly-net: Average monthly take-home
+      disclaimer: This result is estimated per current national rules and does not account for regional social insurance rate differences, local subsidies or special tax incentives. The final amount is subject to the tax authority's annual reconciliation.
+  loan-calculator:
+    title: Loan Calculator
+    description: Calculate the monthly payment and total interest for equal installment, equal principal, interest-first and bullet repayment loans, and output a full amortization schedule.
+    texts:
+      title-input: Loan parameters
+      label-principal: Loan amount (CNY)
+      label-rate: Annual interest rate (%)
+      label-months: Term (months)
+      label-method: Repayment method
+      method-equal-installment: Equal installment (annuity)
+      method-equal-principal: Equal principal
+      method-interest-first: Interest first
+      method-bullet: Bullet (principal at maturity)
+      title-result: Result
+      label-monthly-payment: Monthly payment
+      label-first-payment: First payment
+      label-last-payment: Last payment
+      label-total-interest: Total interest
+      label-total-payment: Total repayment
+      title-schedule: Amortization schedule
+      col-period: Period
+      col-payment: Payment
+      col-principal: Principal
+      col-interest: Interest
+      col-balance: Remaining principal
+      btn-expand: Expand all
+      btn-collapse: Collapse
+  markdown-to-wechat:
+    title: Markdown to WeChat Editor
+    description: Paste Markdown and auto-apply WeChat-friendly styles, converting it into rich text you can paste directly into the WeChat editor, with syntax highlighting and multiple themes.
+    texts:
+      title-input: Markdown source
+      placeholder-markdown: Paste Markdown content here
+      label-theme: Theme
+      btn-copy-rich: Copy rich text
+      btn-copy-html: Copy HTML source
+      state-copied: Copied
+      state-failed: Copy failed. Select and copy from the preview manually.
+      hint-copy: 'Click "Copy rich text" then paste directly into the WeChat editor.'
+      title-preview: Preview
+      hint-image: WeChat doesn't allow pasting external images directly; upload images in the WeChat backend first.
+  mortgage-calculator:
+    title: Mortgage Calculator
+    description: Calculate the monthly payment, total interest and annual repayment schedule for equal installment and equal principal mortgages, and estimate how much interest prepayment saves.
+    texts:
+      title-loan: Loan details
+      title-result: Repayment overview
+      title-prepay: Prepayment estimate
+      title-schedule: Annual schedule
+      label-amount: Loan amount (CNY)
+      label-rate: Annual interest rate (%)
+      label-years: Term (years)
+      label-method: Repayment method
+      option-equal-installment: Equal installment (fixed payment)
+      option-equal-principal: Equal principal (decreasing payment)
+      label-monthly-payment: First monthly payment
+      label-total-interest: Total interest paid
+      label-total-payment: Principal + interest
+      hint-equal-principal: Equal principal repays the same principal each month; interest decreases monthly, so the payment declines from the first month. Higher upfront pressure but less total interest.
+      hint-equal-installment: Equal installment keeps a fixed monthly payment; interest is a larger share early on and principal pays down slower, so total interest is higher than equal principal.
+      label-prepay-enabled: Estimate prepayment
+      label-prepay-month: Prepay at which period
+      label-prepay-amount: Prepayment amount (CNY)
+      label-prepay-mode: After prepayment
+      option-reduce-payment: Reduce payment (keep term)
+      option-shorten-term: Shorten term (keep payment)
+      label-remaining-before: Remaining principal at prepayment
+      label-new-payment: New payment after prepayment
+      label-months-saved: Months saved
+      label-saved-interest: Interest saved
+      hint-shorten-term: Shortening the term saves more interest and suits those who want to pay off quickly and can afford the current payment.
+      hint-reduce-payment: Reducing the payment immediately eases monthly pressure but saves less interest, suiting tight cash flow.
+      th-year: Year
+      th-payment: Payment (10k CNY)
+      th-principal: Principal (10k CNY)
+      th-interest: Interest (10k CNY)
+      th-remaining: Remaining principal at year end (10k CNY)
+      unit-wan: Table in units of 10k CNY
+      unit-month: period
+      disclaimer: Estimated with an idealized model (whole months, principal repaid at the payment month) and does not account for bank debit-day differences, prepayment penalties or rate repricing; the loan contract prevails.
+  salary-calculator:
+    title: Salary Calculator
+    description: Enter your pre-tax monthly salary and social insurance rates to see 12 months of take-home pay, individual and employer social insurance breakdowns and income tax, with reverse calculation of pre-tax salary.
+    texts:
+      title-income: Income
+      label-monthly-salary: Monthly pre-tax salary (CNY)
+      label-annual-bonus: Annual bonus (CNY)
+      label-bonus-month: Bonus month
+      label-bonus-mode: Bonus tax treatment
+      option-bonus-separate: Taxed separately
+      option-bonus-combined: Merged into comprehensive income
+      title-insurance: Social insurance & deductions
+      label-auto-base: Social base equals monthly salary
+      label-social-base: Social insurance base (CNY)
+      label-housing-fund-rate: Housing fund rate (%)
+      label-additional: Special additional deduction (CNY/month)
+      hint-insurance-rate: The individual portion is pension 8% + medical 2% + unemployment 0.5%; work-injury and maternity are employer-paid only. Rates vary by region — this is an estimate.
+      title-result: Annual summary
+      label-total-net: Annual take-home
+      label-monthly-average: Monthly average take-home
+      label-first-month: January take-home
+      label-last-month: December take-home
+      label-total-tax: Annual income tax
+      label-bonus-tax: of which bonus tax
+      label-total-insurance: Annual social insurance & housing fund (individual)
+      label-effective-rate: Effective tax rate
+      label-employer-cost: Employer labor cost
+      title-detail: 12-month breakdown
+      col-month: Month
+      col-gross: Gross
+      col-insurance: Social insurance & fund
+      col-tax: Tax
+      col-net: Take-home
+      title-reverse: Reverse pre-tax salary
+      label-target-net: Desired annual take-home (CNY)
+      btn-reverse: Reverse
+      reverse-prefix: To reach this take-home level, the pre-tax monthly salary is about
+      reverse-suffix: CNY (under the current social insurance and deduction settings)
+      title-employer: Employer contribution rates
+      label-employer-pension: Pension (%)
+      label-employer-medical: Medical (%)
+      label-employer-fund: Housing fund (%)
+      label-employer-other: Other (%)
+      hint-employer: Employer contribution rates vary by city; defaults are common values. Adjust them to better match your location.
   ping:
     title: Ping
     description: Ping a set of hostname, IPs, CIDR or IP range

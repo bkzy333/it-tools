@@ -3,13 +3,43 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import { useStorage } from '@vueuse/core';
 import { renderMarkdown } from './markdown-preview.service';
+import ToolExampleButton from '@/components/ToolExampleButton.vue';
 
-const inputMarkdown = useStorage('markdown-preview:input', '');
+// 打开即有值：内容是持久化的，所以只有首次访问（本地没存过）才落示例，
+// 用户改过之后不会被示例覆盖回去。
+const exampleData = [
+  '# 使用说明',
+  '',
+  '左边写 Markdown，右边实时预览。',
+  '',
+  '## 支持的语法',
+  '',
+  '- **粗体** 与 *斜体*',
+  '- 有序 / 无序列表',
+  '- [链接](https://gjxtools.com)',
+  '- 代码块与表格',
+  '',
+  '```js',
+  'const hello = "世界";',
+  '```',
+  '',
+  '> 直接改上面的内容，改动会自动保存在本机。',
+].join('\n');
+
+const inputMarkdown = useStorage('markdown-preview:input', exampleData);
 const previewHtml = computed(() => renderMarkdown(inputMarkdown.value));
+
+function loadExample() {
+  inputMarkdown.value = exampleData;
+}
 </script>
 
 <template>
   <div class="markdown-preview-tool">
+    <div flex justify-end mb-2>
+      <ToolExampleButton @click="loadExample" />
+    </div>
+
     <c-input-text
       v-model:value="inputMarkdown"
       :placeholder="t('tools.markdown-preview.texts.placeholder-your-markdown-content')"

@@ -42,7 +42,11 @@ export interface LookupResult {
 
 /** 单元格比较：先 trim，忽略首尾空白 */
 export function normalizeCell(v: unknown): string {
-  return v == null ? '' : String(v).trim();
+  if (v == null) {
+    return '';
+  }
+  // 对象 / 数组不能直接 String()，否则整格变成 "[object Object]" 后再也匹配不上
+  return (typeof v === 'object' ? (JSON.stringify(v) ?? '') : String(v)).trim();
 }
 
 /** 匹配判定。cond 是查询条件值，cell 是数据表现有内容 */

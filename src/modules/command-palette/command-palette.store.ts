@@ -36,7 +36,8 @@ export const useCommandPaletteStore = (locale: string) =>
         description: t('tools.command-palette.store.texts.get-a-random-tool-from-the-list'),
         action: () => {
           const { path } = _.sample(toolStore.tools)!;
-          router.push(path);
+          // router.push 返回 Promise，跳转失败（重复路由等）时若不处理会产生未处理 rejection
+          void router.push(path);
         },
         icon: DiceIcon,
         category: t('tools.command-palette.store.texts.tools-0'),

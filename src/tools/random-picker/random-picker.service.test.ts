@@ -23,7 +23,8 @@ describe('shuffle', () => {
     const out = shuffle(src, lcg(7));
     expect(src).toEqual(copy);
     expect(out).toHaveLength(5);
-    expect([...out].sort()).toEqual([1, 2, 3, 4, 5]);
+    // 必须给比较器：默认 sort 是字典序，元素一旦超过个位数（10+）就会排错
+    expect([...out].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5]);
   });
 
   it('空数组与单元素不炸', () => {

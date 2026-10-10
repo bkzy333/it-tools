@@ -42,6 +42,8 @@ export interface PivotResult {
 /** 千分位与空白容错后转数字；非数字返回 null */
 export function toNumber(v: unknown): number | null {
   if (v == null) return null;
+  // 对象不是数字语义，直接判空返回 null（避免 "[object Object]" 参与 Number() 变成 NaN 后再判断）
+  if (typeof v === 'object') return null;
   const t = String(v).trim().replace(/,/g, '').replace(/[¥￥$]/g, '');
   if (t === '') return null;
   const n = Number(t);

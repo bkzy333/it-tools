@@ -60,10 +60,21 @@ export interface GuideFrontmatter {
 
 export function toGuideFrontmatter(data: Record<string, unknown>, fallbackSlug: string): GuideFrontmatter {
   const asArray = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]).filter(Boolean) : []);
+  // frontmatter 是 YAML 解析出来的 unknown，直接 String() 遇到对象/数组会变成 "[object Object]"，
+  // 那样 slug / title / description 会静默变成一串垃圾文案，还进 SEO 元数据。
+  const asText = (v: unknown, fallback: string): string => {
+    if (typeof v === 'string') {
+      return v;
+    }
+    if (typeof v === 'number' || typeof v === 'boolean') {
+      return String(v);
+    }
+    return fallback;
+  };
   return {
-    slug: String(data.slug ?? fallbackSlug),
-    title: String(data.title ?? fallbackSlug),
-    description: String(data.description ?? ''),
+    slug: asText(data.slug, fallbackSlug),
+    title: asText(data.title, fallbackSlug),
+    description: asText(data.description, ''),
     keywords: asArray(data.keywords),
     relatedTools: asArray(data.relatedTools),
   };
