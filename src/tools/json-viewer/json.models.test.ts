@@ -48,6 +48,13 @@ describe('json models', () => {
       expect(result).toBe(expected);
     });
 
+    it('「一键示例」数据在默认设置下的输出（锁住 SEO 静态示例口径）', () => {
+      // 与 json-viewer.vue 的 exampleData、src/seo/content/text-json.ts 的 example 保持一致
+      const rawJson = '{"name":"张三","age":28,"skills":["Vue","TS"]}';
+      const expected = '{\n   "age": 28,\n   "name": "张三",\n   "skills": [\n      "Vue",\n      "TS"\n   ]\n}';
+      expect(formatJson({ rawJson })).toBe(expected);
+    });
+
     it('works with reactive refs', () => {
       const rawJsonRef = ref(testJson);
       const sortKeysRef = ref(true);

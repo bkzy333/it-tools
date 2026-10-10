@@ -2017,11 +2017,11 @@ tools:
       label-your-raw-yaml: 原始YAML：
       title-the-following-errors-occured: 发生以下错误
       label-prettified-version-of-your-yaml: YAML美化版本
-      label-no-validation: 无需验证
+      label-no-validation: 不校验
       label-custom: 自定义
-      label-json-schema: JSON 模式：
-      placeholder-paste-your-json-schema-here: 将您的 JSON 模式粘贴到这里...
-      title-schema-validation-errors: 架构验证错误
+      label-json-schema: JSON Schema 校验：
+      placeholder-paste-your-json-schema-here: 在此粘贴 JSON Schema...
+      title-schema-validation-errors: Schema 校验错误
     text:
       see-error-messages: "#查看错误消息"
   business-time-calculator:
@@ -2031,18 +2031,18 @@ tools:
   json-viewer:
     texts:
       label-sort-keys: 排序键：
-      label-unescape-unicode: 转义Unicode：
+      label-unescape-unicode: Unicode 反转义：
       label-indent-size: 缩进大小：
       label-your-raw-json: 原始JSON
       placeholder-paste-your-raw-json-here: 在此粘贴原始JSON...
       label-prettified-version-of-your-json: JSON美化版本
-      label-no-validation: 无需验证
-      label-custom: 风俗
-      label-json-schema: JSON 模式：
-      placeholder-paste-your-json-schema-here: 将您的 JSON 模式粘贴到这里...
-      title-schema-validation-errors: 架构验证错误
-      label-unescape-json-string: 转义 JSON 字符串：
-      label-viewer: 预览
+      label-no-validation: 不校验
+      label-custom: 自定义
+      label-json-schema: JSON Schema 校验：
+      placeholder-paste-your-json-schema-here: 在此粘贴 JSON Schema...
+      title-schema-validation-errors: Schema 校验错误
+      label-unescape-json-string: JSON 字符串反转义：
+      label-viewer: 查看器
       label-tree-view: 树形视图
       button-unicode-to-chinese: Unicode 转中文
       button-chinese-to-unicode: 中文转 Unicode

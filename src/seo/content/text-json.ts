@@ -169,11 +169,11 @@ const content: Record<string, ToolContent> = {
     intro:
       '把压成一行的 JSON 重新排版成带缩进的可读格式，同时校验语法、支持自动修复。接口返回、日志里的 JSON 通常没有换行，展开后能快速定位字段；还能按 JSON Schema 校验结构是否合规。',
     steps: [
-      '在下方大文本框里粘贴 JSON，默认示例是 {"hello": "world", "foo": "bar"}',
+      '打开是空白输入框，点右上角「一键示例」填入示例数据，或直接粘贴你自己的 JSON',
       '用顶部开关设置：键名排序、Unicode 反转义、JSON 字符串反转义、自动修复',
       '用 Indent size 设置缩进空格数，默认 3，范围 0～10',
-      '需要时在 JSON Schema 下拉框选内置 schema，或选 custom 粘贴自定义 schema',
-      '在下方两个标签页查看结果：Prettified 是纯文本，Viewer 是可折叠的查看器',
+      '需要时在 JSON Schema 下拉框选内置 schema，或选「自定义」粘贴自定义 schema',
+      '在下方标签页查看结果：美化版本是纯文本、查看器是可折叠视图、树形视图可逐层展开',
     ],
     tips: [
       '默认缩进是 3 个空格，不是常见的 2 或 4，第一次用记得先改',
@@ -200,8 +200,8 @@ const content: Record<string, ToolContent> = {
     ],
     example: {
       input: '{"name":"张三","age":28,"skills":["Vue","TS"]}',
-      output: '{\n  "name": "张三",\n  "age": 28,\n  "skills": [\n    "Vue",\n    "TS"\n  ]\n}',
-      note: '缩进 2 空格的效果',
+      output: '{\n   "age": 28,\n   "name": "张三",\n   "skills": [\n      "Vue",\n      "TS"\n   ]\n}',
+      note: '默认设置下的效果（缩进 3 空格 + 键名排序）',
     },
   },
   '/json-string-converter': {

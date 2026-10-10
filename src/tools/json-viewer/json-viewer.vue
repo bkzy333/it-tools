@@ -14,7 +14,11 @@ const inputElement = ref<HTMLElement>();
 const jsonSchemaInputElement = ref<HTMLElement>();
 const repairJsonLabel = t('tools.json-viewer.text.repair-json');
 
-const rawJson = useITStorage('json-prettify:raw-json', '{"hello": "world", "foo": "bar"}');
+// 初始内容为空：打开页面不预填任何数据，用户点右上角「一键示例」或自己粘贴。
+// storage key 带 v2：旧版本（以及某些浏览器里残留的、从别的工具站抄来的示例数据）
+// 会以同一个 key 存在 localStorage 里，换 key 等于一次性作废这些历史值，保证所有人
+// 打开都是干净的空白框。
+const rawJson = useITStorage('json-prettify:raw-json-v2', '');
 const schemaData = useITStorage('json-prettify:schema-data', '');
 const indentSize = useITStorage('json-prettify:indent-size', 3);
 const sortKeys = useITStorage('json-prettify:sort-keys', true);
@@ -45,6 +49,20 @@ const parsedJsonTree = computed<JsonValue | undefined>(() => {
     return undefined;
   }
 });
+
+/**
+ * 「一键示例」的数据。
+ *
+ * 和 /api 无关的静态示例（src/seo/content/text-json.ts 里那份）保持同一段 JSON：
+ * 静态 HTML 上展示的示例输入，就是点这个按钮填进去的内容，避免两边口径打架。
+ * 选它是因为一节就能看出这个工具的四个卖点：键名排序（原顺序 name/age/skills →
+ * 结果按字母重排）、中文字符串、数组缩进、以及 0 缩进之外的可读排版。
+ */
+const exampleData = '{"name":"张三","age":28,"skills":["Vue","TS"]}';
+
+function loadExample() {
+  rawJson.value = exampleData;
+}
 
 // Unicode 转中文：把输入框里的 \uXXXX 直接还原成中文字符（就地替换输入）
 function applyUnicodeToChinese() {
@@ -83,6 +101,11 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
 </script>
 
 <template>
+  <!-- 点一下先填一组示例：初始是空白框，新手进来看不出这工具长什么样 -->
+  <div flex justify-end mb-3>
+    <ToolExampleButton @click="loadExample" />
+  </div>
+
   <n-space justify="center">
     <n-form-item :label="t('tools.json-viewer.texts.label-sort-keys')" label-placement="left" label-width="100">
       <n-switch v-model:value="sortKeys" />
@@ -132,7 +155,7 @@ const { schemas, errors: validationErrors } = useJsonSchemaValidation({ json: ra
     ref="jsonSchemaInputElement"
     v-model:value="schemaData"
     :placeholder="t('tools.json-viewer.texts.placeholder-paste-your-json-schema-here')"
-    rows="20"
+    rows="8"
     multiline
     autocomplete="off"
     autocorrect="off"
