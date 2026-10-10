@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
@@ -22,6 +22,7 @@ const target = ref<string>(exampleData.target);
 const loading = ref(false);
 const errorMsg = ref('');
 const result = ref('');
+const hitCache = ref(false);
 
 // 目标语言下拉随源语言变化：腾讯云并非任意语种可互通，选了不支持的配对会被接口拒绝。
 const sourceOptions = computed(() => Object.entries(LANG_LABELS).map(([value, label]) => ({ value, label })));
@@ -37,22 +38,34 @@ function onSourceChange() {
 }
 
 async function doTranslate() {
+  // 防抖 / 重叠保护：正在翻译时忽略新触发，避免无意识的重复点击刷额度。
+  if (loading.value) {
+    return;
+  }
   const input = text.value.trim();
   if (!input) {
     errorMsg.value = t('tools.text-translate.texts.error-empty');
     result.value = '';
+    hitCache.value = false;
     return;
   }
   loading.value = true;
   errorMsg.value = '';
+  hitCache.value = false;
   try {
     const data = await translateText(input, source.value, target.value);
+    if (data.err) {
+      errorMsg.value = data.err;
+      result.value = '';
+      return;
+    }
     const resp = data.Response ?? {};
     if (resp.Error) {
       errorMsg.value = `${resp.Error.Code}：${resp.Error.Message}`;
       result.value = '';
     } else {
       result.value = resp.TargetText ?? '';
+      hitCache.value = Boolean(data.hitCache);
     }
   } catch {
     errorMsg.value = t('tools.text-translate.texts.error-network');
@@ -60,6 +73,28 @@ async function doTranslate() {
     loading.value = false;
   }
 }
+
+// 500ms 防抖自动翻译：粘贴 / 输入停顿即触发，但绝不即时；配合缓存把重复请求压到最低。
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleTranslate() {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    if (text.value.trim() && !loading.value) {
+      void doTranslate();
+    }
+  }, 500);
+}
+watch([text, source, target], () => {
+  if (text.value.trim()) {
+    scheduleTranslate();
+  } else {
+    result.value = '';
+    errorMsg.value = '';
+    hitCache.value = false;
+  }
+});
 
 function loadExample() {
   text.value = exampleData.text;
@@ -113,13 +148,17 @@ function swap() {
       </div>
 
       <div flex flex-wrap gap-2>
-        <n-button type="primary" :loading="loading" @click="doTranslate">
+        <n-button type="primary" :loading="loading" :disabled="loading" @click="doTranslate">
           {{ t('tools.text-translate.texts.button-translate') }}
         </n-button>
         <ToolExampleButton @click="loadExample" />
+        <span v-if="loading" text-sm text-muted>{{ t('tools.text-translate.texts.status-translating') }}</span>
       </div>
 
       <n-alert v-if="errorMsg" type="error" :show-icon="true">{{ errorMsg }}</n-alert>
+      <n-alert v-if="hitCache && result" type="success" :show-icon="true">
+        {{ t('tools.text-translate.texts.cached-hint') }}
+      </n-alert>
 
       <n-form-item v-if="result" :label="t('tools.text-translate.texts.label-output')" label-placement="top" mb-0>
         <TextareaCopyable :value="result" word-wrap />

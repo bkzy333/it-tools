@@ -3280,22 +3280,25 @@ tools:
       label-output: Translation
       error-empty: Please enter some text to translate
       error-network: Translation service is temporarily unavailable, please try again later
+      status-translating: Translating……
+      cached-hint: This result came from cache, no quota was consumed
   image-translate:
     title: Image Translate
     description: Upload an image, recognize the text and translate it; the translated text is drawn back onto the image and can be downloaded. Chinese to English and vice versa only.
     externalAccess: The uploaded image is sent to Tencent Cloud Machine Translation (Image Translate) for recognition and translation, forwarded by a server-side proxy so the secret key is never exposed to the browser.
     texts:
       title-image-translate: Image Translate
-      tip-only-zh-en: Image translation supports Chinese to English only. Use a white-background document image, up to 4MB per file.
+      tip-only-zh-en: Image translation supports Chinese to English only. Use a white-background document image; the image is auto-compressed to 3MB / 1920px before upload.
       label-from: From
       label-to: To
       swap: Swap languages
       button-translate: Translate Image
       button-download: Download translated image
       status-translating: Translating……
+      status-compressing: Compressing image……
       status-done: Translated {n} lines ({from} → {to})
-      example-hint: Choose an image with text (PNG/JPG, up to 4MB) and click Translate Image.
-      error-too-large: Image exceeds 4MB, please compress it first.
+      example-hint: Choose an image with text (PNG/JPG) and click Translate Image; it is auto-compressed to 3MB / 1920px.
+      error-too-large: Image exceeds 10MB, please compress it first.
       error-no-result: No translatable text was detected.
       error-network: Translation service is temporarily unavailable, please try again later
 

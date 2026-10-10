@@ -54,6 +54,9 @@ export interface TextTranslateResponse {
     RequestId?: string;
     Error?: { Code: string; Message: string };
   };
+  // 后端防护层附加字段
+  err?: string;
+  hitCache?: boolean;
 }
 
 export async function translateText(text: string, source: string, target: string): Promise<TextTranslateResponse> {

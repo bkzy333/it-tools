@@ -8,7 +8,7 @@ const { t } = useI18n();
 
 // 约定：每个工具都要有 exampleData + 「一键示例」按钮。
 const exampleData = {
-  hint: '选择一张包含文字的图片（PNG/JPG，≤4MB），点「翻译图片」即可。',
+  hint: '选择一张包含文字的图片（PNG/JPG），点「翻译图片」即可，前端会自动压缩到 3MB / 长边 1920px。',
 };
 
 const source = ref<'zh' | 'en'>('zh');
@@ -33,6 +33,47 @@ function readFileAsDataUrl(file: File): Promise<string> {
     reader.onerror = () => reject(new Error('read failed'));
     reader.readAsDataURL(file);
   });
+}
+
+// 上传前前端压缩：长边 ≤1920px，导出 JPEG 并压到 ≤3MB（先降质，仍超再缩边）。
+// 这一步是图片额度保护的关键——绝大多数浪费来自重复上传大图，前端先压能直接砍掉一大半。
+async function compressImage(file: File, maxEdge = 1920, maxBytes = 3 * 1024 * 1024): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('canvas unsupported');
+  }
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close?.();
+
+  let quality = 0.92;
+  let dataUrl = canvas.toDataURL('image/jpeg', quality);
+  while (dataUrl.length > maxBytes && quality > 0.5) {
+    quality -= 0.07;
+    dataUrl = canvas.toDataURL('image/jpeg', quality);
+  }
+  // 仍超限则继续缩边到 1280px 再试一次
+  if (dataUrl.length > maxBytes && Math.max(w, h) > 1280) {
+    const s2 = 1280 / Math.max(w, h);
+    const w2 = Math.round(w * s2);
+    const h2 = Math.round(h * s2);
+    canvas.width = w2;
+    canvas.height = h2;
+    ctx.drawImage(bitmap, 0, 0, w2, h2);
+    quality = 0.85;
+    dataUrl = canvas.toDataURL('image/jpeg', quality);
+    while (dataUrl.length > maxBytes && quality > 0.5) {
+      quality -= 0.07;
+      dataUrl = canvas.toDataURL('image/jpeg', quality);
+    }
+  }
+  return dataUrl;
 }
 
 // 把逐行坐标 + 译文绘制回原图：白底遮挡原文，自适应字号写译文。
@@ -91,18 +132,19 @@ async function onFileChange(e: Event) {
   if (!file) {
     return;
   }
-  if (file.size > 4 * 1024 * 1024) {
+  errorMsg.value = '';
+  // 原始文件过大先拦（压缩救不回来的直接打回，避免无意义上传）
+  if (file.size > 10 * 1024 * 1024) {
     errorMsg.value = t('tools.image-translate.texts.error-too-large');
-    statusMsg.value = '';
     return;
   }
-  errorMsg.value = '';
-  statusMsg.value = t('tools.image-translate.texts.status-translating');
   loading.value = true;
+  statusMsg.value = t('tools.image-translate.texts.status-compressing');
   resultDataUrl.value = '';
   try {
-    const dataUrl = await readFileAsDataUrl(file);
+    const dataUrl = await compressImage(file);
     const base64 = dataUrl.split(',')[1];
+    statusMsg.value = t('tools.image-translate.texts.status-translating');
     const data = await translateImage(base64, source.value, target.value);
     if (data.err) {
       errorMsg.value = data.err;
@@ -160,14 +202,15 @@ function swap() {
       <input ref="fileInput" type="file" accept="image/png,image/jpeg" hidden @change="onFileChange" />
 
       <div flex flex-wrap gap-2>
-        <n-button type="primary" :loading="loading" @click="fileInput?.click()">
+        <n-button type="primary" :loading="loading" :disabled="loading" @click="fileInput?.click()">
           {{ t('tools.image-translate.texts.button-translate') }}
         </n-button>
         <ToolExampleButton @click="loadExample" />
+        <span v-if="loading" text-sm text-muted>{{ statusMsg }}</span>
       </div>
 
       <n-alert v-if="errorMsg" type="error" :show-icon="true">{{ errorMsg }}</n-alert>
-      <span v-if="statusMsg" text-sm text-muted>{{ statusMsg }}</span>
+      <span v-if="statusMsg && !loading" text-sm text-muted>{{ statusMsg }}</span>
 
       <div v-if="resultDataUrl" flex flex-col gap-2>
         <img :src="resultDataUrl" alt="translated" max-w-full rounded border />
