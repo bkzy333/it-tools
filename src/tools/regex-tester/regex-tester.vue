@@ -9,6 +9,7 @@ import { CHEAT_CATEGORIES, REGEX_PRESETS, type RegexPreset } from './regex-cheat
 import { CODEGEN_LANGS, sampleForCode } from './regex-codegen';
 import { useValidation } from '@/composable/validation';
 import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
 
 const { t, locale } = useI18n();
@@ -127,6 +128,14 @@ const evaluation = computed<Evaluation>(() => {
 });
 
 const matches = computed(() => evaluation.value.matches);
+
+// 全部匹配结果（复制全部 / 导出 TXT 用）与二维表（导出 Excel 用：序号 / 内容 / 起止位置）
+const matchesText = computed(() => matches.value.map((m) => m.value).join('\n'));
+
+const matchesRows = computed<string[][]>(() => [
+  ['序号', '匹配内容', '起始', '结束'],
+  ...matches.value.map((m, i) => [String(i + 1), m.value, String(m.index), String(m.index + m.value.length)]),
+]);
 
 /**
  * 高亮预览按段渲染，不用 v-html。
@@ -434,7 +443,10 @@ function loadExample() {
         </div>
 
         <!-- 匹配列表 -->
-        <div v-else-if="activeTab === 'matches'" class="rt-pane">
+        <div v-else-if="activeTab === 'matches'" class="rt-pane rt-pane-col">
+          <div v-if="matches.length > 0" class="rt-pane-bar">
+            <CopyExportBar :text="matchesText" filename="正则匹配" :rows="matchesRows" />
+          </div>
           <div v-if="matches.length === 0" class="rt-empty">{{ t('tools.regex-tester.no-match') }}</div>
           <div v-else class="rt-match-scroll">
             <div v-for="(match, k) of matches.slice(0, 300)" :key="`${match.index}-${k}`" class="rt-match-card">
@@ -731,6 +743,18 @@ function loadExample() {
   min-height: 0;
   display: flex;
   overflow: hidden;
+}
+
+.rt-pane-col {
+  flex-direction: column;
+}
+
+.rt-pane-bar {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-bottom: 1px solid v-bind('themeVars.dividerColor');
+  display: flex;
+  justify-content: flex-end;
 }
 
 .rt-pane-inner {

@@ -20,4 +20,5 @@ export const tool = defineTool({
   component: () => import('./token-generator.tool.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ArrowsShuffle')),
   category: 'Generators',
+  tags: ['generators', 'generator'],
 });

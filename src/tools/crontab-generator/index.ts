@@ -25,4 +25,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Alarm')),
   npmPackages: ['cronstrue'],
   category: 'Development',
+  tags: ['development', 'generator'],
 });

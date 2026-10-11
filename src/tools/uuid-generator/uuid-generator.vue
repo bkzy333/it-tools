@@ -10,7 +10,7 @@ import {
   NIL as nilUuid,
 } from 'uuid';
 
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { computedRefreshable } from '@/composable/computedRefreshable';
 import { withDefaultOnError } from '@/utils/defaults';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
@@ -70,12 +70,10 @@ const [uuids, refreshUUIDs] = computedRefreshable(() =>
         }
 
         return upperCase.value ? uuid.toUpperCase() : uuid.toLowerCase();
-      }).join('\n'),
+      }  ).join('\n'),
     '',
   ),
 );
-
-const { copy } = useCopy({ source: uuids, text: t('tools.uuid-generator.texts.text-uuids-copied-to-the-clipboard') });
 </script>
 
 <template>
@@ -159,10 +157,8 @@ const { copy } = useCopy({ source: uuids, text: t('tools.uuid-generator.texts.te
       class="uuid-display"
     />
 
-    <div flex justify-center gap-3>
-      <c-button autofocus @click="copy()">
-        {{ t('tools.uuid-generator.texts.tag-copy') }}
-      </c-button>
+    <div flex items-center justify-between gap-3>
+      <CopyExportBar :text="uuids" filename="uuid" />
       <c-button @click="refreshUUIDs">
         {{ t('tools.uuid-generator.texts.tag-refresh') }}
       </c-button>

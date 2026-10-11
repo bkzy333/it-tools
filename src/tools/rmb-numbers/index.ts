@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/CurrencyYen')),
   createdAt: new Date('2024-04-29'),
   category: 'Data',
+  tags: ['data', 'excel'],
 });

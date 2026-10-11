@@ -11,4 +11,5 @@ export const tool = defineTool({
   redirectFrom: ['/file-to-base64', '/base64-converter'],
   npmPackages: ['js-base64'],
   category: 'Converters',
+  tags: ['converters', 'convert'],
 });

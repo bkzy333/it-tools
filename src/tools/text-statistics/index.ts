@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/FileText')),
   redirectFrom: ['/text-stats'],
   category: 'Text',
+  tags: ['text', 'data-cleaning'],
 });

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import {
   createOp,
   runWorkflow,
@@ -13,7 +13,6 @@ import {
 } from './text-workflow.service';
 
 const { t } = useI18n();
-const { copy } = useCopy();
 
 const input = ref('');
 const ops = ref<WorkflowOp[]>([]);
@@ -41,11 +40,6 @@ function moveOp(index: number, direction: -1 | 1) {
 }
 
 const output = computed(() => runWorkflow({ input: input.value, ops: ops.value }));
-const canCopy = computed(() => output.value.length > 0);
-
-function copyResult() {
-  copy(output.value);
-}
 
 function clearAll() {
   input.value = '';
@@ -177,10 +171,8 @@ function selectOptionsFor(type: WorkflowOpType, key: string) {
         <c-card :title="t('tools.text-workflow.texts.title-result')" size="small" mt-3>
           <n-input :value="output" type="textarea" :rows="8" readonly
             :placeholder="t('tools.text-workflow.texts.placeholder-result')" />
-          <div flex items-center gap-2 mt-2>
-            <c-button type="primary" :disabled="!canCopy" @click="copyResult">
-              {{ t('tools.text-workflow.texts.action-copy') }}
-            </c-button>
+          <div flex items-center justify-between gap-2 mt-2>
+            <CopyExportBar :text="output" filename="文本流水线" />
             <c-button @click="clearAll">{{ t('tools.text-workflow.texts.action-clear') }}</c-button>
           </div>
         </c-card>

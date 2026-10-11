@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Braces')),
   npmPackages: ['json5'],
   category: 'JSON',
+  tags: ['json', 'dev'],
 });

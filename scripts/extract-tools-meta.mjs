@@ -393,6 +393,12 @@ function parseToolIndex(file) {
   const npmPackages = npmMatch
     ? (npmMatch[1].match(/['"`]([^'"`]+)['"`]/g) ?? []).map((s) => s.slice(1, -1))
     : [];
+  // 多维标签（Faceted Classification）：决定工具是否出现在 /excel 专区等聚合页。
+  // 纯加法字段，旧工具不写 tags 时返回空数组，专区页过滤时自然跳过。
+  const tagsMatch = src.match(/tags:\s*\[([^\]]*)\]/);
+  const tags = tagsMatch
+    ? (tagsMatch[1].match(/['"`]([^'"`]+)['"`]/g) ?? []).map((s) => s.slice(1, -1))
+    : [];
 
   return {
     path: toolPath,
@@ -401,6 +407,7 @@ function parseToolIndex(file) {
     keywords,
     redirectFrom,
     npmPackages,
+    tags,
     // 联网工具必须写 externAccessDescription，静态页要用它替换"数据不上传"的说法
     isExternalAccess: Boolean(externMatch),
   };

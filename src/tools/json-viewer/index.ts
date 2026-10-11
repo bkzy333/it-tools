@@ -11,5 +11,6 @@ export const tool = defineTool({
   redirectFrom: ['/json-viewer'],
   npmPackages: ['json5'],
   category: 'JSON',
+  tags: ['json', 'dev'],
   externAccessDescription: t('tools.json-prettify.externalAccess'),
 });

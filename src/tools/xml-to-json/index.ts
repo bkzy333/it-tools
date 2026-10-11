@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Braces')),
   createdAt: new Date('2024-06-30'),
   category: 'XML',
+  tags: ['xml', 'convert'],
 });

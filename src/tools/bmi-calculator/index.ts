@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/MedicalCross')),
   createdAt: new Date('2025-04-21'),
   category: 'Data',
+  tags: ['data'],
 });

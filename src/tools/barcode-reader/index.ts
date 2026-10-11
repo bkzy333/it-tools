@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Barcode')),
   createdAt: new Date('2024-04-20'),
   category: 'Barcodes',
+  tags: ['barcodes'],
 });

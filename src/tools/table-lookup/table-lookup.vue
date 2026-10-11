@@ -2,12 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { lookup, mergeTables, type MatchMode } from './table-lookup.service';
 import { parseTableText, tableToObjects, tableToText, uniqueHeaderNames } from '../table-utils/parse-table';
 
 const { t } = useI18n();
-const { copy } = useCopy();
 
 const activeTab = ref<'lookup' | 'merge'>('lookup');
 
@@ -197,18 +196,13 @@ const mergeHint = computed(() => {
 });
 
 /* ------------------------------------------------------------------ 动作 */
-async function copyResult(text: string) {
-  await copy(text);
-}
+const lookupExcelRows = computed(() =>
+  lookupResult.value.rows.length === 0 ? [] : [lookupResult.value.header, ...lookupResult.value.rows],
+);
 
-function downloadResult(text: string) {
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-  const anchor = document.createElement('a');
-  anchor.href = URL.createObjectURL(blob);
-  anchor.download = 'table-lookup.txt';
-  anchor.click();
-  URL.revokeObjectURL(anchor.href);
-}
+const mergeExcelRows = computed(() =>
+  mergeResult.value.rows.length === 0 ? [] : [mergeResult.value.header, ...mergeResult.value.rows],
+);
 
 function clearAll() {
   sourceText.value = '';
@@ -314,14 +308,7 @@ watch([sourceColumnOptions, rightColumnOptions], () => {
         <c-card :title="t('tools.table-lookup.texts.title-result')" mt-4>
           <div flex items-center justify-between gap-2 mb-2>
             <span text-sm text-gray-500>{{ lookupHint }}</span>
-            <div flex gap-2>
-              <c-button size="small" :disabled="!lookupText" @click="copyResult(lookupText)">
-                {{ t('tools.table-lookup.texts.action-copy') }}
-              </c-button>
-              <c-button size="small" :disabled="!lookupText" @click="downloadResult(lookupText)">
-                {{ t('tools.table-lookup.texts.action-download') }}
-              </c-button>
-            </div>
+            <CopyExportBar :text="lookupText" filename="表格查找" :rows="lookupExcelRows" :disabled="!lookupText" />
           </div>
 
           <c-table
@@ -388,14 +375,7 @@ watch([sourceColumnOptions, rightColumnOptions], () => {
         <c-card :title="t('tools.table-lookup.texts.title-merge-result')" mt-4>
           <div flex items-center justify-between gap-2 mb-2>
             <span text-sm text-gray-500>{{ mergeHint }}</span>
-            <div flex gap-2>
-              <c-button size="small" :disabled="!mergeText" @click="copyResult(mergeText)">
-                {{ t('tools.table-lookup.texts.action-copy') }}
-              </c-button>
-              <c-button size="small" :disabled="!mergeText" @click="downloadResult(mergeText)">
-                {{ t('tools.table-lookup.texts.action-download') }}
-              </c-button>
-            </div>
+            <CopyExportBar :text="mergeText" filename="表格合并" :rows="mergeExcelRows" :disabled="!mergeText" />
           </div>
 
           <c-table

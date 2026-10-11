@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Currency')),
   createdAt: new Date('2024-08-15'),
   category: 'Data',
+  tags: ['data', 'convert'],
   externAccessDescription: t('tools.currency-converter.externalAccess'),
 });

@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Percentage')),
   createdAt: new Date('2023-06-18'),
   category: 'Measurement',
+  tags: ['measurement'],
 });

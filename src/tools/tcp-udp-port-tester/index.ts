@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/WorldUpload')),
   createdAt: new Date('2026-01-25'),
   category: 'Network',
+  tags: ['network'],
   externAccessDescription: t('tools.tcp-udp-port-tester.externalAccess'),
 });

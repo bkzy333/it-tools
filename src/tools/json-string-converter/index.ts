@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@tabler/icons-vue/dist/esm/icons/IconBraces.mjs')),
   createdAt: new Date('2024-10-17'),
   category: 'JSON',
+  tags: ['json', 'dev'],
 });

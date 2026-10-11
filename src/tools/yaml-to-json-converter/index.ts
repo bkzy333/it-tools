@@ -11,4 +11,5 @@ export const tool = defineTool({
   createdAt: new Date('2023-04-10'),
   npmPackages: ['yaml'],
   category: 'YAML',
+  tags: ['yaml', 'convert'],
 });

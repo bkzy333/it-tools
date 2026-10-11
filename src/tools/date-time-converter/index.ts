@@ -28,4 +28,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Calendar')),
   npmPackages: ['date-fns'],
   category: 'Datetime',
+  tags: ['datetime', 'convert'],
 });

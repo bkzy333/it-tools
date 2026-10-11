@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-10T07:23:20.683Z",
+  "generatedAt": "2026-10-11T10:48:17.658Z",
   "sourceCommit": "extracted at build time",
-  "total": 109,
+  "total": 113,
   "tiers": {
-    "L1": 92,
-    "L2": 16,
+    "L1": 93,
+    "L2": 19,
     "L3": 1
   },
   "categories": {
@@ -70,6 +70,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "年龄计算器",
       "description": "输入出生日期与时间，精确计算周岁、虚岁、星座、生肖，查看生日倒计时与重要年龄节点。",
@@ -89,9 +92,13 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "development",
+        "dev"
+      ],
       "isExternalAccess": true,
       "title": "API测试器",
-      "description": "HTTP API测试器。",
+      "description": "在线 HTTP API 测试器：支持 GET/POST/PUT/DELETE，可自定义请求头、查询参数与请求体，一键生成 curl、Python、Go、Java 等调用代码。",
       "categoryZh": "开发工具",
       "categorySeoName": "开发者在线工具",
       "tier": "L2"
@@ -106,6 +113,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "barcodes",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "条形码生成器",
       "description": "条形码生成器。",
@@ -123,6 +134,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "barcodes"
+      ],
       "isExternalAccess": false,
       "title": "条形码读取器",
       "description": "条形码读取器。",
@@ -147,6 +161,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "converters",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "整数进制转换器",
       "description": "在不同进制之间转换数字（十进制、十六进制、二进制、八进制、Base64等）。",
@@ -172,6 +190,10 @@
       "redirectFrom": [],
       "npmPackages": [
         "js-base64"
+      ],
+      "tags": [
+        "converters",
+        "convert"
       ],
       "isExternalAccess": false,
       "title": "Base64 文件转换工具",
@@ -201,6 +223,10 @@
       "npmPackages": [
         "js-base64"
       ],
+      "tags": [
+        "converters",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "Base64字符串编码器/解码器",
       "description": "简单地将字符串编码为Base64格式，或解码Base64字符串回原字符串。",
@@ -225,6 +251,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "批量时间戳转换",
       "description": "批量进行时间戳与时间互转，支持秒/毫秒单位、多种时间格式，可导出 CSV",
@@ -243,6 +272,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data"
+      ],
       "isExternalAccess": false,
       "title": "BMI 计算器（身体质量指数）",
       "description": "在线计算 BMI 身体质量指数，支持公制（厘米+公斤）与英制（英寸+磅），四种判定标准（国际/中国/日本/新加坡），自动给出偏瘦、正常、过重、肥胖的判定结果，并记录 BMI 历史",
@@ -272,6 +304,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "日历转换器",
       "description": "在公历、儒略历、希伯来历、伊斯兰历、波斯历、玛雅历、印度历、法国共和历、ISO-8601、Unix 时间和 Excel 序列号格式之间转换日期和时间",
@@ -305,6 +341,10 @@
       "npmPackages": [
         "change-case"
       ],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "大小写转换器",
       "description": "转换字符串的大小写格式，支持多种格式选择。",
@@ -332,6 +372,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "中国法定节假日放假安排",
       "description": "在线查询国务院办公厅公布的放假调休安排，含 2026 年全部假期日期、放假天数、调休上班日与高速免费范围，并自动提示距下一个假期还有多少天",
@@ -356,6 +399,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "汉字转拼音",
       "description": "把中文转成带声调、数字声调、无声调或首字母拼音，支持逐字对照与多音字标注，全部在浏览器本地完成",
@@ -382,6 +430,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "汉字简繁转换",
       "description": "在线简体中文与繁体中文互相转换，基于 OpenCC 词表处理一词多形（头发/發财、皇后/後來），不是简单换字，转换全程在浏览器本地完成",
@@ -402,6 +455,10 @@
       ],
       "npmPackages": [
         "colord"
+      ],
+      "tags": [
+        "web",
+        "convert"
       ],
       "isExternalAccess": false,
       "title": "颜色转换器",
@@ -430,6 +487,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "信用卡分期真实利率计算器",
       "description": "在线计算信用卡账单分期的真实年化利率，用 IRR 反推实际资金成本，看清「月费率 0.6%」为何折算年化接近 13% 而不是 7.2%",
@@ -461,6 +521,10 @@
       "npmPackages": [
         "cronstrue"
       ],
+      "tags": [
+        "development",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "Crontab生成器",
       "description": "验证并生成crontab，并获取cron计划的易读描述。",
@@ -486,6 +550,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "development",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "CSS/JS 美化和压缩",
       "description": "在线美化或压缩您的 CSS 和 JavaScript 代码。",
@@ -505,6 +573,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "json",
+        "excel",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "CSV转JSON",
       "description": "自动检测表头，将CSV转换为JSON。",
@@ -523,6 +596,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "convert"
+      ],
       "isExternalAccess": true,
       "title": "汇率换算器",
       "description": "在线实时汇率换算工具，支持人民币、美元、欧元、日元、港币、英镑等货币互相换算，输入金额即时得出结果",
@@ -573,6 +650,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "converters",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "数据存储单位转换器",
       "description": "|",
@@ -607,6 +688,10 @@
       "npmPackages": [
         "date-fns"
       ],
+      "tags": [
+        "datetime",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "日期时间格式转换",
       "description": "在线把日期时间在 ISO 8601、RFC 3339、Unix 时间戳、Excel 序列号、UTC 等多种表示之间互相转换，并支持时区换算",
@@ -633,6 +718,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "日期距离计算器",
       "description": "在线计算两个日期相差多少天、周、月、年，并统计工作日与法定节假日，支持日期加减推算、实时倒计时与农历干支查询",
@@ -653,6 +741,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "日期加减计算器",
       "description": "在线给指定日期加上或减去几天、几个月、几年，算出对应的目标日期，可用于计算截止日、到期日和倒计时",
@@ -677,6 +768,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "日期大写",
       "description": "将日期转换为支票/票据用的中文大写（零壹贰叁肆伍陆柒捌玖拾），符合会计日期书写规范",
@@ -701,6 +796,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "日期间隔天数计算器",
       "description": "在线计算两个日期之间相隔多少天，同时给出工作日天数与节假日信息，可用于核算请假天数、项目工期和账期",
@@ -731,6 +829,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "Cloudflare DNS/RDAP 查询",
       "description": "使用 Cloudflare DNS/RDAP.org 在线查询任何域名的 DNS 记录和 RDAP。",
@@ -760,6 +861,9 @@
         "crypto-es",
         "@noble/ciphers"
       ],
+      "tags": [
+        "crypto"
+      ],
       "isExternalAccess": false,
       "title": "AES 在线加密解密",
       "description": "在线对文本做加密和解密，支持 AES、TripleDES、Rabbit、RC4 等算法，可自定义密钥，全部在浏览器本地计算，密钥不会上传服务器",
@@ -785,6 +889,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "英文金额大写",
       "description": "将金额转换为英文大写（SAY + 币种 + 金额 + ONLY），支持美元/欧元/英镑/人民币/港元/日元",
@@ -809,6 +917,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "英文日期格式",
       "description": "将日期转换为美式/英式英文日期格式（含序数词后缀），共 8 种格式",
@@ -833,12 +945,90 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "数字英文互转",
       "description": "阿拉伯数字与英文读数互转，支持连字符与逗号分隔，纯本地处理",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
+    },
+    {
+      "path": "/excel-cell-merge",
+      "slug": "excel-cell-merge",
+      "category": "Data",
+      "keywords": [
+        "excel",
+        "merge",
+        "cells",
+        "合并单元格"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "excel-native"
+      ],
+      "isExternalAccess": false,
+      "title": "合并相同单元格",
+      "description": "自动扫描工作表中纵向相邻的相同内容并合并为一个单元格，先预览合并区域数量，确认后再下载，文件不上传服务器。",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
+    },
+    {
+      "path": "/excel-cell-unmerge",
+      "slug": "excel-cell-unmerge",
+      "category": "Data",
+      "keywords": [
+        "excel",
+        "unmerge",
+        "cells",
+        "拆分单元格"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "excel-native"
+      ],
+      "isExternalAccess": false,
+      "title": "拆分单元格并填充",
+      "description": "把已合并的单元格拆开，并按需要把原值填充到每个子单元格，先预览合并区域数量，确认后再下载，文件不上传服务器。",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
+    },
+    {
+      "path": "/excel-merge-workbooks",
+      "slug": "excel-merge-workbooks",
+      "category": "Data",
+      "keywords": [
+        "excel",
+        "merge",
+        "workbook",
+        "汇总",
+        "多工作簿"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "excel-native"
+      ],
+      "isExternalAccess": false,
+      "title": "多工作簿汇总",
+      "description": "把多个 Excel/CSV 文件合并成一个工作簿：支持纵向拼接、每文件一个工作表、按关键列匹配合并，全部在浏览器本地完成，文件不上传服务器。",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
     },
     {
       "path": "/free-ssl",
@@ -860,6 +1050,9 @@
       "npmPackages": [
         "node-forge",
         "jose"
+      ],
+      "tags": [
+        "network"
       ],
       "isExternalAccess": true,
       "title": "免费SSL证书申请",
@@ -885,6 +1078,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "全角半角转换",
       "description": "在线把全角字符转成半角或把半角转成全角，实时转换并统计全角占比，中文标点保持原样",
@@ -933,6 +1131,9 @@
         "/hash"
       ],
       "npmPackages": [],
+      "tags": [
+        "crypto"
+      ],
       "isExternalAccess": false,
       "title": "文本哈希工具",
       "description": "在线计算字符串的哈希值，支持",
@@ -953,6 +1154,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "HEIC转换器",
       "description": "将HEIC转换为JPEG或PNG的转换器",
@@ -973,6 +1178,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "web",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "HTML美化器",
       "description": "美化HTML代码",
@@ -991,6 +1200,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "markdown",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "HTML转Markdown",
       "description": "将HTML（可从剪贴板）转换为Markdown",
@@ -1009,6 +1222,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "pdf"
+      ],
       "isExternalAccess": true,
       "title": "HTML 转 PDF",
       "description": "从 HTML 内容或 URL 生成 PDF，可选择格式并自动隐藏 Cookie 横幅。",
@@ -1027,6 +1243,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "Whois 检查器",
       "description": "使用 IANA 网站检查域名的 whois",
@@ -1052,6 +1271,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data"
+      ],
       "isExternalAccess": false,
       "title": "身份证号校验与解析",
       "description": "输入18位身份证号，校验校验位是否正确，并解析发证地区、出生日期、性别与生肖星座，全部在浏览器本地完成",
@@ -1084,6 +1306,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "图片格式转换工具",
       "description": "在线把图片在 PNG、JPG、WebP、GIF、BMP 等格式之间互相转换，转换在浏览器本地完成，图片不会上传到服务器",
@@ -1106,6 +1332,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images"
+      ],
       "isExternalAccess": false,
       "title": "图像调整器",
       "description": "更改图像的宽度和高度，以所需的格式预览和下载。",
@@ -1125,6 +1354,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images"
+      ],
       "isExternalAccess": true,
       "title": "图片翻译",
       "description": "上传图片识别文字并翻译，译文绘制回原图可下载，仅支持中英互译",
@@ -1152,6 +1384,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "个人所得税计算器",
       "description": "按现行规则计算工资薪金年度综合所得个税，含三险一金、六项专项附加扣除，并对比年终奖两种计税方式",
@@ -1171,6 +1406,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "IP 地理位置查询",
       "description": "查询任意 IPv4/IPv6 地址的归属地、运营商、时区与经纬度",
@@ -1194,6 +1432,10 @@
       "npmPackages": [
         "json5"
       ],
+      "tags": [
+        "json",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "JSON差异比较",
       "description": "比较两个JSON对象并获取它们之间的差异。",
@@ -1213,6 +1455,10 @@
       "redirectFrom": [],
       "npmPackages": [
         "json5"
+      ],
+      "tags": [
+        "json",
+        "dev"
       ],
       "isExternalAccess": false,
       "title": "JSON压缩器",
@@ -1241,6 +1487,10 @@
       "npmPackages": [
         "json5"
       ],
+      "tags": [
+        "json",
+        "dev"
+      ],
       "isExternalAccess": true,
       "title": "JSON格式化与美化",
       "description": "将JSON字符串格式化为友好、易读的格式。",
@@ -1259,6 +1509,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "json",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "JSON字符串转换器",
       "description": "将您的文本或 JavaScript 对象转换为 JSON 字符串格式，反之亦然。",
@@ -1280,6 +1534,11 @@
       "npmPackages": [
         "json5"
       ],
+      "tags": [
+        "json",
+        "excel",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "JSON转CSV",
       "description": "自动检测表头，将JSON转换为CSV。",
@@ -1300,6 +1559,10 @@
       "npmPackages": [
         "yaml",
         "json5"
+      ],
+      "tags": [
+        "json",
+        "convert"
       ],
       "isExternalAccess": false,
       "title": "JSON转YAML转换器",
@@ -1333,6 +1596,10 @@
       "npmPackages": [
         "jwt-decode"
       ],
+      "tags": [
+        "crypto",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "JWT 在线解析工具",
       "description": "在线解析和解码 JWT（JSON Web Token），分开展示 Header、Payload 与签名三部分内容，解析在浏览器本地完成不上传",
@@ -1359,6 +1626,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data"
+      ],
       "isExternalAccess": false,
       "title": "亲戚关系计算器",
       "description": "在线计算亲戚称呼，输入「爸爸的妈妈」立刻知道该叫什么，也能反过来由一个称呼查出对方是你的哪种亲戚",
@@ -1382,6 +1652,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "列表转换器",
       "description": "此工具可处理列数据，并对每行应用多种转换（转置、添加前后缀、反转列表、排序、小写转换、截断值等）。",
@@ -1407,6 +1681,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "贷款计算器",
       "description": "计算车贷、消费贷等贷款的等额本息、等额本金、先息后本和到期一次性还本付息的月供与总利息，输出完整还款计划表",
@@ -1435,6 +1712,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "农历转换",
       "description": "公历与农历互转，显示干支纪年、生肖、星座，支持 1900-2100 年",
@@ -1470,6 +1750,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "converters",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "多单位转换器",
       "description": "转换各种单位",
@@ -1487,6 +1771,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "markdown"
+      ],
       "isExternalAccess": false,
       "title": "Markdown 预览",
       "description": "输入时可实时预览 Markdown 内容",
@@ -1507,6 +1794,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "markdown",
+        "excel"
+      ],
       "isExternalAccess": false,
       "title": "Markdown 表格生成器",
       "description": "使用可视化编辑器创建 GitHub 风格的 Markdown 表格。",
@@ -1526,6 +1817,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "markdown",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "Markdown转HTML",
       "description": "将Markdown转换为HTML并支持打印（如PDF）",
@@ -1554,6 +1849,9 @@
         "highlight.js",
         "dompurify"
       ],
+      "tags": [
+        "markdown"
+      ],
       "isExternalAccess": false,
       "title": "Markdown 转公众号排版",
       "description": "把 Markdown 粘贴进来，自动套用公众号排版样式并转成可直接粘贴进微信编辑器的富文本，支持代码高亮与多套主题",
@@ -1580,6 +1878,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "房贷计算器",
       "description": "计算等额本息与等额本金的月供、总利息和年度还款计划，并测算提前还贷能省多少利息",
@@ -1605,6 +1906,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "我的IP地址",
       "description": "查询你当前的公网 IP 地址、归属地、运营商与时区，并检测网络是否支持 IPv6",
@@ -1626,6 +1930,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "数值舍入",
       "description": "批量把一列数字按四舍五入、向上/向下取整或银行家舍入规范到指定小数位，并可统一加减乘除后统计合计与平均",
@@ -1645,6 +1954,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images"
+      ],
       "isExternalAccess": true,
       "title": "OCR图像和PDF",
       "description": "对图像或PDF执行OCR（Tesseract）",
@@ -1663,6 +1975,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "pdf"
+      ],
       "isExternalAccess": false,
       "title": "PDF压缩器",
       "description": "使用 Ghostscript 优化和压缩 PDF。",
@@ -1680,6 +1995,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "pdf"
+      ],
       "isExternalAccess": false,
       "title": "PDF合并工具",
       "description": "将多个PDF合并为一个",
@@ -1698,6 +2016,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "pdf"
+      ],
       "isExternalAccess": false,
       "title": "PDF文本提取工具",
       "description": "从PDF中提取文本",
@@ -1719,6 +2040,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "measurement"
+      ],
       "isExternalAccess": false,
       "title": "百分比计算器",
       "description": "轻松计算从一个值到另一个值的百分比，或从百分比到值。",
@@ -1735,6 +2059,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "ping",
       "description": "ping 一组主机名、IP 地址、CIDR 或 IP 地址范围",
@@ -1757,6 +2084,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "barcodes"
+      ],
       "isExternalAccess": false,
       "title": "二维码解码器",
       "description": "二维码读取器",
@@ -1785,6 +2115,10 @@
       "npmPackages": [
         "qrcode"
       ],
+      "tags": [
+        "barcodes",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "二维码生成器",
       "description": "在线把网址、文本、手机号等内容生成二维码，可自定义前景色、背景色与纠错等级，生成后直接下载图片，全程在浏览器本地完成不上传",
@@ -1808,6 +2142,10 @@
         "/random-numbers-generator"
       ],
       "npmPackages": [],
+      "tags": [
+        "generators",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "随机抽签器",
       "description": "生成随机令牌，或从候选名单里不重复抽签、整体打乱顺序、按权重抽样，还能按权重把一笔金额分摊到多人并把尾差随机配平。全程浏览器本地计算，不联网。",
@@ -1830,6 +2168,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "正则表达式测试器",
       "description": "在线调试正则表达式：实时高亮每一处匹配、查看捕获组取值、批量替换，并生成 JavaScript、Python、Java、Go 等六种语言的调用代码。",
@@ -1850,6 +2192,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images"
+      ],
       "isExternalAccess": true,
       "title": "移除图片背景",
       "description": "使用人工智能去除图像背景",
@@ -1878,6 +2223,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "法定退休年龄计算器",
       "description": "在线计算延迟退休后你的法定退休年龄和退休年月，支持男职工、原55岁女职工、原50岁女职工三类人群，并给出弹性提前/延迟退休的最早最晚年龄与最低缴费年限",
@@ -1901,6 +2249,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "excel"
+      ],
       "isExternalAccess": false,
       "title": "人民币大写转换器",
       "description": "在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额",
@@ -1927,6 +2279,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "工资计算器",
       "description": "输入税前月薪与社保公积金比例，算出全年 12 个月到手工资、五险一金个人与单位缴纳明细和个税，并支持反推税前工资",
@@ -1944,6 +2299,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "generators",
+        "excel",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "序列生成器",
       "description": "按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零",
@@ -1972,6 +2332,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "finance"
+      ],
       "isExternalAccess": false,
       "title": "离职经济补偿金计算器",
       "description": "在线计算解除劳动合同的经济补偿金，按工作年限换算补偿月数，自动处理三倍社平封顶与十二年上限，同时给出违法解除的 2N 赔偿金",
@@ -1993,6 +2356,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "特殊符号大全",
       "description": "分类收录标点、数字序号、数学、单位、货币、箭头、图形等常用特殊符号，点击即可复制",
@@ -2024,6 +2391,10 @@
       "npmPackages": [
         "sql-formatter"
       ],
+      "tags": [
+        "development",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "SQL格式化与美化",
       "description": "在线格式化和美化您的SQL查询（支持多种SQL方言）。",
@@ -2045,6 +2416,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "表格查询匹配",
       "description": "网页版 VLOOKUP。粘贴两段 Excel 表格，按关键字批量查出行并指定返回列，支持精确、包含、前缀三种匹配、多个条件必须同时满足、一对多命中，也能把两张表按关键字直接合并",
@@ -2066,6 +2442,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "分组汇总透视",
       "description": "按任意几列分组，对金额列做求和、平均值、最值、计数、去重计数与中位数，也能把宽表拆成长表，结果可以直接粘回 Excel",
@@ -2083,6 +2464,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "表格形状转换",
       "description": "粘贴 TSV/CSV 表格，做转置、按列数分页、展平为一列、合并为一行等形状变换，纯本地处理",
@@ -2102,6 +2488,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "network"
+      ],
       "isExternalAccess": true,
       "title": "TCP/UDP端口测试器",
       "description": "允许测试 TCP/UDP（使用服务器端的 WebSocket 代理）",
@@ -2119,6 +2508,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本去重排序",
       "description": "对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。",
@@ -2140,6 +2534,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本对比",
       "description": "在线对比两段文本并高亮标出增删改的差异，逐行显示哪里被改动，适合比对配置文件、代码和文档版本",
@@ -2157,6 +2555,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本提取",
       "description": "从一段文本里批量提取手机号、邮箱、网址、日期、金额、IP、身份证号等，逐行列出所有命中结果并统计数量",
@@ -2174,6 +2577,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本处理",
       "description": "对文本批量执行去空格、去空行、去前后缀、缩进反缩进、替换、排序与去重，实时预览处理结果。",
@@ -2191,9 +2598,39 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本拼接",
       "description": "把多行文本按连接符合并成一行，可选去除首尾空格、删除所有空格并自动丢弃空行。",
+      "categoryZh": "文本处理",
+      "categorySeoName": "文本处理在线工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/text-merge",
+      "slug": "text-merge",
+      "category": "Text",
+      "keywords": [
+        "text",
+        "merge",
+        "concat",
+        "join",
+        "tsv"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "text",
+        "excel",
+        "data-cleaning"
+      ],
+      "isExternalAccess": false,
+      "title": "文本合并",
+      "description": "把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值，并可一键复制为 TSV 直接粘回 Excel。",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
@@ -2212,6 +2649,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本加序号",
       "description": "给多行文本的每一行自动添加递增序号，支持多种序号格式、起始值、步长与前置补零",
@@ -2233,6 +2674,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本查重",
       "description": "检测两段文本的内容重复率，按中文字符与英文单词分词比对，高亮重复内容，全部在本地完成、数据不上传",
@@ -2250,6 +2695,11 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "excel",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本分割",
       "description": "用指定分隔符把文本拆成多行或多段，可排序、去首尾空格、加行号，再用另一个分隔符拼回去。",
@@ -2274,6 +2724,10 @@
         "/text-stats"
       ],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "字数统计工具",
       "description": "在线统计文本的字符数、单词数、行数、字节大小与中文汉字数，实时出结果，可用于检查文章字数和数据库字段长度",
@@ -2293,6 +2747,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text"
+      ],
       "isExternalAccess": true,
       "title": "文本翻译",
       "description": "基于腾讯云机器翻译，支持 18 种语言互译并自动检测源语言",
@@ -2314,6 +2771,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "排版纠正",
       "description": "自动纠正中英文混排的排版问题：中英文与中文数字之间加空格、半角标点转全角、折叠重复标点，提升文案可读性",
@@ -2335,6 +2796,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text",
+        "data-cleaning"
+      ],
       "isExternalAccess": false,
       "title": "文本工作流",
       "description": "把去空格、大小写、反转、排序、去重、替换、加序号等操作按顺序串成一条流水线，批量处理文本，实时预览每一步的结果",
@@ -2357,6 +2822,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "datetime"
+      ],
       "isExternalAccess": false,
       "title": "时区转换器",
       "description": "|",
@@ -2382,6 +2850,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "generators",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "令牌生成器",
       "description": "生成包含你所需字符的随机字符串，包括大写或小写字母、数字和/或符号。",
@@ -2407,6 +2879,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text"
+      ],
       "isExternalAccess": false,
       "title": "打字速度测试",
       "description": "在线测试中文/英文打字速度，实时统计 WPM、CPM、准确率与错误数，支持自定义文本与历史成绩",
@@ -2428,6 +2903,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "web",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "URL 编码解码工具",
       "description": "在线对 URL 和中文参数做百分号编码（URL Encode）与解码，解决链接里的中文、空格和特殊字符导致访问报错的问题",
@@ -2459,6 +2938,10 @@
       "npmPackages": [
         "uuid"
       ],
+      "tags": [
+        "generators",
+        "generator"
+      ],
       "isExternalAccess": false,
       "title": "UUID生成器",
       "description": "通用唯一标识符（UUID）是128位数字，用于在计算机系统中标识信息。可能的UUID数量为16^32（即2^128，约3.4×10^38，数量极其庞大）。",
@@ -2475,6 +2958,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "images"
+      ],
       "isExternalAccess": false,
       "title": "水印工具",
       "description": "为单张或多张图片添加水印或logo",
@@ -2501,6 +2987,9 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "text"
+      ],
       "isExternalAccess": false,
       "title": "五笔编码查询",
       "description": "输入汉字查询 86/98 版五笔字型编码，覆盖 GB2312 常用汉字 6764 字，纯本地离线",
@@ -2521,6 +3010,10 @@
       "npmPackages": [
         "xml-formatter"
       ],
+      "tags": [
+        "xml",
+        "dev"
+      ],
       "isExternalAccess": false,
       "title": "XML格式化器",
       "description": "将XML字符串格式化为友好、易读的格式。",
@@ -2538,6 +3031,10 @@
       ],
       "redirectFrom": [],
       "npmPackages": [],
+      "tags": [
+        "xml",
+        "convert"
+      ],
       "isExternalAccess": false,
       "title": "XML转JSON",
       "description": "将XML转换为JSON",
@@ -2562,6 +3059,10 @@
       "npmPackages": [
         "yaml"
       ],
+      "tags": [
+        "yaml",
+        "dev"
+      ],
       "isExternalAccess": true,
       "title": "YAML格式化与美化",
       "description": "将您的YAML字符串格式化为友好、易读的格式。",
@@ -2581,6 +3082,10 @@
       "redirectFrom": [],
       "npmPackages": [
         "yaml"
+      ],
+      "tags": [
+        "yaml",
+        "convert"
       ],
       "isExternalAccess": false,
       "title": "YAML转JSON转换器",

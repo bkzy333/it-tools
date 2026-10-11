@@ -11,4 +11,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ArrowsShuffle')),
   createdAt: new Date('2025-08-23'),
   category: 'Generators',
+  tags: ['generators', 'generator'],
 });

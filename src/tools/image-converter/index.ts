@@ -28,4 +28,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/PictureInPicture')),
   createdAt: new Date('2024-08-15'),
   category: 'Images',
+  tags: ['images', 'convert'],
 });

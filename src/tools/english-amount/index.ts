@@ -21,4 +21,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/CurrencyDollar')),
   createdAt: new Date('2026-10-09'),
   category: 'Data',
+  tags: ['data', 'convert'],
 });

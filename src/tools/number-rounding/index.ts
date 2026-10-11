@@ -12,4 +12,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Calculator')),
   createdAt: new Date('2026-10-07'),
   category: 'Data',
+  tags: ['data', 'excel', 'data-cleaning'],
 });

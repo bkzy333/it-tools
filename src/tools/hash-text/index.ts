@@ -42,4 +42,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/EyeOff')),
   redirectFrom: ['/hash'],
   category: 'Crypto',
+  tags: ['crypto'],
 });

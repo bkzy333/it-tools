@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/World')),
   createdAt: new Date('2025-10-03'),
   category: 'Network',
+  tags: ['network'],
   externAccessDescription: t('tools.iana-whois-checker.externalAccess'),
 });

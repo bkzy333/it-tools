@@ -22,6 +22,7 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Certificate')),
   createdAt: new Date('2026-10-09'),
   category: 'Network',
+  tags: ['network'],
   npmPackages: ['node-forge', 'jose'],
   externAccessDescription: t('tools.free-ssl.externalAccess'),
 });

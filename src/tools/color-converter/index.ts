@@ -11,4 +11,5 @@ export const tool = defineTool({
   redirectFrom: ['/color-picker-converter'],
   npmPackages: ['colord'],
   category: 'Web',
+  tags: ['web', 'convert'],
 });

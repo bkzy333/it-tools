@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Printer')),
   createdAt: new Date('2026-04-07'),
   category: 'PDF',
+  tags: ['pdf'],
   externAccessDescription: t('tools.html-to-pdf.externalAccess'),
 });

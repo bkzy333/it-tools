@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import {
   applyTextFormat,
   DEFAULT_TEXT_FORMAT_OPTIONS,
@@ -16,7 +16,6 @@ import {
 } from './text-format.service';
 
 const { t } = useI18n();
-const { copy } = useCopy();
 
 /* ------------------------------------------------------------------ 输入状态 */
 const input = ref('');
@@ -91,22 +90,6 @@ const stats = computed(() => [
   { label: t('tools.text-format.texts.label-empty-lines'), value: result.value.emptyLinesRemoved },
   { label: t('tools.text-format.texts.label-duplicate-lines'), value: result.value.duplicateLinesRemoved },
 ]);
-
-const canDownload = computed(() => result.value.output.length > 0);
-
-async function copyResult() {
-  await copy(result.value.output);
-}
-
-function downloadResult() {
-  const blob = new Blob([result.value.output], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = document.documentElement.lang.startsWith('zh') ? '文本处理.txt' : 'text-format.txt';
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
 
 function clearAll() {
   input.value = '';
@@ -347,13 +330,8 @@ function loadExample() {
           {{ item.label }}：{{ item.value }}
         </span>
       </div>
-      <div flex items-center gap-2>
-        <c-button type="primary" @click="copyResult">
-          {{ t('tools.text-format.texts.action-copy') }}
-        </c-button>
-        <c-button :disabled="!canDownload" @click="downloadResult">
-          {{ t('tools.text-format.texts.action-download') }}
-        </c-button>
+      <div flex items-center justify-between gap-2>
+        <CopyExportBar :text="result.output" filename="文本处理" />
         <c-button @click="clearAll">{{ t('tools.text-format.texts.action-clear') }}</c-button>
       </div>
     </c-card>

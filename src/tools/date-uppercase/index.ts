@@ -20,4 +20,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/CalendarTime')),
   createdAt: new Date('2026-10-09'),
   category: 'Datetime',
+  tags: ['datetime', 'convert'],
 });

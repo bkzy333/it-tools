@@ -3089,6 +3089,10 @@ tools:
       type-word: English word
       type-cjk: Chinese
       type-custom: Custom regex
+      label-highlight: Highlight preview
+      action-copy-tsv: Copy as TSV
+      message-highlight-count: '{n} matches highlighted'
+      message-copied-tsv: Copied as TSV
   text-dedupe:
     title: Text Dedupe and Sort
     description: Remove duplicate lines, sort them, drop blank lines and trim
@@ -3189,6 +3193,30 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
+  text-merge:
+    title: Text Merge
+    description: Merge multiple lines or multiple columns with a custom delimiter, skip empty values, and copy the result as TSV to paste straight back into Excel.
+    texts:
+      label-input: Input
+      placeholder-input: Paste text here (multi-column data copied from Excel pastes with Tab between columns)
+      label-mode: Merge mode
+      opt-mode-rows: Join rows (all lines into one)
+      opt-mode-cols: Join columns (each line's cells into one)
+      label-input-delimiter: Input column delimiter (columns mode only)
+      label-output-delimiter: Output delimiter
+      placeholder-custom-delimiter: Custom delimiter
+      opt-delimiter-comma: Comma
+      opt-delimiter-semicolon: Semicolon
+      opt-delimiter-tab: Tab
+      opt-delimiter-newline: Newline
+      opt-delimiter-space: Space
+      opt-delimiter-custom: Custom
+      opt-skip-empty: Skip empty values
+      title-result: Result
+      label-cell-count: Cells
+      action-copy-tsv: Copy as TSV
+      action-clear: Clear
+      message-copied-tsv: Copied as TSV
   sequence-generator:
     title: Sequence Generator
     description: Generate ordered sequences by number, letter, roman numeral, Chinese numeral, weekday, month, heavenly stems, earthly branches, or your own custom list, with prefix/suffix and zero-padding.
@@ -3535,6 +3563,65 @@ tools:
       error-no-result: No translatable text was detected.
       error-network: Translation service is temporarily unavailable, please try again later
 
+  excel-merge-workbooks:
+    title: Multi-Workbook Merger
+    description: Merge multiple Excel or CSV files into one workbook. Supports vertical stacking, one sheet per file, and key-column matching. Runs entirely in your browser.
+    texts:
+      privacy: Files are processed locally in your browser and never uploaded.
+      pick-file: Choose a sample file
+      mode: Merge mode
+      opt-single: Vertical stack (keep first header row)
+      opt-multi: One sheet per file
+      opt-match: Match by key column (left join)
+      placeholder-key: 'Key column to match on, e.g. "ID"'
+      keep-header: Keep header row
+      add-source: Add source file column
+      preview: Parse preview
+      total-rows: Total rows
+      sheet-count: Sheets
+      no-file: Please choose a file first
+      need-key: Key column is required for match mode
+      merging: Merging…
+      btn-merge: Merge and download
+      btn-clear: Clear
+      done: Summary file generated
+      error: Failed to process
+  excel-cell-merge:
+    title: Merge Identical Cells
+    description: Scan a sheet for vertically adjacent identical cells and merge them. Preview the count, then download.
+    texts:
+      privacy: Files are processed locally in your browser and never uploaded.
+      pick-file: Choose a sample file
+      hint: Only vertically adjacent identical cells in the same column are merged.
+      ignore-empty: Ignore empty cells (blanks break the run)
+      preview: Scan result
+      merge-count: Mergeable regions
+      scanned: Scan complete
+      no-file: Please choose a file first
+      no-merges: No adjacent identical regions found
+      btn-merge: Merge and download
+      btn-clear: Clear
+      done: Merged file generated
+      read-error: Failed to read file
+  excel-cell-unmerge:
+    title: Split Merged Cells
+    description: Unmerge merged cells and fill the original value into each cell as needed. Preview the count, then download.
+    texts:
+      privacy: Files are processed locally in your browser and never uploaded.
+      pick-file: Choose a sample file
+      hint: After splitting, fill each cell with the original value per the selected mode.
+      mode: Fill mode
+      opt-fill: Fill same value (every cell gets the original)
+      opt-first: Keep only top-left (others cleared)
+      preview: Scan result
+      merge-count: Merged regions
+      scanned: Scan complete
+      no-file: Please choose a file first
+      no-merges: No merged cells found
+      btn-unmerge: Split and download
+      btn-clear: Clear
+      done: Split file generated
+      read-error: Failed to read file
 collapsibleToolMenu:
   text:
     expanding: Expanding...

@@ -11,4 +11,5 @@ export const tool = defineTool({
   createdAt: new Date('2023-06-18'),
   npmPackages: ['json5'],
   category: 'JSON',
+  tags: ['json', 'excel', 'convert'],
 });

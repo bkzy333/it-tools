@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import Home2 from '~icons/tabler/home-2';
 import Menu2 from '~icons/tabler/menu-2';
+import Table from '~icons/tabler/table';
 import { NIcon, useThemeVars } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
@@ -48,6 +49,12 @@ const tools = computed<ToolCategory[]>(() => [
             {{ $t('home.subtitle') }}
           </div>
         </div>
+      </RouterLink>
+
+      <!-- Excel 专区独立入口：场景化聚合所有表格相关工具，和分类导航区分开，方便老用户直接找到 -->
+      <RouterLink to="/excel" class="excel-zone-entry">
+        <NIcon size="20" :component="Table" />
+        <span>Excel 工具箱</span>
       </RouterLink>
 
       <div class="sider-content">
@@ -145,6 +152,33 @@ const tools = computed<ToolCategory[]>(() => [
     &:hover {
       color: v-bind('themeVars.primaryColor');
     }
+  }
+}
+
+.excel-zone-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 12px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  background: linear-gradient(135deg, #21a366, #1c8f59);
+  box-shadow: 0 4px 12px rgba(33, 163, 102, 0.28);
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+
+  :deep(svg) {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 700px) {
+    margin: 12px 0 0;
   }
 }
 

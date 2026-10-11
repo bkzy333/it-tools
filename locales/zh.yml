@@ -2985,6 +2985,10 @@ tools:
       type-word: 英文单词
       type-cjk: 中文
       type-custom: 自定义正则
+      label-highlight: 高亮预览
+      action-copy-tsv: 复制为 TSV
+      message-highlight-count: 发现 {n} 处高亮
+      message-copied-tsv: 已复制为 TSV
   text-dedupe:
     title: 文本去重排序
     description: 对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。
@@ -3079,6 +3083,30 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
+  text-merge:
+    title: 文本合并
+    description: 把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值，并可一键复制为 TSV 直接粘回 Excel。
+    texts:
+      label-input: 输入内容
+      placeholder-input: 粘贴文本（从 Excel 复制的多列数据可直接粘贴，列以 Tab 分隔）
+      label-mode: 合并模式
+      opt-mode-rows: 多行拼接（所有行连成一行）
+      opt-mode-cols: 多列拼接（每行内部连成一列）
+      label-input-delimiter: 输入列分隔符（仅多列模式）
+      label-output-delimiter: 输出分隔符
+      placeholder-custom-delimiter: 填写自定义分隔符
+      opt-delimiter-comma: 逗号
+      opt-delimiter-semicolon: 分号
+      opt-delimiter-tab: 制表符
+      opt-delimiter-newline: 换行符
+      opt-delimiter-space: 空格
+      opt-delimiter-custom: 自定义
+      opt-skip-empty: 跳过空值
+      title-result: 合并结果
+      label-cell-count: 单元格数
+      action-copy-tsv: 复制为 TSV
+      action-clear: 清空
+      message-copied-tsv: 已复制为 TSV
   sequence-generator:
     title: 序列生成器
     description: 按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零
@@ -3425,6 +3453,65 @@ tools:
       error-no-result: 未识别到可翻译的文字。
       error-network: 翻译服务暂时不可用，请稍后重试
 
+  excel-merge-workbooks:
+    title: 多工作簿汇总
+    description: 把多个 Excel/CSV 文件合并成一个工作簿：支持纵向拼接、每文件一个工作表、按关键列匹配合并，全部在浏览器本地完成，文件不上传服务器。
+    texts:
+      privacy: 文件仅在浏览器本地处理，不会上传到服务器。
+      pick-file: 选择示例文件
+      mode: 合并模式
+      opt-single: 纵向拼接（保留首行表头）
+      opt-multi: 每个文件一个工作表
+      opt-match: 按关键列匹配（左连接）
+      placeholder-key: 填写用于匹配的关键列名，如「编号」
+      keep-header: 保留首行表头
+      add-source: 添加来源文件列
+      preview: 解析预览
+      total-rows: 总行数
+      sheet-count: 工作表数
+      no-file: 请先选择文件
+      need-key: 按列匹配模式需要填写关键列
+      merging: 合并中…
+      btn-merge: 合并并下载
+      btn-clear: 清空
+      done: 已生成汇总文件
+      error: 处理失败
+  excel-cell-merge:
+    title: 合并相同单元格
+    description: 自动扫描工作表中纵向相邻的相同内容并合并为一个单元格，先预览合并区域数量，确认后再下载，文件不上传服务器。
+    texts:
+      privacy: 文件仅在浏览器本地处理，不会上传到服务器。
+      pick-file: 选择示例文件
+      hint: 仅扫描并合并纵向（同列）相邻的相同单元格。
+      ignore-empty: 忽略空单元格（空值不计入连续相同）
+      preview: 扫描结果
+      merge-count: 可合并区域
+      scanned: 扫描完成
+      no-file: 请先选择文件
+      no-merges: 未发现可合并的相同相邻区域
+      btn-merge: 合并并下载
+      btn-clear: 清空
+      done: 已生成合并后的文件
+      read-error: 读取失败
+  excel-cell-unmerge:
+    title: 拆分单元格并填充
+    description: 把已合并的单元格拆开，并按需要把原值填充到每个子单元格，先预览合并区域数量，确认后再下载，文件不上传服务器。
+    texts:
+      privacy: 文件仅在浏览器本地处理，不会上传到服务器。
+      pick-file: 选择示例文件
+      hint: 拆分后原合并区域的值可按模式填充到每个单元格。
+      mode: 填充模式
+      opt-fill: 填充相同值（每个单元格都填原值）
+      opt-first: 仅首格保留值（其余清空）
+      preview: 扫描结果
+      merge-count: 合并区域
+      scanned: 扫描完成
+      no-file: 请先选择文件
+      no-merges: 未发现已合并的单元格
+      btn-unmerge: 拆分并下载
+      btn-clear: 清空
+      done: 已生成拆分后的文件
+      read-error: 读取失败
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……

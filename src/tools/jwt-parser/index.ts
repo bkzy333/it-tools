@@ -26,4 +26,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Key')),
   npmPackages: ['jwt-decode'],
   category: 'Crypto',
+  tags: ['crypto', 'dev'],
 });

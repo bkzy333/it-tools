@@ -24,4 +24,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Coin')),
   createdAt: new Date('2026-10-04'),
   category: 'Finance',
+  tags: ['finance'],
 });

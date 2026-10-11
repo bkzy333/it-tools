@@ -12,4 +12,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Language')),
   createdAt: new Date('2026-10-10'),
   category: 'Text',
+  tags: ['text'],
 });

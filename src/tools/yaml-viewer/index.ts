@@ -15,4 +15,5 @@ export const tool = defineTool({
   // 静态页于是宣称「所有计算都在浏览器本地完成，数据不会上传」，和实际行为矛盾。
   externAccessDescription: t('tools.yaml-prettify.externalAccess'),
   category: 'YAML',
+  tags: ['yaml', 'dev'],
 });

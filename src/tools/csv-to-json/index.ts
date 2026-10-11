@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ArrowsShuffle')),
   createdAt: new Date('2024-04-12'),
   category: 'JSON',
+  tags: ['json', 'excel', 'convert'],
 });

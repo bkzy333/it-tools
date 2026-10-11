@@ -26,6 +26,7 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/World')),
   createdAt: new Date('2026-07-11'),
   category: 'Network',
+  tags: ['network'],
   externAccessDescription:
     "This tool resolves DNS records for a given domain using Cloudflare's DNS over HTTPS API (https://cloudflare-dns.com). It resolves WhoIs throught RDAP API (https://rdap.org).",
 });

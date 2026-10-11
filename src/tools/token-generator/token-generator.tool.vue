@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createToken } from './token-generator.service';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
 import { computedRefreshable } from '@/composable/computedRefreshable';
 
@@ -47,8 +47,6 @@ const [tokens, refreshTokens] = computedRefreshable(() =>
     }),
   ).join('\n'),
 );
-
-const { copy } = useCopy({ source: tokens, text: t('tools.token-generator.copied') });
 </script>
 
 <template>
@@ -108,10 +106,8 @@ const { copy } = useCopy({ source: tokens, text: t('tools.token-generator.copied
         word-wrap
       />
 
-      <div mt-5 flex justify-center gap-3>
-        <c-button @click="copy()">
-          {{ t('tools.token-generator.button.copy') }}
-        </c-button>
+      <div mt-5 flex items-center justify-between gap-3>
+        <CopyExportBar :text="tokens" filename="token" />
         <c-button @click="refreshTokens">
           {{ t('tools.token-generator.button.refresh') }}
         </c-button>

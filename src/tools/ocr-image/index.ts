@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Scan')),
   createdAt: new Date('2024-03-09'),
   category: 'Images',
+  tags: ['images'],
   externAccessDescription: t('tools.ocr-image.externalAccess'),
 });

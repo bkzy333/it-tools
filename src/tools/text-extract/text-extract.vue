@@ -7,6 +7,8 @@ import {
   EXTRACT_UI_OPTIONS,
   extractFromText,
   totalMatches,
+  collectSpans,
+  highlightHtml,
   type ExtractGroup,
   type ExtractType,
 } from './text-extract.service';
@@ -16,8 +18,8 @@ const { copy } = useCopy();
 
 /* ------------------------------------------------------------------ 输入状态 */
 const input = ref('');
-/** 默认勾常用的几类，全勾会让首屏就糊满结果 */
-const selected = ref<ExtractType[]>(['phone', 'email', 'url', 'ip', 'date', 'time', 'money']);
+/** 默认勾常用的几类，全勾会让首屏就糊满结果；数值按 §4 合理默认值纳入 */
+const selected = ref<ExtractType[]>(['number', 'phone', 'email', 'url', 'ip', 'date', 'time', 'money']);
 const dedupe = ref(true);
 const customPattern = ref('');
 
@@ -75,6 +77,16 @@ const groups = computed<ExtractGroup[]>(() =>
 const total = computed(() => totalMatches(groups.value));
 
 const hasResult = computed(() => total.value > 0);
+
+/* ------------------------------------------------------------------ 匹配高亮预览 */
+const spans = computed(() => (input.value ? collectSpans(input.value, selected.value, customPattern.value) : []));
+const highlightedHtml = computed(() => highlightHtml(input.value, spans.value));
+const highlightCount = computed(() => spans.value.length);
+
+function copyTsv() {
+  const tsv = groups.value.map((g) => g.matches.join('\n')).join('\n');
+  copy(tsv, { notificationMessage: t('tools.text-extract.texts.message-copied-tsv') });
+}
 
 function resultText(group: ExtractGroup): string {
   return group.matches.join('\n');
@@ -152,6 +164,16 @@ function clearAll() {
       </n-checkbox>
     </div>
 
+    <!-- 高亮预览：原文 + 命中处高亮，逐段转义防 XSS -->
+    <template v-if="input">
+      <n-divider />
+      <div flex items-center justify-between gap-2 mb-2>
+        <span font-medium>{{ t('tools.text-extract.texts.label-highlight') }}</span>
+        <span text-sm op-60>{{ t('tools.text-extract.texts.message-highlight-count', { n: highlightCount }) }}</span>
+      </div>
+      <pre class="extract-highlight" v-html="highlightedHtml" />
+    </template>
+
     <!-- 结果区 -->
     <template v-if="groups.length">
       <n-divider />
@@ -161,6 +183,9 @@ function clearAll() {
         <div flex gap-2>
           <c-button size="small" :disabled="!hasResult" @click="copy(groups.map(resultText).join('\n\n'))">
             {{ t('tools.text-extract.texts.action-copy-all') }}
+          </c-button>
+          <c-button size="small" :disabled="!hasResult" @click="copyTsv">
+            {{ t('tools.text-extract.texts.action-copy-tsv') }}
           </c-button>
           <c-button size="small" :disabled="!hasResult" @click="downloadAll">
             {{ t('tools.text-extract.texts.action-download') }}
@@ -197,3 +222,26 @@ function clearAll() {
     </template>
   </c-card>
 </template>
+
+<style scoped>
+.extract-highlight {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--n-color-target, rgba(0, 0, 0, 0.03));
+  border: 1px solid var(--n-border-color, rgba(0, 0, 0, 0.08));
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.7;
+  max-height: 360px;
+  overflow: auto;
+}
+.extract-hl {
+  background: rgba(250, 204, 21, 0.4);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 600;
+}
+</style>

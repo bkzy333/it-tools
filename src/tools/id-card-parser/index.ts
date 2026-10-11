@@ -21,4 +21,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Id')),
   createdAt: new Date('2026-10-03'),
   category: 'Data',
+  tags: ['data'],
 });

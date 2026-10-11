@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Qrcode')),
   npmPackages: ['qrcode'],
   category: 'Barcodes',
+  tags: ['barcodes', 'generator'],
 });

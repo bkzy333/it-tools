@@ -46,4 +46,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ArrowsLeftRight')),
   createdAt: new Date('2024-08-15'),
   category: 'Converters',
+  tags: ['converters', 'convert'],
 });

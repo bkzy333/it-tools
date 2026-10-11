@@ -2,11 +2,10 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
-import { useCopy } from '@/composable/copy';
-import { transformTable, type TableShapeOp } from './table-transpose.service';
+import CopyExportBar from '@/components/CopyExportBar.vue';
+import { transformTable, detectDelimiter, type TableShapeOp } from './table-transpose.service';
 
 const { t } = useI18n();
-const { copy } = useCopy();
 
 /* -------------------------------------------------------------- 状态 */
 const input = ref('');
@@ -65,20 +64,13 @@ const output = computed(() =>
   }),
 );
 
-const canCopy = computed(() => output.value.length > 0);
-
-function copyResult() {
-  copy(output.value);
-}
-
-function downloadResult() {
-  const blob = new Blob([output.value], { type: 'text/plain;charset=utf-8' });
-  const anchor = document.createElement('a');
-  anchor.href = URL.createObjectURL(blob);
-  anchor.download = document.documentElement.lang.startsWith('zh') ? '表格转换.txt' : 'table-transform.txt';
-  anchor.click();
-  URL.revokeObjectURL(anchor.href);
-}
+const exportRows = computed<string[][]>(() => {
+  if (op.value === 'flatten' || op.value === 'merge') {
+    return output.value.split(/\r?\n/).map((line) => [line]);
+  }
+  const delim = delimiter.value || detectDelimiter(output.value);
+  return output.value.split(/\r?\n/).map((line) => line.split(delim));
+});
 
 function clearAll() {
   input.value = '';
@@ -122,12 +114,7 @@ function clearAll() {
 
     <c-card :title="t('tools.table-transpose.texts.title-result')" mt-4>
       <div flex items-center justify-end gap-2 mb-2>
-        <c-button size="small" :disabled="!canCopy" @click="copyResult">
-          {{ t('tools.table-transpose.texts.action-copy') }}
-        </c-button>
-        <c-button size="small" :disabled="!canCopy" @click="downloadResult">
-          {{ t('tools.table-transpose.texts.action-download') }}
-        </c-button>
+        <CopyExportBar :text="output" filename="表格转换" :rows="exportRows" />
       </div>
 
       <n-input :value="output" type="textarea" :rows="10" readonly

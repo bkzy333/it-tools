@@ -18,6 +18,7 @@ import { swapCase } from 'swap-case';
 import { titleCase } from 'title-case';
 
 import InputCopyable from '../../components/InputCopyable.vue';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { useQueryParam, useQueryParamOrStorage } from '@/composable/queryParams';
 import { useValidation } from '@/composable/validation';
 import { getSupportedLanguages, toLanguageTitleCase } from './case-converter.service.ts';
@@ -137,6 +138,17 @@ const inputLabelAlignmentConfig = {
   labelWidth: '125px',
   labelAlign: 'right',
 } as const;
+
+// 聚合全部格式的文本（复制全部 / 导出 TXT 用），以及 A列输入 + 各格式列的二维表（导出 Excel 用）
+const allResultsText = computed(() =>
+  formats.value.map((f) => `${f.label}：${f.value?.join('，') ?? ''}`).join('\n'),
+);
+
+const exportRows = computed(() => {
+  const header = ['输入', ...formats.value.map((f) => f.label)];
+  const rows = inputCleaned.value.map((line, i) => [line, ...formats.value.map((f) => f.value?.[i] ?? '')]);
+  return [header, ...rows];
+});
 </script>
 
 <template>
@@ -170,6 +182,10 @@ const inputLabelAlignmentConfig = {
     />
 
     <div my-16px divider />
+
+    <div flex justify-end mb-2>
+      <CopyExportBar :text="allResultsText" filename="大小写转换" :rows="exportRows" />
+    </div>
 
     <InputCopyable
       v-for="format in formats"

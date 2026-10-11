@@ -97,6 +97,13 @@ const router = createRouter({
       name: 'guide',
       component: () => import('./pages/GuidePage.vue'),
     },
+    // Excel 专区聚合页 /excel：场景化聚合所有 tags 含 'excel' 的工具。
+    // 构建期由 build/seo-prerender.ts 的 renderExcelZonePage() 生成同源静态 HTML。
+    {
+      path: '/excel',
+      name: 'excel-zone',
+      component: () => import('./pages/ExcelZonePage.vue'),
+    },
     ...toolsRoutes,
     ...toolsRedirectRoutes,
     ...demoRoutes,

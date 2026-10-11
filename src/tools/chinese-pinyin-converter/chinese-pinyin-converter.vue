@@ -9,6 +9,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { appBaseUrl } from '@/utils/base-url';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { joinPinyin, loadPinyinDict, tokenize, type PinyinItem, type PinyinStyle } from './pinyin';
 
 const { t } = useI18n();
@@ -109,6 +110,9 @@ const hasResult = computed(() => items.value.length > 0);
 
     <c-card v-if="hasResult" :title="t('tools.chinese-pinyin-converter.texts.title-output')" mb-3>
       <input-copyable :value="output" />
+      <div flex justify-end mt-2>
+        <CopyExportBar :text="output" filename="拼音" />
+      </div>
     </c-card>
 
     <c-card v-if="hasResult" :title="t('tools.chinese-pinyin-converter.texts.title-detail')">

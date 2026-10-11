@@ -9,4 +9,5 @@ export const tool = defineTool({
   component: () => import('./integer-base-converter.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ArrowsLeftRight')),
   category: 'Converters',
+  tags: ['converters', 'convert'],
 });

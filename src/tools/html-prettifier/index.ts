@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/BrandHtml5')),
   createdAt: new Date('2024-03-15'),
   category: 'Web',
+  tags: ['web', 'dev'],
 });

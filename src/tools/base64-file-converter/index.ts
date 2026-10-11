@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/FileDigit')),
   npmPackages: ['js-base64'],
   category: 'Converters',
+  tags: ['converters', 'convert'],
 });

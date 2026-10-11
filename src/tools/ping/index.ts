@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/DoorEnter')),
   createdAt: new Date('2026-07-12'),
   category: 'Network',
+  tags: ['network'],
   externAccessDescription: t('tools.ping.externalAccess'),
 });

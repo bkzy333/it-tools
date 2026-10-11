@@ -26,4 +26,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Hourglass')),
   createdAt: new Date('2026-10-07'),
   category: 'Datetime',
+  tags: ['datetime'],
 });

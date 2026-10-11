@@ -20,4 +20,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/SwitchHorizontal')),
   createdAt: new Date('2026-10-03'),
   category: 'Text',
+  tags: ['text', 'data-cleaning', 'convert'],
 });

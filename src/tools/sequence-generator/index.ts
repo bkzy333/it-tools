@@ -11,4 +11,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/ListNumbers')),
   createdAt: new Date('2026-10-09'),
   category: 'Generators',
+  tags: ['generators', 'excel', 'generator'],
 });

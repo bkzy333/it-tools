@@ -25,4 +25,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@tabler/icons-vue/dist/esm/icons/IconDatabaseStar.mjs')),
   npmPackages: ['sql-formatter'],
   category: 'Development',
+  tags: ['development', 'dev'],
 });

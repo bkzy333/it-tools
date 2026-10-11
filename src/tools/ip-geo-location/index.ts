@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/World')),
   createdAt: new Date('2024-01-17'),
   category: 'Network',
+  tags: ['network'],
   externAccessDescription: t('tools.ip-geo-location.externalAccess'),
 });

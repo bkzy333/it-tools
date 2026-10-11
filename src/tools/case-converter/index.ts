@@ -27,4 +27,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/LetterCaseToggle')),
   npmPackages: ['change-case'],
   category: 'Text',
+  tags: ['text', 'data-cleaning'],
 });

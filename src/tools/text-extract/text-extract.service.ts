@@ -126,3 +126,70 @@ export function extractFromText(
 export function totalMatches(groups: ExtractGroup[]): number {
   return groups.reduce((sum, g) => sum + g.matches.length, 0);
 }
+
+/* ------------------------------------------------------------------ 匹配高亮 */
+
+export interface MatchSpan {
+  start: number;
+  end: number;
+  text: string;
+}
+
+/**
+ * 跨所有选中类型收集命中区间，用于「高亮预览」。
+ * 按出现顺序返回，并对重叠区间做去重（后出现的如果落在已有区间内就丢弃），
+ * 避免多个规则命中同一段文本时叠加出嵌套的 <mark>。
+ */
+export function collectSpans(text: string, types: ExtractType[], customPattern: string): MatchSpan[] {
+  const spans: MatchSpan[] = [];
+  for (const key of types) {
+    const source = key === 'custom' ? customPattern : PATTERN_BY_KEY.get(key);
+    if (!source) continue;
+    let re: RegExp;
+    try {
+      re = new RegExp(source, 'g');
+    } catch {
+      continue;
+    }
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      if (m[0] === '') {
+        re.lastIndex += 1; // 空匹配会死循环，必须手动前进
+        continue;
+      }
+      spans.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
+    }
+  }
+  spans.sort((a, b) => a.start - b.start);
+  const merged: MatchSpan[] = [];
+  let lastEnd = -1;
+  for (const s of spans) {
+    if (s.start >= lastEnd) {
+      merged.push(s);
+      lastEnd = s.end;
+    }
+  }
+  return merged;
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * 把原文转成带 <mark> 的高亮 HTML。
+ * ⚠ 必须「按原始索引切片后再各自转义」——直接在整段转义后的字符串上按原始索引切片会错位
+ * （& → &amp; 让后续字符偏移）。所以这里逐段 escape，绝不先整段 escape。
+ */
+export function highlightHtml(text: string, spans: MatchSpan[]): string {
+  if (!spans.length) return escapeHtml(text);
+  let out = '';
+  let cursor = 0;
+  for (const s of spans) {
+    out += escapeHtml(text.slice(cursor, s.start));
+    out += `<mark class="extract-hl">${escapeHtml(text.slice(s.start, s.end))}</mark>`;
+    cursor = s.end;
+  }
+  out += escapeHtml(text.slice(cursor));
+  return out;
+}

@@ -37,6 +37,7 @@ interface ToolMeta {
   redirectFrom: string[];
   npmPackages: string[];
   isExternalAccess: boolean;
+  tags: string[];
   tier: 'L1' | 'L2' | 'L3';
 }
 
@@ -383,6 +384,45 @@ function renderCategoryPage(category: string, categoryZh: string, seoName: strin
       `这一页汇总了本站所有${categoryZh}相关的工具。每个工具点进去都能直接使用，处理过程在浏览器本地完成，输入的数据不会上传到服务器。`,
     )}</p>`,
   ].join('\n');
+}
+
+/**
+ * Excel 专区聚合页 /excel 的静态正文。
+ *
+ * 专区是「多维标签」视角：凡是 index.ts 里 tags 含 'excel' 的工具都出现在这里，
+ * 不依赖它属于哪个主分类。这里过滤条件和 ExcelZonePage.vue 运行时用的是同一份
+ * 逻辑（tags.includes('excel')），工具集合一致才不会给爬虫两套内容。
+ */
+function renderExcelZonePage(tools: ToolMeta[]): string {
+  const excel = tools.filter((t) => (t.tags ?? []).includes('excel'));
+  const native = excel.filter((t) => (t.tags ?? []).includes('excel-native'));
+  const aux = excel.filter((t) => !(t.tags ?? []).includes('excel-native'));
+
+  const listHtml = (list: ToolMeta[]) =>
+    list
+      .map(
+        (t) =>
+          `<li><a class="seo-link" href="${esc(href(t.path))}">${esc(t.title)}</a> — ${esc(t.description)}</li>`,
+      )
+      .join('');
+
+  return [
+    breadcrumbHtml([{ name: '首页', href: '/' }, { name: 'Excel 工具箱' }]),
+    `<h1>Excel 工具箱</h1>`,
+    `<p class="seo-lead">${esc(
+      'Excel 工具箱汇集了本站所有和表格处理相关的免费在线工具。文件类操作（多工作簿汇总、合并/拆分单元格等）全部在你的浏览器本地完成，文件不会上传到服务器；数据清洗类工具支持从 Excel 直接复制粘贴，结果一键复制回表格。',
+    )}</p>`,
+    native.length > 0
+      ? `<h2>专属核心工具</h2><ul>${listHtml(native)}</ul>`
+      : '',
+    aux.length > 0
+      ? `<h2>数据清洗辅助</h2><ul>${listHtml(aux)}</ul>`
+      : '',
+    `<h2>关于 Excel 工具箱</h2>`,
+    `<p>这一页按使用场景聚合了表格处理相关的工具，涵盖多工作簿汇总、合并与拆分单元格、文本提取、去重、数值舍入、CSV/JSON 互转等。每个工具点进去都能直接使用，计算过程在浏览器本地完成，输入的数据不上传服务器。</p>`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function renderGuidePage(
@@ -758,6 +798,37 @@ export function seoPrerender(): Plugin {
         if (!categoryNoindex) {
           written.push({ loc: route, priority: PRIORITY.category });
         }
+      }
+
+      // ---------- 2.5 Excel 专区聚合页 /excel ----------
+      // 和 ExcelZonePage.vue 用同一份 tags 过滤逻辑，工具集合一致才不触发 cloaking。
+      {
+        const excelBody = renderExcelZonePage(tools);
+        let html = injectStyle(template);
+        html = injectBody(html, excelBody);
+        html = rewriteHead(html, {
+          title: `Excel 工具箱 - ${SITE_NAME}`,
+          description:
+            'Excel 相关免费在线工具汇总：多工作簿汇总、合并/拆分单元格、文本提取、去重、数值舍入、CSV/JSON 互转等，全部浏览器本地运行，文件不上传服务器。',
+          keywords: 'Excel工具,Excel在线,表格处理,多工作簿汇总,合并单元格,数据清洗',
+          canonical: url('/excel'),
+          jsonLd: [
+            {
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'CollectionPage',
+                  name: 'Excel 工具箱',
+                  description: '本站表格处理相关在线工具的场景化汇总',
+                  url: url('/excel'),
+                },
+                breadcrumbLd([{ name: '首页', href: '/' }, { name: 'Excel 工具箱' }]),
+              ],
+            },
+          ],
+        });
+        emit('/excel', html);
+        written.push({ loc: '/excel', priority: PRIORITY.category });
       }
 
       // ---------- 3. 教程页 ----------

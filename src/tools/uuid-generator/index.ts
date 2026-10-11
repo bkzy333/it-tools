@@ -25,4 +25,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Fingerprint')),
   npmPackages: ['uuid'],
   category: 'Generators',
+  tags: ['generators', 'generator'],
 });

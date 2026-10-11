@@ -23,4 +23,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/CalendarEvent')),
   createdAt: new Date('2026-10-04'),
   category: 'Datetime',
+  tags: ['datetime'],
 });

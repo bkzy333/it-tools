@@ -9,6 +9,7 @@ import {
 } from './markdown-table-generator.service';
 import { subscribe } from '@github/paste-markdown';
 import CInputText from '@/ui/c-input-text/c-input-text.vue';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 
 const table = ref(createMarkdownTable());
 const alignmentOptions: { label: string; value: MarkdownTableAlignment }[] = [
@@ -24,6 +25,8 @@ onMounted(() => {
   subscribe(inputElement.value?.textareaRef as never);
 });
 const output = computed(() => generateMarkdownTable(table.value));
+
+const exportRows = computed<string[][]>(() => [table.value.headers, ...table.value.rows]);
 
 function addColumn() {
   const columnNumber = table.value.headers.length + 1;
@@ -160,7 +163,8 @@ function onPasteMarkdownTable(markdownContent: string) {
     <n-divider />
 
     <n-form-item :label="t('tools.markdown-table-generator.texts.label-generated-markdown-table')">
-      <TextareaCopyable :value="output" language="markdown" copy-placement="outside" />
+      <n-input :value="output" type="textarea" readonly :rows="6" />
     </n-form-item>
+    <CopyExportBar :text="output" :rows="exportRows" filename="markdown表格" />
   </div>
 </template>

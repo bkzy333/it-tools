@@ -9,4 +9,5 @@ export const tool = defineTool({
   component: () => import('./url-encoder.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Link')),
   category: 'Web',
+  tags: ['web', 'convert'],
 });

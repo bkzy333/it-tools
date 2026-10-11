@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import {
   clampDigits,
   decimalToFraction,
@@ -18,7 +18,6 @@ import {
 } from './number-rounding.service';
 
 const { t } = useI18n();
-const { copy } = useCopy();
 
 /* ------------------------------------------------------------------ 输入状态 */
 const input = ref('');
@@ -81,8 +80,6 @@ const invalidCells = computed(() => parsed.value.cells.filter((c) => c.invalid))
 
 const output = computed(() => rows.value.map((r) => formatValue(r.output, digitsSafe.value)).join('\n'));
 
-const canCopy = computed(() => output.value.length > 0);
-
 /** 统计跟着「批量运算之后」的结果走，不然勾了乘 1.1 还看到原值合计会误导 */
 const stats = computed(() => {
   const values = rows.value.map((r) => r.output);
@@ -131,27 +128,7 @@ const textnumOut = computed(() =>
     .join('\n'),
 );
 
-const canCopyFmt = computed(() => textnumOut.value.length > 0 || fmtMode.value !== 'textnum');
-
-function copyFmt() {
-  const text = fmtMode.value === 'dec2frac' ? dec2fracOut.value : fmtMode.value === 'frac2dec' ? frac2decOut.value : textnumOut.value;
-  copy(text);
-}
-
 /* ------------------------------------------------------------------ 动作 */
-async function copyResult() {
-  await copy(output.value);
-}
-
-function downloadResult() {
-  const blob = new Blob([output.value], { type: 'text/plain;charset=utf-8' });
-  const anchor = document.createElement('a');
-  anchor.href = URL.createObjectURL(blob);
-  anchor.download = document.documentElement.lang.startsWith('zh') ? '数值舍入结果.txt' : 'number-rounding.txt';
-  anchor.click();
-  URL.revokeObjectURL(anchor.href);
-}
-
 function clearAll() {
   input.value = '';
 }
@@ -204,14 +181,7 @@ function clearAll() {
     <c-card :title="t('tools.number-rounding.texts.title-result')" mt-4>
       <div flex items-center justify-between gap-2 mb-2>
         <span text-sm text-gray-500>{{ summaryText }}</span>
-        <div flex gap-2>
-          <c-button size="small" :disabled="!canCopy" @click="copyResult">
-            {{ t('tools.number-rounding.texts.action-copy') }}
-          </c-button>
-          <c-button size="small" :disabled="!canCopy" @click="downloadResult">
-            {{ t('tools.number-rounding.texts.action-download') }}
-          </c-button>
-        </div>
+        <CopyExportBar :text="output" filename="数值舍入" />
       </div>
 
       <p v-if="divideZeroCount" mb-2 text-orange-500 text-sm>
@@ -237,7 +207,7 @@ function clearAll() {
           <div mb-1 text-sm>{{ t('tools.number-rounding.texts.fmt-result-dec2frac') }}</div>
           <n-input :value="dec2fracOut" readonly />
         </div>
-        <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+        <CopyExportBar :text="dec2fracOut" filename="小数转分数" />
       </div>
 
       <div v-else-if="fmtMode === 'frac2dec'" flex items-center gap-3>
@@ -253,7 +223,7 @@ function clearAll() {
           <div mb-1 text-sm>{{ t('tools.number-rounding.texts.fmt-result-frac2dec') }}</div>
           <n-input :value="frac2decOut" readonly />
         </div>
-        <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+        <CopyExportBar :text="frac2decOut" filename="分数转小数" />
       </div>
 
       <div v-else>
@@ -269,7 +239,7 @@ function clearAll() {
             <div mb-1 text-sm>{{ t('tools.number-rounding.texts.label-decimals') }}</div>
             <n-input-number v-model:value="fmtDecimals" :min="0" :max="10" style="width: 100%" />
           </div>
-          <c-button size="small" @click="copyFmt">{{ t('tools.number-rounding.texts.action-copy') }}</c-button>
+          <CopyExportBar :text="textnumOut" filename="文本数字清洗" />
         </div>
         <div mb-1 text-sm mt-3>{{ t('tools.number-rounding.texts.fmt-result-textnum') }}</div>
         <n-input :value="textnumOut" type="textarea" :rows="6" readonly

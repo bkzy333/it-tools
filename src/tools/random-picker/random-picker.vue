@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { createToken } from '../token-generator/token-generator.service';
 import { pickUnique, pickWeighted, shuffle, splitEvenly } from './random-picker.service';
-import { useCopy } from '@/composable/copy';
+import CopyExportBar from '@/components/CopyExportBar.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
 import { computedRefreshable } from '@/composable/computedRefreshable';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
@@ -53,7 +53,6 @@ function makeTokens() {
 }
 
 const [tokens, refreshTokens] = computedRefreshable(makeTokens);
-const { copy: copyTokens } = useCopy({ source: tokens, text: t('tools.random-picker.copied') });
 
 /* ------------------------------------------------------------------ 2. 抽签与打乱 */
 const candidates = ref('张三\n李四\n王五\n赵六\n孙七');
@@ -71,7 +70,6 @@ function makeLottery() {
     : pickUnique(list, pickCount.value).join('\n');
 }
 const [lotteryResult, reroll] = computedRefreshable(makeLottery);
-const { copy: copyLottery } = useCopy({ source: lotteryResult, text: t('tools.random-picker.copied') });
 
 const candidateList = computed(() =>
   candidates.value
@@ -129,7 +127,6 @@ function makeWeighted() {
   return pickWeighted(parsed.items, weightedCount.value, weightedUnique.value).join('\n');
 }
 const [weightedResult, rerollWeighted] = computedRefreshable(makeWeighted);
-const { copy: copyWeighted } = useCopy({ source: weightedResult, text: t('tools.random-picker.copied') });
 
 /* ------------------------------------------------------------------ 4. 按权重分摊 */
 const splitInput = ref('房东,2\n二房东,1\n租户,1');
@@ -160,7 +157,6 @@ const splitResult = computed(() => {
     + `\n${t('tools.random-picker.texts.label-split-sum')}：${(sum / scale).toFixed(splitDecimals.value)} / ${(target / scale).toFixed(splitDecimals.value)}`
     + (sum === target ? ` · ${t('tools.random-picker.texts.message-split-balanced')}` : '');
 });
-const { copy: copySplit } = useCopy({ source: splitResult, text: t('tools.random-picker.copied') });
 
 /* ------------------------------------------------------------------ 一键示例
    放在所有 ref 声明之后：loadExample 会写入 length / count / candidates / weightedInput /
@@ -235,8 +231,8 @@ function loadExample() {
           word-wrap
         />
 
-        <div mt-5 flex justify-center gap-3>
-          <c-button @click="copyTokens()">{{ t('tools.random-picker.button.copy') }}</c-button>
+        <div mt-5 flex items-center justify-between gap-3>
+          <CopyExportBar :text="tokens" filename="随机令牌" />
           <c-button @click="refreshTokens">{{ t('tools.random-picker.button.refresh') }}</c-button>
         </div>
       </n-tab-pane>
@@ -280,8 +276,8 @@ function loadExample() {
           word-wrap
         />
 
-        <div mt-5 flex justify-center gap-3>
-          <c-button @click="copyLottery()">{{ t('tools.random-picker.button.copy') }}</c-button>
+        <div mt-5 flex items-center justify-between gap-3>
+          <CopyExportBar :text="lotteryResult" filename="抽签结果" />
           <c-button @click="reroll">{{ t('tools.random-picker.button.refresh') }}</c-button>
         </div>
       </n-tab-pane>
@@ -322,8 +318,8 @@ function loadExample() {
           word-wrap
         />
 
-        <div mt-5 flex justify-center gap-3>
-          <c-button @click="copyWeighted()">{{ t('tools.random-picker.button.copy') }}</c-button>
+        <div mt-5 flex items-center justify-between gap-3>
+          <CopyExportBar :text="weightedResult" filename="加权抽样" />
           <c-button @click="rerollWeighted">{{ t('tools.random-picker.button.refresh') }}</c-button>
         </div>
       </n-tab-pane>
@@ -364,8 +360,8 @@ function loadExample() {
           word-wrap
         />
 
-        <div mt-5 flex justify-center gap-3>
-          <c-button @click="copySplit()">{{ t('tools.random-picker.button.copy') }}</c-button>
+        <div mt-5 flex items-center justify-between gap-3>
+          <CopyExportBar :text="splitResult" filename="权重分摊" />
         </div>
       </n-tab-pane>
     </n-tabs>

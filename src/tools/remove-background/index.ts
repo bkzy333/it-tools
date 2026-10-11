@@ -10,5 +10,6 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/PictureInPictureOff')),
   createdAt: new Date('2026-03-15'),
   category: 'Images',
+  tags: ['images'],
   externAccessDescription: t('tools.remove-background.externalAccess'),
 });

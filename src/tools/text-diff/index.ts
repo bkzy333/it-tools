@@ -10,4 +10,5 @@ export const tool = defineTool({
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/FileDiff')),
   createdAt: new Date('2023-08-16'),
   category: 'Text',
+  tags: ['text', 'data-cleaning'],
 });

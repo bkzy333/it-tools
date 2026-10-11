@@ -15,6 +15,10 @@ export interface Tool {
   footer?: string;
   category: string;
   externalHTMLContent?: string;
+  // 多维标签（Faceted Classification）：工具是实体，分类只是观察视角。
+  // 打 'excel' 的工具会出现在 /excel 专区聚合页，但不改变其主分类（category）。
+  // 纯加法字段，旧工具不写也不会报错；提取脚本与预渲染都按「可选」处理。
+  tags?: string[];
 }
 
 export interface ExternalTool {

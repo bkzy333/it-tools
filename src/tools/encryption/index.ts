@@ -11,4 +11,5 @@ export const tool = defineTool({
   redirectFrom: ['/cypher'],
   npmPackages: ['crypto-es', '@noble/ciphers'],
   category: 'Crypto',
+  tags: ['crypto'],
 });
