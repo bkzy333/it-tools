@@ -2558,6 +2558,8 @@ tools:
       title-detail: Character breakdown
       hint-polyphone: Characters marked with * are polyphonic; the most common reading is used here. Word-level disambiguation needs a dictionary.
       hint-error: Failed to load the pinyin dictionary. Check your network and try again.
+      col-char: Character
+      col-pinyin: Pinyin
   fullwidth-halfwidth-converter:
     title: Fullwidth / Halfwidth Converter
     description: Convert fullwidth characters to halfwidth or vice versa, with live conversion and fullwidth ratio stats; Chinese punctuation is preserved.

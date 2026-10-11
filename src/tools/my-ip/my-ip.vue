@@ -17,10 +17,35 @@ interface IpInfo {
   source: string;
 }
 
-// 上游原本用 api4.ipify.org / api6.ipify.org，实测这两个域名在国内不可达，
-// 页面直接抛 "Failed to fetch"。这里改成多源回退：优先拿带归属地的整包数据，
-// 拿不到就退而求其次只要 IP，保证至少能显示公网地址。
+// 优先走本站同源接口 /api/my-ip（Cloudflare 边缘直接返回访客 IP 与归属地，
+// 同源、无 CORS、国内必通、零第三方依赖）。只有在函数未部署/异常时才回退到第三方源。
 const IP_SOURCES: Array<{ name: string; fetch: () => Promise<IpInfo> }> = [
+  {
+    name: 'gjxtools-edge',
+    fetch: async () => {
+      const response = await fetch('/api/my-ip');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      if (!data?.ip) {
+        throw new Error(data?.message || data?.error || 'no ip returned');
+      }
+      return {
+        ip: data.ip,
+        type: data.type ?? '',
+        country: data.country ?? '',
+        countryCode: data.countryCode ?? '',
+        region: data.region ?? '',
+        city: data.city ?? '',
+        timezone: data.timezone ?? '',
+        isp: data.isp ?? '',
+        org: data.org ?? '',
+        asn: data.asn ?? '',
+        source: 'gjxtools-edge',
+      };
+    },
+  },
   {
     name: 'ipwho.is',
     fetch: async () => {

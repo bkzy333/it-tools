@@ -10,7 +10,7 @@ import { useI18n } from 'vue-i18n';
 
 import { appBaseUrl } from '@/utils/base-url';
 import CopyExportBar from '@/components/CopyExportBar.vue';
-import { joinPinyin, loadPinyinDict, tokenize, type PinyinItem, type PinyinStyle } from './pinyin';
+import { formatPinyin, joinPinyin, loadPinyinDict, tokenize, type PinyinItem, type PinyinStyle } from './pinyin';
 
 const { t } = useI18n();
 
@@ -70,6 +70,22 @@ const output = computed(() => joinPinyin(items.value, style.value, separator.val
 
 const polyphones = computed(() => items.value.filter((item) => item.polyphone));
 const hasResult = computed(() => items.value.length > 0);
+
+/** 逐字对照的 Excel 行：表头 + 每字一行（汉字 / 拼音），拼音跟随「拼音格式」选择 */
+const gridRows = computed<string[][]>(() => {
+  const header = [
+    t('tools.chinese-pinyin-converter.texts.col-char'),
+    t('tools.chinese-pinyin-converter.texts.col-pinyin'),
+  ];
+  const body = items.value.map((item) => [
+    item.char,
+    item.isHan && item.raw ? formatPinyin(item.raw, style.value) : '',
+  ]);
+  return [header, ...body];
+});
+
+/** 逐字对照的复制 / TXT 文本：TSV，可直接粘回 Excel 两列 */
+const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\t')).join('\n'));
 </script>
 
 <template>
@@ -116,10 +132,13 @@ const hasResult = computed(() => items.value.length > 0);
     </c-card>
 
     <c-card v-if="hasResult" :title="t('tools.chinese-pinyin-converter.texts.title-detail')">
+      <div flex justify-end mb-2>
+        <CopyExportBar :text="gridText" filename="逐字对照" :rows="gridRows" />
+      </div>
       <div class="char-grid">
         <div v-for="(item, index) in items" :key="index" class="char-cell">
           <div class="char">{{ item.char }}</div>
-          <div class="char-pinyin">{{ item.raw || '-' }}</div>
+          <div class="char-pinyin">{{ item.isHan && item.raw ? formatPinyin(item.raw, style) : '-' }}</div>
         </div>
       </div>
       <div v-if="polyphones.length > 0" class="hint" mt-2>

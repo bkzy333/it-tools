@@ -1542,6 +1542,8 @@ tools:
       title-detail: 逐字对照
       hint-polyphone: 带 * 的字是多音字，这里取最常用读音，词组级消歧需要词库支持
       hint-error: 拼音字典加载失败，请检查网络后重试
+      col-char: 汉字
+      col-pinyin: 拼音
   color-converter:
     title: 颜色转换器
     description: 在不同格式（十六进制、RGB、HSL和CSS名称）之间转换颜色
