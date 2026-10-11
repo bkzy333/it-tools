@@ -7,9 +7,12 @@
  *
  * 多音字说明：字典里多音字只取最常用读音。要做"银行 / 行动"这种词组级
  * 消歧需要词库 + 分词，那是另一个量级的事，这里不假装能做到。
+ *
+ * 本文件负责「单个读音 → 目标格式」以及「整段 → 含原文位置的结果串」，
+ * 所有与布局/位置相关的组合逻辑都收敛到这里，方便单测与复用。
  */
 
-export type PinyinStyle = 'tone' | 'number' | 'plain' | 'initial';
+export type PinyinStyle = 'tone' | 'number' | 'number-mid' | 'plain' | 'initial';
 
 /** 带调号字母 → [基础字母, 声调] */
 const TONE_MAP: Record<string, [string, number]> = {
@@ -23,7 +26,7 @@ const TONE_MAP: Record<string, [string, number]> = {
   m̄: ['m', 1], ḿ: ['m', 2], m̀: ['m', 4],
 };
 
-/** 带声调 → 数字声调，如 yī → yi1 */
+/** 带声调 → 数字声调（末位），如 yī → yi1 */
 export function toNumberTone(pinyin: string): string {
   let tone = 0;
   let result = '';
@@ -40,35 +43,102 @@ export function toNumberTone(pinyin: string): string {
   return tone > 0 ? `${result}${tone}` : result;
 }
 
-/** 带声调 → 无声调，ü 转写成 u（输入法里打 v，但对外展示 u 更通用） */
-export function toPlain(pinyin: string): string {
+/**
+ * 带声调 → 数字声调（中置），按标准声调元音位置插入数字，如 zhōng → zho1ng。
+ * 元音优先级：a > e > o > 最后一个 i/u/ü（覆盖 iu/ui 取末位元音的规则）。
+ */
+export function toNumberToneMid(pinyin: string): string {
+  let tone = 0;
+  const base: string[] = [];
+  for (const char of pinyin) {
+    const mapped = TONE_MAP[char];
+    if (mapped) {
+      base.push(mapped[0]);
+      tone = mapped[1];
+    }
+    else {
+      base.push(char);
+    }
+  }
+  const s = base.join('');
+  if (tone === 0) {
+    return s;
+  }
+  const idx = toneVowelIndex(s);
+  return `${s.slice(0, idx + 1)}${tone}${s.slice(idx + 1)}`;
+}
+
+/** 标准拼音声调元音位置 */
+function toneVowelIndex(s: string): number {
+  let i = s.indexOf('a');
+  if (i >= 0) {
+    return i;
+  }
+  i = s.indexOf('e');
+  if (i >= 0) {
+    return i;
+  }
+  i = s.indexOf('o');
+  if (i >= 0) {
+    return i;
+  }
+  let idx = -1;
+  for (let k = 0; k < s.length; k++) {
+    if ('iuü'.includes(s[k])) {
+      idx = k;
+    }
+  }
+  return idx >= 0 ? idx : s.length - 1;
+}
+
+/**
+ * 带声调 → 无声调。默认 ü 转写为 v（与输入法习惯、lddgo 默认一致），
+ * keepUmlaut=true 时保留 ü。
+ */
+export function toPlain(pinyin: string, keepUmlaut = false): string {
   let result = '';
   for (const char of pinyin) {
     result += TONE_MAP[char] ? TONE_MAP[char][0] : char;
   }
-  return result.replace(/ü/g, 'u');
+  return keepUmlaut ? result : result.replace(/ü/g, 'v');
 }
 
 /** 声母首字母，如 zhōng → Z */
 export function toInitial(pinyin: string): string {
-  const plain = toPlain(pinyin);
+  const plain = toPlain(pinyin, true);
   return plain.slice(0, 1).toUpperCase();
 }
 
-export function formatPinyin(pinyin: string, style: PinyinStyle): string {
-  switch (style) {
-    case 'tone':
-      return pinyin;
-    case 'number':
-      return toNumberTone(pinyin);
-    case 'plain':
-      return toPlain(pinyin);
-    case 'initial':
-      return toInitial(pinyin);
-  }
+export interface PinyinFormatOptions {
+  /** 全大写 */
+  upper?: boolean;
+  /** 保留 ü（否则 ü→u，仅影响无声调 / 数字声调） */
+  keepUmlaut?: boolean;
 }
 
-const CJK_RANGE = /[\u4e00-\u9fa5]/;
+export function formatPinyin(pinyin: string, style: PinyinStyle, opts: PinyinFormatOptions = {}): string {
+  let result: string;
+  switch (style) {
+    case 'tone':
+      result = pinyin;
+      break;
+    case 'number':
+      result = toNumberTone(pinyin);
+      break;
+    case 'number-mid':
+      result = toNumberToneMid(pinyin);
+      break;
+    case 'plain':
+      result = toPlain(pinyin, opts.keepUmlaut);
+      break;
+    case 'initial':
+      result = toInitial(pinyin);
+      break;
+  }
+  return opts.upper ? result.toUpperCase() : result;
+}
+
+const CJK_RANGE = /[一-鿿]/; // CJK 基本区
 
 let cache: Record<string, string> | null = null;
 let pending: Promise<Record<string, string>> | null = null;
@@ -116,13 +186,75 @@ export function tokenize(text: string, dict: Record<string, string>): PinyinItem
   });
 }
 
-export function joinPinyin(items: PinyinItem[], style: PinyinStyle, separator: string): string {
-  return items
-    .map((item) => {
-      if (!item.isHan || !item.raw) {
-        return item.char;
+export interface JoinOptions extends PinyinFormatOptions {
+  /** 删除无法注音的字符（含标点与字典缺失的汉字），默认保留 */
+  keepUnrecognized?: boolean;
+}
+
+/** 整段拼音串：keepUnrecognized=false 时才整体跳过无法注音的字符（连同分隔符），默认保留 */
+export function joinPinyin(items: PinyinItem[], style: PinyinStyle, separator: string, opts: JoinOptions = {}): string {
+  const parts: string[] = [];
+  for (const item of items) {
+    if (!item.isHan || !item.raw) {
+      if (opts.keepUnrecognized === false) {
+        continue;
       }
-      return formatPinyin(item.raw, style);
-    })
-    .join(separator);
+      parts.push(item.char);
+      continue;
+    }
+    parts.push(formatPinyin(item.raw, style, opts));
+  }
+  return parts.join(separator);
+}
+
+/** 单字拼音（用于逐字对照卡片 / 文字在下对齐块），非汉字回显原字符 */
+export function formatItem(item: PinyinItem, style: PinyinStyle, opts: PinyinFormatOptions = {}): string {
+  if (!item.isHan || !item.raw) {
+    return item.char;
+  }
+  return formatPinyin(item.raw, style, opts);
+}
+
+function isWide(ch: string): boolean {
+  return /[㐀-䶿一-鿿豈-﫿]/.test(ch);
+}
+
+/** 显示宽度：CJK 等宽字符记 2，其余记 1（用于等宽对齐） */
+function displayWidth(s: string): number {
+  let w = 0;
+  for (const ch of s) {
+    w += isWide(ch) ? 2 : 1;
+  }
+  return w;
+}
+
+function padEndWidth(s: string, len: number): string {
+  return s + ' '.repeat(Math.max(0, len - displayWidth(s)));
+}
+
+/**
+ * 文字在下：返回上下两行、按 alignLength（显示宽度）等宽对齐的注音块。
+ * 拼音在上、原文在下，需在等宽字体下查看（CJK 宽度约为拉丁的 2 倍）。
+ */
+export function buildAlignedBlock(
+  items: PinyinItem[],
+  style: PinyinStyle,
+  alignLength: number,
+  opts: JoinOptions = {},
+): { pinyinLine: string; textLine: string } {
+  const pinyinCells: string[] = [];
+  const textCells: string[] = [];
+  for (const item of items) {
+    if (!item.isHan || !item.raw) {
+      if (opts.keepUnrecognized === false) {
+        continue;
+      }
+      pinyinCells.push(padEndWidth(item.char, alignLength));
+      textCells.push(padEndWidth(item.char, alignLength));
+      continue;
+    }
+    pinyinCells.push(padEndWidth(formatPinyin(item.raw, style, opts), alignLength));
+    textCells.push(padEndWidth(item.char, alignLength));
+  }
+  return { pinyinLine: pinyinCells.join(''), textLine: textCells.join('') };
 }

@@ -1524,7 +1524,7 @@ tools:
       hint-disclaimer: 校验通过只说明号码的校验位算得通，不代表这个号码真的存在或被发放。地区信息依据 GB/T 2260 行政区划代码，个别地区可能存在收录偏差
   chinese-pinyin-converter:
     title: 汉字转拼音
-    description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持逐字对照与多音字标注，全部在浏览器本地完成
+    description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成
     texts:
       title-input: 输入汉字
       placeholder-input: 在这里粘贴或输入中文
@@ -1544,6 +1544,27 @@ tools:
       hint-error: 拼音字典加载失败，请检查网络后重试
       col-char: 汉字
       col-pinyin: 拼音
+      label-raw-position: 原文位置
+      pos-hide: 不显示
+      pos-before: 文字在前
+      pos-after: 文字在后
+      pos-below: 文字在下（对齐注音）
+      pos-custom: 自定义模板
+      label-align-length: 对齐长度
+      hint-align: 等宽字体下拼音与文字按此宽度对齐，建议不小于 7
+      label-custom-template: 自定义模板
+      hint-template: 模板支持两个占位符「原文」与「拼音」（见上方默认模板里的双花括号写法）
+      more-params: 更多参数
+      label-case: 大小写
+      case-lower: 小写
+      case-upper: 大写
+      label-umlaut: ü 处理
+      umlaut-u: 转写为 u
+      umlaut-keep: 保留 ü
+      label-unrecognized: 无法注音的字符
+      unrec-keep: 保留
+      unrec-delete: 删除
+      style-number-mid: 数字声调（中置 zho1ng）
   color-converter:
     title: 颜色转换器
     description: 在不同格式（十六进制、RGB、HSL和CSS名称）之间转换颜色

@@ -4,13 +4,27 @@
  *
  * 字典首次转换时才加载，加载状态直接显示在按钮上——
  * 267KB 在弱网下要等一两秒，如果不给反馈用户会以为工具坏了。
+ *
+ * 本次对照 lddgo.net/convert/pinyin 补齐：原文与拼音的位置关系（不显示 / 文字在前 /
+ * 文字在后 / 文字在下对齐 / 自定义模板）、大小写、ü 保留、未注音字符保留或删除，
+ * 以及中置数字声调（zho1ng）风格。
  */
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { appBaseUrl } from '@/utils/base-url';
 import CopyExportBar from '@/components/CopyExportBar.vue';
-import { formatPinyin, joinPinyin, loadPinyinDict, tokenize, type PinyinItem, type PinyinStyle } from './pinyin';
+import {
+  buildAlignedBlock,
+  formatItem,
+  formatPinyin,
+  joinPinyin,
+  loadPinyinDict,
+  tokenize,
+  type PinyinItem,
+  type PinyinFormatOptions,
+  type PinyinStyle,
+} from './pinyin';
 
 const { t } = useI18n();
 
@@ -21,11 +35,30 @@ const dictState = ref<'idle' | 'loading' | 'ready' | 'error'>('idle');
 const dict = ref<Record<string, string>>({});
 const items = ref<PinyinItem[]>([]);
 
+/** 原文位置：拼音与文字的位置关系（本次新增） */
+const rawPosition = ref<'hide' | 'before' | 'after' | 'below' | 'custom'>('hide');
+const alignLength = ref(7);
+const customTemplate = ref('{{raw}}：{{pinyin}}');
+
+/** 更多参数 */
+const upperCase = ref<'lower' | 'upper'>('lower');
+const keepUmlaut = ref<'u' | 'umlaut'>('u');
+const keepUnrecognized = ref<'keep' | 'delete'>('keep');
+
 const styleOptions = [
   { label: t('tools.chinese-pinyin-converter.texts.style-tone'), value: 'tone' },
   { label: t('tools.chinese-pinyin-converter.texts.style-number'), value: 'number' },
+  { label: t('tools.chinese-pinyin-converter.texts.style-number-mid'), value: 'number-mid' },
   { label: t('tools.chinese-pinyin-converter.texts.style-plain'), value: 'plain' },
   { label: t('tools.chinese-pinyin-converter.texts.style-initial'), value: 'initial' },
+];
+
+const rawPositionOptions = [
+  { label: t('tools.chinese-pinyin-converter.texts.pos-hide'), value: 'hide' },
+  { label: t('tools.chinese-pinyin-converter.texts.pos-before'), value: 'before' },
+  { label: t('tools.chinese-pinyin-converter.texts.pos-after'), value: 'after' },
+  { label: t('tools.chinese-pinyin-converter.texts.pos-below'), value: 'below' },
+  { label: t('tools.chinese-pinyin-converter.texts.pos-custom'), value: 'custom' },
 ];
 
 const separatorOptions = [
@@ -33,6 +66,27 @@ const separatorOptions = [
   { label: t('tools.chinese-pinyin-converter.texts.sep-none'), value: '' },
   { label: t('tools.chinese-pinyin-converter.texts.sep-dash'), value: '-' },
 ];
+
+const caseOptions = [
+  { label: t('tools.chinese-pinyin-converter.texts.case-lower'), value: 'lower' },
+  { label: t('tools.chinese-pinyin-converter.texts.case-upper'), value: 'upper' },
+];
+
+const umlautOptions = [
+  { label: t('tools.chinese-pinyin-converter.texts.umlaut-u'), value: 'u' },
+  { label: t('tools.chinese-pinyin-converter.texts.umlaut-keep'), value: 'umlaut' },
+];
+
+const unrecognizedOptions = [
+  { label: t('tools.chinese-pinyin-converter.texts.unrec-keep'), value: 'keep' },
+  { label: t('tools.chinese-pinyin-converter.texts.unrec-delete'), value: 'delete' },
+];
+
+const formatOpts = computed<PinyinFormatOptions>(() => ({
+  upper: upperCase.value === 'upper',
+  keepUmlaut: keepUmlaut.value === 'umlaut',
+  keepUnrecognized: keepUnrecognized.value === 'keep',
+}));
 
 const exampleData = {
   input: '中国人民银行推出数字人民币',
@@ -66,21 +120,44 @@ async function convert() {
   items.value = tokenize(input.value, dict.value);
 }
 
-const output = computed(() => joinPinyin(items.value, style.value, separator.value));
+const output = computed(() => {
+  if (items.value.length === 0) {
+    return '';
+  }
+  const pinyinStr = joinPinyin(items.value, style.value, separator.value, formatOpts.value);
+  const rawStr = input.value;
+  switch (rawPosition.value) {
+    case 'hide':
+      return pinyinStr;
+    case 'before':
+      return `${rawStr} ${pinyinStr}`;
+    case 'after':
+      return `${pinyinStr} ${rawStr}`;
+    case 'below': {
+      const { pinyinLine, textLine } = buildAlignedBlock(items.value, style.value, alignLength.value, formatOpts.value);
+      return `${pinyinLine}\n${textLine}`;
+    }
+    case 'custom': {
+      const tpl = customTemplate.value || '{{raw}}：{{pinyin}}';
+      return tpl.replace(/\{\{raw\}\}/g, rawStr).replace(/\{\{pinyin\}\}/g, pinyinStr);
+    }
+    default:
+      return pinyinStr;
+  }
+});
 
-const polyphones = computed(() => items.value.filter((item) => item.polyphone));
+const isBelow = computed(() => rawPosition.value === 'below');
 const hasResult = computed(() => items.value.length > 0);
 
-/** 逐字对照的 Excel 行：表头 + 每字一行（汉字 / 拼音），拼音跟随「拼音格式」选择 */
+const polyphones = computed(() => items.value.filter((item) => item.polyphone));
+
+/** 逐字对照的 Excel 行：表头 + 每字一行（汉字 / 拼音），拼音跟随「拼音格式」与更多参数 */
 const gridRows = computed<string[][]>(() => {
   const header = [
     t('tools.chinese-pinyin-converter.texts.col-char'),
     t('tools.chinese-pinyin-converter.texts.col-pinyin'),
   ];
-  const body = items.value.map((item) => [
-    item.char,
-    item.isHan && item.raw ? formatPinyin(item.raw, style.value) : '',
-  ]);
+  const body = items.value.map((item) => [item.char, formatItem(item, style.value, formatOpts.value)]);
   return [header, ...body];
 });
 
@@ -110,6 +187,12 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
           :options="styleOptions"
         />
         <c-select
+          v-model:value="rawPosition"
+          :label="t('tools.chinese-pinyin-converter.texts.label-raw-position')"
+          label-position="left"
+          :options="rawPositionOptions"
+        />
+        <c-select
           v-model:value="separator"
           :label="t('tools.chinese-pinyin-converter.texts.label-separator')"
           label-position="left"
@@ -119,13 +202,68 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
           {{ t('tools.chinese-pinyin-converter.texts.btn-convert') }}
         </c-button>
       </n-space>
+
+      <n-space v-if="rawPosition === 'below'" align="center" mt-2>
+        <c-select
+          v-model:value="alignLength"
+          :label="t('tools.chinese-pinyin-converter.texts.label-align-length')"
+          label-position="left"
+          :options="[
+            { label: '7', value: 7 },
+            { label: '9', value: 9 },
+            { label: '11', value: 11 },
+            { label: '13', value: 13 },
+          ]"
+        />
+        <span class="hint">{{ t('tools.chinese-pinyin-converter.texts.hint-align') }}</span>
+      </n-space>
+
+      <n-input
+        v-if="rawPosition === 'custom'"
+        v-model:value="customTemplate"
+        type="textarea"
+        :rows="2"
+        :placeholder="'{{raw}}：{{pinyin}}'"
+        :label="t('tools.chinese-pinyin-converter.texts.label-custom-template')"
+        mt-2
+      />
+      <div v-if="rawPosition === 'custom'" class="hint" mt-1>
+        {{ t('tools.chinese-pinyin-converter.texts.hint-template') }}
+      </div>
+
+      <n-collapse mt-2>
+        <n-collapse-item :title="t('tools.chinese-pinyin-converter.texts.more-params')" name="more">
+          <n-space vertical>
+            <c-select
+              v-model:value="upperCase"
+              :label="t('tools.chinese-pinyin-converter.texts.label-case')"
+              label-position="left"
+              :options="caseOptions"
+            />
+            <c-select
+              v-model:value="keepUmlaut"
+              :label="t('tools.chinese-pinyin-converter.texts.label-umlaut')"
+              label-position="left"
+              :options="umlautOptions"
+            />
+            <c-select
+              v-model:value="keepUnrecognized"
+              :label="t('tools.chinese-pinyin-converter.texts.label-unrecognized')"
+              label-position="left"
+              :options="unrecognizedOptions"
+            />
+          </n-space>
+        </n-collapse-item>
+      </n-collapse>
+
       <div v-if="dictState === 'error'" class="hint hint-error" mt-2>
         {{ t('tools.chinese-pinyin-converter.texts.hint-error') }}
       </div>
     </c-card>
 
     <c-card v-if="hasResult" :title="t('tools.chinese-pinyin-converter.texts.title-output')" mb-3>
-      <input-copyable :value="output" />
+      <pre v-if="isBelow" class="aligned-block">{{ output }}</pre>
+      <input-copyable v-else :value="output" />
       <div flex justify-end mt-2>
         <CopyExportBar :text="output" filename="拼音" />
       </div>
@@ -138,7 +276,7 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
       <div class="char-grid">
         <div v-for="(item, index) in items" :key="index" class="char-cell">
           <div class="char">{{ item.char }}</div>
-          <div class="char-pinyin">{{ item.isHan && item.raw ? formatPinyin(item.raw, style) : '-' }}</div>
+          <div class="char-pinyin">{{ formatItem(item, style, formatOpts) || '-' }}</div>
         </div>
       </div>
       <div v-if="polyphones.length > 0" class="hint" mt-2>
@@ -157,6 +295,18 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
 
   .hint-error {
     color: #d03050;
+  }
+
+  .aligned-block {
+    margin: 0;
+    padding: 12px;
+    background: rgb(0 0 0 / 4%);
+    border-radius: 6px;
+    font-family: 'Ubuntu Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 16px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
   }
 
   .char-grid {

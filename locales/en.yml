@@ -2540,7 +2540,7 @@ tools:
       action-remove-column: Remove this column
   chinese-pinyin-converter:
     title: Chinese to Pinyin
-    description: Convert Chinese characters to pinyin with tone marks, tone numbers, no tone or initials, with per-character breakdown and polyphone hints — all done locally in your browser.
+    description: Convert Chinese to pinyin with tone marks, tone numbers (trailing or centered), no tone or initials. Choose where the original text goes (before / after / aligned below / custom), toggle upper case and keep ü, with per-character breakdown — all in your browser.
     texts:
       title-input: Input Chinese text
       placeholder-input: Paste or type Chinese here
@@ -2560,6 +2560,27 @@ tools:
       hint-error: Failed to load the pinyin dictionary. Check your network and try again.
       col-char: Character
       col-pinyin: Pinyin
+      label-raw-position: Original text position
+      pos-hide: Hidden
+      pos-before: Text first
+      pos-after: Text after
+      pos-below: Text below (aligned)
+      pos-custom: Custom template
+      label-align-length: Alignment length
+      hint-align: In a monospace font the pinyin aligns above each character at this width; 7 or more is recommended
+      label-custom-template: Custom template
+      hint-template: The template supports two placeholders, the original text and the pinyin (see the default template above for the double-brace syntax).
+      more-params: More parameters
+      label-case: Case
+      case-lower: Lowercase
+      case-upper: Uppercase
+      label-umlaut: ü handling
+      umlaut-u: Convert to u
+      umlaut-keep: Keep ü
+      label-unrecognized: Unrecognized characters
+      unrec-keep: Keep
+      unrec-delete: Delete
+      style-number-mid: Tone numbers, centered (zho1ng)
   fullwidth-halfwidth-converter:
     title: Fullwidth / Halfwidth Converter
     description: Convert fullwidth characters to halfwidth or vice versa, with live conversion and fullwidth ratio stats; Chinese punctuation is preserved.

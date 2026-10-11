@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T10:48:17.658Z",
+  "generatedAt": "2026-10-11T14:40:24.089Z",
   "sourceCommit": "extracted at build time",
   "total": 113,
   "tiers": {
@@ -406,7 +406,7 @@
       ],
       "isExternalAccess": false,
       "title": "汉字转拼音",
-      "description": "把中文转成带声调、数字声调、无声调或首字母拼音，支持逐字对照与多音字标注，全部在浏览器本地完成",
+      "description": "把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
