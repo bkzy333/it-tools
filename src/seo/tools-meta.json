@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-12T03:11:24.521Z",
+  "generatedAt": "2026-10-12T06:49:25.734Z",
   "sourceCommit": "extracted at build time",
-  "total": 114,
+  "total": 115,
   "tiers": {
     "L1": 94,
-    "L2": 19,
+    "L2": 20,
     "L3": 1
   },
   "categories": {
@@ -1942,6 +1942,35 @@
       "categoryZh": "网络工具",
       "categorySeoName": "网络与 IP 在线工具",
       "tier": "L1"
+    },
+    {
+      "path": "/number-process",
+      "slug": "number-process",
+      "category": "Data",
+      "keywords": [
+        "number",
+        "process",
+        "thousands",
+        "scientific",
+        "roman",
+        "大写",
+        "数字处理",
+        "千分位",
+        "科学计数法",
+        "罗马数字"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "data",
+        "number"
+      ],
+      "isExternalAccess": false,
+      "title": "数字处理",
+      "description": "批量处理数字：添加/移除千分位、科学计数法互转、转为英文大写/英文金额/中文金额大写、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
     },
     {
       "path": "/number-rounding",

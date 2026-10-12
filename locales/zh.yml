@@ -2903,6 +2903,36 @@ tools:
       label-insert-pos: 插入位置
       hint-insert-atpos: 插到第几个字符之后（0 = 最前面）
       hint-insert-everyn: 每隔几个字符插入一次
+  number-process:
+    title: 数字处理
+    description: 批量处理数字：添加/移除千分位、科学计数法互转、转为英文大写/英文金额/中文金额大写、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出
+    texts:
+      options-title: 操作与选项
+      label-operation: 操作
+      label-sep: 千分位字符
+      label-precision: 精度（保留小数位）
+      hint-precision: 留空则保持原小数位
+      label-currency: 币种
+      note-english-amount: 英文金额大写仅支持单个数字、不支持负数，自动四舍五入到 2 位小数
+      op-add-thousands: 添加千分位
+      op-remove-thousands: 移除千分位
+      op-to-scientific: 转为科学计数法
+      op-from-scientific: 转为普通数字
+      op-to-english: 转为英文大写数字
+      op-to-english-amount: 转为英文金额大写数字
+      op-to-chinese-amount: 转为中文金额大写数字
+      op-to-roman: 数字转罗马数字
+      op-from-roman: 罗马数字转数字
+      op-to-roman-unicode: 数字转罗马数字(Unicode)
+      op-from-roman-unicode: 罗马数字转数字(Unicode)
+      input-label: 数字列表
+      input-placeholder: 每行一个数字，支持批量处理
+      output-label: 处理结果
+      action-copy: 复制全部
+      action-export-txt: 导出 TXT
+      action-export-csv: 导出 CSV
+      msg-empty: 请先输入数字
+      msg-copied: 已复制到剪贴板
   number-rounding:
     title: 数值舍入
     description: 批量把一列数字按四舍五入、向上/向下取整或银行家舍入规范到指定小数位，并可统一加减乘除后统计合计与平均

@@ -3007,6 +3007,36 @@ tools:
       label-insert-pos: Insert position
       hint-insert-atpos: "Insert after the N-th char (0 = at the very front)"
       hint-insert-everyn: "Insert once every N chars"
+  number-process:
+    title: Number Processing
+    description: Batch process numbers - add/remove thousands separators, convert to/from scientific notation, spell out in English or Chinese currency, and convert between Roman and Arabic numerals (including Unicode variant). One-click copy and export.
+    texts:
+      options-title: Operation & options
+      label-operation: Operation
+      label-sep: Thousands separator
+      label-precision: Precision (decimal places)
+      hint-precision: Leave empty to keep original decimals
+      label-currency: Currency
+      note-english-amount: English amount supports a single positive number only (rounded to 2 decimals, negatives rejected)
+      op-add-thousands: Add thousands separator
+      op-remove-thousands: Remove thousands separator
+      op-to-scientific: To scientific notation
+      op-from-scientific: To plain number
+      op-to-english: To English words
+      op-to-english-amount: To English currency amount
+      op-to-chinese-amount: To Chinese currency amount
+      op-to-roman: Number to Roman
+      op-from-roman: Roman to number
+      op-to-roman-unicode: Number to Roman (Unicode)
+      op-from-roman-unicode: Roman to number (Unicode)
+      input-label: Numbers
+      input-placeholder: One number per line, batch supported
+      output-label: Result
+      action-copy: Copy all
+      action-export-txt: Export TXT
+      action-export-csv: Export CSV
+      msg-empty: Enter at least one number
+      msg-copied: Copied to clipboard
   number-rounding:
     title: Number Rounding
     description: Round a column of numbers to a fixed number of decimals with half-up, banker's rounding, ceiling or floor, and apply one uniform arithmetic operation to all of them
