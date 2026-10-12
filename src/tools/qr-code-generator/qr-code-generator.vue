@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import type { CornerDotType, CornerSquareType, DotType, ErrorCorrectionLevel, FileExtension } from 'pp-qr-code';
-import qrcodeConsole from 'qrcode-terminal-nooctal';
 import { useQRCodeStyling } from './useQRCode';
 import { useDownloadFileFromBase64 } from '@/composable/downloadBase64';
-import { downloadTextFile } from '@/composable/export';
+import { useCopy } from '@/composable/copy';
 import { useQueryParam, useQueryParamOrStorage } from '@/composable/queryParams';
 import {
   buildCalendar,
@@ -67,11 +66,6 @@ const cornersSquareColor = useQueryParamOrStorage<string>({
   name: 'cstc',
   storageName: 'qr-code-gen:cstc',
   defaultValue: '#ffffffff',
-});
-const smallTerminal = useQueryParamOrStorage<boolean>({
-  name: 'sml',
-  storageName: 'qr-code-gen:sml',
-  defaultValue: false,
 });
 const fileInput = ref() as Ref<File>;
 const { base64: imageBase64 } = useBase64(fileInput);
@@ -193,29 +187,6 @@ const { qrcode } = useQRCodeStyling({
   margin,
 });
 
-const qrcodeTerminal = computedAsync(() => {
-  const textValue = text.value;
-  const level = errorCorrectionLevel.value;
-  const small = smallTerminal.value;
-  return new Promise<string>((resolve, _reject) => {
-    try {
-      qrcodeConsole.setErrorLevel(level);
-      qrcodeConsole.generate(textValue.trim(), { small }, (qrcode: string) => {
-        resolve(qrcode);
-      });
-    } catch (_) {
-      resolve('');
-    }
-  });
-});
-
-const qrCodeImgViewerLink = computed(() => {
-  const url = new URL(document.location.href);
-  url.searchParams.set('raw', 'true');
-  url.searchParams.set('rawwidth', '250');
-  return url.toString();
-});
-
 const filename = useQueryParam({ tool: 'qr-code-gen', name: 'file', defaultValue: 'qr-code' });
 const extension = computed(() => {
   // Explicitly access the reactive value
@@ -224,74 +195,9 @@ const extension = computed(() => {
 });
 const { download } = useDownloadFileFromBase64({ source: qrcode, filename, extension });
 
-// 导出当前二维码所编码的内容为 .txt（带 UTF-8 BOM，Excel 中文不乱码）
-function exportTxt() {
-  downloadTextFile('qr-content.txt', `﻿${text.value}`);
-}
-
-const isCopied = ref(false);
-
-async function copyQRCode() {
-  try {
-    // Convert base64 to blob
-    const response = await fetch(qrcode.value);
-    const blob = await response.blob();
-
-    // Convert to PNG if it's not already PNG for clipboard compatibility
-    let clipboardBlob = blob;
-    if (blob.type !== 'image/png') {
-      // Create a canvas to convert the image to PNG
-      const img = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      await new Promise((resolve) => {
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx?.drawImage(img, 0, 0);
-          canvas.toBlob((pngBlob) => {
-            if (pngBlob) {
-              clipboardBlob = pngBlob;
-            }
-            resolve(undefined);
-          }, 'image/png');
-        };
-        img.src = qrcode.value;
-      });
-    }
-
-    // Copy to clipboard using the Clipboard API
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        'image/png': clipboardBlob,
-      }),
-    ]);
-
-    // Show success feedback
-    isCopied.value = true;
-    setTimeout(() => {
-      isCopied.value = false;
-    }, 2000); // Reset after 2 seconds
-  } catch (error) {
-    console.error('Failed to copy QR code:', error);
-    // Show error feedback and reset
-    isCopied.value = false;
-  }
-}
-
-const raw = useQueryParam({ tool: 'qr-code-gen', name: 'raw', defaultValue: false });
-if (raw.value) {
-  document.body.style.display = 'none';
-}
-const rawwidth = useQueryParam({ tool: 'qr-code-gen', name: 'rawwidth', defaultValue: 250 });
-
-watch(qrcode, (newValue) => {
-  if (raw.value) {
-    document.body.innerHTML = `<img src="${newValue}" width="${rawwidth.value}" alt="QR Code" />`;
-    document.body.style.display = 'block';
-  }
-});
+// 复制当前二维码所「编码的内容」（纯文本），比复制图片可靠，且在非安全上下文也能用。
+// 用 useCopy 兜底 execCommand，避免 navigator.clipboard 缺失导致点了没反应。
+const { copy: copyText, isJustCopied: isCopied } = useCopy({ source: text });
 </script>
 
 <template>
@@ -551,7 +457,7 @@ watch(qrcode, (newValue) => {
         <div flex flex-col items-center gap-3>
           <n-image :src="qrcode" width="250" class="qrcode" />
           <div flex gap-3>
-            <c-button @click="copyQRCode">
+            <c-button @click="copyText">
               {{ isCopied ? 'Copied!' : 'Copy' }}
               <icon-mdi-check v-if="isCopied" ml-2 style="color: #10b981" />
               <icon-mdi-content-copy v-else ml-2 />
@@ -560,38 +466,8 @@ watch(qrcode, (newValue) => {
               Download ({{ outputType.toString().toUpperCase() }})
               <icon-mdi-download ml-2 />
             </c-button>
-            <c-button @click="exportTxt">
-              {{ t('tools.qrcode-generator.texts.button-export-txt') }}
-              <icon-mdi-file-document-outline ml-2 />
-            </c-button>
           </div>
         </div>
-
-        <n-divider />
-
-        <n-card :title="t('tools.qrcode-generator.texts.label-qr-code-image-viewer')">
-          <InputCopyable :value="qrCodeImgViewerLink" mb-1 mt-1 />
-          <n-space justify="center">
-            <n-a :href="qrCodeImgViewerLink" target="_blank">
-              {{ t('tools.qrcode-generator.texts.link-qr-code-open-embeddable-link') }}
-            </n-a>
-          </n-space>
-          <InputCopyable
-            :label="t('tools.qrcode-generator.texts.label-qr-code-embeddable-dataurl')"
-            :value="qrcode"
-            mb-1
-            mt-1
-          />
-        </n-card>
-
-        <n-divider />
-
-        <n-checkbox v-model:checked="smallTerminal">
-          {{ t('tools.qrcode-generator.texts.tag-small-terminal') }}
-        </n-checkbox>
-        <n-form-item :label="t('tools.qrcode-generator.texts.label-terminal-output')" mt-1>
-          <TextareaCopyable :value="qrcodeTerminal" multiline rows="5" mb-1 mt-1 copy-placement="outside" />
-        </n-form-item>
       </n-gi>
     </n-grid>
   </c-card>
