@@ -8,6 +8,7 @@ import { getToolUsage } from '@/tools/tool-usage';
 // 就是用户在这里看到的这些。两边一旦不同源，就变成了给爬虫和用户看不同内容（cloaking），
 // AdSense 会直接判违规 —— 所以不要在这里另写一套文案。
 import { getToolContent } from '@/seo/content';
+import { getRelatedToolPaths } from '@/seo/related-tools';
 
 const route = useRoute();
 const toolStore = useToolStore();
@@ -43,22 +44,19 @@ const tips = computed(() => usage.value?.tips ?? []);
 
 const relatedTools = computed(() => {
   const all = toolStore.tools;
-  const currentIndex = all.findIndex((tool) => tool.path === route.path);
-  if (currentIndex === -1) {
+  if (!all.some((tool) => tool.path === route.path)) {
     return [];
   }
-  const current = all[currentIndex];
 
-  // 同类目优先，不足 6 个时用固定步长在全部工具里补齐（确定性取值，保证每次抓取一致）
-  const sameCategory = all.filter((tool) => tool.category === current.category && tool.path !== current.path);
-  const result = [...sameCategory];
-  for (let i = 1; result.length < 6 && i < all.length; i++) {
-    const candidate = all[(currentIndex + i * 7) % all.length];
-    if (candidate.path !== current.path && !result.some((tool) => tool.path === candidate.path)) {
-      result.push(candidate);
-    }
-  }
-  return result.slice(0, 6);
+  // 推荐关系取自 src/seo/related-tools.ts —— 和 build/seo-prerender.ts 是同一张表。
+  // ⚠️ 这里千万不要另写一套推荐逻辑：静态 HTML 是爬虫看到的版本，运行时是用户看到的版本，
+  // 两边一旦算出不同的推荐列表，就等于给爬虫和用户看不同内容（cloaking），AdSense 判违规。
+  const paths = getRelatedToolPaths(route.path, all);
+
+  // 标题走 store（已按当前语言翻译），不在这里硬编码中文名
+  return paths
+    .map((p) => all.find((tool) => tool.path === p))
+    .filter((tool): tool is NonNullable<typeof tool> => Boolean(tool));
 });
 </script>
 

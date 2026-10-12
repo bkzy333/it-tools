@@ -286,6 +286,72 @@ if (probe) {
   notes.push(`子目录页 <base href="/">: ${hasBase ? '有' : '无'}，相对资源引用 ${badRef.length} 处`);
 }
 
+// ---------------------------------------------------------------- 7. 相关工具一致性
+// 静态 HTML 里的「相关工具」必须是人工策划表算出来的那一批。
+// 之前的做法是运行时一套算法（同分类+随机补齐）、构建期另一套（同分类取 8 个），
+// 爬虫和用户看到的推荐不是同一批 —— 这就是 cloaking。现在两边共用
+// src/seo/related-tools.ts，这里卡住渲染层，防止将来有人又改回各写一套。
+{
+  const mapPath = path.join(root, 'src', 'seo', 'related-tools.ts');
+  if (fs.existsSync(mapPath)) {
+    const src = fs.readFileSync(mapPath, 'utf-8');
+    const start = src.indexOf('export const RELATED_TOOLS');
+    if (start !== -1) {
+      const braceStart = src.indexOf('{', start);
+      let depth = 0;
+      let end = -1;
+      for (let i = braceStart; i < src.length; i++) {
+        if (src[i] === '{') depth++;
+        else if (src[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            end = i + 1;
+            break;
+          }
+        }
+      }
+      const RELATED_TOOLS = new Function(`return ${src.slice(braceStart, end)}`)();
+      const tierByPath = new Map(tools.map((t) => [t.path, t.tier]));
+
+      let checked = 0;
+      let mismatch = 0;
+      let missingBlock = 0;
+
+      for (const tool of tools) {
+        // 期望值：表里登记的，去掉自引用 / 死链 / 重复 / L3，最多 6 个
+        // （与 getRelatedToolPaths 的过滤规则保持一致）
+        const picked = [];
+        for (const p of RELATED_TOOLS[tool.path] ?? []) {
+          if (p === tool.path || picked.includes(p)) continue;
+          if (!tierByPath.has(p) || tierByPath.get(p) === 'L3') continue;
+          if (picked.length < 6) picked.push(p);
+        }
+        if (picked.length === 0) continue;
+
+        const html = readPage(tool.path);
+        if (!html) continue;
+        // 标签之间有换行（parts 是用 \n join 的），必须允许空白
+        const block = html.match(/<h2>相关工具<\/h2>\s*<div class="seo-tags">([\s\S]*?)<\/div>/);
+        if (!block) {
+          missingBlock++;
+          fail(`${tool.path}: 静态 HTML 缺「相关工具」块（映射表配了 ${picked.length} 个）`);
+          continue;
+        }
+        const actual = [...block[1].matchAll(/href="([^"]+)"/g)].map((m) => m[1].replace(/\/$/, ''));
+        checked++;
+        if (actual.join(',') !== picked.join(',')) {
+          mismatch++;
+          if (mismatch <= 5) {
+            fail(`${tool.path}: 静态相关工具与映射表不一致\n      期望 ${picked.join(',')}\n      实际 ${actual.join(',')}`);
+          }
+        }
+      }
+
+      notes.push(`相关工具一致性：比对 ${checked} 页，不一致 ${mismatch} 页，缺块 ${missingBlock} 页`);
+    }
+  }
+}
+
 // ---------------------------------------------------------------- 输出
 console.log('—— 检查项 ——');
 for (const n of notes) {

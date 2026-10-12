@@ -596,6 +596,10 @@ import { parseFrontmatter } from '../src/seo/frontmatter';
 import { GUIDE_INDEX } from '../src/seo/guide-index';
 import { renderGuideMarkdown, type GuideTocItem } from '../src/seo/guide-render';
 import { HOME_TITLE, homeDescription, homeLead } from '../src/seo/home-heading';
+// 相关工具的内链关系：和运行时 ToolUsageGuide.vue 共用同一张人工策划映射表。
+// 之前这里算的是「同分类取 8 个」，运行时算的是「同分类 + 随机补齐 6 个」，两边结果不一致
+// —— 爬虫和用户看到的相关工具不是同一批，这就是 cloaking。现在统一走一张表。
+import { getRelatedToolPaths } from '../src/seo/related-tools';
 
 /**
  * 核对 src/seo/guide-index.ts 和 md 原文里的标题是否一致。
@@ -680,9 +684,11 @@ export function seoPrerender(): Plugin {
 
       // ---------- 1. 工具页 ----------
       for (const tool of tools) {
-        const related = (byCategory.get(tool.category) ?? [])
-          .filter((t) => t.path !== tool.path && t.tier !== 'L3')
-          .slice(0, 8);
+        // 相关工具：人工策划表优先，缺的用同分类补齐（逻辑封装在 related-tools.ts 里，
+        // 运行时是同一份，保证静态 HTML 与用户看到的完全一致）
+        const related = getRelatedToolPaths(tool.path, tools)
+          .map((p) => tools.find((t) => t.path === p))
+          .filter((t): t is ToolMeta => Boolean(t));
 
         const body = renderToolPage(tool, content[tool.path], related);
         const noindex = tool.tier === 'L3';
