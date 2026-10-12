@@ -273,9 +273,17 @@ function copyTimestamp() {
           mb-1
         />
         <div flex items-center gap-2 mb-2>
-          <c-button secondary size="small" @click="copyTimestamp">
-            {{ t('tools.date-duration-calculator.texts.btn-copy-result') }}
-          </c-button>
+          <c-tooltip :tooltip="t('tools.date-duration-calculator.texts.btn-copy-result')">
+            <c-button
+              circle
+              variant="text"
+              size="small"
+              :aria-label="t('tools.date-duration-calculator.texts.btn-copy-result')"
+              @click="copyTimestamp"
+            >
+              <icon-mdi-content-copy />
+            </c-button>
+          </c-tooltip>
         </div>
         <n-p>
           {{

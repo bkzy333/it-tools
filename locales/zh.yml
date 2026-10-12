@@ -512,6 +512,16 @@ tools:
       label-lang-title-case: 语言标题大小写：
       label-language: 语言：
       placeholder-your-language: 语言标题大小写语言...
+      label-delimiter: 分隔符：
+      delimiter-newline: 换行符（每行一条）
+      delimiter-comma: 逗号 ,
+      delimiter-semicolon: 分号 ;
+      delimiter-space: 空格
+      delimiter-tab: 制表符 Tab
+      delimiter-custom: 自定义
+      label-custom-delimiter: 自定义分隔符：
+      label-export-columns: 选择要导出的结果列
+      hint-export-columns: 导出列选择（仅影响导出内容）：勾选要导出的结果格式，默认全部。
   json-prettify:
     title: JSON格式化与美化
     description: 将JSON字符串格式化为友好、易读的格式。

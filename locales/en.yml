@@ -535,6 +535,16 @@ tools:
       label-lang-title-case: "Language TitleCase:"
       label-language: "Language:"
       placeholder-your-language: Language Title casing language...
+      label-delimiter: "Delimiter:"
+      delimiter-newline: "Newline (one item per line)"
+      delimiter-comma: "Comma ,"
+      delimiter-semicolon: "Semicolon ;"
+      delimiter-space: "Space"
+      delimiter-tab: "Tab"
+      delimiter-custom: "Custom"
+      label-custom-delimiter: "Custom delimiter:"
+      label-export-columns: "Select result columns to export"
+      hint-export-columns: "Column selection only affects export: pick the formats to include, all by default."
   json-prettify:
     title: JSON prettify and format
     description: Prettify your JSON string into a friendly, human-readable format.
