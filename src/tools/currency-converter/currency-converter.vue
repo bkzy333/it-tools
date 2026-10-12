@@ -21,6 +21,7 @@ import {
   CURRENCY_FLAGS,
   CURRENCY_NAMES_ZH,
   FALLBACK_RATES,
+  FALLBACK_RATES_DATE,
   POPULAR_CURRENCIES,
   TABLE_CURRENCIES,
   convert,
@@ -390,7 +391,7 @@ const currencyToCountriesOutput = computed(() => code(currencyToCountriesInput.v
           <span v-if="snapshot" text-muted>· {{ t('tools.currency-converter.texts.label-source') }}: {{ snapshot.source }}</span>
         </template>
         <n-alert v-if="hasError" type="warning" :show-icon="false" :bordered="false" flex-1>
-          {{ t('tools.currency-converter.texts.fetch-error') }}
+          {{ t('tools.currency-converter.texts.fetch-error', { date: FALLBACK_RATES_DATE }) }}
         </n-alert>
       </div>
 

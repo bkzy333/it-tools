@@ -26,5 +26,13 @@
   #   - naive-ui 会写行内样式，style-src 必须留 'unsafe-inline'
   #   - ffmpeg.wasm / tesseract 这类用 WebAssembly，需要 'wasm-unsafe-eval'
   #   - img-src 放 data:/blob: 是因为二维码、图片转换等工具的结果都是本地 blob/DataURL
+  #   - connect-src 里额外放行的第三方域名，都是**没有同源首选、只能浏览器直连**的工具：
+  #       · open.er-api.com / cdn.jsdelivr.net / api.frankfurter.dev —— 货币汇率换算
+  #         （首选已改为同源的 /api/rates，这三个是 Functions 挂掉时的兜底）
+  #       · www.schemastore.org —— JSON / YAML 查看器的 schema 自动校验
+  #       · rdap.org —— Whois / RDAP 域名查询
+  #     全部是只读的公开 JSON，实测响应头带 Access-Control-Allow-Origin: *。
+  #     注意：my-ip 工具的 ipwho.is / ipify / ip.sb / cloudflare trace 不在其中——
+  #     它已经有同源的 /api/my-ip 作首选，第三方只是兜底，没必要为它放宽 CSP。
   # 部署后逐个工具页看 console 有没有 CSP 报错，确认干净了再往回收紧。
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com https://open.er-api.com https://cdn.jsdelivr.net https://api.frankfurter.dev https://www.schemastore.org https://rdap.org; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'

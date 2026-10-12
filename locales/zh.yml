@@ -971,7 +971,7 @@ tools:
       updated-minutes: '{n} 分钟前'
       updated-hours: '{n} 小时前'
       updated-fallback: 未知
-      fetch-error: 获取实时汇率失败，当前展示的是内置参考汇率。
+      fetch-error: 获取实时汇率失败，当前展示的是 {date} 的内置参考汇率（可点「刷新汇率」重试）。
       swap: 交换货币
       refresh: 刷新汇率
       title-popular: 热门货币
@@ -983,7 +983,7 @@ tools:
       no-target: 请至少选择一个目标货币
       also-in: 亦流通于：
       label-source: 数据源
-    externalAccess: 此工具打开时会从公开汇率接口（open.er-api.com 等）获取实时汇率数据，仅用于换算，不上传任何数据。
+    externalAccess: 此工具打开时会向本站接口（/api/rates）获取实时汇率，该接口再向公开汇率 API（open.er-api.com 等）取数并缓存 30 分钟。仅用于换算，不上传任何数据。
   data-storage-unit-converter:
     title: 数据存储单位转换器
     description: |

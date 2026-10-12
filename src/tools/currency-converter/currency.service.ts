@@ -1,11 +1,18 @@
 /**
  * 实时汇率换算服务层。
  *
- * 数据源（多源容灾，按顺序尝试，任意一个成功即用）：
- *   1. open.er-api.com  —— 免 key、CORS 放开（access-control-allow-origin: *）、覆盖 160+ 币种、
- *                          返回相对 USD 的汇率，标注「实时」。
+ * 取数顺序（多源容灾，任意一个成功即用）：
+ *   0. /api/rates（本站 Cloudflare Pages Functions）—— **首选**。
+ *      为什么必须先走自家接口：本站 CSP 的 connect-src 只放行自家域 + AdSense，
+ *      浏览器直连第三方汇率接口会被 CSP 拦掉（fetch 直接抛 TypeError），
+ *      页面就会一直显示「获取实时汇率失败，当前展示的是内置参考汇率」。
+ *      走同源的 /api/rates 不受 CSP 限制，且请求由 Cloudflare 边缘发出，
+ *      对国内访客比直连 jsDelivr / er-api 稳得多（后者在国内经常被墙或超时）。
+ *      实现见 functions/api/rates.ts。
+ *   1. open.er-api.com  —— 免 key、CORS 放开（access-control-allow-origin: *）、覆盖 160+ 币种。
  *   2. fawazahmed0/currency-api（经 jsDelivr CDN） —— 免 key、CORS 放开、覆盖 180+ 币种、每日更新。
  *   3. frankfurter.dev（欧洲央行参考价） —— 免 key、覆盖约 30 个主流币种、每日更新。
+ *      （1~3 是直连兜底：CSP 里已放行这三个域，本地开发 / CSP 后续放宽时都能直接取到）
  *
  * 三家都返回「相对 USD 的汇率」：value = 1 USD 可兑换多少该币种，因此换算口径统一为
  *   usd = amount / rates[from]
@@ -14,7 +21,7 @@
  * （与旧版 fxratesapi 口径一致，注释 + 单测双锁，别改回 6 位）
  *
  * 为什么不引 forex-python / node-openex：二者都是服务端/Node 包，而本工具是纯浏览器端页面，
- * 浏览器直接 fetch 公开接口即可，无需服务端依赖；若以后要上服务端代理，再单独评估。
+ * 浏览器直接 fetch 公开接口即可，无需服务端依赖；服务端取数由 /api/rates 承担。
  */
 
 /** 单次换算结果 */
@@ -34,49 +41,57 @@ export interface RatesSnapshot {
   source: string;
 }
 
-/** 备用汇率表（全部数据源都失败时兜底，相对 USD，key 大写） */
+/**
+ * 备用汇率表（全部数据源都失败时兜底，相对 USD，key 大写）。
+ *
+ * 数据取自 open.er-api.com 的 2026-10-12 快照（time_last_update_utc: Mon, 12 Oct 2026 00:02:32 +0000）。
+ * 注意：这是**离线兜底快照**，会随时间失真。更新时请重新抓一份真实汇率整体替换，
+ * 不要凭印象改单个数字；同时把下面 FALLBACK_RATES_DATE 一起改成新的快照日期。
+ */
+export const FALLBACK_RATES_DATE = '2026-10-12';
+
 export const FALLBACK_RATES: Record<string, number> = {
   USD: 1,
-  EUR: 0.85,
-  GBP: 0.73,
-  JPY: 110.0,
-  CNY: 6.45,
-  KRW: 1180.0,
-  HKD: 7.78,
-  CAD: 1.25,
-  AUD: 1.35,
-  CHF: 0.92,
-  SGD: 1.33,
-  INR: 83.0,
-  RUB: 90.0,
-  BRL: 5.0,
-  MXN: 17.0,
-  SEK: 10.5,
-  NOK: 11.0,
-  DKK: 6.9,
-  NZD: 1.65,
-  ZAR: 18.5,
-  THB: 35.0,
-  MYR: 4.7,
-  IDR: 15500.0,
-  PHP: 56.0,
-  VND: 24000.0,
-  TWD: 31.0,
-  AED: 3.67,
+  EUR: 0.892629,
+  GBP: 0.755605,
+  JPY: 158.230103,
+  CNY: 6.700304,
+  KRW: 1340.705374,
+  HKD: 7.848048,
+  CAD: 1.425643,
+  AUD: 1.431802,
+  CHF: 0.83034,
+  SGD: 1.280746,
+  INR: 96.964336,
+  RUB: 85.028588,
+  BRL: 4.995947,
+  MXN: 18.406744,
+  SEK: 9.994696,
+  NOK: 9.558294,
+  DKK: 6.671516,
+  NZD: 1.781769,
+  ZAR: 16.513783,
+  THB: 33.534124,
+  MYR: 4.085026,
+  IDR: 17893.303251,
+  PHP: 62.826658,
+  VND: 25886.362178,
+  TWD: 31.96443,
+  AED: 3.6725,
   SAR: 3.75,
-  TRY: 32.0,
-  PLN: 4.0,
-  CZK: 23.0,
-  HUF: 360.0,
-  ILS: 3.7,
-  EGP: 48.0,
-  NGN: 1500.0,
-  PKR: 278.0,
-  BDT: 110.0,
-  LKR: 300.0,
-  CLP: 950.0,
-  COP: 4000.0,
-  ISK: 138.0,
+  TRY: 49.337486,
+  PLN: 3.915129,
+  CZK: 21.771052,
+  HUF: 326.067,
+  ILS: 3.07378,
+  EGP: 52.502776,
+  NGN: 1330.171897,
+  PKR: 277.205784,
+  BDT: 123.140839,
+  LKR: 330.545387,
+  CLP: 979.008503,
+  COP: 3206.933418,
+  ISK: 122.080177,
 };
 
 /** 货币 → 国旗 emoji（覆盖常用可兑换币种） */
@@ -243,8 +258,42 @@ async function fetchFromFrankfurter(): Promise<RatesSnapshot | null> {
   };
 }
 
+/**
+ * 数据源 0（首选）：本站 /api/rates。
+ *
+ * 这是同源请求，不受 CSP 限制，是线上唯一稳定可用的取数路径。
+ * 注意必须校验 content-type：Pages 的 SPA 回退会让任何未命中的路径都返回 200 + index.html，
+ * 只看 res.ok 会把一段 HTML 当成汇率数据喂进去（然后 JSON 解析报错、静默走备用表）。
+ */
+async function fetchFromOwnApi(): Promise<RatesSnapshot | null> {
+  const res = await fetch('/api/rates', { headers: { accept: 'application/json' } });
+  if (!res.ok) {
+    return null;
+  }
+  const contentType = res.headers.get('content-type') ?? '';
+  if (!contentType.includes('application/json')) {
+    return null;
+  }
+  const data = (await res.json()) as { base?: string; date?: string; rates?: Record<string, number>; source?: string };
+  if (!data.rates || typeof data.rates !== 'object') {
+    return null;
+  }
+  const rates = toUsdRates(data.rates);
+  if (Object.keys(rates).length <= 1) {
+    return null;
+  }
+  return {
+    base: 'USD',
+    date: data.date ?? new Date().toISOString().slice(0, 10),
+    rates,
+    // 走代理时上游源名由 Functions 返回，标注一下是经过本站代理，方便排障
+    source: data.source ? `${data.source}（经本站代理）` : '本站代理',
+  };
+}
+
 /** 数据源顺序：任意一个成功即用，全部失败才走备用表 */
 const RATE_SOURCES: { name: string; fetch: () => Promise<RatesSnapshot | null> }[] = [
+  { name: '/api/rates', fetch: fetchFromOwnApi },
   { name: 'open.er-api.com', fetch: fetchFromErApi },
   { name: 'fawazahmed0 (jsDelivr)', fetch: fetchFromFawazahmed },
   { name: 'frankfurter.dev', fetch: fetchFromFrankfurter },
