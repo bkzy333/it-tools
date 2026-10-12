@@ -21,10 +21,35 @@ import InputCopyable from '../../components/InputCopyable.vue';
 import CopyExportBar from '@/components/CopyExportBar.vue';
 import { useQueryParam, useQueryParamOrStorage } from '@/composable/queryParams';
 import { useValidation } from '@/composable/validation';
-import { getSupportedLanguages, toLanguageTitleCase } from './case-converter.service.ts';
+import {
+  applyCleaningPatterns,
+  convertWithConnectors,
+  getSupportedLanguages,
+  toLanguageTitleCase,
+} from './case-converter.service.ts';
 
 const { t } = useI18n();
 
+// ---------- 内容过滤（原「清理正则表达式」，改为勾选式；高级模式才露出正则输入框） ----------
+interface FilterPreset {
+  key: string;
+  label: string;
+  pattern: string;
+}
+const filterPresets = computed<FilterPreset[]>(() => [
+  { key: 'specialChars', label: t('tools.case-converter.texts.filter-special-chars'), pattern: '[^\\w\\d\\s]' },
+  {
+    key: 'keepCnEn',
+    label: t('tools.case-converter.texts.filter-keep-cn-en'),
+    pattern: '[^\\u4e00-\\u9fff\\w\\d\\s]',
+  },
+  { key: 'noSpaces', label: t('tools.case-converter.texts.filter-no-spaces'), pattern: '\\s' },
+  { key: 'noDigits', label: t('tools.case-converter.texts.filter-no-digits'), pattern: '\\d' },
+]);
+/** 勾选式过滤：默认「去除特殊符号」，与改造前的默认正则 [^\w\d\s] 行为一致 */
+const selectedFilters = ref<string[]>(['specialChars']);
+/** 高级模式：需要精确控制时才露出自定义正则 */
+const advancedMode = ref(false);
 const cleaningRegex = useQueryParamOrStorage({
   name: 'clean',
   storageName: 'case-conv:cl',
@@ -44,8 +69,28 @@ const cleaningRegexValidation = useValidation({
   ],
 });
 
+/** 当前生效的清理规则（正则串数组，按顺序依次清除） */
+const activePatterns = computed<string[]>(() => {
+  if (advancedMode.value) {
+    return cleaningRegexValidation.isValid && cleaningRegex.value ? [cleaningRegex.value] : [];
+  }
+  return filterPresets.value.filter((f) => selectedFilters.value.includes(f.key)).map((f) => f.pattern);
+});
+
 const input = useQueryParam({ tool: 'case-conv', name: 'text', defaultValue: 'lorem ipsum dolor sit amet' });
 const language = useQueryParam({ tool: 'case-conv', name: 'lang', defaultValue: 'eng' });
+
+// ---------- 单词构成规则：这些字符视为单词的一部分，不会被拆分 ----------
+const connectorChars = useQueryParam({ tool: 'case-conv', name: 'join', defaultValue: '' });
+const wordRulePresets = computed(() => [
+  { label: t('tools.case-converter.texts.preset-standard'), value: '' },
+  { label: t('tools.case-converter.texts.preset-programming'), value: '_' },
+  { label: t('tools.case-converter.texts.preset-hyphen'), value: '-' },
+]);
+function applyWordRulePreset(value: string) {
+  connectorChars.value = value;
+}
+
 // 批量分隔符：默认换行（每行一条），也可自定义（逗号 / 分号 / 空格 / Tab / 自定义字符）
 const delimiterMode = ref<string>('\n');
 const customDelimiter = ref<string>(',');
@@ -63,87 +108,95 @@ const delimiterOptions = computed(() => [
 ]);
 
 const inputCleaned = computed(() => {
-  const cleaned = cleaningRegexValidation.isValid
-    ? input.value.replace(new RegExp(cleaningRegex.value, 'g'), '')
-    : input.value;
+  const cleaned = applyCleaningPatterns(input.value, activePatterns.value);
   const d = effectiveDelimiter.value;
   return (d === '\n' ? cleaned.split(/\r?\n/) : cleaned.split(d)).map((s) => s.trim());
 });
 
-// 逐行容错转换：单行转换异常时回退为原串，不影响其他行（U5 容错解析）
-function safeTransform(fn: (s: string) => string, s: string): string {
-  try {
-    return fn(s);
-  } catch {
-    return s;
-  }
-}
+/** 单行转换：保护连接符 → 转换（异常回退原串，U5 容错） → 还原连接符 */
+const convert = (fn: (s: string) => string, s: string) => convertWithConnectors(fn, s, connectorChars.value);
 
 const formats = computed(() => [
   {
+    key: 'langTitleCase',
     label: t('tools.case-converter.texts.label-lang-title-case'),
-    value: inputCleaned.value.map((s) => safeTransform((x) => toLanguageTitleCase(x, language.value), s)),
+    value: inputCleaned.value.map((s) => convert((x) => toLanguageTitleCase(x, language.value), s)),
   },
   {
+    key: 'lowercase',
     label: t('tools.case-converter.texts.label-lowercase'),
-    value: inputCleaned.value.map((s) => safeTransform((x) => x.toLocaleLowerCase(), s)),
+    value: inputCleaned.value.map((s) => convert((x) => x.toLocaleLowerCase(), s)),
   },
   {
+    key: 'uppercase',
     label: t('tools.case-converter.texts.label-uppercase'),
-    value: inputCleaned.value.map((s) => safeTransform((x) => x.toLocaleUpperCase(), s)),
+    value: inputCleaned.value.map((s) => convert((x) => x.toLocaleUpperCase(), s)),
   },
   {
+    key: 'camelcase',
     label: t('tools.case-converter.texts.label-camelcase'),
-    value: inputCleaned.value.map((s) => safeTransform(camelCase, s)),
+    value: inputCleaned.value.map((s) => convert(camelCase, s)),
   },
   {
+    key: 'titlecase',
     label: t('tools.case-converter.texts.label-titlecase'),
-    value: inputCleaned.value.map((s) => safeTransform(titleCase, s)),
+    value: inputCleaned.value.map((s) => convert(titleCase, s)),
   },
   {
+    key: 'capitalcase',
     label: t('tools.case-converter.texts.label-capitalcase'),
-    value: inputCleaned.value.map((s) => safeTransform(capitalCase, s)),
+    value: inputCleaned.value.map((s) => convert(capitalCase, s)),
   },
   {
+    key: 'constantcase',
     label: t('tools.case-converter.texts.label-constantcase'),
-    value: inputCleaned.value.map((s) => safeTransform(constantCase, s)),
+    value: inputCleaned.value.map((s) => convert(constantCase, s)),
   },
   {
+    key: 'dotcase',
     label: t('tools.case-converter.texts.label-dotcase'),
-    value: inputCleaned.value.map((s) => safeTransform(dotCase, s)),
+    value: inputCleaned.value.map((s) => convert(dotCase, s)),
   },
   {
+    key: 'kebabcase',
     label: t('tools.case-converter.texts.label-kebab-paramcase'),
-    value: inputCleaned.value.map((s) => safeTransform(kebabCase, s)),
+    value: inputCleaned.value.map((s) => convert(kebabCase, s)),
   },
   {
+    key: 'nocase',
     label: t('tools.case-converter.texts.label-nocase'),
-    value: inputCleaned.value.map((s) => safeTransform(noCase, s)),
+    value: inputCleaned.value.map((s) => convert(noCase, s)),
   },
   {
+    key: 'traincase',
     label: t('tools.case-converter.texts.label-train-headercase'),
-    value: inputCleaned.value.map((s) => safeTransform(trainCase, s)),
+    value: inputCleaned.value.map((s) => convert(trainCase, s)),
   },
   {
+    key: 'pascalcase',
     label: t('tools.case-converter.texts.label-pascalcase'),
-    value: inputCleaned.value.map((s) => safeTransform(pascalCase, s)),
+    value: inputCleaned.value.map((s) => convert(pascalCase, s)),
   },
   {
+    key: 'pathcase',
     label: t('tools.case-converter.texts.label-pathcase'),
-    value: inputCleaned.value.map((s) => safeTransform(pathCase, s)),
+    value: inputCleaned.value.map((s) => convert(pathCase, s)),
   },
   {
+    key: 'sentencecase',
     label: t('tools.case-converter.texts.label-sentencecase'),
-    value: inputCleaned.value.map((s) => safeTransform(sentenceCase, s)),
+    value: inputCleaned.value.map((s) => convert(sentenceCase, s)),
   },
   {
+    key: 'snakecase',
     label: t('tools.case-converter.texts.label-snakecase'),
-    value: inputCleaned.value.map((s) => safeTransform(snakeCase, s)),
+    value: inputCleaned.value.map((s) => convert(snakeCase, s)),
   },
   {
+    key: 'mockingcase',
     label: t('tools.case-converter.texts.label-mockingcase'),
     value: inputCleaned.value.map((s) =>
-      safeTransform(
+      convert(
         (x) =>
           x
             .split('')
@@ -154,12 +207,14 @@ const formats = computed(() => [
     ),
   },
   {
+    key: 'spongecase',
     label: t('tools.case-converter.texts.label-spongecase'),
-    value: inputCleaned.value.map((s) => safeTransform(spongeCase, s)),
+    value: inputCleaned.value.map((s) => convert(spongeCase, s)),
   },
   {
+    key: 'swapcase',
     label: t('tools.case-converter.texts.label-swapcase'),
-    value: inputCleaned.value.map((s) => safeTransform(swapCase, s)),
+    value: inputCleaned.value.map((s) => convert(swapCase, s)),
   },
 ]);
 
@@ -169,14 +224,12 @@ const inputLabelAlignmentConfig = {
   labelAlign: 'right',
 } as const;
 
-// 导出列选择：用户可勾选要导出的结果列（默认全部）。仅影响「复制全部 / 导出」，不改变上方主展示。
-const selectedFormatLabels = ref<string[]>(formats.value.map((f) => f.label));
-const formatSelectOptions = computed(() =>
-  formats.value.map((f) => ({ label: f.label, value: f.label })),
-);
-const activeFormats = computed(() =>
-  formats.value.filter((f) => selectedFormatLabels.value.includes(f.label)),
-);
+// 结果类型选择：以 key 为准。
+// 早期版本按 label 匹配，遇到同名标签（如两个「首字母大写」）会互相干扰，故改为 key。
+// 默认只显示「首字母大写」，避免一打开就铺 19 个结果框。
+const selectedFormatKeys = ref<string[]>(['capitalcase']);
+const formatSelectOptions = computed(() => formats.value.map((f) => ({ label: f.label, value: f.key })));
+const activeFormats = computed(() => formats.value.filter((f) => selectedFormatKeys.value.includes(f.key)));
 
 // 聚合已选格式的文本（复制全部 / 导出 TXT 用），以及 A列输入 + 各格式列的二维表（导出 Excel 用）
 const allResultsText = computed(() =>
@@ -205,15 +258,58 @@ const exportRows = computed(() => {
       mb-1
     />
 
+    <!-- 内容过滤：勾选式，替代原来的「清理正则表达式」裸输入框 -->
+    <div flex items-center mb-1 flex-wrap>
+      <div style="width: 125px; text-align: right; padding-right: 12px; flex-shrink: 0">
+        {{ t('tools.case-converter.texts.label-content-filter') }}
+      </div>
+      <n-checkbox-group v-model:value="selectedFilters">
+        <n-space>
+          <n-checkbox v-for="preset in filterPresets" :key="preset.key" :value="preset.key" :label="preset.label" />
+        </n-space>
+      </n-checkbox-group>
+    </div>
+    <n-p depth="3" mb-1 style="margin-left: 137px">
+      {{ t('tools.case-converter.texts.hint-content-filter') }}
+    </n-p>
+
+    <n-checkbox v-model:checked="advancedMode" mb-1 style="margin-left: 137px">
+      {{ t('tools.case-converter.texts.label-advanced-mode') }}
+    </n-checkbox>
     <c-input-text
+      v-if="advancedMode"
       v-model:value="cleaningRegex"
-      :label="t('tools.case-converter.texts.label-cleaning-regex')"
+      :label="t('tools.case-converter.texts.label-custom-regex')"
       :placeholder="t('tools.case-converter.texts.placeholder-your-cleaning-regex')"
       raw-text
       v-bind="inputLabelAlignmentConfig"
       mb-1
     />
 
+    <!-- 单词构成规则 -->
+    <c-input-text
+      v-model:value="connectorChars"
+      :label="t('tools.case-converter.texts.label-word-rules')"
+      raw-text
+      v-bind="inputLabelAlignmentConfig"
+      mb-1
+    />
+    <div flex gap-2 mb-1 flex-wrap style="margin-left: 137px">
+      <c-button
+        v-for="preset in wordRulePresets"
+        :key="preset.label"
+        size="small"
+        secondary
+        @click="applyWordRulePreset(preset.value)"
+      >
+        {{ preset.label }}
+      </c-button>
+    </div>
+    <n-p depth="3" mb-1 style="margin-left: 137px">
+      {{ t('tools.case-converter.texts.hint-word-rules') }}
+    </n-p>
+
+    <!-- 语言：仅用于「语言标题式」 -->
     <c-select
       v-model:value="language"
       :options="getSupportedLanguages()"
@@ -222,7 +318,11 @@ const exportRows = computed(() => {
       v-bind="inputLabelAlignmentConfig"
       mb-1
     />
+    <n-p depth="3" mb-1 style="margin-left: 137px">
+      {{ t('tools.case-converter.texts.hint-language') }}
+    </n-p>
 
+    <!-- 批量分隔符 -->
     <c-select
       v-model:value="delimiterMode"
       :options="delimiterOptions"
@@ -244,7 +344,7 @@ const exportRows = computed(() => {
     <n-p depth="3" mb-1>{{ t('tools.case-converter.texts.hint-export-columns') }}</n-p>
     <div flex items-center justify-between mb-2 gap-2 flex-wrap>
       <n-select
-        v-model:value="selectedFormatLabels"
+        v-model:value="selectedFormatKeys"
         multiple
         :options="formatSelectOptions"
         :placeholder="t('tools.case-converter.texts.label-export-columns')"
@@ -254,9 +354,10 @@ const exportRows = computed(() => {
       <CopyExportBar :text="allResultsText" filename="大小写转换" :rows="exportRows" />
     </div>
 
+    <!-- 结果与上方选择联动：只渲染勾选的类型 -->
     <InputCopyable
-      v-for="format in formats"
-      :key="format.label"
+      v-for="format in activeFormats"
+      :key="format.key"
       :value="format.value?.join('\n')"
       :label="format.label"
       v-bind="inputLabelAlignmentConfig"
