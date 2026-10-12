@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-12T08:04:07.361Z",
+  "generatedAt": "2026-10-12T08:45:39.903Z",
   "sourceCommit": "extracted at build time",
-  "total": 116,
+  "total": 117,
   "tiers": {
-    "L1": 94,
+    "L1": 95,
     "L2": 21,
     "L3": 1
   },
@@ -1439,6 +1439,32 @@
       "isExternalAccess": false,
       "title": "JSON差异比较",
       "description": "比较两个JSON对象并获取它们之间的差异。",
+      "categoryZh": "JSON 工具",
+      "categorySeoName": "JSON 在线格式化与转换",
+      "tier": "L1"
+    },
+    {
+      "path": "/json-html-table",
+      "slug": "json-html-table",
+      "category": "JSON",
+      "keywords": [
+        "json",
+        "html",
+        "table",
+        "convert",
+        "转换"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "json",
+        "html",
+        "table",
+        "convert"
+      ],
+      "isExternalAccess": false,
+      "title": "JSON 与 HTML 表格互转",
+      "description": "JSON 与 HTML 表格双向转换，对象数组生成带 thead/tbody 的 HTML 表格，HTML 表格解析为对象数组，支持数字智能识别与防 XSS 转义，纯本地离线",
       "categoryZh": "JSON 工具",
       "categorySeoName": "JSON 在线格式化与转换",
       "tier": "L1"

@@ -213,6 +213,32 @@ tools:
       msg-copied: 已复制到剪贴板
       msg-json-invalid: JSON 格式不正确
       msg-no-table: 未检测到 Markdown 表格
+  json-html-table:
+    title: JSON 与 HTML 表格互转
+    description: JSON 与 HTML 表格双向转换，对象数组生成带 thead/tbody 的 HTML 表格，HTML 表格解析为对象数组，支持数字智能识别与防 XSS 转义，纯本地离线
+    texts:
+      direction-title: 转换方向
+      dir-json2html: JSON 转 HTML
+      dir-html2json: HTML 转 JSON
+      input-label-json: 输入 JSON
+      input-label-html: 输入 HTML 表格
+      placeholder-json: 粘贴 JSON 数组或对象
+      placeholder-html: "粘贴包含 <table> 的 HTML 表格代码"
+      options-title: 选项
+      pretty-title: 输出美化（缩进）
+      pretty-on: 是
+      pretty-off: 否
+      detect-title: 数字识别为 number
+      detect-on: 是
+      detect-off: 否
+      output-label: 转换结果
+      action-copy: 复制
+      action-export-html: 下载 HTML
+      action-export-json: 下载 JSON
+      msg-empty: 暂无可导出的结果
+      msg-copied: 已复制到剪贴板
+      msg-json-invalid: JSON 格式不正确
+      msg-no-table: "未检测到 <table> 表格"
   csv-to-json:
     title: CSV转JSON
     description: 自动检测表头，将CSV转换为JSON。

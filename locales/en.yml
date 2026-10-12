@@ -230,6 +230,32 @@ tools:
       msg-copied: Copied to clipboard
       msg-json-invalid: "Invalid JSON"
       msg-no-table: "No Markdown table detected"
+  json-html-table:
+    title: JSON to HTML table converter
+    description: "Convert JSON to HTML table and back. Object arrays become a <table> with thead/tbody; HTML tables parse into arrays of objects, with smart number detection and XSS-safe escaping. Fully local."
+    texts:
+      direction-title: Direction
+      dir-json2html: JSON to HTML
+      dir-html2json: HTML to JSON
+      input-label-json: Input JSON
+      input-label-html: Input HTML table
+      placeholder-json: Paste a JSON array or object
+      placeholder-html: "Paste HTML containing a <table>"
+      options-title: Options
+      pretty-title: Pretty output (indent)
+      pretty-on: "Yes"
+      pretty-off: "No"
+      detect-title: Detect numbers as number
+      detect-on: "Yes"
+      detect-off: "No"
+      output-label: Result
+      action-copy: Copy
+      action-export-html: Download HTML
+      action-export-json: Download JSON
+      msg-empty: Nothing to export yet
+      msg-copied: Copied to clipboard
+      msg-json-invalid: Invalid JSON
+      msg-no-table: "No <table> found"
   csv-to-json:
     title: CSV to JSON
     description: Convert CSV to JSON with automatic header detection.
