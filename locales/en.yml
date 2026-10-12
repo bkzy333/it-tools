@@ -230,6 +230,26 @@ tools:
       msg-copied: Copied to clipboard
       msg-json-invalid: "Invalid JSON"
       msg-no-table: "No Markdown table detected"
+  html-strip:
+    title: "HTML strip / clean"
+    description: "Remove style/id/class attributes from HTML, or strip all tags to plain text."
+    texts:
+      input-label: "Input HTML"
+      placeholder: "Paste HTML containing style/id/class attributes"
+      options-title: "Options"
+      opt-strip-tags: "Strip all tags (to plain text)"
+      opt-remove-style: "Remove style attribute"
+      opt-remove-id: "Remove id attribute"
+      opt-remove-class: "Remove class attribute"
+      opt-decode-entities: "Decode HTML entities (&amp; &lt; etc.)"
+      opt-preserve-newlines: "Preserve line breaks (block elements / <br>)"
+      output-label: "Output"
+      action-copy: "Copy result"
+      action-export-html: "Download HTML"
+      action-export-txt: "Download TXT"
+      msg-empty: "Nothing to copy"
+      msg-copied: "Copied to clipboard"
+
   json-html-table:
     title: JSON to HTML table converter
     description: "Convert JSON to HTML table and back. Object arrays become a <table> with thead/tbody; HTML tables parse into arrays of objects, with smart number detection and XSS-safe escaping. Fully local."

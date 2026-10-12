@@ -213,6 +213,26 @@ tools:
       msg-copied: 已复制到剪贴板
       msg-json-invalid: JSON 格式不正确
       msg-no-table: 未检测到 Markdown 表格
+  html-strip:
+    title: HTML 清理 / 去标签
+    description: 清理 HTML 中的 style/id/class 属性，或一键去除所有标签转为纯文本。
+    texts:
+      input-label: 输入 HTML
+      placeholder: 粘贴包含 style/id/class 属性的 HTML 代码
+      options-title: 选项
+      opt-strip-tags: 去除所有标签（转为纯文本）
+      opt-remove-style: 移除 style 属性
+      opt-remove-id: 移除 id 属性
+      opt-remove-class: 移除 class 属性
+      opt-decode-entities: 解码 HTML 实体（&amp; &lt; 等）
+      opt-preserve-newlines: 保留换行（块级元素 / <br> 转行）
+      output-label: 输出结果
+      action-copy: 复制结果
+      action-export-html: 下载 HTML
+      action-export-txt: 下载 TXT
+      msg-empty: 没有可复制的内容
+      msg-copied: 已复制到剪贴板
+
   json-html-table:
     title: JSON 与 HTML 表格互转
     description: JSON 与 HTML 表格双向转换，对象数组生成带 thead/tbody 的 HTML 表格，HTML 表格解析为对象数组，支持数字智能识别与防 XSS 转义，纯本地离线

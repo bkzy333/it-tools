@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-12T08:45:39.903Z",
+  "generatedAt": "2026-10-12T09:11:05.057Z",
   "sourceCommit": "extracted at build time",
-  "total": 117,
+  "total": 118,
   "tiers": {
     "L1": 95,
-    "L2": 21,
+    "L2": 22,
     "L3": 1
   },
   "categories": {
@@ -1188,6 +1188,36 @@
       "categoryZh": "网页工具",
       "categorySeoName": "网页与 URL 在线工具",
       "tier": "L1"
+    },
+    {
+      "path": "/html-strip",
+      "slug": "html-strip",
+      "category": "Web",
+      "keywords": [
+        "html",
+        "strip",
+        "clean",
+        "remove",
+        "style",
+        "class",
+        "attribute",
+        "plain-text",
+        "tag"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "html",
+        "clean",
+        "convert",
+        "web"
+      ],
+      "isExternalAccess": false,
+      "title": "HTML 清理 / 去标签",
+      "description": "清理 HTML 中的 style/id/class 属性，或一键去除所有标签转为纯文本。",
+      "categoryZh": "网页工具",
+      "categorySeoName": "网页与 URL 在线工具",
+      "tier": "L2"
     },
     {
       "path": "/html-to-markdown",
