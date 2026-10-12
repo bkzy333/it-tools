@@ -3453,6 +3453,12 @@ tools:
       label-found: Found
       label-missing: Missing
       hint-missing: "Unlisted characters are shown as a dash. This tool only covers GB2312 common characters."
+      action-copy: Copy code
+      action-copy-all: Copy all
+      action-export-txt: Export TXT
+      action-export-csv: Export CSV
+      msg-empty: "No result to copy"
+      msg-copied: Copied to clipboard
   lunar-calendar:
     title: "Lunar Calendar Converter"
     description: "Convert between Gregorian and Chinese lunar calendar, showing sexagenary year, zodiac and constellation. Supports 1900-2100."

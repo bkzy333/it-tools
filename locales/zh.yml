@@ -3343,6 +3343,12 @@ tools:
       label-found: 已查
       label-missing: 未收录
       hint-missing: 未收录的字符已标注为破折号，本工具仅收录 GB2312 常用汉字
+      action-copy: 复制编码
+      action-copy-all: 复制全部
+      action-export-txt: 导出 TXT
+      action-export-csv: 导出 CSV
+      msg-empty: 暂无可复制的结果
+      msg-copied: 已复制到剪贴板
   lunar-calendar:
     title: 农历转换
     description: 公历与农历互转，显示干支纪年、生肖、星座，支持 1900-2100 年
