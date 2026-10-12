@@ -552,6 +552,71 @@ tools:
     placeholder: Your link or text...
     button:
       download: Download QR code
+    texts:
+      label-data-type: "Data type:"
+      data-type-text: Text
+      data-type-url: URL
+      data-type-wifi: WiFi
+      data-type-vcard: Contact (vCard)
+      data-type-email: Email
+      data-type-sms: SMS
+      data-type-tel: Phone
+      data-type-geo: Geo location
+      data-type-event: Calendar event
+      label-text: "Text:"
+      label-url: "URL:"
+      placeholder: Your link or text...
+      label-encoded-payload: "Generated payload (scanned content):"
+      wifi-ssid: "Network name (SSID):"
+      wifi-ssid-ph: Enter WiFi name
+      wifi-password: "Password:"
+      wifi-encryption: "Encryption:"
+      wifi-hidden: Hidden network
+      vcard-first: "First name:"
+      vcard-last: "Last name:"
+      vcard-org: "Organization:"
+      vcard-title: "Title:"
+      vcard-phone: "Phone:"
+      vcard-email: "Email:"
+      vcard-url: "Website:"
+      vcard-street: "Street:"
+      vcard-city: "City:"
+      vcard-state: "State/Region:"
+      vcard-zip: "ZIP:"
+      vcard-country: "Country:"
+      email-to: "To:"
+      email-subject: "Subject:"
+      email-body: "Body:"
+      sms-to: "To:"
+      sms-body: "Message:"
+      tel-number: "Phone number:"
+      geo-lat: "Latitude:"
+      geo-lon: "Longitude:"
+      event-title: "Title:"
+      event-start: "Start:"
+      event-end: "End:"
+      event-location: "Location:"
+      event-description: "Description:"
+      label-foreground-color: "Foreground color:"
+      label-background-color: "Background color:"
+      label-width: "Width:"
+      label-margin: "Margin:"
+      label-error-resistance: "Error resistance:"
+      label-output-format: "Output format:"
+      title-image: Image
+      title-drag-and-drop-an-image-here-or-click-to-select-an-image: Drag and drop an image here, or click to select an image
+      label-size: "Size:"
+      tag-dots-options: Dots options
+      tag-corners-dots-options: Corners dots options
+      tag-corners-square-options: Corners square options
+      label-color: "Color:"
+      label-type: "Type:"
+      label-qr-code-image-viewer: QR Code image viewer
+      link-qr-code-open-embeddable-link: Open embeddable link
+      label-qr-code-embeddable-dataurl: Embeddable Data URL
+      tag-small-terminal: Small terminal
+      label-terminal-output: "Terminal output:"
+      button-export-txt: "Export content (.txt)"
   xml-formatter:
     title: XML formatter
     description: Prettify your XML string into a friendly, human-readable format.
@@ -1629,6 +1694,13 @@ tools:
       title-drag-and-drop-a-qr-code-here-or-click-to-select-a-file: Drag and drop a QR Code here, or click to select a file
       tag-decoded: Decoded
       tag-parsed: Parsed
+      tab-upload: Upload image
+      tab-camera: Camera
+      camera-unsupported: Your browser does not support native scanning. Please use "Upload image" instead.
+      camera-start: Start camera
+      camera-stop: Stop camera
+      camera-hint: Point the camera at a QR code to auto-detect.
+      camera-denied: Cannot access the camera. Please check browser permissions.
     service:
       text:
         unknown: Unknown

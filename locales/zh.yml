@@ -526,6 +526,71 @@ tools:
     placeholder: 输入链接或文本...
     button:
       download: 下载二维码
+    texts:
+      label-data-type: 数据类型：
+      data-type-text: 文本
+      data-type-url: 网址
+      data-type-wifi: WiFi
+      data-type-vcard: 名片(vCard)
+      data-type-email: 邮件
+      data-type-sms: 短信
+      data-type-tel: 电话
+      data-type-geo: 定位
+      data-type-event: 日历事件
+      label-text: 文本：
+      label-url: 网址：
+      placeholder: 输入链接或文本...
+      label-encoded-payload: 已生成的编码串（扫码内容）：
+      wifi-ssid: 网络名称(SSID)：
+      wifi-ssid-ph: 请输入 WiFi 名称
+      wifi-password: 密码：
+      wifi-encryption: 加密方式：
+      wifi-hidden: 隐藏网络
+      vcard-first: 名：
+      vcard-last: 姓：
+      vcard-org: 公司/组织：
+      vcard-title: 职位：
+      vcard-phone: 电话：
+      vcard-email: 邮箱：
+      vcard-url: 网址：
+      vcard-street: 街道：
+      vcard-city: 城市：
+      vcard-state: 省/州：
+      vcard-zip: 邮编：
+      vcard-country: 国家：
+      email-to: 收件人：
+      email-subject: 主题：
+      email-body: 正文：
+      sms-to: 收件人：
+      sms-body: 短信内容：
+      tel-number: 电话号码：
+      geo-lat: 纬度：
+      geo-lon: 经度：
+      event-title: 标题：
+      event-start: 开始时间：
+      event-end: 结束时间：
+      event-location: 地点：
+      event-description: 描述：
+      label-foreground-color: 前景颜色：
+      label-background-color: 背景颜色：
+      label-width: 宽度：
+      label-margin: 边距：
+      label-error-resistance: 容错率：
+      label-output-format: 输出格式：
+      title-image: 图片
+      title-drag-and-drop-an-image-here-or-click-to-select-an-image: 拖放图片至此，或点击选择图片
+      label-size: 大小：
+      tag-dots-options: 圆点选项
+      tag-corners-dots-options: 边角圆点选项
+      tag-corners-square-options: 边角方块选项
+      label-color: 颜色：
+      label-type: 类型：
+      label-qr-code-image-viewer: 二维码图片查看器
+      link-qr-code-open-embeddable-link: 打开可嵌入链接
+      label-qr-code-embeddable-dataurl: 可嵌入 Data URL
+      tag-small-terminal: 小终端
+      label-terminal-output: 终端输出：
+      button-export-txt: 导出内容文本(.txt)
   xml-formatter:
     title: XML格式化器
     description: 将XML字符串格式化为友好、易读的格式。
@@ -1561,6 +1626,13 @@ tools:
       title-drag-and-drop-a-qr-code-here-or-click-to-select-a-file: 拖放二维码至此，或点击选择文件
       tag-decoded: 已解码
       tag-parsed: 已解析
+      tab-upload: 上传图片
+      tab-camera: 摄像头
+      camera-unsupported: 当前浏览器不支持原生扫码，请改用「上传图片」方式
+      camera-start: 开启摄像头
+      camera-stop: 关闭摄像头
+      camera-hint: 将二维码对准摄像头即可自动识别
+      camera-denied: 无法访问摄像头，请检查浏览器权限
     service:
       text:
         unknown: 未知
