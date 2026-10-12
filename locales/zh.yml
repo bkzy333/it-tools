@@ -159,6 +159,60 @@ tools:
       input-label-your-raw-json: 您的原始JSON
       input-placeholder-paste-your-raw-json-here: 在此粘贴您的原始JSON...
       output-label-csv-version-of-your-json: 您的JSON的CSV版本
+      options-title: 选项
+      nested-title: 嵌套结构
+      nested-none: 不展开
+      nested-objects: 展开对象
+      nested-arrays: 展开数组
+      nested-both: 展开对象和数组
+      trim-title: 单元格空白
+      trim-remove: 去除
+      trim-keep: 保留
+      empty-title: 空行
+      empty-remove: 去除
+      empty-keep: 保留
+      columns-title: 选择列
+      columns-all: 全部列（留空=全选）
+      action-copy: 复制
+      action-export-csv: 导出 CSV
+      msg-empty: 暂无可导出的结果
+      msg-copied: 已复制到剪贴板
+  json-markdown-table:
+    title: JSON 与 Markdown 表格互转
+    description: JSON 与 Markdown 表格双向转换，支持嵌套展开、列对齐、特殊字符转义，纯本地离线
+    texts:
+      direction-title: 转换方向
+      dir-json2md: JSON 转 Markdown
+      dir-md2json: Markdown 转 JSON
+      input-label-json: 输入 JSON
+      input-label-md: 输入 Markdown 表格
+      placeholder-json: 粘贴 JSON 数组或对象
+      placeholder-md: 粘贴一个 Markdown 表格
+      options-title: 选项
+      nested-title: 嵌套结构
+      nested-none: 不展开
+      nested-objects: 展开对象
+      nested-arrays: 展开数组
+      nested-both: 展开对象和数组
+      align-title: 列对齐
+      align-default: 默认
+      align-left: 左对齐
+      align-center: 居中对齐
+      align-right: 右对齐
+      trim-title: 单元格空白
+      trim-remove: 去除
+      trim-keep: 保留
+      empty-title: 空行
+      empty-remove: 去除
+      empty-keep: 保留
+      output-label: 转换结果
+      action-copy: 复制
+      action-export-md: 导出 MD
+      action-export-json: 导出 JSON
+      msg-empty: 暂无可导出的结果
+      msg-copied: 已复制到剪贴板
+      msg-json-invalid: JSON 格式不正确
+      msg-no-table: 未检测到 Markdown 表格
   csv-to-json:
     title: CSV转JSON
     description: 自动检测表头，将CSV转换为JSON。

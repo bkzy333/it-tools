@@ -176,6 +176,60 @@ tools:
       input-label-your-raw-json: Your raw JSON
       input-placeholder-paste-your-raw-json-here: Paste your raw JSON here...
       output-label-csv-version-of-your-json: CSV version of your JSON
+      options-title: Options
+      nested-title: Nested structure
+      nested-none: No expand
+      nested-objects: Expand objects
+      nested-arrays: Expand arrays
+      nested-both: Expand objects and arrays
+      trim-title: Cell whitespace
+      trim-remove: Trim
+      trim-keep: Keep
+      empty-title: Empty rows
+      empty-remove: Remove
+      empty-keep: Keep
+      columns-title: Select columns
+      columns-all: All columns (leave empty = select all)
+      action-copy: Copy
+      action-export-csv: Export CSV
+      msg-empty: "No result to export"
+      msg-copied: Copied to clipboard
+  json-markdown-table:
+    title: "JSON to Markdown Table"
+    description: "Convert between JSON and Markdown tables, with nested expansion, column alignment and special-character escaping. Fully offline."
+    texts:
+      direction-title: Direction
+      dir-json2md: JSON to Markdown
+      dir-md2json: Markdown to JSON
+      input-label-json: Input JSON
+      input-label-md: Input Markdown table
+      placeholder-json: Paste a JSON array or object
+      placeholder-md: Paste a Markdown table
+      options-title: Options
+      nested-title: Nested structure
+      nested-none: No expand
+      nested-objects: Expand objects
+      nested-arrays: Expand arrays
+      nested-both: Expand objects and arrays
+      align-title: Column alignment
+      align-default: Default
+      align-left: Left
+      align-center: Center
+      align-right: Right
+      trim-title: Cell whitespace
+      trim-remove: Trim
+      trim-keep: Keep
+      empty-title: Empty rows
+      empty-remove: Remove
+      empty-keep: Keep
+      output-label: Result
+      action-copy: Copy
+      action-export-md: Export MD
+      action-export-json: Export JSON
+      msg-empty: "No result to export"
+      msg-copied: Copied to clipboard
+      msg-json-invalid: "Invalid JSON"
+      msg-no-table: "No Markdown table detected"
   csv-to-json:
     title: CSV to JSON
     description: Convert CSV to JSON with automatic header detection.

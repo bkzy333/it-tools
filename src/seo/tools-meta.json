@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-11T14:40:24.089Z",
+  "generatedAt": "2026-10-12T03:11:24.521Z",
   "sourceCommit": "extracted at build time",
-  "total": 113,
+  "total": 114,
   "tiers": {
-    "L1": 93,
+    "L1": 94,
     "L2": 19,
     "L3": 1
   },
@@ -1439,6 +1439,33 @@
       "isExternalAccess": false,
       "title": "JSON差异比较",
       "description": "比较两个JSON对象并获取它们之间的差异。",
+      "categoryZh": "JSON 工具",
+      "categorySeoName": "JSON 在线格式化与转换",
+      "tier": "L1"
+    },
+    {
+      "path": "/json-markdown-table",
+      "slug": "json-markdown-table",
+      "category": "JSON",
+      "keywords": [
+        "json",
+        "markdown",
+        "table",
+        "md",
+        "convert",
+        "转换"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "json",
+        "markdown",
+        "table",
+        "convert"
+      ],
+      "isExternalAccess": false,
+      "title": "JSON 与 Markdown 表格互转",
+      "description": "JSON 与 Markdown 表格双向转换，支持嵌套展开、列对齐、特殊字符转义，纯本地离线",
       "categoryZh": "JSON 工具",
       "categorySeoName": "JSON 在线格式化与转换",
       "tier": "L1"
