@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-12T13:31:39.181Z",
+  "generatedAt": "2026-10-12T23:46:08.915Z",
   "sourceCommit": "extracted at build time",
-  "total": 118,
+  "total": 117,
   "tiers": {
-    "L1": 95,
+    "L1": 94,
     "L2": 22,
     "L3": 1
   },
@@ -2730,28 +2730,6 @@
       "tier": "L1"
     },
     {
-      "path": "/text-join",
-      "slug": "text-join",
-      "category": "Text",
-      "keywords": [
-        "text",
-        "join"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "excel",
-        "data-cleaning"
-      ],
-      "isExternalAccess": false,
-      "title": "文本拼接",
-      "description": "把多行文本按连接符合并成一行，可选去除首尾空格、删除所有空格并自动丢弃空行。",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
-      "tier": "L1"
-    },
-    {
       "path": "/text-merge",
       "slug": "text-merge",
       "category": "Text",
@@ -2771,7 +2749,7 @@
       ],
       "isExternalAccess": false,
       "title": "文本合并",
-      "description": "把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值，并可一键复制为 TSV 直接粘回 Excel。",
+      "description": "把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值、去首尾空格与删除所有空格，并可一键复制为 TSV 直接粘回 Excel。",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"

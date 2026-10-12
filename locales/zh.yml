@@ -3344,30 +3344,9 @@ tools:
       action-copy: 复制结果
       action-download: 下载
       action-clear: 清空
-  text-join:
-    title: 文本拼接
-    description: 把多行文本按连接符合并成一行，可选去除首尾空格、删除所有空格并自动丢弃空行。
-    texts:
-      label-input: 输入内容
-      placeholder-input: 在此粘贴要拼接的多行文本
-      label-connection: 连接字符
-      placeholder-connection: 填写连接字符
-      opt-connection-empty: 无（直接相连）
-      opt-connection-comma: 逗号
-      opt-connection-semicolon: 分号
-      opt-connection-tab: 制表符
-      opt-connection-newline: 换行符
-      opt-connection-custom: 自定义
-      opt-remove-first-last-space: 去除行首尾空格
-      opt-remove-all-space: 去除所有空格
-      title-result: 拼接结果
-      label-line-count: 参与拼接的行数
-      action-copy: 复制结果
-      action-download: 下载
-      action-clear: 清空
   text-merge:
     title: 文本合并
-    description: 把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值，并可一键复制为 TSV 直接粘回 Excel。
+    description: 把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值、去首尾空格与删除所有空格，并可一键复制为 TSV 直接粘回 Excel。
     texts:
       label-input: 输入内容
       placeholder-input: 粘贴文本（从 Excel 复制的多列数据可直接粘贴，列以 Tab 分隔）
@@ -3389,6 +3368,8 @@ tools:
       action-copy-tsv: 复制为 TSV
       action-clear: 清空
       message-copied-tsv: 已复制为 TSV
+      opt-remove-first-last-space: 去掉每行首尾空格
+      opt-remove-all-space: 删除所有空格（含制表符、全角空格）
   sequence-generator:
     title: 序列生成器
     description: 按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零

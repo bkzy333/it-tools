@@ -8,6 +8,7 @@
  *       /percentage-calculator 的 6 个推荐里出现过「五笔编码查询」「合并单元格」这种完全无关的；
  *     · 大分类（Text 有 23 个）只按固定顺序取前 6 个，导致真正该互链的一对被截断
  *       —— /text-merge 与 /text-join 功能近乎重复，却从未互相推荐过。
+ *       （2026-10-13 已把 /text-join 合并进 /text-merge，表中不再有该条目）
  *   内链是给爬虫理解站内结构和给用户找下一步用法的，随机推荐两边都不讨好，只能人工策划。
  *
  * 使用方式（两边共用同一份，绝不各写一套）：
@@ -261,18 +262,17 @@ export const RELATED_TOOLS: Record<string, string[]> = {
     '/chinese-pinyin-converter',
     '/special-symbols',
   ],
-  '/list-converter': ['/text-split', '/text-join', '/text-merge', '/text-format', '/text-dedupe', '/csv-to-json'],
+  '/list-converter': ['/text-split', '/text-merge', '/text-format', '/text-dedupe', '/csv-to-json'],
   '/regex-tester': ['/text-extract', '/text-format', '/text-split', '/json-diff', '/text-workflow'],
   '/special-symbols': ['/text-typography', '/fullwidth-halfwidth-converter', '/text-format', '/wubi-dict', '/kinship-calculator'],
   '/text-dedupe': ['/text-format', '/text-split', '/list-converter', '/text-similarity', '/text-diff'],
   '/text-diff': ['/text-similarity', '/json-diff', '/text-dedupe', '/text-format', '/text-extract'],
   '/text-extract': ['/regex-tester', '/text-split', '/text-format', '/text-statistics', '/html-strip'],
-  '/text-format': ['/text-dedupe', '/text-split', '/case-converter', '/text-join', '/text-workflow', '/regex-tester'],
-  '/text-join': ['/text-merge', '/text-split', '/list-converter', '/text-format', '/text-dedupe'],
-  '/text-merge': ['/text-join', '/text-split', '/list-converter', '/text-format', '/text-numbering'],
-  '/text-numbering': ['/text-merge', '/text-join', '/text-split', '/list-converter', '/sequence-generator'],
+  '/text-format': ['/text-dedupe', '/text-split', '/case-converter', '/text-merge', '/text-workflow', '/regex-tester'],
+  '/text-merge': ['/text-split', '/list-converter', '/text-format', '/text-numbering', '/text-dedupe'],
+  '/text-numbering': ['/text-merge', '/text-split', '/list-converter', '/sequence-generator', '/text-dedupe'],
   '/text-similarity': ['/text-diff', '/text-dedupe', '/text-format', '/text-statistics', '/text-translate'],
-  '/text-split': ['/text-join', '/text-merge', '/text-format', '/list-converter', '/text-numbering'],
+  '/text-split': ['/text-merge', '/text-format', '/list-converter', '/text-numbering', '/text-dedupe'],
   '/text-statistics': ['/text-extract', '/text-similarity', '/text-typography', '/typing-speed-test', '/text-format'],
   '/text-translate': ['/image-translate', '/text-typography', '/chinese-script-converter', '/text-similarity', '/ocr-image'],
   '/text-typography': [
@@ -282,7 +282,7 @@ export const RELATED_TOOLS: Record<string, string[]> = {
     '/special-symbols',
     '/text-format',
   ],
-  '/text-workflow': ['/text-format', '/text-split', '/text-join', '/text-extract', '/regex-tester'],
+  '/text-workflow': ['/text-format', '/text-split', '/text-merge', '/text-extract', '/regex-tester'],
   '/typing-speed-test': ['/text-statistics', '/text-format', '/text-typography', '/case-converter', '/text-translate'],
   '/wubi-dict': ['/chinese-pinyin-converter', '/chinese-script-converter', '/special-symbols', '/text-extract', '/text-format'],
 

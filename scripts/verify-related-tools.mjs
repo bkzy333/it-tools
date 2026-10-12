@@ -92,8 +92,9 @@ const unregistered = tools.filter((t) => !RELATED_TOOLS[t.path]).map((t) => t.pa
 
 // ---- 4. 关键互链是否成立（重复/互转工具必须互链，这是建表的首要目的）----
 const MUST_LINK = [
-  ['/text-merge', '/text-join'],
-  ['/text-join', '/text-merge'],
+  // 2026-10-13：/text-join 已合并进 /text-merge，改用「合并 ↔ 分割」这对互逆操作作为断言
+  ['/text-merge', '/text-split'],
+  ['/text-split', '/text-merge'],
   ['/date-distance-calculator', '/days-calculator'],
   ['/date-distance-calculator', '/date-duration-calculator'],
   ['/days-calculator', '/date-distance-calculator'],

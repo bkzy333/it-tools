@@ -17,6 +17,9 @@ const outputDelimiterCustom = ref('');
 const inputDelimiterKey = ref('\t');
 const inputDelimiterCustom = ref('');
 const skipEmpty = ref(true);
+// 下面两项由原「文本拼接」(/text-join) 合并而来，默认与它一致：只勾「去首尾空格」
+const removeFirstLastSpace = ref(true);
+const removeAllSpace = ref(false);
 
 const outputDelimiter = computed(() =>
   outputDelimiterKey.value === 'custom' ? outputDelimiterCustom.value : outputDelimiterKey.value,
@@ -33,6 +36,8 @@ const result = computed(() =>
     outputDelimiter: outputDelimiter.value,
     inputDelimiter: inputDelimiter.value,
     skipEmpty: skipEmpty.value,
+    removeFirstLastSpace: removeFirstLastSpace.value,
+    removeAllSpace: removeAllSpace.value,
   }),
 );
 
@@ -59,6 +64,8 @@ function loadExample() {
   outputDelimiterKey.value = exampleData.out;
   inputDelimiterKey.value = '\t';
   skipEmpty.value = true;
+  removeFirstLastSpace.value = true;
+  removeAllSpace.value = false;
 }
 
 /* 分隔符下拉选项（值即实际字符） */
@@ -134,9 +141,17 @@ const inputDelimiterOptions = computed(() => [
       mb-2
     />
 
-    <n-checkbox v-model:checked="skipEmpty">
-      {{ t('tools.text-merge.texts.opt-skip-empty') }}
-    </n-checkbox>
+    <div flex gap-4 flex-wrap>
+      <n-checkbox v-model:checked="skipEmpty">
+        {{ t('tools.text-merge.texts.opt-skip-empty') }}
+      </n-checkbox>
+      <n-checkbox v-model:checked="removeFirstLastSpace">
+        {{ t('tools.text-merge.texts.opt-remove-first-last-space') }}
+      </n-checkbox>
+      <n-checkbox v-model:checked="removeAllSpace">
+        {{ t('tools.text-merge.texts.opt-remove-all-space') }}
+      </n-checkbox>
+    </div>
 
     <!-- 输出 -->
     <c-card :title="t('tools.text-merge.texts.title-result')" size="small" mt-2>

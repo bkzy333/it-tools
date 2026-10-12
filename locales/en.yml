@@ -3452,32 +3452,9 @@ tools:
       action-copy: Copy result
       action-download: Download
       action-clear: Clear
-  text-join:
-    title: Text Join
-    description: Merge multiple lines into one with a connection string, optionally
-      trimming the edges or stripping every space, and drop empty lines
-      automatically.
-    texts:
-      label-input: Input
-      placeholder-input: Paste the lines to join here
-      label-connection: Connection
-      placeholder-connection: Connection string
-      opt-connection-empty: None (direct)
-      opt-connection-comma: Comma
-      opt-connection-semicolon: Semicolon
-      opt-connection-tab: Tab
-      opt-connection-newline: Newline
-      opt-connection-custom: Custom
-      opt-remove-first-last-space: Trim edges
-      opt-remove-all-space: Remove all spaces
-      title-result: Result
-      label-line-count: Lines joined
-      action-copy: Copy result
-      action-download: Download
-      action-clear: Clear
   text-merge:
     title: Text Merge
-    description: Merge multiple lines or multiple columns with a custom delimiter, skip empty values, and copy the result as TSV to paste straight back into Excel.
+    description: "Merge multiple lines or columns with a custom delimiter, with options to skip empty values, trim spaces and remove all whitespace; copy the result as TSV to paste straight back into Excel."
     texts:
       label-input: Input
       placeholder-input: Paste text here (multi-column data copied from Excel pastes with Tab between columns)
@@ -3499,6 +3476,8 @@ tools:
       action-copy-tsv: Copy as TSV
       action-clear: Clear
       message-copied-tsv: Copied as TSV
+      opt-remove-first-last-space: "Trim leading and trailing spaces"
+      opt-remove-all-space: "Remove all whitespace (tabs and full-width spaces included)"
   sequence-generator:
     title: Sequence Generator
     description: Generate ordered sequences by number, letter, roman numeral, Chinese numeral, weekday, month, heavenly stems, earthly branches, or your own custom list, with prefix/suffix and zero-padding.
