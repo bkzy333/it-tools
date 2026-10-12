@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-12T06:49:25.734Z",
+  "generatedAt": "2026-10-12T08:04:07.361Z",
   "sourceCommit": "extracted at build time",
-  "total": 115,
+  "total": 116,
   "tiers": {
     "L1": 94,
-    "L2": 20,
+    "L2": 21,
     "L3": 1
   },
   "categories": {
@@ -2457,6 +2457,35 @@
       "categoryZh": "开发工具",
       "categorySeoName": "开发者在线工具",
       "tier": "L1"
+    },
+    {
+      "path": "/table-converter",
+      "slug": "table-converter",
+      "category": "Data",
+      "keywords": [
+        "table",
+        "csv",
+        "excel",
+        "json",
+        "markdown",
+        "convert",
+        "transpose",
+        "grid"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "data",
+        "excel",
+        "data-cleaning",
+        "table"
+      ],
+      "isExternalAccess": false,
+      "title": "表格转换",
+      "description": "可编辑网格，支持粘贴 Excel/CSV/JSON/Markdown 表格，一键转为 JSON、CSV、Markdown、HTML、TSV，并可导出 Excel(.xlsx)。",
+      "categoryZh": "数据处理",
+      "categorySeoName": "数据格式转换工具",
+      "tier": "L2"
     },
     {
       "path": "/table-lookup",

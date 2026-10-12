@@ -3084,6 +3084,40 @@ tools:
       fmt-result-dec2frac: Fraction
       fmt-result-frac2dec: Decimal
       fmt-result-textnum: Normalized
+  table-converter:
+    title: Table converter
+    description: Editable grid that accepts pasted Excel/CSV/JSON/Markdown tables, converts to JSON, CSV, Markdown, HTML or TSV in one click, and exports to Excel (.xlsx).
+    texts:
+      label-input: Raw data
+      placeholder-input: Paste Excel data (Ctrl+V), CSV, a JSON array or a Markdown table, then click "Parse to grid"…
+      action-parse: Parse to grid
+      hint-parse: Or select a cell in the grid below and press Ctrl+V to paste
+      action-clear: Clear
+      action-add-row: Add row
+      action-add-col: Add column
+      action-remove-row: Delete this row
+      label-grid: Grid editor
+      hint-grid: Grid is empty — paste or parse data first, or type directly into a cell
+      unit-rows: rows
+      unit-cols: cols
+      op-remove-empty-rows: Remove empty rows
+      op-remove-empty-cols: Remove empty columns
+      op-trim: Trim spaces
+      op-upper: Uppercase
+      op-lower: Lowercase
+      op-transpose: Transpose
+      label-header: First row is header (affects JSON)
+      fmt-csv: CSV
+      fmt-json: JSON
+      fmt-markdown: Markdown
+      fmt-html: HTML
+      fmt-tsv: TSV
+      title-result: Result
+      placeholder-result: The converted result appears here after choosing a format
+      action-copy: Copy all
+      action-export-txt: Export TXT
+      action-export-xlsx: Download Excel
+      message-copied: Result copied
   table-lookup:
     title: Table lookup
     description: A free VLOOKUP in the browser. Paste two Excel ranges, look rows up by key and choose which columns to return; supports exact, contains and starts-with matching, several conditions that must all match, one-to-many hits and a direct join of the two tables

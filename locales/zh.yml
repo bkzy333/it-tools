@@ -2980,6 +2980,40 @@ tools:
       fmt-result-dec2frac: 分数
       fmt-result-frac2dec: 小数
       fmt-result-textnum: 规范化后
+  table-converter:
+    title: 表格转换
+    description: 可编辑网格，支持粘贴 Excel/CSV/JSON/Markdown 表格，一键转为 JSON、CSV、Markdown、HTML、TSV，并可导出 Excel(.xlsx)。
+    texts:
+      label-input: 原始数据
+      placeholder-input: 粘贴 Excel 数据（Ctrl+V）、CSV、JSON 数组或 Markdown 表格，然后点“解析到网格”…
+      action-parse: 解析到网格
+      hint-parse: 或在下方网格中选中单元格后直接 Ctrl+V 粘贴
+      action-clear: 清空
+      action-add-row: 添加行
+      action-add-col: 添加列
+      action-remove-row: 删除此行
+      label-grid: 网格编辑
+      hint-grid: 网格为空，先粘贴或解析数据；也可直接在单元格中输入
+      unit-rows: 行
+      unit-cols: 列
+      op-remove-empty-rows: 移除空行
+      op-remove-empty-cols: 移除空列
+      op-trim: 移除空格
+      op-upper: 转大写
+      op-lower: 转小写
+      op-transpose: 数据转置
+      label-header: 首行作为表头（影响 JSON）
+      fmt-csv: CSV
+      fmt-json: JSON
+      fmt-markdown: Markdown
+      fmt-html: HTML
+      fmt-tsv: TSV
+      title-result: 转换结果
+      placeholder-result: 选择格式后将在此显示转换结果
+      action-copy: 复制全部
+      action-export-txt: 导出 TXT
+      action-export-xlsx: 下载 Excel
+      message-copied: 已复制转换结果
   table-lookup:
     title: 表格查询匹配
     description: 网页版 VLOOKUP。粘贴两段 Excel 表格，按关键字批量查出行并指定返回列，支持精确、包含、前缀三种匹配、多个条件必须同时满足、一对多命中，也能把两张表按关键字直接合并
