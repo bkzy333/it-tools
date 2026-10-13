@@ -2677,51 +2677,6 @@ tools:
       title-result: 结果
       tag-apply-background: 应用背景
       tag-download-result: 下载结果
-  html-to-pdf:
-    title: HTML 转 PDF
-    description: 从 HTML 内容或 URL 生成 PDF，可选择格式并自动隐藏 Cookie 横幅。
-    externalAccess: 该工具将 URL 和 HTML 内容发送到已配置的 *自托管* Puppeteer Web 服务。
-    texts:
-      label-a2: A2
-      label-a3: A3
-      label-a4: A4
-      label-a5: A5
-      label-letter: 信
-      label-legal: 合法的
-      label-html-to-pdf-service-url: HTML 转 PDF 服务网址：
-      placeholder-http-localhost-3000: http://localhost:3000
-      label-basic-authentication: 基本身份验证：
-      placeholder-username-password: 用户名:密码
-      tab-url-pdf: URL → PDF
-      label-url: 网址：
-      placeholder-https-example-com: https://example.com
-      tab-html-pdf: HTML → PDF
-      label-html-content: HTML 内容：
-      tab-batch-url-pdf: 批量 URL → PDF
-      label-urls-one-per-line: URL（每行一个）：
-      title-results: 结果
-      tab-custom-pdf-options: 自定义 PDF 选项
-      label-format: 格式：
-      label-language: 语言：
-      placeholder-en-us: 美国英语
-      label-landscape: 景观：
-      label-one-long-page: 一长页：
-      label-auto-hide-cookie-banners: 自动隐藏 Cookie 横幅：
-      label-print-background: 打印背景：
-      title-margins: 边际
-      label-top-mm: 顶部（毫米）：
-      label-bottom-mm: 底部（毫米）：
-      label-left-mm: 左侧（毫米）：
-      label-right-mm: 右侧（毫米）：
-      tag-html-to-pdf-service-configuration-self-hosted: HTML 转 PDF 服务配置（自托管）
-      tag-you-must-self-host-html-to-pdf-service-see: 您必须自行托管 HTML 转 PDF 服务。请参阅：
-      tag-html-to-pdf-service-install: HTML 转 PDF 服务安装
-      tag-generate-pdf: 生成 PDF
-      tag-generate-pdfs: 生成PDF文件
-      tag-url: 网址
-      tag-download: 下载
-      tag-download-pdf: 下载PDF
-      tag-failed: 失败的
   html-to-data:
     texts:
       label-paste-your-html-content: 粘贴您的HTML内容：

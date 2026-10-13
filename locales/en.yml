@@ -2566,53 +2566,6 @@ tools:
       title-result: Result
       tag-apply-background: Apply Background
       tag-download-result: Download Result
-  html-to-pdf:
-    title: HTML to PDF
-    description: Generate PDF from HTML content or URL with format selection and
-      auto hide cookie banners
-    externalAccess: This tool sends URLs and HTML content to the *self hosted*
-      Puppeteer webservice configured.
-    texts:
-      label-a2: A2
-      label-a3: A3
-      label-a4: A4
-      label-a5: A5
-      label-letter: Letter
-      label-legal: Legal
-      label-html-to-pdf-service-url: "HTML to PDF Service Url:"
-      placeholder-http-localhost-3000: http://localhost:3000
-      label-basic-authentication: "Basic Authentication:"
-      placeholder-username-password: username:password
-      tab-url-pdf: URL → PDF
-      label-url: "URL:"
-      placeholder-https-example-com: https://example.com
-      tab-html-pdf: HTML → PDF
-      label-html-content: "HTML Content:"
-      tab-batch-url-pdf: Batch URL → PDF
-      label-urls-one-per-line: "URLs (one per line):"
-      title-results: Results
-      tab-custom-pdf-options: Custom PDF Options
-      label-format: "Format:"
-      label-language: "Language:"
-      placeholder-en-us: en-US
-      label-landscape: "Landscape:"
-      label-one-long-page: "One Long Page:"
-      label-auto-hide-cookie-banners: "Auto-Hide Cookie Banners:"
-      label-print-background: "Print Background:"
-      title-margins: Margins
-      label-top-mm: "Top (mm):"
-      label-bottom-mm: "Bottom (mm):"
-      label-left-mm: "Left (mm):"
-      label-right-mm: "Right (mm):"
-      tag-html-to-pdf-service-configuration-self-hosted: HTML to PDF Service Configuration (self hosted)
-      tag-you-must-self-host-html-to-pdf-service-see: "You must self host HTML to PDF Service. See:"
-      tag-html-to-pdf-service-install: HTML to PDF Service install
-      tag-generate-pdf: Generate PDF
-      tag-generate-pdfs: Generate PDFs
-      tag-url: Url
-      tag-download: Download
-      tag-download-pdf: Download PDF
-      tag-failed: Failed
   html-to-data:
     texts:
       label-paste-your-html-content: "Paste your HTML content:"

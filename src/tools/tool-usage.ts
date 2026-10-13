@@ -155,11 +155,6 @@ const TOOL_USAGE: Record<string, ToolUsage> = {
     steps: ['添加要合并的 PDF 文件', '拖动调整顺序', '点击合并并下载结果'],
     tips: ['合并前确认每份文件的页码顺序，合并后不能再拆分', '文件都在本机处理，不会上传'],
   },
-  '/html-to-pdf': {
-    intro: '把 HTML 代码或网页内容转成 PDF 文件，可用于导出报表、保存页面、打印凭证。',
-    steps: ['粘贴 HTML 代码或输入网页内容', '预览渲染效果', '导出 PDF'],
-    tips: ['复杂样式建议先在内联 CSS 里写好，外链样式可能取不到', '打印效果可在预览里确认分页是否正常'],
-  },
   '/markdown-to-html': {
     intro: '把 Markdown 文本转换成 HTML 代码，写文档、发博客、做公众号排版时常用。',
     steps: ['粘贴 Markdown 文本', '查看右侧生成的 HTML', '复制代码或直接使用'],

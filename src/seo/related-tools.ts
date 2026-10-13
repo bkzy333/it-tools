@@ -414,10 +414,9 @@ export const RELATED_TOOLS: Record<string, string[]> = {
   ],
 
   // ---------------- PDF ----------------
-  '/html-to-pdf': ['/pdf-compressor', '/pdf-concat', '/markdown-to-html', '/html-prettifier', '/pdf-text-extractor'],
-  '/pdf-compressor': ['/pdf-concat', '/html-to-pdf', '/image-resizer', '/pdf-text-extractor', '/image-converter'],
-  '/pdf-concat': ['/pdf-compressor', '/html-to-pdf', '/pdf-text-extractor', '/image-converter', '/ocr-image'],
-  '/pdf-text-extractor': ['/ocr-image', '/pdf-concat', '/pdf-compressor', '/text-extract', '/html-to-pdf'],
+  '/pdf-compressor': ['/pdf-concat', '/image-resizer', '/pdf-text-extractor', '/image-converter'],
+  '/pdf-concat': ['/pdf-compressor', '/pdf-text-extractor', '/image-converter', '/ocr-image'],
+  '/pdf-text-extractor': ['/ocr-image', '/pdf-concat', '/pdf-compressor', '/text-extract'],
 
   // ---------------- 单位 ----------------
   '/percentage-calculator': [

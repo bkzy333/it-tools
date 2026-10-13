@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-12T23:46:08.915Z",
+  "generatedAt": "2026-10-13T02:58:00.024Z",
   "sourceCommit": "extracted at build time",
-  "total": 117,
+  "total": 116,
   "tiers": {
-    "L1": 94,
+    "L1": 93,
     "L2": 22,
     "L3": 1
   },
@@ -1239,27 +1239,6 @@
       "description": "将HTML（可从剪贴板）转换为Markdown",
       "categoryZh": "Markdown",
       "categorySeoName": "Markdown 在线工具",
-      "tier": "L1"
-    },
-    {
-      "path": "/html-to-pdf",
-      "slug": "html-to-pdf",
-      "category": "PDF",
-      "keywords": [
-        "html",
-        "url",
-        "pdf"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "pdf"
-      ],
-      "isExternalAccess": true,
-      "title": "HTML 转 PDF",
-      "description": "从 HTML 内容或 URL 生成 PDF，可选择格式并自动隐藏 Cookie 横幅。",
-      "categoryZh": "PDF 工具",
-      "categorySeoName": "PDF 在线处理工具",
       "tier": "L1"
     },
     {
