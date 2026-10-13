@@ -25,6 +25,12 @@
   # CSP 先上宽松版：
   #   - naive-ui 会写行内样式，style-src 必须留 'unsafe-inline'
   #   - ffmpeg.wasm / tesseract 这类用 WebAssembly，需要 'wasm-unsafe-eval'
+  #   - cdn.jsdelivr.net 必须同时进 script-src 和 connect-src：
+  #       · script-src：tesseract.js 的 Worker 用 importScripts 从 jsdelivr 加载 worker.min.js
+  #         （importScripts 受 script-src 约束，不受 connect-src 约束）——OCR 工具依赖它；
+  #         transformers.js 的 ONNX runtime wasm 也走 jsdelivr。只放 connect-src 会报
+  #         "Failed to execute 'importScripts' ... failed to load"。
+  #       · connect-src：上面那些 wasm / 模型 / 汇率等二进制与 JSON 的 fetch 走这里。
   #   - img-src 放 data:/blob: 是因为二维码、图片转换等工具的结果都是本地 blob/DataURL
   #   - connect-src 里额外放行的第三方域名，都是**没有同源首选、只能浏览器直连**的工具：
   #       · open.er-api.com / cdn.jsdelivr.net / api.frankfurter.dev —— 货币汇率换算
@@ -38,4 +44,4 @@
   #     注意：my-ip 工具的 ipwho.is / ipify / ip.sb / cloudflare trace 不在其中——
   #     它已经有同源的 /api/my-ip 作首选，第三方只是兜底，没必要为它放宽 CSP。
   # 部署后逐个工具页看 console 有没有 CSP 报错，确认干净了再往回收紧。
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com https://open.er-api.com https://cdn.jsdelivr.net https://api.frankfurter.dev https://www.schemastore.org https://rdap.org https://hf-mirror.com https://*.hf-mirror.com https://huggingface.co https://*.huggingface.co; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com https://open.er-api.com https://cdn.jsdelivr.net https://api.frankfurter.dev https://www.schemastore.org https://rdap.org https://hf-mirror.com https://*.hf-mirror.com https://huggingface.co https://*.huggingface.co; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'
