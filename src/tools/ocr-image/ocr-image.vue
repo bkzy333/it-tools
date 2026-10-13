@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 import { createWorker } from 'tesseract.js';
 import { getDocument } from 'pdfjs-dist';
@@ -123,20 +124,85 @@ const language = useQueryParamOrStorage({ name: 'lang', storageName: 'ocr-image:
 
 const pageSeparator = '\n=============\n';
 const ocrInProgress = ref(false);
-const fileInput = ref() as Ref<File>;
-const ocrText = computedAsync(async () => {
-  try {
-    return await ocr(fileInput.value, language.value);
-  } catch (e: any) {
-    return e.toString();
-  }
-});
+const ocrError = ref('');
+const fileInput = ref<File | null>(null);
+const ocrText = ref('');
+
 const stats = computed(() => textStatistics(ocrText.value?.replace(new RegExp(pageSeparator, 'g'), ' ') || ''));
 const pageCount = computed(() => ocrText.value?.split(new RegExp(pageSeparator, 'g')).length || 0);
 
 async function onUpload(file: File) {
   if (file) {
     fileInput.value = file;
+  }
+}
+
+// tesseract.js 在语言包 / wasm 下载失败时，createWorker() 内部会把错误吞掉且永远不 resolve，
+// 导致下方 ocrInProgress 卡在 true、页面一直转圈。这里加超时护栏，超时即视为失败、给出明确报错。
+function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(msg)), ms);
+    p.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
+
+watch(
+  [fileInput, language],
+  ([file, lang]) => {
+    if (!file) {
+      ocrText.value = '';
+      ocrError.value = '';
+      return;
+    }
+    void runOcr(file, lang);
+  },
+  { flush: 'post' },
+);
+
+async function runOcr(file: File, lang: string) {
+  ocrInProgress.value = true;
+  ocrError.value = '';
+  let worker: Awaited<ReturnType<typeof createWorker>> | undefined;
+  try {
+    worker = await withTimeout(
+      createWorker(lang),
+      90_000,
+      'OCR 引擎初始化超时：无法下载语言包或核心文件，请检查网络后重试（首次使用需联网下载语言数据包）。',
+    );
+    const allTexts: string[] = [];
+    if (file.type.match('^image/')) {
+      const ret = await worker.recognize(file);
+      allTexts.push(ret.data.text);
+    } else {
+      pdfJS.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
+
+      for (const image of await convertPdfToImage(file)) {
+        const ret = await worker.recognize(image);
+        allTexts.push(ret.data.text);
+      }
+    }
+    ocrText.value = allTexts.join(pageSeparator);
+  } catch (e: any) {
+    ocrError.value = e?.message || String(e);
+    ocrText.value = '';
+  } finally {
+    ocrInProgress.value = false;
+    if (worker) {
+      try {
+        await worker.terminate();
+      } catch {
+        // 忽略终止阶段的异常
+      }
+    }
   }
 }
 
@@ -165,30 +231,6 @@ async function convertPdfToImage(file: File) {
   }
   return images;
 }
-
-async function ocr(file: File, language: string) {
-  if (!file) {
-    return '';
-  }
-  ocrInProgress.value = true;
-  const worker = await createWorker();
-  await worker.reinitialize(language);
-  const allTexts = [];
-  if (file.type.match('^image/')) {
-    const ret = await worker.recognize(file);
-    allTexts.push(ret.data.text);
-  } else {
-    pdfJS.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
-
-    for (const image of await convertPdfToImage(file)) {
-      const ret = await worker.recognize(image);
-      allTexts.push(ret.data.text);
-    }
-  }
-  await worker.terminate();
-  ocrInProgress.value = false;
-  return allTexts.join(pageSeparator);
-}
 </script>
 
 <template>
@@ -214,15 +256,18 @@ async function ocr(file: File, language: string) {
     <div>
       <h3>{{ t('tools.ocr-image.texts.tag-ocr') }}</h3>
       <TextareaCopyable
-        v-if="!ocrInProgress"
+        v-if="!ocrInProgress && !ocrError && ocrText"
         v-model:value="ocrText"
         :word-wrap="true"
         download-file-name="output.txt"
       />
       <n-spin v-if="ocrInProgress" size="small" />
+      <n-alert v-if="ocrError" type="error" title="OCR 失败">
+        {{ ocrError }}
+      </n-alert>
     </div>
 
-    <c-card v-if="!ocrInProgress && stats" :title="t('tools.ocr-image.texts.title-statistics')">
+    <c-card v-if="!ocrInProgress && !ocrError && ocrText" :title="t('tools.ocr-image.texts.title-statistics')">
       <n-space mt-3>
         <n-statistic :label="t('tools.ocr-image.texts.label-character-count')" :value="stats.chars" />
         <n-statistic :label="t('tools.ocr-image.texts.label-word-count')" :value="stats.words" />
