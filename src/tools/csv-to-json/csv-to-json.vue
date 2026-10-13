@@ -9,6 +9,15 @@ const { t } = useI18n();
 
 const typedValues = ref(false);
 
+/**
+ * 打开即有示例（UX 契约 U6：空输入框是跳出率最高的形态）。
+ * 故意带表头 + 中文 + 数字，让用户一眼看出「CSV 转 JSON」长什么样，直接点转换就能看结果。
+ */
+const exampleData = `name,age,city
+张三,28,北京
+李四,32,上海
+王五,25,广州`;
+
 function transformer(value: string) {
   return withDefaultOnError(() => {
     if (value === '') {
@@ -37,5 +46,6 @@ const rules: UseValidationRule<string>[] = [
     :output-label="t('tools.csv-to-json.texts.output-label-json-version-of-your-csv')"
     :input-validation-rules="rules"
     :transformer="transformer"
+    :example-data="exampleData"
   />
 </template>

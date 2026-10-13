@@ -38,6 +38,12 @@ export interface LookupResult {
   rows: LookupRow[];
   /** 有多少个关键字没命中 */
   notFound: number;
+  /**
+   * 具体是哪些关键字没命中。
+   * 只给计数（notFound）用户只知道「有 N 个没找到」却不知道是哪几个，无法逐条核对补救。
+   * 逐行暴露未命中项，是批量工具最容易被忘、用户也最恨的一点（UX 契约 U5 错误逐行隔离）。
+   */
+  missed: string[];
 }
 
 /** 单元格比较：先 trim，忽略首尾空白 */
@@ -80,6 +86,7 @@ export function lookup(params: LookupParams): LookupResult {
   const rows: LookupRow[] = [];
   const seen = new Set<number>();
   let notFound = 0;
+  const missed: string[] = [];
 
   for (const key of keys) {
     let hit = false;
@@ -91,9 +98,13 @@ export function lookup(params: LookupParams): LookupResult {
       seen.add(i);
       rows.push({ values: resultCols.map((c) => normalizeCell(row?.[c] ?? '')), sourceIndex: i });
     }
-    if (!hit) notFound++;
+    if (!hit) {
+      notFound++;
+      // key 是一组值（多条件 AND），拼成一个可读串便于用户逐条核对
+      missed.push(key.join(' / '));
+    }
   }
-  return { rows, notFound };
+  return { rows, notFound, missed };
 }
 
 /** 取某一列的全部值（去重后的顺序不变） */

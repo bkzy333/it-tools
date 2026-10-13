@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import CopyExportBar from '@/components/CopyExportBar.vue';
+import BatchResultTable from '@/components/BatchResultTable.vue';
+import { splitTokens, type BatchRow, type SepMode } from '@/composable/batchSplit';
 import {
   clampDigits,
   decimalToFraction,
@@ -64,8 +66,16 @@ const opOptions = computed(() => [
 const digitsSafe = computed(() => clampDigits(Number(digits.value)));
 const operandSafe = computed(() => (Number.isFinite(Number(operand.value)) ? Number(operand.value) : 0));
 
+/* ------------------------------------------------------------------ 批量分隔
+ * 默认按换行分隔，也支持逗号 / 顿号 / 自定义符号（对齐 rmb-numbers 的成熟做法）。
+ * 切好后拼回换行交给 parseNumbers —— 它内部按行解析并做千分位等容错，
+ * 这样复用既有解析逻辑，不动 service、不影响单测。 */
+const sepMode = ref<SepMode>('newline');
+const customSep = ref('');
+const tokensText = computed(() => splitTokens(input.value, sepMode.value, customSep.value).join('\n'));
+
 /* ------------------------------------------------------------------ 计算 */
-const parsed = computed(() => parseNumbers(input.value));
+const parsed = computed(() => parseNumbers(tokensText.value));
 
 const rows = computed(() =>
   transformNumbers(parsed.value.values, {
@@ -78,7 +88,25 @@ const rows = computed(() =>
 
 const invalidCells = computed(() => parsed.value.cells.filter((c) => c.invalid));
 
-const output = computed(() => rows.value.map((r) => formatValue(r.output, digitsSafe.value)).join('\n'));
+/**
+ * 行对行结果：解析失败的条目原位占一行并标红（不跳过），否则 20 条里错 1 条
+ * 会让后面全部错位、用户看不出哪条对应哪条。
+ * 注意 parseNumbers 的 cells 含全部条目，而 values/rows 只含解析成功的，
+ * 所以要用游标按 cells 顺序配对，不能直接按下标取 rows。
+ */
+const batchRows = computed<BatchRow[]>(() => {
+  const out: BatchRow[] = [];
+  let vi = 0;
+  for (const cell of parsed.value.cells) {
+    if (cell.invalid) {
+      out.push({ input: cell.raw, output: '无法解析', error: true });
+    } else {
+      const r = rows.value[vi++];
+      out.push({ input: cell.raw, output: r ? formatValue(r.output, digitsSafe.value) : '', error: false });
+    }
+  }
+  return out;
+});
 
 /** 统计跟着「批量运算之后」的结果走，不然勾了乘 1.1 还看到原值合计会误导 */
 const stats = computed(() => {
@@ -149,6 +177,24 @@ function clearAll() {
         :placeholder="t('tools.number-rounding.texts.placeholder-input')"
       />
 
+      <div flex flex-wrap items-center gap-3 mt-3>
+        <span text-sm op-70>分隔符</span>
+        <n-radio-group v-model:value="sepMode" size="small">
+          <n-radio value="newline">换行</n-radio>
+          <n-radio value="comma">逗号</n-radio>
+          <n-radio value="pause">顿号</n-radio>
+          <n-radio value="custom">自定义</n-radio>
+        </n-radio-group>
+        <n-input
+          v-if="sepMode === 'custom'"
+          v-model:value="customSep"
+          size="small"
+          placeholder="自定义分隔符"
+          style="width: 200px"
+        />
+      </div>
+      <p mt-2 mb-0 text-xs op-60>默认按换行分隔，可一次录入多个数值批量舍入。</p>
+
       <p v-if="invalidCells.length" mt-2 text-red-500 text-sm>
         {{ t('tools.number-rounding.texts.message-invalid') }}：{{ invalidCells.map((c) => c.raw).join('、') }}
       </p>
@@ -181,15 +227,19 @@ function clearAll() {
     <c-card :title="t('tools.number-rounding.texts.title-result')" mt-4>
       <div flex items-center justify-between gap-2 mb-2>
         <span text-sm text-gray-500>{{ summaryText }}</span>
-        <CopyExportBar :text="output" filename="数值舍入" />
       </div>
 
       <p v-if="divideZeroCount" mb-2 text-orange-500 text-sm>
         {{ t('tools.number-rounding.texts.message-divide-zero') }}：{{ divideZeroCount }}
       </p>
 
-      <n-input :value="output" type="textarea" :rows="10" readonly
-        :placeholder="t('tools.number-rounding.texts.placeholder-result')" />
+      <!-- 行对行结果表：一条输入对应一条输出，错误行原位标红，自带复制与导出 -->
+      <BatchResultTable
+        :rows="batchRows"
+        filename="数值舍入"
+        :input-label="t('tools.number-rounding.texts.label-input')"
+        :output-label="t('tools.number-rounding.texts.title-result')"
+      />
     </c-card>
 
     <c-card :title="t('tools.number-rounding.texts.title-format')" mt-4>

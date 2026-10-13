@@ -109,7 +109,9 @@ const delimiterOptions = computed(() => [
 const lookupResult = computed(() => {
   const rows = sourceRows.value;
   const cols = sourceColumnOptions.value.length;
-  if (rows.length === 0 || cols === 0) return { header: [] as string[], rows: [] as string[][], notFound: 0 };
+  if (rows.length === 0 || cols === 0) {
+    return { header: [] as string[], rows: [] as string[][], notFound: 0, missed: [] as string[] };
+  }
 
   const keys = keysText.value
     .split(/\r?\n/)
@@ -132,8 +134,12 @@ const lookupResult = computed(() => {
     header: res.rows.length > 0 ? resultColumns.value.map((c) => names[c] ?? `列${c + 1}`) : [],
     rows: res.rows.map((r) => r.values),
     notFound: res.notFound,
+    missed: res.missed,
   };
 });
+
+/** 未命中的关键字逐条列出：只给「未匹配 N 个」用户不知道是哪几个，无法逐条补救 */
+const missedKeys = computed(() => lookupResult.value.missed ?? []);
 
 const lookupText = computed(() =>
   lookupResult.value.rows.length === 0 ? '' : tableToText(lookupResult.value.rows, currentDelimiter()),
@@ -155,7 +161,10 @@ const lookupHint = computed(() => {
   const total = keysText.value.split(/\r?\n/).filter((l) => l.trim() !== '').length;
   if (lookupResult.value.rows.length === 0 && total > 0) return t('tools.table-lookup.texts.message-no-result');
   if (lookupResult.value.notFound > 0) {
-    return `${t('tools.table-lookup.texts.summary-not-found')}：${lookupResult.value.notFound}`;
+    // 逐条列出未命中的关键字（UX 契约 U5：错误逐行隔离，不能只给一个计数）
+    const list = missedKeys.value.slice(0, 20).join('、');
+    const more = missedKeys.value.length > 20 ? ` 等 ${missedKeys.value.length} 个` : '';
+    return `${t('tools.table-lookup.texts.summary-not-found')}：${lookupResult.value.notFound}（${list}${more}）`;
   }
   return '';
 });
