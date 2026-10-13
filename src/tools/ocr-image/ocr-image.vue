@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { createWorker } from 'tesseract.js';
 import { getDocument } from 'pdfjs-dist';
 import * as pdfJS from 'pdfjs-dist';
@@ -8,6 +8,8 @@ import pdfJSWorkerURL from 'pdfjs-dist/build/pdf.worker?url';
 import { textStatistics } from '../text-statistics/text-statistics.service';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
+import { computeInkBBox, type NormRect } from './ocr-region.service';
+import OcrRegionSelector from './OcrRegionSelector.vue';
 
 const { t } = useI18n();
 
@@ -71,8 +73,20 @@ const pageSeparator = '\n=============\n';
 const ocrInProgress = ref(false);
 const ocrError = ref('');
 const ocrHitCache = ref(false);
-const fileInput = ref<File | null>(null);
 const ocrText = ref('');
+const fileInput = ref<File | null>(null);
+
+// —— 新增：选区流程状态 ——
+// stage: 'upload'（未选文件）| 'select'（已上传，待框选）| 'result'（已出结果）
+const stage = ref<'upload' | 'select' | 'result'>('upload');
+// 显示在选区组件里的图（图片原图 dataURL，或 PDF 首页 dataURL）
+const displaySrc = ref('');
+// 归一化选区（相对原图比例 0~1）；null 表示整图
+const selection = ref<NormRect | null>(null);
+// PDF 每页渲染后的 dataURL（多页时选区归一化套用每页）
+const pdfPages = ref<string[]>([]);
+// 启发式自动框选是否失败（失败时提示用户可手动框选）
+const autoDetectFailed = ref(false);
 
 const stats = computed(() => textStatistics(ocrText.value?.replace(new RegExp(pageSeparator, 'g'), ' ') || ''));
 const pageCount = computed(() => ocrText.value?.split(new RegExp(pageSeparator, 'g')).length || 0);
@@ -81,6 +95,19 @@ function onUpload(file: File) {
   if (file) {
     fileInput.value = file;
   }
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return v < lo ? lo : v > hi ? hi : v;
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('image load failed'));
+    img.src = src;
+  });
 }
 
 // —— 上传前压缩（照搬 image-translate）：长边 ≤1920px，JPEG 0.85，≤3MB ——
@@ -95,12 +122,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 async function compressCanvas(dataUrl: string, maxEdge = 1920, maxBytes = 3 * 1024 * 1024): Promise<string> {
-  const img = new Image();
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve();
-    img.onerror = () => reject(new Error('image load failed'));
-    img.src = dataUrl;
-  });
+  const img = await loadImage(dataUrl);
   const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
   const w = Math.max(1, Math.round(img.width * scale));
   const h = Math.max(1, Math.round(img.height * scale));
@@ -164,6 +186,60 @@ async function loadPdfFile(file: File) {
   return getDocument({ data: byteArray }).promise;
 }
 
+// —— 纯前端启发式默认框选：零额度，不调百度 ——
+// 把图缩到 600px 取像素，用 computeInkBBox 求文字包围盒，返回归一化 rect（找不到则 null = 整图）。
+async function detectRegion(du: string): Promise<NormRect | null> {
+  const img = await loadImage(du);
+  const nw = img.naturalWidth || img.width;
+  const nh = img.naturalHeight || img.height;
+  if (!nw || !nh) {
+    return null;
+  }
+  const maxEdge = 600;
+  const scale = Math.min(1, maxEdge / Math.max(nw, nh));
+  const w = Math.max(1, Math.round(nw * scale));
+  const h = Math.max(1, Math.round(nh * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return null;
+  }
+  ctx.drawImage(img, 0, 0, w, h);
+  let data: Uint8ClampedArray;
+  try {
+    data = ctx.getImageData(0, 0, w, h).data;
+  } catch {
+    return null; // 跨域污染等异常 → 回退整图
+  }
+  return computeInkBBox(data, w, h);
+}
+
+// 按归一化选区把原图裁成小图并压缩（沿用在压缩逻辑，转 JPEG 限 3MB）
+async function cropImage(img: HTMLImageElement, rect: NormRect): Promise<string> {
+  const nw = img.naturalWidth || img.width;
+  const nh = img.naturalHeight || img.height;
+  const sx = Math.floor(clamp(rect.x, 0, 1) * nw);
+  const sy = Math.floor(clamp(rect.y, 0, 1) * nh);
+  const sw = Math.max(1, Math.floor(clamp(rect.w, 0, 1) * nw));
+  const sh = Math.max(1, Math.floor(clamp(rect.h, 0, 1) * nh));
+  const cx = Math.min(sx, nw - 1);
+  const cy = Math.min(sy, nh - 1);
+  const cw = Math.max(1, Math.min(sw, nw - cx));
+  const ch = Math.max(1, Math.min(sh, nh - cy));
+  const canvas = document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('canvas unsupported');
+  }
+  ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+  const raw = canvas.toDataURL('image/png');
+  return compressCanvas(raw);
+}
+
 // —— 主路径：调本站 /api/ocr（服务端代理百度 OCR）——
 async function callOcrApi(base64: string, languageType: string): Promise<string> {
   const resp = await fetch('/api/ocr', {
@@ -185,7 +261,7 @@ async function callOcrApi(base64: string, languageType: string): Promise<string>
 }
 
 // —— 兜底路径：tesseract.js（仅当 API 不可达时，中国网络下可能因 jsdelivr 被墙而失败）——
-async function runOcrTesseract(file: File, lang: string) {
+async function runOcrTesseractFromDataUrls(dataUrls: string[], lang: string): Promise<string> {
   let worker: Awaited<ReturnType<typeof createWorker>> | undefined;
   try {
     worker = await withTimeout(
@@ -194,17 +270,11 @@ async function runOcrTesseract(file: File, lang: string) {
       'OCR 引擎初始化超时：无法下载语言包或核心文件，请检查网络后重试（首次使用需联网下载语言数据包）。',
     );
     const allTexts: string[] = [];
-    if (file.type.match('^image/')) {
-      const ret = await worker.recognize(file);
+    for (const du of dataUrls) {
+      const ret = await worker.recognize(du);
       allTexts.push(ret.data.text);
-    } else {
-      pdfJS.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
-      for (const image of await convertPdfToImage(file)) {
-        const ret = await worker.recognize(image);
-        allTexts.push(ret.data.text);
-      }
     }
-    ocrText.value = allTexts.join(pageSeparator);
+    return allTexts.join(pageSeparator);
   } finally {
     if (worker) {
       try {
@@ -232,45 +302,71 @@ function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
   });
 }
 
-watch(
-  [fileInput, language],
-  ([file, lang]) => {
-    if (!file) {
-      ocrText.value = '';
-      ocrError.value = '';
-      ocrHitCache.value = false;
-      return;
+// —— 上传后：进入选区阶段，并尝试前端启发式默认框选 ——
+async function enterSelectStage(file: File) {
+  ocrText.value = '';
+  ocrError.value = '';
+  ocrHitCache.value = false;
+  autoDetectFailed.value = false;
+  try {
+    if (file.type.match('^image/')) {
+      const du = await readFileAsDataUrl(file);
+      displaySrc.value = du;
+      pdfPages.value = [];
+      selection.value = await detectRegion(du);
+    } else {
+      const pages = await convertPdfToImage(file);
+      pdfPages.value = pages;
+      displaySrc.value = pages[0] || '';
+      selection.value = pages[0] ? await detectRegion(pages[0]) : null;
     }
-    void runOcr(file, lang);
-  },
-  { flush: 'post' },
-);
+    autoDetectFailed.value = !selection.value;
+    stage.value = 'select';
+  } catch (e: any) {
+    ocrError.value = e?.message || '无法读取文件';
+  }
+}
 
-async function runOcr(file: File, lang: string) {
-  // 防抖 / 重叠保护：处理中忽略新触发，避免无意识重复上传刷额度（与 text-translate 同款）。
+async function reautoDetect() {
+  if (!displaySrc.value) {
+    return;
+  }
+  const r = await detectRegion(displaySrc.value);
+  selection.value = r;
+  autoDetectFailed.value = !r;
+}
+
+function selectAll() {
+  selection.value = { x: 0, y: 0, w: 1, h: 1 };
+  autoDetectFailed.value = false;
+}
+
+// —— 识别当前选区：只把裁好的小图发给 /api/ocr ——
+async function recognize() {
   if (ocrInProgress.value) {
+    return;
+  }
+  if (!displaySrc.value) {
     return;
   }
   ocrInProgress.value = true;
   ocrError.value = '';
   ocrHitCache.value = false;
+  const rect = selection.value ?? { x: 0, y: 0, w: 1, h: 1 };
+  const sources = pdfPages.value.length ? pdfPages.value : [displaySrc.value];
+  // 先把选区裁好、压缩（一次），API 与 tesseract 兜底都复用同一组小图
+  const cropped: string[] = [];
   try {
-    const isPdf = !file.type.match('^image/');
-    const b64list: string[] = [];
-    if (!isPdf) {
-      const du = await readFileAsDataUrl(file);
-      b64list.push(stripPrefix(await compressCanvas(du)));
-    } else {
-      const pages = await convertPdfToImage(file);
-      for (const du of pages) {
-        b64list.push(stripPrefix(await compressCanvas(du)));
-      }
+    for (const src of sources) {
+      const img = await loadImage(src);
+      cropped.push(await cropImage(img, rect));
     }
     const texts: string[] = [];
-    for (const b64 of b64list) {
-      texts.push(await callOcrApi(b64, lang));
+    for (const du of cropped) {
+      texts.push(await callOcrApi(stripPrefix(du), language.value));
     }
     ocrText.value = texts.join(pageSeparator);
+    stage.value = 'result';
   } catch (e: any) {
     if (e?.notConfigured) {
       // API 未配置：明确提示，不再走（在中国网络下必失败的）tesseract 兜底。
@@ -279,9 +375,10 @@ async function runOcr(file: File, lang: string) {
       ocrText.value = '';
       return;
     }
-    // 其他异常（网络/限流/配额）：尝试 tesseract 兜底，再失败才报错。
+    // 其他异常（网络/限流/配额）：尝试 tesseract 兜底（同样用裁好的小图）
     try {
-      await runOcrTesseract(file, lang);
+      ocrText.value = await runOcrTesseractFromDataUrls(cropped, language.value);
+      stage.value = 'result';
     } catch (e2: any) {
       ocrError.value = e2?.message || String(e2);
       ocrText.value = '';
@@ -305,31 +402,74 @@ async function runOcr(file: File, lang: string) {
     <c-file-upload
       :title="t('tools.ocr-image.texts.title-drag-and-drop-a-image-or-pdf-here-or-click-to-select-a-file')"
       :paste-image="true"
-      @file-upload="onUpload"
+      @file-upload="
+        (file: File) => {
+          onUpload(file);
+          void enterSelectStage(file);
+        }
+      "
     />
 
     <n-divider />
 
     <div id="container" style="display: none" />
 
-    <div>
+    <!-- 选区阶段：显示图 + 可拖拽选框 + 操作按钮 -->
+    <div v-if="stage === 'select' && displaySrc">
+      <h3>{{ t('tools.ocr-image.texts.title-region-select') }}</h3>
+      <p class="ocr-hint">{{ t('tools.ocr-image.texts.hint-region-select') }}</p>
+      <n-alert v-if="autoDetectFailed" type="warning" :show-icon="false">
+        {{ t('tools.ocr-image.texts.hint-auto-detect-failed') }}
+      </n-alert>
+
+      <OcrRegionSelector v-model="selection" :src="displaySrc" />
+
+      <n-space mt-3>
+        <n-button type="primary" :disabled="ocrInProgress" @click="recognize">
+          {{ t('tools.ocr-image.texts.btn-recognize-region') }}
+        </n-button>
+        <n-button :disabled="ocrInProgress" @click="reautoDetect">
+          {{ t('tools.ocr-image.texts.btn-auto-detect') }}
+        </n-button>
+        <n-button :disabled="ocrInProgress" @click="selectAll">
+          {{ t('tools.ocr-image.texts.btn-select-all') }}
+        </n-button>
+      </n-space>
+
+      <n-spin v-if="ocrInProgress" size="small" mt-2 />
+    </div>
+
+    <!-- 结果阶段 -->
+    <div v-else-if="stage === 'result' && ocrText">
       <h3>{{ t('tools.ocr-image.texts.tag-ocr') }}</h3>
       <TextareaCopyable
-        v-if="!ocrInProgress && !ocrError && ocrText"
         v-model:value="ocrText"
         :word-wrap="true"
         download-file-name="output.txt"
       />
-      <n-spin v-if="ocrInProgress" size="small" />
-      <n-alert v-if="ocrHitCache && ocrText" type="success" :show-icon="true">
-        {{ t('tools.text-translate.texts.cached-hint') }}
-      </n-alert>
-      <n-alert v-if="ocrError" type="error" title="OCR 失败">
-        {{ ocrError }}
-      </n-alert>
+      <n-space mt-2>
+        <n-button :disabled="ocrInProgress" @click="recognize">
+          {{ t('tools.ocr-image.texts.btn-recognize-region') }}
+        </n-button>
+        <n-button :disabled="ocrInProgress" @click="stage = 'select'">
+          {{ t('tools.ocr-image.texts.btn-adjust-selection') }}
+        </n-button>
+      </n-space>
+      <n-spin v-if="ocrInProgress" size="small" mt-2 />
     </div>
 
-    <c-card v-if="!ocrInProgress && !ocrError && ocrText" :title="t('tools.ocr-image.texts.title-statistics')">
+    <n-alert v-if="ocrError" type="error" title="OCR 失败" mt-2>
+      {{ ocrError }}
+    </n-alert>
+
+    <n-alert v-if="ocrHitCache && ocrText && stage === 'result'" type="success" :show-icon="true">
+      {{ t('tools.text-translate.texts.cached-hint') }}
+    </n-alert>
+
+    <c-card
+      v-if="stage === 'result' && ocrText"
+      :title="t('tools.ocr-image.texts.title-statistics')"
+    >
       <n-space mt-3>
         <n-statistic :label="t('tools.ocr-image.texts.label-character-count')" :value="stats.chars" />
         <n-statistic :label="t('tools.ocr-image.texts.label-word-count')" :value="stats.words" />
@@ -354,6 +494,12 @@ async function runOcr(file: File, lang: string) {
 </template>
 
 <style lang="less" scoped>
+.ocr-hint {
+  color: var(--text-color-3, #888);
+  font-size: 13px;
+  margin: 4px 0 10px;
+}
+
 ::v-deep(.n-upload-trigger) {
   width: 100%;
 }

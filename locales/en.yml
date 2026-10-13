@@ -1546,8 +1546,15 @@ tools:
       label-punctuations: Punctuations
       label-spaces-chars: Spaces chars
       label-word-count-no-punct: Word count (no punct)
-      tag-ocr: OCR
-    externalAccess: This tool downloads OCR languages models on https://cdn.jsdelivr.net
+      tag-ocr: OCR
+      title-region-select: Select region to OCR
+      hint-region-select: Drag the box to adjust the area; only the selected region is uploaded to save size
+      btn-recognize-region: Recognize selection
+      btn-auto-detect: Auto-detect text
+      btn-select-all: Whole image
+      hint-auto-detect-failed: Could not auto-detect the text region; whole image selected. You can adjust manually.
+      btn-adjust-selection: Adjust selection
+    externalAccess: "This tool calls our OCR service (a Baidu Cloud proxy) by default; it only falls back to in-browser Tesseract (which downloads language models from https://cdn.jsdelivr.net) when the server is unreachable."
   rmb-numbers:
     title: RMB Uppercase Converter
     description: RMB/Renminbi Capitalization Conversion Tool

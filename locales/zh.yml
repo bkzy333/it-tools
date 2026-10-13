@@ -1478,8 +1478,15 @@ tools:
       label-punctuations: 标点符号数
       label-spaces-chars: 空格字符数
       label-word-count-no-punct: 无标点单词数
-      tag-ocr: 光学字符识别
-    externalAccess: 此工具从 https://cdn.jsdelivr.net 下载 OCR 语言模型。
+      tag-ocr: 光学字符识别
+      title-region-select: 框选识别区域
+      hint-region-select: 拖动选框调整要识别的范围，仅上传选区内的图片以减小体积
+      btn-recognize-region: 识别选区
+      btn-auto-detect: 自动框选文字
+      btn-select-all: 整图
+      hint-auto-detect-failed: 未能自动识别文字区域，已默认选择整图，你可手动框选
+      btn-adjust-selection: 调整选区
+    externalAccess: "此工具默认调用本站 OCR 服务（百度智能云代理）识别图片；仅在服务端不可用时回退到浏览器端 Tesseract（会从 https://cdn.jsdelivr.net 下载语言模型）。"
   rmb-numbers:
     title: 人民币大写转换器
     description: 在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额
