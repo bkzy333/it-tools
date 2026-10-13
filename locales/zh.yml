@@ -1,3 +1,16 @@
+# 全站共享组件的通用文案（批量结果表、复制导出条等）。
+# 放在这里而不是各工具下，是因为共享组件被几十个工具复用，文案只应有一份。
+common:
+  copy: 复制
+  copied: 已复制
+  copy-all: 复制全部
+  copied-all: 已复制全部结果
+  export-txt: 导出 TXT
+  export-excel: 导出 Excel
+  col-input: 输入
+  col-output: 输出
+  empty-result: 请输入待转换内容，结果会按行对应显示在这里
+  unparsable: 无法解析
 "404":
   notFound: 404 页面不存在
   sorry: 抱歉，该页面似乎不存在
@@ -3511,18 +3524,30 @@ tools:
       cat-misc: 其他符号
   english-numbers:
     title: 数字英文互转
-    description: 阿拉伯数字与英文读数互转，支持连字符与逗号分隔，纯本地处理
+    description: 阿拉伯数字与英文读数互转，支持批量转换、连字符与逗号分隔，纯本地处理
     texts:
       tab-to-english: 数字转英文
       tab-to-number: 英文转数字
-      title-input-number: 输入数字
-      placeholder-number: 如 1234567.89
+      title-input-number: 输入数字（支持批量）
+      placeholder-number: 每行一个数字，如 1234567.89；支持负号、小数与千分位
       opt-hyphenated: 十位与个位之间用连字符
       opt-comma: 组间用逗号分隔
       title-result: 转换结果
-      hint-empty: 输入数字或英文后自动显示结果
-      title-input-english: 输入英文读数
-      placeholder-english: 如 one million two hundred thirty-four
+      title-input-english: 输入英文读数（支持批量）
+      placeholder-english: 每行一个英文读数，如 one million two hundred thirty-four
+      label-separator: 分隔符
+      sep-newline: 换行
+      sep-comma: 逗号
+      sep-pause: 顿号
+      sep-custom: 自定义
+      placeholder-custom-sep: 自定义分隔符
+      hint-batch-number: 默认按换行分隔，可一次粘贴多个数字批量转换，结果按行一一对应
+      hint-batch-english: 英文读数自带逗号，建议按换行分隔；要用别的符号请选「自定义」
+      action-clear: 清空
+      file-to-english: 数字转英文
+      file-to-number: 英文转数字
+      col-number: 数字
+      col-english: 英文
   date-uppercase:
     title: 日期大写
     description: 将日期转换为支票/票据用的中文大写（零壹贰叁肆伍陆柒捌玖拾），符合会计日期书写规范

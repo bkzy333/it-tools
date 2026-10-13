@@ -46,7 +46,7 @@ export function numberToEnglish(input: number | string, options: NumberToEnglish
   const { hyphenated = true, useComma = true } = options;
   const str = String(input).trim();
   if (!/^-?\d+(\.\d+)?$/.test(str)) {
-    throw new Error('Invalid number');
+    throw new Error('请输入有效数字（整数或小数，可带负号）');
   }
 
   const negative = str.startsWith('-');
@@ -55,7 +55,7 @@ export function numberToEnglish(input: number | string, options: NumberToEnglish
 
   const intNum = intPart === '' ? 0 : Number(intPart);
   if (!Number.isSafeInteger(intNum) || intNum >= 1e15) {
-    throw new Error('Number too large');
+    throw new Error('数字过大，最大支持到 trillion（10^12）以内');
   }
 
   const words: string[] = [];
@@ -185,7 +185,7 @@ export function englishToNumber(input: string): string {
     } else if (WORD_TO_VALUE[token] !== undefined) {
       current += WORD_TO_VALUE[token];
     } else {
-      throw new Error(`Unknown word: ${token}`);
+      throw new Error(`无法识别的英文单词：${token}`);
     }
   }
   total += current;
@@ -195,4 +195,38 @@ export function englishToNumber(input: string): string {
     result = `${result}.${fracDigits}`;
   }
   return negative ? `-${result}` : result;
+}
+
+// ---- 批量录入容错 ----
+
+/**
+ * 把「一行待转换数字」归一化成 numberToEnglish 能直接吃下的形态。
+ *
+ * 批量场景下用户大多是从 Excel / 网页 / 微信里复制一串数字过来，常见脏格式：
+ * 千分位逗号（1,234.5）、全角字符（１２３。５）、数字中间空格（1 234）、
+ * 前导货币符号（¥1,234）。这些在单条时代会被判为「无效数字」，批量下更是一条脏数据
+ * 连累整批的观感，所以在这里统一清掉。
+ *
+ * 刻意不做的事：不吞掉非数字字符去「猜」意图（比如 12abc 依然报错），
+ * 静默改数比报错更危险；千分位只认标准三位分组，`1,23` 不会被当成 123。
+ */
+export function normalizeNumberInput(raw: string): string {
+  let s = raw.trim();
+
+  // 全角数字与标点转半角（０-９、．。，、－）
+  s = s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  s = s.replace(/[．。]/g, '.').replace(/[，、]/g, ',').replace(/－/g, '-');
+
+  // 前导货币符号
+  s = s.replace(/^[¥￥$]\s*/, '');
+
+  // 数字中间的空格（1 234 → 1234）
+  s = s.replace(/\s+/g, '');
+
+  // 千分位逗号：只认标准三位分组，避免把 1,23 误当 123
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) {
+    s = s.replace(/,/g, '');
+  }
+
+  return s;
 }

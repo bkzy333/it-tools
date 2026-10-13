@@ -16,6 +16,7 @@
  * 不需要额外的模式切换开关（那反而增加认知负荷）。本组件只负责把结果「带走」，
  * 单条和批量都用同一套按钮，导出格式按内容自适应。
  */
+import { useI18n } from 'vue-i18n';
 import { useCopy } from '@/composable/copy';
 import { downloadTextFile, downloadCsvFile } from '@/composable/export';
 
@@ -34,9 +35,10 @@ const props = withDefaults(
 );
 
 const { copy } = useCopy();
+const { t } = useI18n();
 
 function copyAll() {
-  copy(props.text, { notificationMessage: '已复制全部结果' });
+  copy(props.text, { notificationMessage: t('common.copied-all') });
 }
 
 function exportTxt() {
@@ -51,8 +53,14 @@ function exportExcel() {
 
 <template>
   <div flex items-center gap-2>
-    <c-button size="small" secondary :disabled="disabled || !text" @click="copyAll">复制全部</c-button>
-    <c-button size="small" secondary :disabled="disabled || !text" @click="exportTxt">导出 TXT</c-button>
-    <c-button size="small" secondary :disabled="disabled || !text" @click="exportExcel">导出 Excel</c-button>
+    <c-button size="small" secondary :disabled="disabled || !text" @click="copyAll">
+      {{ t('common.copy-all') }}
+    </c-button>
+    <c-button size="small" secondary :disabled="disabled || !text" @click="exportTxt">
+      {{ t('common.export-txt') }}
+    </c-button>
+    <c-button size="small" secondary :disabled="disabled || !text" @click="exportExcel">
+      {{ t('common.export-excel') }}
+    </c-button>
   </div>
 </template>

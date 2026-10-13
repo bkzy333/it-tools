@@ -11,6 +11,7 @@ export const tool = defineTool({
     '数字英文',
     '英文读数',
     '英文数字转换',
+    '数字转英文批量',
     'number to words',
     'english numbers',
     '阿拉伯数字英文',

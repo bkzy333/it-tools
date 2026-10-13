@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T02:58:00.024Z",
+  "generatedAt": "2026-10-13T23:23:36.481Z",
   "sourceCommit": "extracted at build time",
   "total": 116,
   "tiers": {
@@ -938,6 +938,7 @@
         "数字英文",
         "英文读数",
         "英文数字转换",
+        "数字转英文批量",
         "number to words",
         "english numbers",
         "阿拉伯数字英文",
@@ -952,7 +953,7 @@
       ],
       "isExternalAccess": false,
       "title": "数字英文互转",
-      "description": "阿拉伯数字与英文读数互转，支持连字符与逗号分隔，纯本地处理",
+      "description": "阿拉伯数字与英文读数互转，支持批量转换、连字符与逗号分隔，纯本地处理",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"

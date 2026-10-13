@@ -14,6 +14,7 @@
  * - filename：导出文件名（不含扩展名）
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useCopy } from '@/composable/copy';
 import type { BatchRow } from '@/composable/batchSplit';
 import CopyExportBar from './CopyExportBar.vue';
@@ -25,13 +26,18 @@ const props = withDefaults(
     inputLabel?: string;
     outputLabel?: string;
   }>(),
-  { inputLabel: '输入', outputLabel: '输出' },
+  { inputLabel: undefined, outputLabel: undefined },
 );
 
 const { copy } = useCopy();
+const { t } = useI18n();
+
+/** 列头与空态文案走 i18n 的 common 段，工具不传也能在英文站显示英文 */
+const inLabel = computed(() => props.inputLabel ?? t('common.col-input'));
+const outLabel = computed(() => props.outputLabel ?? t('common.col-output'));
 
 function copyOne(text: string) {
-  copy(text, { notificationMessage: '已复制' });
+  copy(text, { notificationMessage: t('common.copied') });
 }
 
 /** 全部结果纯文本：错误行保留占位，避免行号错位 */
@@ -39,7 +45,7 @@ const allText = computed(() => props.rows.map((r) => r.output).join('\n'));
 
 /** 导出 Excel 用：表头 + A 列输入 / B 列输出 */
 const exportRows = computed<string[][]>(() => [
-  [props.inputLabel, props.outputLabel],
+  [inLabel.value, outLabel.value],
   ...props.rows.map((r) => [r.input, r.output]),
 ]);
 </script>
@@ -49,8 +55,8 @@ const exportRows = computed<string[][]>(() => [
     <table v-if="rows.length > 0" w-full border-collapse>
       <thead>
         <tr>
-          <th text-left p-2 border border-gray-300 dark:border-gray-600>{{ inputLabel }}</th>
-          <th text-left p-2 border border-gray-300 dark:border-gray-600>{{ outputLabel }}</th>
+          <th text-left p-2 border border-gray-300 dark:border-gray-600>{{ inLabel }}</th>
+          <th text-left p-2 border border-gray-300 dark:border-gray-600>{{ outLabel }}</th>
           <th w-20 p-2 border border-gray-300 dark:border-gray-600></th>
         </tr>
       </thead>
@@ -58,19 +64,19 @@ const exportRows = computed<string[][]>(() => [
         <tr v-for="(row, idx) in rows" :key="idx">
           <td p-2 border border-gray-300 dark:border-gray-600 font-mono>{{ row.input }}</td>
           <td p-2 border border-gray-300 dark:border-gray-600>
-            <span v-if="row.error" text-red-500>{{ row.output || '无法解析' }}</span>
+            <span v-if="row.error" text-red-500>{{ row.output || t('common.unparsable') }}</span>
             <span v-else>{{ row.output }}</span>
           </td>
           <td p-2 border border-gray-300 dark:border-gray-600 text-center>
             <c-button v-if="!row.error" size="small" secondary @click="copyOne(row.output)">
-              复制
+              {{ t('common.copy') }}
             </c-button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div v-else text-sm op-60>请输入待转换内容，结果会按行对应显示在这里。</div>
+    <div v-else text-sm op-60>{{ t('common.empty-result') }}</div>
 
     <div v-if="rows.length > 0" flex justify-end>
       <CopyExportBar :text="allText" :filename="filename" :rows="exportRows" />

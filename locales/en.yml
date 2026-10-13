@@ -1,3 +1,15 @@
+# Shared strings for common components (batch result table, copy/export bar).
+common:
+  copy: Copy
+  copied: Copied
+  copy-all: Copy all
+  copied-all: All results copied
+  export-txt: Export TXT
+  export-excel: Export Excel
+  col-input: Input
+  col-output: Output
+  empty-result: Enter content to convert; results are shown line by line here.
+  unparsable: Unparsable
 "404":
   notFound: 404 Not Found
   sorry: Sorry, this page does not seem to exist
@@ -3617,18 +3629,30 @@ tools:
       cat-misc: Miscellaneous
   english-numbers:
     title: "Numbers to English"
-    description: "Convert between Arabic numerals and English words, with optional hyphenation and comma grouping. All local."
+    description: "Convert between Arabic numerals and English words in bulk, with optional hyphenation and comma grouping. All local."
     texts:
       tab-to-english: "Number to English"
       tab-to-number: "English to Number"
-      title-input-number: "Enter a number"
-      placeholder-number: "e.g. 1234567.89"
+      title-input-number: "Enter numbers (batch supported)"
+      placeholder-number: "One number per line, e.g. 1234567.89"
       opt-hyphenated: "Hyphenate tens and ones"
       opt-comma: "Separate groups with commas"
       title-result: Result
-      hint-empty: "Result appears once you enter a number or words"
-      title-input-english: "Enter English words"
-      placeholder-english: "e.g. one million two hundred thirty-four"
+      title-input-english: "Enter English words (batch supported)"
+      placeholder-english: "One reading per line, e.g. one million two hundred thirty-four"
+      label-separator: Separator
+      sep-newline: Newline
+      sep-comma: Comma
+      sep-pause: Pause
+      sep-custom: Custom
+      placeholder-custom-sep: "Custom separator"
+      hint-batch-number: "Lines are split by newline by default; paste many numbers at once for a batch conversion."
+      hint-batch-english: "English readings contain commas, so use newlines. Pick Custom only if you need another separator."
+      action-clear: Clear
+      file-to-english: number-to-english
+      file-to-number: english-to-number
+      col-number: Number
+      col-english: English
   date-uppercase:
     title: "Chinese Date in Uppercase"
     description: "Convert a date to the uppercase form used on checks and bills (零壹贰叁肆伍陆柒捌玖拾), following accounting date conventions."

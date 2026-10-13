@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { englishToNumber, numberToEnglish } from './english-numbers.service';
+import { englishToNumber, normalizeNumberInput, numberToEnglish } from './english-numbers.service';
 
 describe('numberToEnglish', () => {
   it('整数', () => {
@@ -50,5 +50,35 @@ describe('englishToNumber', () => {
 
   it('负数', () => {
     expect(englishToNumber('minus five')).toBe('-5');
+  });
+});
+
+describe('normalizeNumberInput', () => {
+  it('千分位逗号', () => {
+    expect(normalizeNumberInput('1,234.5')).toBe('1234.5');
+    expect(normalizeNumberInput('1,234,567')).toBe('1234567');
+  });
+
+  it('非标准分组不吞逗号（避免把 1,23 误当 123）', () => {
+    expect(normalizeNumberInput('1,23')).toBe('1,23');
+  });
+
+  it('全角字符', () => {
+    expect(normalizeNumberInput('１２３。５')).toBe('123.5');
+  });
+
+  it('数字中间空格与货币符号', () => {
+    expect(normalizeNumberInput('1 234')).toBe('1234');
+    expect(normalizeNumberInput('¥1,234')).toBe('1234');
+  });
+
+  it('原文已经是干净数字时不动它', () => {
+    expect(normalizeNumberInput('-42')).toBe('-42');
+    expect(normalizeNumberInput('3.14')).toBe('3.14');
+  });
+
+  it('脏输入依旧会让 numberToEnglish 报错（不静默改数）', () => {
+    expect(() => numberToEnglish(normalizeNumberInput('12abc'))).toThrow();
+    expect(() => numberToEnglish(normalizeNumberInput('1,23'))).toThrow();
   });
 });
