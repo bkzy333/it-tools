@@ -104,12 +104,13 @@ export function convertWithConnectors(
   return restoreConnectors(out, chars);
 }
 
-/** 内容过滤：按顺序把每条正则从文本里清除；无效正则跳过，不让一条规则拖垮整体。 */
+/** 内容过滤：按顺序把每条正则从文本里清除；无效正则跳过，不让一条规则拖垮整体。
+ *  使用 `u` 标志以支持 Unicode 属性转义（如 \p{P}\p{S}），否则「去除特殊符号」无法保留中文等非 ASCII 文字。 */
 export function applyCleaningPatterns(input: string, patterns: string[]): string {
   let cleaned = input;
   for (const pattern of patterns) {
     try {
-      cleaned = cleaned.replace(new RegExp(pattern, 'g'), '');
+      cleaned = cleaned.replace(new RegExp(pattern, 'gu'), '');
     } catch {
       // 忽略无效正则
     }

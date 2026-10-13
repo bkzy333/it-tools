@@ -37,7 +37,7 @@ interface FilterPreset {
   pattern: string;
 }
 const filterPresets = computed<FilterPreset[]>(() => [
-  { key: 'specialChars', label: t('tools.case-converter.texts.filter-special-chars'), pattern: '[^\\w\\d\\s]' },
+  { key: 'specialChars', label: t('tools.case-converter.texts.filter-special-chars'), pattern: '[\\p{P}\\p{S}]' },
   {
     key: 'keepCnEn',
     label: t('tools.case-converter.texts.filter-keep-cn-en'),

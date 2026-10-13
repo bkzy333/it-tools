@@ -218,4 +218,10 @@ describe('applyCleaningPatterns', () => {
     expect(applyCleaningPatterns('abc', ['(', '\\d'])).toBe('abc');
     expect(applyCleaningPatterns('a1b', ['(', '\\d'])).toBe('ab');
   });
+
+  it('去除特殊符号（\\p{P}\\p{S}）保留中文/字母/数字，只删符号', () => {
+    // 回归：原 specialChars 正则 [^\w\d\s] 的 \w 不含汉字，会删光中文只剩数字
+    expect(applyCleaningPatterns('我们都是@方电饭锅435', ['[\\p{P}\\p{S}]'])).toBe('我们都是方电饭锅435');
+    expect(applyCleaningPatterns('a-b c! $100', ['[\\p{P}\\p{S}]'])).toBe('ab c 100');
+  });
 });
