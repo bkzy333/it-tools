@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { ref, computed, watch } from 'vue';
-import type { Ref } from 'vue';
+import { ref, watch } from 'vue';
 import { createWorker } from 'tesseract.js';
 import { getDocument } from 'pdfjs-dist';
 import * as pdfJS from 'pdfjs-dist';
@@ -12,133 +11,211 @@ import { useQueryParamOrStorage } from '@/composable/queryParams';
 
 const { t } = useI18n();
 
+// 百度智能云 OCR 支持的 language_type（accurate_basic）。默认中英文混合，覆盖绝大多数中文站场景。
 const languages = [
-  { name: 'English', code: 'eng' },
-  { name: 'Portuguese', code: 'por' },
-  { name: 'Afrikaans', code: 'afr' },
-  { name: 'Albanian', code: 'sqi' },
-  { name: 'Amharic', code: 'amh' },
-  { name: 'Arabic', code: 'ara' },
-  { name: 'Assamese', code: 'asm' },
-  { name: 'Azerbaijani', code: 'aze' },
-  { name: 'Azerbaijani - Cyrillic', code: 'aze_cyrl' },
-  { name: 'Basque', code: 'eus' },
-  { name: 'Belarusian', code: 'bel' },
-  { name: 'Bengali', code: 'ben' },
-  { name: 'Bosnian', code: 'bos' },
-  { name: 'Bulgarian', code: 'bul' },
-  { name: 'Burmese', code: 'mya' },
-  { name: 'Catalan; Valencian', code: 'cat' },
-  { name: 'Cebuano', code: 'ceb' },
-  { name: 'Central Khmer', code: 'khm' },
-  { name: 'Cherokee', code: 'chr' },
-  { name: 'Chinese - Simplified', code: 'chi_sim' },
-  { name: 'Chinese - Traditional', code: 'chi_tra' },
-  { name: 'Croatian', code: 'hrv' },
-  { name: 'Czech', code: 'ces' },
-  { name: 'Danish', code: 'dan' },
-  { name: 'Dutch; Flemish', code: 'nld' },
-  { name: 'Dzongkha', code: 'dzo' },
-  { name: 'English, Middle (1100-1500)', code: 'enm' },
-  { name: 'Esperanto', code: 'epo' },
-  { name: 'Estonian', code: 'est' },
-  { name: 'Finnish', code: 'fin' },
-  { name: 'French', code: 'fra' },
-  { name: 'French, Middle (ca. 1400-1600)', code: 'frm' },
-  { name: 'Galician', code: 'glg' },
-  { name: 'Georgian', code: 'kat' },
-  { name: 'German', code: 'deu' },
-  { name: 'German Fraktur', code: 'frk' },
-  { name: 'Greek, Modern (1453-)', code: 'ell' },
-  { name: 'Greek, Ancient (-1453)', code: 'grc' },
-  { name: 'Gujarati', code: 'guj' },
-  { name: 'Haitian; Haitian Creole', code: 'hat' },
-  { name: 'Hebrew', code: 'heb' },
-  { name: 'Hindi', code: 'hin' },
-  { name: 'Hungarian', code: 'hun' },
-  { name: 'Icelandic', code: 'isl' },
-  { name: 'Indonesian', code: 'ind' },
-  { name: 'Inuktitut', code: 'iku' },
-  { name: 'Irish', code: 'gle' },
-  { name: 'Italian', code: 'ita' },
-  { name: 'Japanese', code: 'jpn' },
-  { name: 'Javanese', code: 'jav' },
-  { name: 'Kannada', code: 'kan' },
-  { name: 'Kazakh', code: 'kaz' },
-  { name: 'Kirghiz; Kyrgyz', code: 'kir' },
-  { name: 'Korean', code: 'kor' },
-  { name: 'Kurdish', code: 'kur' },
-  { name: 'Lao', code: 'lao' },
-  { name: 'Latin', code: 'lat' },
-  { name: 'Latvian', code: 'lav' },
-  { name: 'Lithuanian', code: 'lit' },
-  { name: 'Macedonian', code: 'mkd' },
-  { name: 'Malay', code: 'msa' },
-  { name: 'Malayalam', code: 'mal' },
-  { name: 'Maltese', code: 'mlt' },
-  { name: 'Marathi', code: 'mar' },
-  { name: 'Nepali', code: 'nep' },
-  { name: 'Norwegian', code: 'nor' },
-  { name: 'Oriya', code: 'ori' },
-  { name: 'Panjabi; Punjabi', code: 'pan' },
-  { name: 'Persian', code: 'fas' },
-  { name: 'Polish', code: 'pol' },
-  { name: 'Pushto; Pashto', code: 'pus' },
-  { name: 'Romanian; Moldavian; Moldovan', code: 'ron' },
-  { name: 'Russian', code: 'rus' },
-  { name: 'Sanskrit', code: 'san' },
-  { name: 'Serbian', code: 'srp' },
-  { name: 'Serbian - Latin', code: 'srp_latn' },
-  { name: 'Sinhala; Sinhalese', code: 'sin' },
-  { name: 'Slovak', code: 'slk' },
-  { name: 'Slovenian', code: 'slv' },
-  { name: 'Spanish; Castilian', code: 'spa' },
-  { name: 'Swahili', code: 'swa' },
-  { name: 'Swedish', code: 'swe' },
-  { name: 'Syriac', code: 'syr' },
-  { name: 'Tagalog', code: 'tgl' },
-  { name: 'Tajik', code: 'tgk' },
-  { name: 'Tamil', code: 'tam' },
-  { name: 'Telugu', code: 'tel' },
-  { name: 'Thai', code: 'tha' },
-  { name: 'Tibetan', code: 'bod' },
-  { name: 'Tigrinya', code: 'tir' },
-  { name: 'Turkish', code: 'tur' },
-  { name: 'Uighur; Uyghur', code: 'uig' },
-  { name: 'Ukrainian', code: 'ukr' },
-  { name: 'Urdu', code: 'urd' },
-  { name: 'Uzbek', code: 'uzb' },
-  { name: 'Uzbek - Cyrillic', code: 'uzb_cyrl' },
-  { name: 'Vietnamese', code: 'vie' },
-  { name: 'Welsh', code: 'cym' },
-  { name: 'Yiddish', code: 'yid' },
+  { name: '中英文混合', code: 'CHN_ENG' },
+  { name: 'English', code: 'ENG' },
+  { name: '日本語', code: 'JAP' },
+  { name: '한국어', code: 'KOR' },
+  { name: 'Français', code: 'FRE' },
+  { name: 'Español', code: 'SPA' },
+  { name: 'Русский', code: 'RUS' },
+  { name: 'Deutsch', code: 'GER' },
+  { name: 'Português', code: 'POR' },
+  { name: 'Italiano', code: 'ITA' },
+  { name: 'Nederlands', code: 'DUT' },
+  { name: 'Türkçe', code: 'TUR' },
+  { name: 'Polski', code: 'POL' },
+  { name: 'Svenska', code: 'SWE' },
+  { name: 'Bahasa Indonesia', code: 'IND' },
+  { name: 'Melayu', code: 'MAL' },
+  { name: 'Dansk', code: 'DAN' },
+  { name: 'Ελληνικά', code: 'GRE' },
+  { name: 'Magyar', code: 'HUN' },
+  { name: 'Română', code: 'ROM' },
+  { name: 'Tiếng Việt', code: 'VIE' },
+  { name: 'ไทย', code: 'THA' },
+  { name: 'العربية', code: 'ARA' },
 ];
-const languagesOptions = Array.from(
-  languages.map((l) => ({
-    label: l.name,
-    value: l.code,
-  })),
-);
+const languagesOptions = languages.map((l) => ({ label: l.name, value: l.code }));
+// tesseract.js 兜底用的语言码（仅兜底路径使用）
+const TESS_MAP: Record<string, string> = {
+  CHN_ENG: 'chi_sim+eng',
+  ENG: 'eng',
+  JAP: 'jpn',
+  KOR: 'kor',
+  FRE: 'fra',
+  SPA: 'spa',
+  RUS: 'rus',
+  GER: 'deu',
+  POR: 'por',
+  ITA: 'ita',
+  DUT: 'nld',
+  TUR: 'tur',
+  POL: 'pol',
+  SWE: 'swe',
+  IND: 'ind',
+  MAL: 'msa',
+  DAN: 'dan',
+  GRE: 'ell',
+  HUN: 'hun',
+  ROM: 'ron',
+  THA: 'tha',
+  VIE: 'vie',
+  ARA: 'ara',
+};
 
-const language = useQueryParamOrStorage({ name: 'lang', storageName: 'ocr-image:lang', defaultValue: 'eng' });
+const language = useQueryParamOrStorage({ name: 'lang', storageName: 'ocr-image:lang', defaultValue: 'CHN_ENG' });
 
 const pageSeparator = '\n=============\n';
 const ocrInProgress = ref(false);
 const ocrError = ref('');
+const ocrHitCache = ref(false);
 const fileInput = ref<File | null>(null);
 const ocrText = ref('');
 
 const stats = computed(() => textStatistics(ocrText.value?.replace(new RegExp(pageSeparator, 'g'), ' ') || ''));
 const pageCount = computed(() => ocrText.value?.split(new RegExp(pageSeparator, 'g')).length || 0);
 
-async function onUpload(file: File) {
+function onUpload(file: File) {
   if (file) {
     fileInput.value = file;
   }
 }
 
-// tesseract.js 在语言包 / wasm 下载失败时，createWorker() 内部会把错误吞掉且永远不 resolve，
-// 导致下方 ocrInProgress 卡在 true、页面一直转圈。这里加超时护栏，超时即视为失败、给出明确报错。
+// —— 上传前压缩（照搬 image-translate）：长边 ≤1920px，JPEG 0.85，≤3MB ——
+// 这一步是额度保护关键：绝大多数浪费来自重复传大图，前端先压能直接砍掉一大半。
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressCanvas(dataUrl: string, maxEdge = 1920, maxBytes = 3 * 1024 * 1024): Promise<string> {
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error('image load failed'));
+    img.src = dataUrl;
+  });
+  const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+  const w = Math.max(1, Math.round(img.width * scale));
+  const h = Math.max(1, Math.round(img.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('canvas unsupported');
+  }
+  ctx.drawImage(img, 0, 0, w, h);
+  let quality = 0.85;
+  let out = canvas.toDataURL('image/jpeg', quality);
+  while (out.length > maxBytes && quality > 0.5) {
+    quality -= 0.07;
+    out = canvas.toDataURL('image/jpeg', quality);
+  }
+  if (out.length > maxBytes && Math.max(w, h) > 1280) {
+    const s2 = 1280 / Math.max(w, h);
+    canvas.width = Math.round(w * s2);
+    canvas.height = Math.round(h * s2);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    quality = 0.85;
+    out = canvas.toDataURL('image/jpeg', quality);
+    while (out.length > maxBytes && quality > 0.5) {
+      quality -= 0.07;
+      out = canvas.toDataURL('image/jpeg', quality);
+    }
+  }
+  return out;
+}
+
+function stripPrefix(dataUrl: string): string {
+  return dataUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+}
+
+// PDF → 逐页渲染成图片（最多 20 页，防单文件刷爆额度）
+async function convertPdfToImage(file: File): Promise<string[]> {
+  const pdf = await loadPdfFile(file);
+  const total = Math.min(pdf.numPages, 20);
+  const images: string[] = [];
+  const container = document.getElementById('container');
+  for (let pageNumber = 1; pageNumber <= total; pageNumber++) {
+    const page = await pdf.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    container?.appendChild(canvas);
+    await page
+      .render({ canvasContext: canvas.getContext('2d') as CanvasRenderingContext2D, viewport })
+      .promise.catch(() => undefined);
+    images.push(canvas.toDataURL('image/png'));
+  }
+  return images;
+}
+
+async function loadPdfFile(file: File) {
+  const arrBuffer = await file.arrayBuffer();
+  const byteArray = new Uint8Array(arrBuffer);
+  return getDocument({ data: byteArray }).promise;
+}
+
+// —— 主路径：调本站 /api/ocr（服务端代理百度 OCR）——
+async function callOcrApi(base64: string, languageType: string): Promise<string> {
+  const resp = await fetch('/api/ocr', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ image: base64, language: languageType }),
+  });
+  const data = (await resp.json()) as { text?: string; error?: string; message?: string; hitCache?: boolean };
+  if (resp.status === 501 && data.error === 'not_configured') {
+    const e = new Error('not_configured') as Error & { notConfigured?: boolean };
+    e.notConfigured = true;
+    throw e;
+  }
+  if (!resp.ok) {
+    throw new Error(data.message || data.error || `OCR 请求失败 (${resp.status})`);
+  }
+  ocrHitCache.value = Boolean(data.hitCache);
+  return data.text || '';
+}
+
+// —— 兜底路径：tesseract.js（仅当 API 不可达时，中国网络下可能因 jsdelivr 被墙而失败）——
+async function runOcrTesseract(file: File, lang: string) {
+  let worker: Awaited<ReturnType<typeof createWorker>> | undefined;
+  try {
+    worker = await withTimeout(
+      createWorker(TESS_MAP[lang] || 'eng'),
+      90_000,
+      'OCR 引擎初始化超时：无法下载语言包或核心文件，请检查网络后重试（首次使用需联网下载语言数据包）。',
+    );
+    const allTexts: string[] = [];
+    if (file.type.match('^image/')) {
+      const ret = await worker.recognize(file);
+      allTexts.push(ret.data.text);
+    } else {
+      pdfJS.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
+      for (const image of await convertPdfToImage(file)) {
+        const ret = await worker.recognize(image);
+        allTexts.push(ret.data.text);
+      }
+    }
+    ocrText.value = allTexts.join(pageSeparator);
+  } finally {
+    if (worker) {
+      try {
+        await worker.terminate();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
 function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(msg)), ms);
@@ -161,6 +238,7 @@ watch(
     if (!file) {
       ocrText.value = '';
       ocrError.value = '';
+      ocrHitCache.value = false;
       return;
     }
     void runOcr(file, lang);
@@ -169,67 +247,48 @@ watch(
 );
 
 async function runOcr(file: File, lang: string) {
+  // 防抖 / 重叠保护：处理中忽略新触发，避免无意识重复上传刷额度（与 text-translate 同款）。
+  if (ocrInProgress.value) {
+    return;
+  }
   ocrInProgress.value = true;
   ocrError.value = '';
-  let worker: Awaited<ReturnType<typeof createWorker>> | undefined;
+  ocrHitCache.value = false;
   try {
-    worker = await withTimeout(
-      createWorker(lang),
-      90_000,
-      'OCR 引擎初始化超时：无法下载语言包或核心文件，请检查网络后重试（首次使用需联网下载语言数据包）。',
-    );
-    const allTexts: string[] = [];
-    if (file.type.match('^image/')) {
-      const ret = await worker.recognize(file);
-      allTexts.push(ret.data.text);
+    const isPdf = !file.type.match('^image/');
+    const b64list: string[] = [];
+    if (!isPdf) {
+      const du = await readFileAsDataUrl(file);
+      b64list.push(stripPrefix(await compressCanvas(du)));
     } else {
-      pdfJS.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
-
-      for (const image of await convertPdfToImage(file)) {
-        const ret = await worker.recognize(image);
-        allTexts.push(ret.data.text);
+      const pages = await convertPdfToImage(file);
+      for (const du of pages) {
+        b64list.push(stripPrefix(await compressCanvas(du)));
       }
     }
-    ocrText.value = allTexts.join(pageSeparator);
+    const texts: string[] = [];
+    for (const b64 of b64list) {
+      texts.push(await callOcrApi(b64, lang));
+    }
+    ocrText.value = texts.join(pageSeparator);
   } catch (e: any) {
-    ocrError.value = e?.message || String(e);
-    ocrText.value = '';
+    if (e?.notConfigured) {
+      // API 未配置：明确提示，不再走（在中国网络下必失败的）tesseract 兜底。
+      ocrError.value =
+        'OCR 服务未配置：请在 Cloudflare Pages 设置 BAIDU_OCR_API_KEY / BAIDU_OCR_SECRET_KEY 环境变量后重试。';
+      ocrText.value = '';
+      return;
+    }
+    // 其他异常（网络/限流/配额）：尝试 tesseract 兜底，再失败才报错。
+    try {
+      await runOcrTesseract(file, lang);
+    } catch (e2: any) {
+      ocrError.value = e2?.message || String(e2);
+      ocrText.value = '';
+    }
   } finally {
     ocrInProgress.value = false;
-    if (worker) {
-      try {
-        await worker.terminate();
-      } catch {
-        // 忽略终止阶段的异常
-      }
-    }
   }
-}
-
-async function loadPdfFile(file: File) {
-  const arrBuffer = await file.arrayBuffer();
-  const byteArray = new Uint8Array(arrBuffer);
-  return getDocument({ data: byteArray }).promise;
-}
-
-async function convertPdfToImage(file: File) {
-  const pdf = await loadPdfFile(file);
-  const container = document.getElementById('container');
-  const images = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-    const page = await pdf.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1.5 });
-    const canvas = document.createElement('canvas');
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    container?.appendChild(canvas);
-    await page.render({
-      canvasContext: canvas.getContext('2d') as CanvasRenderingContext2D,
-      viewport,
-    }).promise;
-    images.push(canvas.toDataURL('image/png'));
-  }
-  return images;
 }
 </script>
 
@@ -262,6 +321,9 @@ async function convertPdfToImage(file: File) {
         download-file-name="output.txt"
       />
       <n-spin v-if="ocrInProgress" size="small" />
+      <n-alert v-if="ocrHitCache && ocrText" type="success" :show-icon="true">
+        {{ t('tools.text-translate.texts.cached-hint') }}
+      </n-alert>
       <n-alert v-if="ocrError" type="error" title="OCR 失败">
         {{ ocrError }}
       </n-alert>
