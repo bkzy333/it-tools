@@ -47,14 +47,13 @@ export const TARGETS_FOR: Record<string, string[]> = {
 };
 
 export interface TextTranslateResponse {
-  Response?: {
-    TargetText?: string;
-    Source?: string;
-    Target?: string;
-    RequestId?: string;
-    Error?: { Code: string; Message: string };
-  };
-  // 后端防护层附加字段
+  // 后端 translate.ts 已把腾讯云 { Response: {...} } 解包成扁平结构返回（缓存里也是扁平），
+  // 前端直接读 TargetText / hitCache，不要再按 data.Response.TargetText 读（会导致译文恒为空）。
+  TargetText?: string;
+  Source?: string;
+  Target?: string;
+  RequestId?: string;
+  // 后端防护层附加字段：额度/限流/配置等错误统一走 err（含 HTTP 4xx/5xx 的文案）
   err?: string;
   hitCache?: boolean;
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useStorage } from '@vueuse/core';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 import { useQueryParam } from '@/composable/queryParams';
@@ -16,8 +17,9 @@ const exampleData = {
 };
 
 const text = useQueryParam<string>({ tool: 'text-translate', name: 'text', defaultValue: '' });
-const source = ref<string>(exampleData.source);
-const target = ref<string>(exampleData.target);
+// 源/目标语言持久化到浏览器 localStorage：下次打开页面默认恢复上次选择（需求 #2）。
+const source = useStorage<string>('text-translate-source', exampleData.source);
+const target = useStorage<string>('text-translate-target', exampleData.target);
 
 const loading = ref(false);
 const errorMsg = ref('');
@@ -37,6 +39,9 @@ function onSourceChange() {
   }
 }
 
+// 进入页面时用已存偏好；并做一次合法性校验（腾讯云约束：源/目标并非任意可互通）。
+onSourceChange();
+
 async function doTranslate() {
   // 防抖 / 重叠保护：正在翻译时忽略新触发，避免无意识的重复点击刷额度。
   if (loading.value) {
@@ -53,20 +58,22 @@ async function doTranslate() {
   errorMsg.value = '';
   hitCache.value = false;
   try {
+    // 后端返回扁平结构 { TargetText, hitCache, err? }（translate.ts 已解包腾讯云 Response）。
     const data = await translateText(input, source.value, target.value);
     if (data.err) {
       errorMsg.value = data.err;
       result.value = '';
       return;
     }
-    const resp = data.Response ?? {};
-    if (resp.Error) {
-      errorMsg.value = `${resp.Error.Code}：${resp.Error.Message}`;
+    const targetText = data.TargetText ?? '';
+    if (!targetText) {
+      // 接口成功但无译文（极少），给出提示而非空白。
+      errorMsg.value = t('tools.text-translate.texts.error-empty-result');
       result.value = '';
-    } else {
-      result.value = resp.TargetText ?? '';
-      hitCache.value = Boolean(data.hitCache);
+      return;
     }
+    result.value = targetText;
+    hitCache.value = Boolean(data.hitCache);
   } catch {
     errorMsg.value = t('tools.text-translate.texts.error-network');
   } finally {

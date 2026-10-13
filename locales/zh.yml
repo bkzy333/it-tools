@@ -1478,7 +1478,7 @@ tools:
       label-punctuations: 标点符号数
       label-spaces-chars: 空格字符数
       label-word-count-no-punct: 无标点单词数
-      tag-ocr: 光学字符识别
+      tag-ocr: 光学字符识别
       title-region-select: 框选识别区域
       hint-region-select: 拖动选框调整要识别的范围，仅上传选区内的图片以减小体积
       btn-recognize-region: 识别选区
@@ -3692,6 +3692,7 @@ tools:
       label-output: 译文
       error-empty: 请输入要翻译的文本
       error-network: 翻译服务暂时不可用，请稍后重试
+      error-empty-result: 翻译结果为空，请检查输入文本后重试
       status-translating: 翻译中……
       cached-hint: 本次结果来自缓存，未消耗翻译额度
   image-translate:

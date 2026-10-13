@@ -1546,7 +1546,7 @@ tools:
       label-punctuations: Punctuations
       label-spaces-chars: Spaces chars
       label-word-count-no-punct: Word count (no punct)
-      tag-ocr: OCR
+      tag-ocr: OCR
       title-region-select: Select region to OCR
       hint-region-select: Drag the box to adjust the area; only the selected region is uploaded to save size
       btn-recognize-region: Recognize selection
@@ -3798,6 +3798,7 @@ tools:
       label-output: Translation
       error-empty: Please enter some text to translate
       error-network: Translation service is temporarily unavailable, please try again later
+      error-empty-result: The translation result is empty, please check your input and try again
       status-translating: Translating……
       cached-hint: This result came from cache, no quota was consumed
   image-translate:
