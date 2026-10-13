@@ -866,6 +866,36 @@ tools:
       tag-output-format: "Output format"
       tag-compressed-size: "Compressed size"
       tag-download-compressed: "Download compressed image"
+      tag-batch-processing: "Batch processing"
+      desc-batch: "Upload multiple images, set options once, download as ZIP"
+      label-batch-mode: "Process mode"
+      mode-resize: "Resize"
+      mode-compress: "Compress to target size"
+      label-output-format: "Output format"
+      label-scale-percent: "Scale (%)"
+      label-keep-ratio: "Keep original ratio"
+      label-fill-white: "Fill white background (for transparent -> JPG)"
+      label-quality: "Quality"
+      label-scene-preset: "Scene preset"
+      preset-custom: "Custom size"
+      preset-wechat: "WeChat cover (900x383)"
+      preset-xhs: "Xiaohongshu cover (1000x1333)"
+      preset-ppt: "PPT 16:9 (1920x1080)"
+      preset-ig: "Instagram post (1080x1080)"
+      btn-start-batch: "Start processing"
+      btn-download-all-zip: "Download all (ZIP)"
+      btn-download-one: "Download"
+      text-processing: "Processing..."
+      text-failed: "Failed"
+      text-origin: "Original"
+      text-result: "Result"
+      text-saved-percent: "Saved {pct}%"
+      text-batch-summary: "Succeeded {ok}, failed {fail}"
+      warn-transparent: "Transparent pixels detected. Converting to JPG turns them black. White fill is on by default; use PNG/WebP to keep transparency."
+      text-exif-cleared: "EXIF and metadata are auto-stripped (canvas re-encode, privacy safe)"
+      text-compare-hint: "Drag the slider to compare original and result"
+      text-batch-empty: "Upload at least one image first"
+      text-batch-no-zip: "No successfully processed image to package"
   api-tester:
     title: API Tester
     description: "Online HTTP API tester: send GET/POST/PUT/DELETE requests with custom headers, query params and body, then generate curl, Python, Go or Java client code."
@@ -3848,3 +3878,4 @@ collapsibleToolMenu:
     collapsing: Collapsing...
     collapse-all-tools: Collapse All Tools
     expand-all-tools: Expand All Tools
+

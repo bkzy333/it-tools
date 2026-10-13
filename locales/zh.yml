@@ -830,6 +830,36 @@ tools:
       tag-output-format: 输出格式
       tag-compressed-size: 压缩后大小
       tag-download-compressed: 下载压缩图
+      tag-batch-processing: 批量处理
+      desc-batch: 一次上传多张，统一参数后打包下载（ZIP）
+      label-batch-mode: 处理模式
+      mode-resize: 缩放
+      mode-compress: 压缩到目标体积
+      label-output-format: 输出格式
+      label-scale-percent: 缩放比例（%）
+      label-keep-ratio: 保持原始比例
+      label-fill-white: 填充白色背景（透明图转 JPG 用）
+      label-quality: 质量
+      label-scene-preset: 场景预设
+      preset-custom: 自定义尺寸
+      preset-wechat: 微信公众号封面（900×383）
+      preset-xhs: 小红书封面（1000×1333）
+      preset-ppt: PPT 投影 16:9（1920×1080）
+      preset-ig: Instagram 帖子（1080×1080）
+      btn-start-batch: 开始处理
+      btn-download-all-zip: 下载全部（ZIP）
+      btn-download-one: 下载
+      text-processing: 处理中…
+      text-failed: 失败
+      text-origin: 原图
+      text-result: 结果
+      text-saved-percent: "节省 {pct}%"
+      text-batch-summary: "成功 {ok} 张，失败 {fail} 张"
+      warn-transparent: 检测到透明背景，转为 JPG 后透明区域将变黑色。已默认填充白色；如需保留透明请改用 PNG/WebP 输出。
+      text-exif-cleared: 已自动清除 EXIF 等元数据（canvas 重绘，隐私保护）
+      text-compare-hint: 拖动滑块对比原图与结果
+      text-batch-empty: 请先上传至少一张图片
+      text-batch-no-zip: 没有处理成功的图片可打包
   api-tester:
     title: API测试器
     description: 在线 HTTP API 测试器：支持 GET/POST/PUT/DELETE，可自定义请求头、查询参数与请求体，一键生成 curl、Python、Go、Java 等调用代码。
@@ -3742,3 +3772,4 @@ collapsibleToolMenu:
     collapsing: 正在崩溃……
     collapse-all-tools: 收起所有工具
     expand-all-tools: 展开所有工具
+

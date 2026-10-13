@@ -1,8 +1,23 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { computed, ref, watch } from 'vue';
+import {
+  NAlert,
+  NCheckbox,
+  NRadioButton,
+  NRadioGroup,
+  NSlider,
+} from 'naive-ui';
 import { IconLock, IconLockOpen2, IconReload } from '@tabler/icons-vue';
+import JSZip from 'jszip';
 import { compressImage, type CompressResult } from './image-compress.service';
+import {
+  hasAlphaChannel,
+  processBatch,
+  type OutputFormat,
+  type ProcessOptions,
+  type ProcessResult,
+} from './image-compress.service';
 
 const { t } = useI18n();
 
@@ -35,6 +50,33 @@ const aspectRatioOptions = [
   { label: t('tools.image-resizer.texts.label-3-4-portrait'), value: '3:4' },
   { label: t('tools.image-resizer.texts.label-9-16-portrait'), value: '9:16' },
 ];
+
+// 场景预设（社交平台封面尺寸）
+const scenePresets = [
+  { label: t('tools.image-resizer.texts.preset-custom'), value: 'custom', w: 0, h: 0 },
+  { label: t('tools.image-resizer.texts.preset-wechat'), value: 'wechat', w: 900, h: 383 },
+  { label: t('tools.image-resizer.texts.preset-xhs'), value: 'xhs', w: 1000, h: 1333 },
+  { label: t('tools.image-resizer.texts.preset-ppt'), value: 'ppt', w: 1920, h: 1080 },
+  { label: t('tools.image-resizer.texts.preset-ig'), value: 'ig', w: 1080, h: 1080 },
+];
+const selectedScenePreset = ref<string>('custom');
+
+function applyScenePreset(value: string) {
+  selectedScenePreset.value = value;
+  if (value === 'custom') {
+    return;
+  }
+  const preset = scenePresets.find((p) => p.value === value);
+  if (!preset) {
+    return;
+  }
+  imageWidth.value = preset.w;
+  imageHeight.value = preset.h;
+  // 锁定比例，避免后续手改宽高时错位
+  if (!aspectRatioLocked.value) {
+    toggleAspectRatioLock();
+  }
+}
 
 const MAX_CANVAS_DIMENSION = 32767; // Maximum pixels per side
 const MAX_CANVAS_AREA = 268435456; // Maximum total pixels (conservative estimate)
@@ -261,6 +303,9 @@ watch(imageHeight, () => {
   }
 });
 
+// 原图是否含透明通道（用于透明→JPG 提示）
+const originalHasAlpha = ref(false);
+
 // Handle file upload
 async function handleFileUpload(uploadedFile: File) {
   if (!uploadedFile) {
@@ -321,6 +366,9 @@ async function handleFileUpload(uploadedFile: File) {
         resolve();
       };
     });
+
+    // 检测透明通道
+    originalHasAlpha.value = await hasAlphaChannel(uploadedFile);
   } catch (error) {
     console.error('Error reading file:', error);
   }
@@ -463,6 +511,237 @@ function downloadCompressed() {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+// ===================== 批量处理 =====================
+interface BatchItem {
+  id: string;
+  file: File;
+  baseName: string;
+  status: 'pending' | 'processing' | 'done' | 'error';
+  originalSizeKb: number;
+  originalWidth: number;
+  originalHeight: number;
+  originalUrl: string;
+  resultBlob: Blob | null;
+  resultUrl: string | null;
+  resultWidth: number;
+  resultHeight: number;
+  resultSizeKb: number;
+  format: OutputFormat;
+  savedPercent: number;
+  error: string;
+  comparePos: number;
+}
+
+const batchQueue = ref<BatchItem[]>([]);
+const batchProcessing = ref(false);
+const batchMode = ref<'resize' | 'compress'>('resize');
+const batchFormat = ref<OutputFormat>('jpeg');
+const batchScalePercent = ref<number>(100);
+const batchWidth = ref<number>(1920);
+const batchHeight = ref<number>(1080);
+const batchKeepRatio = ref<boolean>(true);
+const batchQuality = ref<number>(0.9);
+const batchFillWhite = ref<boolean>(true);
+const batchTargetKb = ref<number>(300);
+const batchMaxDim = ref<number>(0);
+const batchHasTransparent = ref<boolean>(false);
+const batchScenePreset = ref<string>('custom');
+
+const formatOptions = [
+  { label: 'JPG', value: 'jpeg' },
+  { label: 'PNG', value: 'png' },
+  { label: 'WebP', value: 'webp' },
+];
+
+const batchDoneCount = computed(() => batchQueue.value.filter((i) => i.status === 'done').length);
+const batchErrorCount = computed(() => batchQueue.value.filter((i) => i.status === 'error').length);
+
+const showTransparentWarning = computed(
+  () => batchHasTransparent.value && batchFormat.value === 'jpeg',
+);
+
+function readDimensions(file: File): Promise<{ w: number; h: number }> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => {
+      resolve({ w: 0, h: 0 });
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  });
+}
+
+async function onBatchUpload(files: File[]) {
+  if (!files.length) {
+    return;
+  }
+  // 释放旧队列的预览 URL
+  batchQueue.value.forEach((item) => {
+    if (item.originalUrl) {
+      URL.revokeObjectURL(item.originalUrl);
+    }
+    if (item.resultUrl) {
+      URL.revokeObjectURL(item.resultUrl);
+    }
+  });
+
+  const items: BatchItem[] = [];
+  let anyAlpha = false;
+  for (const file of files) {
+    const { w, h } = await readDimensions(file);
+    const isAlpha = await hasAlphaChannel(file);
+    if (isAlpha) {
+      anyAlpha = true;
+    }
+    items.push({
+      id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
+      file,
+      baseName: file.name.replace(/\.[^/.]+$/, ''),
+      status: 'pending',
+      originalSizeKb: file.size / 1024,
+      originalWidth: w,
+      originalHeight: h,
+      originalUrl: URL.createObjectURL(file),
+      resultBlob: null,
+      resultUrl: null,
+      resultWidth: 0,
+      resultHeight: 0,
+      resultSizeKb: 0,
+      format: batchFormat.value,
+      savedPercent: 0,
+      error: '',
+      comparePos: 50,
+    });
+  }
+  batchHasTransparent.value = anyAlpha;
+  batchQueue.value = items;
+}
+
+function applyBatchScenePreset(value: string) {
+  batchScenePreset.value = value;
+  if (value === 'custom') {
+    return;
+  }
+  const preset = scenePresets.find((p) => p.value === value);
+  if (!preset) {
+    return;
+  }
+  batchWidth.value = preset.w;
+  batchHeight.value = preset.h;
+  batchMode.value = 'resize';
+  batchKeepRatio.value = true;
+}
+
+async function startBatch() {
+  if (!batchQueue.value.length || batchProcessing.value) {
+    return;
+  }
+  batchProcessing.value = true;
+  // 重置状态
+  batchQueue.value.forEach((item) => {
+    item.status = 'pending';
+    item.resultBlob = null;
+    item.resultUrl = null;
+    item.error = '';
+    item.savedPercent = 0;
+  });
+
+  const baseOpts: Omit<ProcessOptions, 'mode'> = {
+    format: batchFormat.value,
+    quality: batchQuality.value,
+    fillWhite: batchFillWhite.value,
+    targetKb: batchTargetKb.value,
+    maxDimension: batchMaxDim.value,
+  };
+
+  const getOpts = (item: BatchItem): ProcessOptions => {
+    if (batchMode.value === 'resize') {
+      if (batchKeepRatio.value) {
+        const w = batchWidth.value || item.originalWidth || 1;
+        const pct = w > 0 && item.originalWidth ? (w / item.originalWidth) * 100 : batchScalePercent.value;
+        return { ...baseOpts, mode: 'resize', scalePercent: pct };
+      }
+      return { ...baseOpts, mode: 'resize', width: batchWidth.value, height: batchHeight.value };
+    }
+    return { ...baseOpts, mode: 'compress' };
+  };
+
+  const files = batchQueue.value.map((i) => i.file);
+  await processBatch(
+    files,
+    (file: File, index: number) => getOpts(batchQueue.value[index]),
+    (index: number, result: ProcessResult | null, error: string | null) => {
+      const item = batchQueue.value[index];
+      if (result) {
+        item.status = 'done';
+        item.resultBlob = result.blob;
+        item.resultUrl = URL.createObjectURL(result.blob);
+        item.resultWidth = result.width;
+        item.resultHeight = result.height;
+        item.resultSizeKb = result.sizeKb;
+        item.format = result.format;
+        item.savedPercent =
+          item.originalSizeKb > 0
+            ? Math.max(0, Math.round((1 - result.sizeKb / item.originalSizeKb) * 100))
+            : 0;
+      } else {
+        item.status = 'error';
+        item.error = error ?? t('tools.image-resizer.texts.text-failed');
+      }
+    },
+    3,
+  );
+  batchProcessing.value = false;
+}
+
+function downloadOne(item: BatchItem) {
+  if (!item.resultBlob) {
+    return;
+  }
+  const ext = item.format === 'jpeg' ? 'jpg' : item.format;
+  const url = URL.createObjectURL(item.resultBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${item.baseName}-${item.resultWidth}x${item.resultHeight}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function downloadAllZip() {
+  const ready = batchQueue.value.filter((i) => i.status === 'done' && i.resultBlob);
+  if (!ready.length) {
+    return;
+  }
+  const zip = new JSZip();
+  for (const item of ready) {
+    const ext = item.format === 'jpeg' ? 'jpg' : item.format;
+    zip.file(`${item.baseName}-${item.resultWidth}x${item.resultHeight}.${ext}`, item.resultBlob!);
+  }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '图片批量处理结果.zip';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function formatSize(kb: number): string {
+  if (kb >= 1024) {
+    return `${(kb / 1024).toFixed(2)} MB`;
+  }
+  return `${kb.toFixed(1)} KB`;
+}
 </script>
 
 <template>
@@ -492,6 +771,20 @@ function downloadCompressed() {
             t('tools.image-resizer.texts.tag-reset-width-and-height-to-image-dimensions')
           }}
         </n-button>
+      </div>
+
+      <!-- 场景预设 -->
+      <div mt-3 mb-2>
+        <n-space align="center" :wrap="false">
+          <span style="font-size: 13px; font-weight: 500">{{ t('tools.image-resizer.texts.label-scene-preset') }}：</span>
+          <n-select
+            v-model:value="selectedScenePreset"
+            :options="scenePresets"
+            size="small"
+            style="width: 240px"
+            @update:value="applyScenePreset"
+          />
+        </n-space>
       </div>
 
       <!-- Compact Width/Height and Aspect Ratio Controls -->
@@ -620,6 +913,16 @@ function downloadCompressed() {
           </p>
         </div>
 
+        <!-- 透明背景提示 -->
+        <n-alert
+          v-if="originalHasAlpha && (canDownload)"
+          type="warning"
+          :show-icon="true"
+          style="margin: 10px 0; text-align: left"
+        >
+          {{ t('tools.image-resizer.texts.warn-transparent') }}
+        </n-alert>
+
         <!-- Download options (always show when image is loaded) -->
         <div v-if="originalImageUrl">
           <h3>{{ t('tools.image-resizer.texts.tag-download-options') }}</h3>
@@ -672,6 +975,182 @@ function downloadCompressed() {
       <n-button type="primary" @click="downloadCompressed">
         {{ t('tools.image-resizer.texts.tag-download-compressed') }}
       </n-button>
+    </div>
+  </n-card>
+
+  <!-- 批量处理 -->
+  <n-card mt-3>
+    <h3 style="margin: 0 0 4px">{{ t('tools.image-resizer.texts.tag-batch-processing') }}</h3>
+    <p style="margin: 0 0 12px; color: #666; font-size: 13px">{{ t('tools.image-resizer.texts.desc-batch') }}</p>
+
+    <c-file-upload
+      multiple
+      mb-2
+      accept="image/*"
+      :title="t('tools.image-resizer.texts.title-drag-and-drop-an-image-file-here')"
+      @files-upload="onBatchUpload"
+    />
+
+    <n-alert type="info" :show-icon="true" style="margin-bottom: 12px; text-align: left">
+      {{ t('tools.image-resizer.texts.text-exif-cleared') }}
+    </n-alert>
+
+    <n-alert v-if="showTransparentWarning" type="warning" :show-icon="true" style="margin-bottom: 12px; text-align: left">
+      {{ t('tools.image-resizer.texts.warn-transparent') }}
+    </n-alert>
+
+    <!-- 全局参数 -->
+    <n-space vertical :size="12">
+      <n-space align="center" :wrap="false">
+        <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-batch-mode') }}：</span>
+        <n-radio-group v-model:value="batchMode">
+          <n-radio-button value="resize">{{ t('tools.image-resizer.texts.mode-resize') }}</n-radio-button>
+          <n-radio-button value="compress">{{ t('tools.image-resizer.texts.mode-compress') }}</n-radio-button>
+        </n-radio-group>
+      </n-space>
+
+      <n-space align="center" :wrap="false">
+        <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-output-format') }}：</span>
+        <n-select v-model:value="batchFormat" :options="formatOptions" size="small" style="width: 140px" />
+      </n-space>
+
+      <!-- 缩放模式参数 -->
+      <template v-if="batchMode === 'resize'">
+        <n-space align="center" :wrap="false">
+          <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-scene-preset') }}：</span>
+          <n-select
+            v-model:value="batchScenePreset"
+            :options="scenePresets"
+            size="small"
+            style="width: 240px"
+            @update:value="applyBatchScenePreset"
+          />
+        </n-space>
+        <n-space align="center" :wrap="false">
+          <n-checkbox v-model:checked="batchKeepRatio">{{ t('tools.image-resizer.texts.label-keep-ratio') }}</n-checkbox>
+          <n-input-number
+            v-model:value="batchWidth"
+            :min="1"
+            :max="32767"
+            size="small"
+            style="width: 130px"
+            :placeholder="t('tools.image-resizer.texts.placeholder-width-px')"
+          />
+          <span style="color: #666">×</span>
+          <n-input-number
+            v-model:value="batchHeight"
+            :disabled="batchKeepRatio"
+            :min="1"
+            :max="32767"
+            size="small"
+            style="width: 130px"
+            :placeholder="t('tools.image-resizer.texts.placeholder-height-px')"
+          />
+          <span style="color: #666; font-size: 12px">px</span>
+        </n-space>
+      </template>
+
+      <!-- 压缩模式参数 -->
+      <template v-else>
+        <n-space align="center" :wrap="false">
+          <n-form-item :label="t('tools.image-resizer.texts.tag-target-size-kb')" label-placement="left">
+            <n-input-number v-model:value="batchTargetKb" :min="1" :max="100000" />
+          </n-form-item>
+          <n-form-item :label="t('tools.image-resizer.texts.tag-max-dimension-px')" label-placement="left">
+            <n-input-number v-model:value="batchMaxDim" :min="0" :max="32767" />
+          </n-form-item>
+        </n-space>
+      </template>
+
+      <!-- 质量 + 填充白 -->
+      <n-space align="center" :wrap="false">
+        <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-quality') }}：</span>
+        <n-slider v-model:value="batchQuality" :min="0.1" :max="1" :step="0.05" style="width: 200px" />
+        <span style="color: #666; font-size: 12px">{{ Math.round(batchQuality * 100) }}%</span>
+        <n-checkbox v-model:checked="batchFillWhite" style="margin-left: 12px">
+          {{ t('tools.image-resizer.texts.label-fill-white') }}
+        </n-checkbox>
+      </n-space>
+    </n-space>
+
+    <n-space mt-3>
+      <n-button type="primary" :disabled="!batchQueue.length || batchProcessing" :loading="batchProcessing" @click="startBatch">
+        {{ t('tools.image-resizer.texts.btn-start-batch') }}
+      </n-button>
+      <n-button :disabled="batchDoneCount === 0" @click="downloadAllZip">
+        {{ t('tools.image-resizer.texts.btn-download-all-zip') }}
+      </n-button>
+    </n-space>
+
+    <p v-if="batchQueue.length" style="margin: 12px 0 0; font-size: 13px; color: #666">
+      {{ t('tools.image-resizer.texts.text-batch-summary', { ok: batchDoneCount, fail: batchErrorCount }) }}
+    </p>
+
+    <!-- 队列 -->
+    <div v-if="batchQueue.length" style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px">
+      <div
+        v-for="item in batchQueue"
+        :key="item.id"
+        style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: flex-start"
+      >
+        <!-- 缩略图 / 对比 -->
+        <div style="flex: 0 0 160px">
+          <div v-if="item.status === 'done' && item.resultUrl" class="compare">
+            <img class="compare-base" :src="item.originalUrl" :alt="t('tools.image-resizer.texts.text-origin')" />
+            <img
+              class="compare-top"
+              :src="item.resultUrl"
+              :alt="t('tools.image-resizer.texts.text-result')"
+              :style="{ clipPath: `inset(0 ${100 - item.comparePos}% 0 0)` }"
+            />
+          </div>
+          <img
+            v-else
+            :src="item.originalUrl"
+            style="max-width: 160px; max-height: 120px; border-radius: 4px"
+            :alt="item.baseName"
+          />
+          <input
+            v-if="item.status === 'done' && item.resultUrl"
+            v-model="item.comparePos"
+            type="range"
+            min="0"
+            max="100"
+            style="width: 160px; margin-top: 6px"
+          />
+          <p v-if="item.status === 'done' && item.resultUrl" style="font-size: 11px; color: #888; margin: 2px 0 0">
+            {{ t('tools.image-resizer.texts.text-compare-hint') }}
+          </p>
+        </div>
+
+        <!-- 信息 -->
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0 0 4px; font-weight: 600; word-break: break-all">{{ item.baseName }}</p>
+          <p style="margin: 0; font-size: 12px; color: #666">
+            {{ item.originalWidth }}x{{ item.originalHeight }}px · {{ formatSize(item.originalSizeKb) }}
+          </p>
+
+          <n-spin v-if="item.status === 'processing'" size="small" style="margin-top: 6px" />
+          <p v-else-if="item.status === 'error'" style="margin: 6px 0 0; color: red; font-size: 12px">
+            {{ t('tools.image-resizer.texts.text-failed') }}: {{ item.error }}
+          </p>
+          <template v-else-if="item.status === 'done'">
+            <p style="margin: 6px 0 0; font-size: 13px">
+              {{ t('tools.image-resizer.texts.text-origin') }} {{ formatSize(item.originalSizeKb) }}
+              →
+              <strong>{{ formatSize(item.resultSizeKb) }}</strong>
+              ({{ item.resultWidth }}x{{ item.resultHeight }}px)
+              <span style="color: #1ea54c">· {{ t('tools.image-resizer.texts.text-saved-percent', { pct: item.savedPercent }) }}</span>
+            </p>
+            <n-button size="small" style="margin-top: 6px" @click="downloadOne(item)">
+              {{ t('tools.image-resizer.texts.btn-download-one') }}
+            </n-button>
+          </template>
+          <p v-else style="margin: 6px 0 0; font-size: 12px; color: #999">
+            {{ t('tools.image-resizer.texts.text-processing') }}
+          </p>
+        </div>
+      </div>
     </div>
   </n-card>
 </template>
@@ -860,5 +1339,29 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* 前后对比滑块 */
+.compare {
+  position: relative;
+  width: 160px;
+  max-width: 160px;
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.compare-base,
+.compare-top {
+  display: block;
+  width: 160px;
+  max-width: 160px;
+  height: auto;
+}
+
+.compare-top {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
