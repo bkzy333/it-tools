@@ -119,7 +119,8 @@ async function loadPipelines() {
   } catch (e) {
     console.error('[remove-background] 模型加载失败', e);
     error.value =
-      'AI 模型下载失败。这个工具需要联网下载一次模型（约 6~45MB），请检查网络后重试；也可以换一个模型试试。';
+      'AI 模型下载失败。该工具需联网下载一次模型（约 42MB），请检查网络后重试；' +
+      '若网络正常仍失败，可能是浏览器或插件拦截了对模型下载域名的跨域请求（hf-mirror.com / huggingface.co）。';
     throw e;
   } finally {
     modelLoading.value = false;

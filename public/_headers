@@ -31,8 +31,11 @@
   #         （首选已改为同源的 /api/rates，这三个是 Functions 挂掉时的兜底）
   #       · www.schemastore.org —— JSON / YAML 查看器的 schema 自动校验
   #       · rdap.org —— Whois / RDAP 域名查询
-  #     全部是只读的公开 JSON，实测响应头带 Access-Control-Allow-Origin: *。
+  #       · hf-mirror.com / *.hf-mirror.com —— 抠图(remove-background)的 RMBG-1.4
+  #         模型权重主下载源（国内可达的 HuggingFace 镜像），大文件会 302 到子域
+  #       · huggingface.co / *.huggingface.co —— 同上，海外兜底源（含 cdn-lfs LFS CDN）
+  #     全部是只读的公开 JSON / 模型权重，实测响应头带 Access-Control-Allow-Origin: *。
   #     注意：my-ip 工具的 ipwho.is / ipify / ip.sb / cloudflare trace 不在其中——
   #     它已经有同源的 /api/my-ip 作首选，第三方只是兜底，没必要为它放宽 CSP。
   # 部署后逐个工具页看 console 有没有 CSP 报错，确认干净了再往回收紧。
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com https://open.er-api.com https://cdn.jsdelivr.net https://api.frankfurter.dev https://www.schemastore.org https://rdap.org; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://cloudflareinsights.com https://open.er-api.com https://cdn.jsdelivr.net https://api.frankfurter.dev https://www.schemastore.org https://rdap.org https://hf-mirror.com https://*.hf-mirror.com https://huggingface.co https://*.huggingface.co; worker-src 'self' blob:; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'
