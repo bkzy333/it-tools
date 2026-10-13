@@ -530,7 +530,7 @@ tools:
       filter-keep-cn-en: 只保留中文/英文/数字
       filter-no-spaces: 去除所有空格
       filter-no-digits: 去除数字
-      hint-content-filter: 勾选要在转换前清除的字符类型，可多选。默认「去除特殊符号」，与原行为一致。
+      hint-content-filter: 勾选要在转换前清除的字符类型，可多选。默认不做任何过滤，避免误删内容。
       label-advanced-mode: 高级模式（自定义正则表达式）
       label-custom-regex: 自定义正则表达式：
       label-word-rules: 单词构成规则：

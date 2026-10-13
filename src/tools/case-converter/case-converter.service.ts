@@ -7,13 +7,17 @@ const TRAILING_PUNCT = /[.,;:!?'"”’)\]}]+$/;
 const FRENCH_ELISION = /^(l|d|j|t|m|n|s|c|qu)['’](.+)$/iu;
 
 /**
- * Returns an array of { code, words } for all supported languages.
+ * 返回所有受支持语言的 { value, label } 列表。
+ * 注意：stopword 包的导出除了各语言停用词数组（3 字母 ISO 639-3 码，如 eng/zho），
+ * 还混有非语言导出（removeStopwords 函数、_123/lggNd/panGu/porBr 等），直接 Object.entries 会把它们当选项吐进下拉。
+ * 这里过滤出「3 字母小写码且能被 langs 解析为真实语言」的项，剔除脏键；eng 默认项始终保留。
  */
 export function getSupportedLanguages(): Array<{ value: string; label: string }> {
-  return Object.entries(stopwords).map(([code]) => ({
-    label: langs.where('3', code)?.name ?? code,
-    value: code,
-  }));
+  return Object.entries(stopwords)
+    .map(([code]) => ({ code, lang: langs.where('3', code) }))
+    .filter(({ code, lang }) => /^[a-z]{3}$/.test(code) && lang)
+    .map(({ code, lang }) => ({ value: code, label: lang!.name }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 /**

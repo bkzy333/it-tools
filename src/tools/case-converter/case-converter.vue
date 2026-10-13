@@ -46,8 +46,8 @@ const filterPresets = computed<FilterPreset[]>(() => [
   { key: 'noSpaces', label: t('tools.case-converter.texts.filter-no-spaces'), pattern: '\\s' },
   { key: 'noDigits', label: t('tools.case-converter.texts.filter-no-digits'), pattern: '\\d' },
 ]);
-/** 勾选式过滤：默认「去除特殊符号」，与改造前的默认正则 [^\w\d\s] 行为一致 */
-const selectedFilters = ref<string[]>(['specialChars']);
+/** 勾选式过滤：默认不做任何过滤，避免静默删掉中文/标点等内容（原默认 specialChars 的 [^\w\d\s] 会删光非 ASCII） */
+const selectedFilters = ref<string[]>([]);
 /** 高级模式：需要精确控制时才露出自定义正则 */
 const advancedMode = ref(false);
 const cleaningRegex = useQueryParamOrStorage({
@@ -231,6 +231,9 @@ const selectedFormatKeys = ref<string[]>(['capitalcase']);
 const formatSelectOptions = computed(() => formats.value.map((f) => ({ label: f.label, value: f.key })));
 const activeFormats = computed(() => formats.value.filter((f) => selectedFormatKeys.value.includes(f.key)));
 
+/** 语言下拉仅用于「语言标题式」这一列：勾选了该结果类型才需要选语言，否则隐藏，避免无意义的常驻控件 */
+const showLanguage = computed(() => selectedFormatKeys.value.includes('langTitleCase'));
+
 // 聚合已选格式的文本（复制全部 / 导出 TXT 用），以及 A列输入 + 各格式列的二维表（导出 Excel 用）
 const allResultsText = computed(() =>
   activeFormats.value.map((f) => `${f.label}：${f.value?.join('，') ?? ''}`).join('\n'),
@@ -309,18 +312,20 @@ const exportRows = computed(() => {
       {{ t('tools.case-converter.texts.hint-word-rules') }}
     </n-p>
 
-    <!-- 语言：仅用于「语言标题式」 -->
-    <c-select
-      v-model:value="language"
-      :options="getSupportedLanguages()"
-      :label="t('tools.case-converter.texts.label-language')"
-      :placeholder="t('tools.case-converter.texts.placeholder-your-language')"
-      v-bind="inputLabelAlignmentConfig"
-      mb-1
-    />
-    <n-p depth="3" mb-1 style="margin-left: 137px">
-      {{ t('tools.case-converter.texts.hint-language') }}
-    </n-p>
+    <!-- 语言：仅用于「语言标题式」，勾选了该结果类型才显示 -->
+    <template v-if="showLanguage">
+      <c-select
+        v-model:value="language"
+        :options="getSupportedLanguages()"
+        :label="t('tools.case-converter.texts.label-language')"
+        :placeholder="t('tools.case-converter.texts.placeholder-your-language')"
+        v-bind="inputLabelAlignmentConfig"
+        mb-1
+      />
+      <n-p depth="3" mb-1 style="margin-left: 137px">
+        {{ t('tools.case-converter.texts.hint-language') }}
+      </n-p>
+    </template>
 
     <!-- 批量分隔符 -->
     <c-select
