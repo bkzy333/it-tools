@@ -348,13 +348,13 @@ const content: Record<string, ToolContent> = {
       },
       {
         q: '默认就开了哪些开关？',
-        a: '默认是 trim 开、去重开、转小写关、保留换行关、输出为单列关，排序为不排序，条目分隔符是逗号加空格。',
+        a: '默认是 trim 开、去重关、转小写关、保留换行关、输出为单列关，排序为不排序，条目分隔符是逗号加空格。',
       },
     ],
     example: {
       input: 'b\na\nb\nc，开启去重与升序排序',
       output: 'a\nb\nc',
-      note: 'trim 与去重默认开启',
+      note: 'trim 默认开启；去重与排序按需开启',
     },
   },
   '/regex-tester': {

@@ -39,14 +39,25 @@ test.describe('Tool - List converter', () => {
 
   test('List input should be converted to column output and strip wrappers', async ({ page }) => {
     await page.getByTestId('input').fill("('test','test2')");
-    await page.getByTestId('outputAsColumn').check();
-    await page.getByTestId('splitBySeparator').fill(',');
+    // 先在「非单列」状态下填好包裹字符（单列开启后这些输入框会被禁用，但已填的值仍保留并被剥离）
     await page.getByTestId('itemPrefix').fill("'");
     await page.getByTestId('itemSuffix').fill("'");
     await page.getByTestId('listPrefix').fill('(');
     await page.getByTestId('listSuffix').fill(')');
+    await page.getByTestId('splitBySeparator').fill(',');
+    await page.getByTestId('outputAsColumn').check();
 
     const result = await page.getByTestId('area-content').innerText();
     expect(result.trim()).toEqual('test\ntest2');
+  });
+
+  test('Reverse list toggle should reverse the output', async ({ page }) => {
+    await page.getByTestId('input').fill(`1
+2
+3`);
+    await page.getByTestId('reverseList').check();
+
+    const result = await page.getByTestId('area-content').innerText();
+    expect(result.trim()).toEqual('3, 2, 1');
   });
 });

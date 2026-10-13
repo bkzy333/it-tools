@@ -431,6 +431,10 @@ tools:
       label-filter-item: Filter items by Regex
       placeholder-remove-item-filter-regex: Filter Regex
       placeholder-remove-item-not-filter-regex: Not Filter Regex
+      label-reverse-list: Reverse list
+      error-regex: Some regular expression is invalid. Please fix the highlighted field(s) and retry.
+      error-regex-field: "Invalid regex - try escaping special chars (e.g. - to \\-), or clear this field"
+      error-regex-generic: "Conversion error: {msg}"
   base64-string-converter:
     title: Base64 string encoder/decoder
     description: Simply encode and decode strings into their base64 representation.

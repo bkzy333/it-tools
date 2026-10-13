@@ -408,6 +408,10 @@ tools:
       label-filter-item: 按正则表达式过滤项目
       placeholder-remove-item-filter-regex: 过滤正则表达式
       placeholder-remove-item-not-filter-regex: 不过滤正则表达式
+      label-reverse-list: 反转列表
+      error-regex: 部分正则写法有误，请检查下方标红的输入框后重试。
+      error-regex-field: "正则写法有误，请修正（例如把 - 改成 \\-，或清空该框）"
+      error-regex-generic: "转换出错：{msg}"
   base64-string-converter:
     title: Base64字符串编码器/解码器
     description: 简单地将字符串编码为Base64格式，或解码Base64字符串回原字符串。
