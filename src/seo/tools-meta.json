@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T23:23:36.481Z",
+  "generatedAt": "2026-10-14T01:19:29.712Z",
   "sourceCommit": "extracted at build time",
   "total": 116,
   "tiers": {
@@ -1338,7 +1338,12 @@
         "jpg",
         "jpeg",
         "png",
-        "webp"
+        "webp",
+        "bmp",
+        "ico",
+        "svg",
+        "crop",
+        "compress"
       ],
       "redirectFrom": [],
       "npmPackages": [],
@@ -1347,7 +1352,7 @@
       ],
       "isExternalAccess": false,
       "title": "图像调整器",
-      "description": "更改图像的宽度和高度，以所需的格式预览和下载。",
+      "description": "在线缩放、裁剪、压缩图片，支持 JPG/PNG/WebP/BMP/ICO/SVG 多种格式，可批量处理并单独微调。",
       "categoryZh": "图片处理",
       "categorySeoName": "图片在线处理工具",
       "tier": "L1"

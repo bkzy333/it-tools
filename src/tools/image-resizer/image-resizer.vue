@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue';
 import {
   NAlert,
   NCheckbox,
+  NModal,
   NRadioButton,
   NRadioGroup,
   NSlider,
@@ -14,10 +15,20 @@ import { compressImage, type CompressResult } from './image-compress.service';
 import {
   hasAlphaChannel,
   processBatch,
+  processImage,
   type OutputFormat,
   type ProcessOptions,
   type ProcessResult,
 } from './image-compress.service';
+import {
+  centerCropRect,
+  encodeImage,
+  formatExt,
+  FORMAT_LABELS,
+  SUPPORTED_FORMATS,
+  type CropRect,
+} from './image-encode.service';
+import ImageCropSelector from '@/components/ImageCropSelector.vue';
 
 const { t } = useI18n();
 
@@ -306,6 +317,16 @@ watch(imageHeight, () => {
 // 原图是否含透明通道（用于透明→JPG 提示）
 const originalHasAlpha = ref(false);
 
+// ---- 单图模式：输出格式 / 质量 / 白底 ----
+const singleQuality = ref(0.9);
+const singleFillWhite = ref(true);
+// 单图下载支持的全部格式（含 BMP/ICO/SVG）
+const formatOptionsAll = SUPPORTED_FORMATS.map((f) => ({ label: FORMAT_LABELS[f], value: f }));
+// JPG 必填白；BMP/ICO/SVG 无 alpha 通道，透明源需在勾选时填白，避免变黑
+function shouldFill(format: OutputFormat): boolean {
+  return format === 'jpeg' || (singleFillWhite.value && (format === 'bmp' || format === 'ico' || format === 'svg'));
+}
+
 // Handle file upload
 async function handleFileUpload(uploadedFile: File) {
   if (!uploadedFile) {
@@ -400,7 +421,7 @@ async function resizeImage() {
 }
 
 // Function to download resized image with validation and correct format conversion
-function downloadImage(format: string) {
+async function downloadImage(format: OutputFormat) {
   if (!imageFile.value || !originalImageUrl.value) {
     console.warn('No image available for download');
     return;
@@ -418,56 +439,34 @@ function downloadImage(format: string) {
     return;
   }
 
-  // Create a new canvas for the specific format
   const img = new Image();
-  img.src = originalImageUrl.value;
-
   img.onload = () => {
     const canvas = document.createElement('canvas');
     canvas.width = imageWidth.value;
     canvas.height = imageHeight.value;
-
     const ctx = canvas.getContext('2d');
-
-    // For JPG format, fill with white background since JPG doesn't support transparency
-    if (format === 'jpg' || format === 'jpeg') {
-      ctx!.fillStyle = 'white';
+    if (shouldFill(format)) {
+      ctx!.fillStyle = '#ffffff';
       ctx!.fillRect(0, 0, imageWidth.value, imageHeight.value);
     }
-
     ctx?.drawImage(img, 0, 0, imageWidth.value, imageHeight.value);
 
-    // Get the correct MIME type and convert to the requested format
-    let mimeType: string;
-    const quality = 0.9; // Default quality for lossy formats
-
-    switch (format.toLowerCase()) {
-      case 'jpg':
-      case 'jpeg':
-        mimeType = 'image/jpeg';
-        break;
-      case 'png':
-        mimeType = 'image/png';
-        break;
-      case 'webp':
-        mimeType = 'image/webp';
-        break;
-      default:
-        mimeType = 'image/png';
-        format = 'png';
-    }
-
-    // Convert canvas to the specified format
-    const dataUrl = canvas.toDataURL(mimeType, quality);
-
-    // Create download
-    const originalFilename = imageFile.value!.name.replace(/\.[^/.]+$/, ''); // Remove file extension
-    const newFilename = `${originalFilename}-${imageWidth.value}x${imageHeight.value}.${format}`;
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = newFilename;
-    link.click();
+    encodeImage(canvas, format, singleQuality.value)
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const originalFilename = imageFile.value!.name.replace(/\.[^/.]+$/, '');
+        const ext = formatExt(format);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${originalFilename}-${imageWidth.value}x${imageHeight.value}.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      })
+      .catch((e) => console.error('encode failed', e));
   };
+  img.src = originalImageUrl.value;
 }
 
 // ---- 压缩到目标大小（参考 tinyimg） ----
@@ -531,6 +530,8 @@ interface BatchItem {
   savedPercent: number;
   error: string;
   comparePos: number;
+  /** 单独裁剪覆盖框（归一化）；存在时优先于批量裁剪设置 */
+  cropOverride?: CropRect | null;
 }
 
 const batchQueue = ref<BatchItem[]>([]);
@@ -548,11 +549,110 @@ const batchMaxDim = ref<number>(0);
 const batchHasTransparent = ref<boolean>(false);
 const batchScenePreset = ref<string>('custom');
 
-const formatOptions = [
-  { label: 'JPG', value: 'jpeg' },
-  { label: 'PNG', value: 'png' },
-  { label: 'WebP', value: 'webp' },
-];
+const formatOptions = SUPPORTED_FORMATS.map((f) => ({ label: FORMAT_LABELS[f], value: f }));
+
+// ===================== 批量裁剪 =====================
+// none = 不裁剪；preset = 按预设尺寸居中裁；region = 统一相对区域裁（所有图同比例/位置）
+const batchCropType = ref<'none' | 'preset' | 'region'>('none');
+// 统一相对区域裁剪框（归一化 0~1）
+const batchRegionCrop = ref<CropRect>({ x: 0, y: 0, w: 1, h: 1 });
+// 单独裁剪弹窗
+const cropModalShow = ref(false);
+const cropModalItem = ref<BatchItem | null>(null);
+const cropModalRect = ref<CropRect>({ x: 0, y: 0, w: 1, h: 1 });
+
+// 裁剪区选预设：切到「按预设居中裁剪」模式（复用原 resize 预设设置）
+function onCropPresetChange(value: string) {
+  batchCropType.value = 'preset';
+  applyBatchScenePreset(value);
+}
+
+function openItemCrop(item: BatchItem) {
+  cropModalItem.value = item;
+  cropModalRect.value = item.cropOverride ? { ...item.cropOverride } : { x: 0, y: 0, w: 1, h: 1 };
+  cropModalShow.value = true;
+}
+
+async function confirmItemCrop() {
+  const item = cropModalItem.value;
+  if (!item) {
+    return;
+  }
+  const rect = { ...cropModalRect.value };
+  cropModalShow.value = false;
+  await reprocessItem(item, rect);
+}
+
+// 用新的裁剪框单独重处理某张（复用当前批量格式/质量等设置，只改源裁剪区）
+async function reprocessItem(item: BatchItem, rect: CropRect) {
+  item.cropOverride = rect;
+  item.status = 'processing';
+  item.error = '';
+  item.resultBlob = null;
+  item.resultUrl = null;
+  item.savedPercent = 0;
+  try {
+    const result = await processImage(item.file, getOpts(item));
+    item.status = 'done';
+    item.resultBlob = result.blob;
+    item.resultUrl = URL.createObjectURL(result.blob);
+    item.resultWidth = result.width;
+    item.resultHeight = result.height;
+    item.resultSizeKb = result.sizeKb;
+    item.format = result.format;
+    item.savedPercent =
+      item.originalSizeKb > 0 ? Math.max(0, Math.round((1 - result.sizeKb / item.originalSizeKb) * 100)) : 0;
+  } catch (e: any) {
+    item.status = 'error';
+    item.error = e?.message ?? t('tools.image-resizer.texts.text-failed');
+  }
+}
+
+/**
+ * 批量选项解析（模块级，供 startBatch 与单独裁剪重处理共用）。
+ * 裁剪框优先级：单独裁剪覆盖 > 批量预设居中裁 > 批量统一区域裁。
+ */
+function getOpts(item: BatchItem): ProcessOptions {
+  let crop: CropRect | undefined;
+  if (item.cropOverride) {
+    crop = item.cropOverride;
+  } else if (batchCropType.value === 'preset') {
+    const preset = scenePresets.find((p) => p.value === batchScenePreset.value);
+    if (preset && preset.w) {
+      crop = centerCropRect(item.originalWidth, item.originalHeight, preset.w, preset.h);
+    }
+  } else if (batchCropType.value === 'region') {
+    crop = batchRegionCrop.value;
+  }
+
+  const base: Omit<ProcessOptions, 'mode'> = {
+    format: batchFormat.value,
+    quality: batchQuality.value,
+    fillWhite: batchFillWhite.value,
+    targetKb: batchTargetKb.value,
+    maxDimension: batchMaxDim.value,
+  };
+
+  if (crop) {
+    if (batchMode.value === 'compress') {
+      return { ...base, mode: 'compress', crop };
+    }
+    const hasSize = batchMode.value === 'resize' && batchWidth.value > 0 && batchHeight.value > 0;
+    return hasSize
+      ? { ...base, mode: 'resize', crop, width: batchWidth.value, height: batchHeight.value }
+      : { ...base, mode: 'resize', crop };
+  }
+
+  if (batchMode.value === 'resize') {
+    if (batchKeepRatio.value) {
+      const w = batchWidth.value || item.originalWidth || 1;
+      const pct = w > 0 && item.originalWidth ? (w / item.originalWidth) * 100 : batchScalePercent.value;
+      return { ...base, mode: 'resize', scalePercent: pct };
+    }
+    return { ...base, mode: 'resize', width: batchWidth.value, height: batchHeight.value };
+  }
+  return { ...base, mode: 'compress' };
+}
 
 const batchDoneCount = computed(() => batchQueue.value.filter((i) => i.status === 'done').length);
 const batchErrorCount = computed(() => batchQueue.value.filter((i) => i.status === 'error').length);
@@ -651,26 +751,6 @@ async function startBatch() {
     item.error = '';
     item.savedPercent = 0;
   });
-
-  const baseOpts: Omit<ProcessOptions, 'mode'> = {
-    format: batchFormat.value,
-    quality: batchQuality.value,
-    fillWhite: batchFillWhite.value,
-    targetKb: batchTargetKb.value,
-    maxDimension: batchMaxDim.value,
-  };
-
-  const getOpts = (item: BatchItem): ProcessOptions => {
-    if (batchMode.value === 'resize') {
-      if (batchKeepRatio.value) {
-        const w = batchWidth.value || item.originalWidth || 1;
-        const pct = w > 0 && item.originalWidth ? (w / item.originalWidth) * 100 : batchScalePercent.value;
-        return { ...baseOpts, mode: 'resize', scalePercent: pct };
-      }
-      return { ...baseOpts, mode: 'resize', width: batchWidth.value, height: batchHeight.value };
-    }
-    return { ...baseOpts, mode: 'compress' };
-  };
 
   const files = batchQueue.value.map((i) => i.file);
   await processBatch(
@@ -926,15 +1006,22 @@ function formatSize(kb: number): string {
         <!-- Download options (always show when image is loaded) -->
         <div v-if="originalImageUrl">
           <h3>{{ t('tools.image-resizer.texts.tag-download-options') }}</h3>
+          <n-space align="center" :wrap="false" mb-2>
+            <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-quality') }}：</span>
+            <n-slider v-model:value="singleQuality" :min="0.1" :max="1" :step="0.05" style="width: 200px" />
+            <span style="color: #666; font-size: 12px">{{ Math.round(singleQuality * 100) }}%</span>
+            <n-checkbox v-model:checked="singleFillWhite" style="margin-left: 12px">
+              {{ t('tools.image-resizer.texts.label-fill-white-single') }}
+            </n-checkbox>
+          </n-space>
           <div class="download-grid">
-            <n-button :disabled="!canDownload" @click.prevent="downloadImage('jpg')">
-              {{ t('tools.image-resizer.texts.tag-download-jpg') }}
-            </n-button>
-            <n-button :disabled="!canDownload" @click.prevent="downloadImage('png')">
-              {{ t('tools.image-resizer.texts.tag-download-png') }}
-            </n-button>
-            <n-button :disabled="!canDownload" @click.prevent="downloadImage('webp')">
-              {{ t('tools.image-resizer.texts.tag-download-webp') }}
+            <n-button
+              v-for="opt in formatOptionsAll"
+              :key="opt.value"
+              :disabled="!canDownload"
+              @click.prevent="downloadImage(opt.value)"
+            >
+              {{ t('tools.image-resizer.texts.tag-download-format', { fmt: opt.label }) }}
             </n-button>
           </div>
         </div>
@@ -1014,9 +1101,44 @@ function formatSize(kb: number): string {
         <n-select v-model:value="batchFormat" :options="formatOptions" size="small" style="width: 140px" />
       </n-space>
 
+      <!-- 裁剪 -->
+      <n-space align="center" :wrap="false">
+        <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-crop-mode') }}：</span>
+        <n-radio-group v-model:value="batchCropType">
+          <n-radio-button value="none">{{ t('tools.image-resizer.texts.crop-none') }}</n-radio-button>
+          <n-radio-button value="preset">{{ t('tools.image-resizer.texts.crop-preset') }}</n-radio-button>
+          <n-radio-button value="region">{{ t('tools.image-resizer.texts.crop-region') }}</n-radio-button>
+        </n-radio-group>
+      </n-space>
+
+      <n-space v-if="batchCropType === 'preset'" align="center" :wrap="false">
+        <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-scene-preset') }}：</span>
+        <n-select
+          v-model:value="batchScenePreset"
+          :options="scenePresets"
+          size="small"
+          style="width: 240px"
+          @update:value="onCropPresetChange"
+        />
+        <span style="color: #666; font-size: 12px">{{ t('tools.image-resizer.texts.text-crop-preset-hint') }}</span>
+      </n-space>
+
+      <div v-if="batchCropType === 'region'" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px">
+        <p style="margin: 0 0 8px; font-size: 13px; color: #666">
+          {{ t('tools.image-resizer.texts.text-crop-region-hint') }}
+        </p>
+        <ImageCropSelector v-if="batchQueue.length" :src="batchQueue[0].originalUrl" v-model="batchRegionCrop" />
+        <n-alert v-else type="warning" :show-icon="true">
+          {{ t('tools.image-resizer.texts.text-crop-region-upload-first') }}
+        </n-alert>
+        <n-button size="small" mt-2 @click="batchRegionCrop = { x: 0, y: 0, w: 1, h: 1 }">
+          {{ t('tools.image-resizer.texts.btn-crop-reset') }}
+        </n-button>
+      </div>
+
       <!-- 缩放模式参数 -->
       <template v-if="batchMode === 'resize'">
-        <n-space align="center" :wrap="false">
+        <n-space v-if="batchCropType !== 'preset'" align="center" :wrap="false">
           <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-scene-preset') }}：</span>
           <n-select
             v-model:value="batchScenePreset"
@@ -1142,9 +1264,14 @@ function formatSize(kb: number): string {
               ({{ item.resultWidth }}x{{ item.resultHeight }}px)
               <span style="color: #1ea54c">· {{ t('tools.image-resizer.texts.text-saved-percent', { pct: item.savedPercent }) }}</span>
             </p>
-            <n-button size="small" style="margin-top: 6px" @click="downloadOne(item)">
-              {{ t('tools.image-resizer.texts.btn-download-one') }}
-            </n-button>
+            <n-space style="margin-top: 6px">
+              <n-button size="small" @click="downloadOne(item)">
+                {{ t('tools.image-resizer.texts.btn-download-one') }}
+              </n-button>
+              <n-button size="small" @click="openItemCrop(item)">
+                {{ t('tools.image-resizer.texts.btn-crop-single') }}
+              </n-button>
+            </n-space>
           </template>
           <p v-else style="margin: 6px 0 0; font-size: 12px; color: #999">
             {{ t('tools.image-resizer.texts.text-processing') }}
@@ -1152,6 +1279,25 @@ function formatSize(kb: number): string {
         </div>
       </div>
     </div>
+
+    <!-- 单独裁剪弹窗 -->
+    <n-modal
+      v-model:show="cropModalShow"
+      :title="t('tools.image-resizer.texts.crop-modal-title')"
+      preset="card"
+      style="max-width: 560px"
+    >
+      <div v-if="cropModalItem" style="text-align: center">
+        <ImageCropSelector :src="cropModalItem.originalUrl" v-model="cropModalRect" />
+        <p style="margin: 8px 0 0; font-size: 12px; color: #888">
+          {{ t('tools.image-resizer.texts.text-crop-modal-hint') }}
+        </p>
+        <n-space justify="end" mt-3>
+          <n-button @click="cropModalShow = false">{{ t('tools.image-resizer.texts.btn-crop-cancel') }}</n-button>
+          <n-button type="primary" @click="confirmItemCrop">{{ t('tools.image-resizer.texts.btn-crop-confirm') }}</n-button>
+        </n-space>
+      </div>
+    </n-modal>
   </n-card>
 </template>
 

@@ -1,13 +1,14 @@
 /**
- * 图片压缩到目标体积。
+ * 图片压缩 / 缩放 / 裁剪统一处理。
  *
  * 参考 iamwawa.cn/tinyimg.html：设置目标大小(KB) + 最大长宽，自动有损压缩。
- * 纯前端 canvas 实现，不上传服务器。
+ * 纯前端 canvas 实现，不上传服务器；canvas 重绘天然剥离 EXIF（隐私保护）。
  *
- * 算法：canvas 重绘（可选缩放到最大长宽）→ 以 JPEG/WebP 编码 → 用二分法调 quality
- * 逼近目标体积。JPEG 不支持透明，透明区域会填白；PNG 无损无法压缩体积，所以这里
- * 只用 JPEG/WebP 两种有损格式。
+ * 算法：canvas 重绘（可选裁剪 → 缩放到目标尺寸）→ 以指定格式编码（见 image-encode.service.ts）。
+ * JPEG 不支持透明，透明区域会填白；PNG 无损无法压缩体积，所以压缩模式只用 JPEG/WebP。
  */
+
+import { encodeImage, type CropRect } from './image-encode.service';
 
 export interface CompressOptions {
   /** 目标文件大小，单位 KB */
@@ -120,7 +121,7 @@ export async function compressImage(file: File, options: CompressOptions): Promi
 
 // ===================== 统一处理（批量管线共用） =====================
 
-export type OutputFormat = 'jpeg' | 'png' | 'webp';
+export type OutputFormat = 'jpeg' | 'png' | 'webp' | 'bmp' | 'ico' | 'svg';
 
 export interface ProcessOptions {
   /** resize = 等比/显式缩放；compress = 压到目标体积 */
@@ -139,6 +140,8 @@ export interface ProcessOptions {
   targetKb?: number;
   /** compress 模式：最大长宽，0 不限 */
   maxDimension?: number;
+  /** 裁剪框（归一化 0~1），存在则先裁后缩放 */
+  crop?: CropRect;
 }
 
 export interface ProcessResult {
@@ -200,19 +203,35 @@ export async function processImage(file: File, opts: ProcessOptions): Promise<Pr
   const origW = img.naturalWidth;
   const origH = img.naturalHeight;
 
+  // 裁剪源区域（归一化 -> 绝对像素）
+  let sx = 0;
+  let sy = 0;
+  let ssw = origW;
+  let ssh = origH;
+  if (opts.crop) {
+    sx = Math.round(opts.crop.x * origW);
+    sy = Math.round(opts.crop.y * origH);
+    ssw = Math.max(1, Math.round(opts.crop.w * origW));
+    ssh = Math.max(1, Math.round(opts.crop.h * origH));
+  }
+
+  // 解析输出尺寸
   let width: number;
   let height: number;
-  let blob: Blob;
-
   if (opts.mode === 'compress') {
-    // 先按最大长宽等比缩放
-    const scaled = scaledDimensions(origW, origH, opts.maxDimension ?? 0);
+    const scaled = scaledDimensions(ssw, ssh, opts.maxDimension ?? 0);
     width = scaled.width;
     height = scaled.height;
+  } else if (opts.width && opts.height) {
+    width = Math.max(1, Math.round(opts.width));
+    height = Math.max(1, Math.round(opts.height));
+  } else if (opts.scalePercent && opts.scalePercent > 0) {
+    const ratio = opts.scalePercent / 100;
+    width = Math.max(1, Math.round(ssw * ratio));
+    height = Math.max(1, Math.round(ssh * ratio));
   } else {
-    const resolved = resolveResizeDimensions(origW, origH, opts);
-    width = resolved.width;
-    height = resolved.height;
+    width = ssw;
+    height = ssh;
   }
 
   const canvas = document.createElement('canvas');
@@ -224,12 +243,14 @@ export async function processImage(file: File, opts: ProcessOptions): Promise<Pr
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
   }
-  ctx.drawImage(img, 0, 0, width, height);
+  ctx.drawImage(img, sx, sy, ssw, ssh, 0, 0, width, height);
 
-  if (opts.mode === 'compress' && opts.targetKb && opts.targetKb > 0) {
+  let blob: Blob;
+  // 压缩模式只对原生有损格式二分逼近；BMP/ICO/SVG 无损，直接编码一次
+  if (opts.mode === 'compress' && opts.targetKb && opts.targetKb > 0 && (opts.format === 'jpeg' || opts.format === 'webp')) {
     blob = await compressOnCanvas(canvas, opts.format, opts.targetKb * 1024);
   } else {
-    blob = await canvasToBlob(canvas, opts.format, opts.quality);
+    blob = await encodeImage(canvas, opts.format, opts.quality);
   }
 
   return {

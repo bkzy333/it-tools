@@ -807,7 +807,7 @@ tools:
       tag-copy: 复制
   image-resizer:
     title: 图像调整器
-    description: 更改图像的宽度和高度，以所需的格式预览和下载。
+    description: 在线缩放、裁剪、压缩图片，支持 JPG/PNG/WebP/BMP/ICO/SVG 多种格式，可批量处理并单独微调。
     texts:
       label-custom: 自定义
       label-original: 原始
@@ -837,9 +837,8 @@ tools:
       tag-: ：
       tag-preview-is-disabled-when-width-or-height-exceeds-7-680-pixels-for-performance-reasons: 当宽度或高度超过7,680像素时，预览将禁用以提升性能。
       tag-download-options: 下载选项：
-      tag-download-jpg: 下载JPG
-      tag-download-png: 下载PNG
-      tag-download-webp: 下载WebP
+      tag-download-format: 下载{fmt}
+      label-fill-white-single: 透明区填充白底（透明图转 JPG/BMP/ICO/SVG 用）
       tag-compress-to-target-size: 压缩到目标大小
       title-drag-and-drop-image-to-compress: 将图像文件拖放到此处进行压缩
       tag-target-size-kb: 目标大小(KB)
@@ -877,6 +876,19 @@ tools:
       text-compare-hint: 拖动滑块对比原图与结果
       text-batch-empty: 请先上传至少一张图片
       text-batch-no-zip: 没有处理成功的图片可打包
+      label-crop-mode: 裁剪方式
+      crop-none: 不裁剪
+      crop-preset: 按预设居中裁剪
+      crop-region: 统一区域裁剪
+      text-crop-preset-hint: 按所选尺寸居中裁剪并缩放到精确尺寸
+      text-crop-region-hint: 在示例图上拖动选框，所有图片按相同比例/位置裁剪
+      text-crop-region-upload-first: 请先上传图片，再框选裁剪区域
+      btn-crop-reset: 重置为整图
+      btn-crop-single: 单独裁剪
+      crop-modal-title: 单独裁剪该图片
+      text-crop-modal-hint: 拖动选框选定要保留的区域，确认后仅对该图生效
+      btn-crop-cancel: 取消
+      btn-crop-confirm: 应用裁剪
   api-tester:
     title: API测试器
     description: 在线 HTTP API 测试器：支持 GET/POST/PUT/DELETE，可自定义请求头、查询参数与请求体，一键生成 curl、Python、Go、Java 等调用代码。

@@ -839,8 +839,8 @@ tools:
       tag-copy: Copy
   image-resizer:
     title: Image resizer
-    description: Change the width and height of the image, preview and download it
-      in the desired format.
+    description: Resize, crop and compress images online. Supports JPG/PNG/WebP/BMP/ICO/SVG,
+      with batch processing and per-image fine-tuning.
     texts:
       label-custom: Custom
       label-original: Original
@@ -872,9 +872,8 @@ tools:
         Preview is disabled when width or height exceeds 7,680 pixels for
         performance reasons.
       tag-download-options: "Download Options:"
-      tag-download-jpg: Download JPG
-      tag-download-png: Download PNG
-      tag-download-webp: Download WebP
+      tag-download-format: "Download {fmt}"
+      label-fill-white-single: "Fill white for transparent areas (transparent -> JPG/BMP/ICO/SVG)"
       tag-compress-to-target-size: "Compress to target size"
       title-drag-and-drop-image-to-compress: "Drag and drop an image file here to compress"
       tag-target-size-kb: "Target size (KB)"
@@ -912,6 +911,19 @@ tools:
       text-compare-hint: "Drag the slider to compare original and result"
       text-batch-empty: "Upload at least one image first"
       text-batch-no-zip: "No successfully processed image to package"
+      label-crop-mode: "Crop mode"
+      crop-none: "No crop"
+      crop-preset: "Center crop to preset"
+      crop-region: "Uniform region crop"
+      text-crop-preset-hint: "Center-crop to the chosen size and scale to exact dimensions"
+      text-crop-region-hint: "Drag the box on the sample image; all images crop at the same ratio/position"
+      text-crop-region-upload-first: "Upload images first, then draw the crop region"
+      btn-crop-reset: "Reset to whole image"
+      btn-crop-single: "Crop this one"
+      crop-modal-title: "Crop this image"
+      text-crop-modal-hint: "Drag the box to select the area to keep; applies to this image only"
+      btn-crop-cancel: "Cancel"
+      btn-crop-confirm: "Apply crop"
   api-tester:
     title: API Tester
     description: "Online HTTP API tester: send GET/POST/PUT/DELETE requests with custom headers, query params and body, then generate curl, Python, Go or Java client code."

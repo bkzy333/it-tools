@@ -5,7 +5,7 @@ export const tool = defineTool({
   name: t('tools.image-resizer.title'),
   path: '/image-resizer',
   description: t('tools.image-resizer.description'),
-  keywords: ['image', 'resizer', 'favicon', 'jpg', 'jpeg', 'png', 'webp'],
+  keywords: ['image', 'resizer', 'favicon', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'ico', 'svg', 'crop', 'compress'],
   component: () => import('./image-resizer.vue'),
   icon: defineAsyncComponent(() => import('@tabler/icons-vue/dist/esm/icons/IconResize.mjs')),
   createdAt: new Date('2024-10-22'),
