@@ -924,6 +924,10 @@ tools:
       text-crop-modal-hint: "Drag the box to select the area to keep; applies to this image only"
       btn-crop-cancel: "Cancel"
       btn-crop-confirm: "Apply crop"
+      progress-reading: "Reading image…"
+      progress-compressing: "Compressing image…"
+      progress-reading-batch: "Reading image {done}/{total}"
+      progress-processing-batch: "Processing {done}/{total}"
   api-tester:
     title: API Tester
     description: "Online HTTP API tester: send GET/POST/PUT/DELETE requests with custom headers, query params and body, then generate curl, Python, Go or Java client code."
@@ -1747,6 +1751,8 @@ tools:
       error-empty: Keep at least one page
       error-select: Select the pages to split out first
       error-run: Processing failed, please retry or use a smaller file
+      progress-reading: Reading file…
+      progress-rendering: Rendering thumbnails {done}/{total}
   pdf-text-extractor:
     title: PDF Text Extractor
     description: Extract text from PDF

@@ -40,10 +40,15 @@ export async function renderPage(doc: PdfDoc, pageNumber: number, targetWidth = 
   };
 }
 
-export async function renderAllPages(doc: PdfDoc, targetWidth = 220): Promise<RenderedPage[]> {
+export async function renderAllPages(
+  doc: PdfDoc,
+  targetWidth = 220,
+  onProgress?: (done: number, total: number) => void,
+): Promise<RenderedPage[]> {
   const out: RenderedPage[] = [];
   for (let i = 1; i <= doc.numPages; i++) {
     out.push(await renderPage(doc, i, targetWidth));
+    onProgress?.(i, doc.numPages);
   }
   return out;
 }

@@ -11,7 +11,11 @@ import { presetScrollbar } from 'unocss-preset-scrollbar';
 
 export default defineConfig({
   presets: [presetWind3(), presetAttributify({
-    ignoreAttributes: ['size'],
+    // 同时忽略 size 的 v-bind 变体（:size / v-bind:size）：
+    // presetAttributify 的 extractor 在剥掉 ":" 前缀「之前」就做 ignoreAttributes 检查，
+    // 只写 "size" 拦不住 ":size=\"16\""，会生成 [size~="16"]{width:4rem} 全局规则，
+    // 把 tabler 图标运行时渲染的 <svg size="16"> 放大到 64px。
+    ignoreAttributes: ['size', ':size', 'v-bind:size'],
   }), presetTypography(), presetScrollbar()],
   transformers: [transformerDirectives(), transformerVariantGroup()],
   theme: {

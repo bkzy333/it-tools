@@ -889,6 +889,10 @@ tools:
       text-crop-modal-hint: 拖动选框选定要保留的区域，确认后仅对该图生效
       btn-crop-cancel: 取消
       btn-crop-confirm: 应用裁剪
+      progress-reading: 正在读取图片…
+      progress-compressing: 正在压缩图片…
+      progress-reading-batch: 正在读取图片 {done}/{total}
+      progress-processing-batch: 正在处理 {done}/{total} 张
   api-tester:
     title: API测试器
     description: 在线 HTTP API 测试器：支持 GET/POST/PUT/DELETE，可自定义请求头、查询参数与请求体，一键生成 curl、Python、Go、Java 等调用代码。
@@ -1680,6 +1684,8 @@ tools:
       error-empty: 请至少保留一页
       error-select: 请先勾选要拆出的页面
       error-run: 处理失败，请重试或换用更小的文件
+      progress-reading: 正在读取文件…
+      progress-rendering: 正在渲染缩略图 {done}/{total}
   pdf-text-extractor:
     title: PDF文本提取工具
     description: 从PDF中提取文本

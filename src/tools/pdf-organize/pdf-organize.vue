@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import JSZip from 'jszip';
 import { loadPdf, renderAllPages } from '@/composable/pdf';
 import PdfPagePreview, { type PreviewPage } from '@/components/PdfPagePreview.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
 import { organizePdf, splitPdf, type SplitFile } from './pdf-organize.service';
 
 const { t } = useI18n();
@@ -22,11 +23,17 @@ const outputName = ref('organized.pdf');
 
 const status = ref<'idle' | 'processing' | 'done' | 'error'>('idle');
 const errorMsg = ref('');
+const progressVisible = ref(false);
+const progressPercent = ref(-1);
+const progressText = ref('');
 
 async function onUpload(uploaded: File) {
   file.value = uploaded;
   errorMsg.value = '';
   status.value = 'idle';
+  progressVisible.value = true;
+  progressPercent.value = -1;
+  progressText.value = t('tools.pdf-organize.texts.progress-reading');
   try {
     const buf = new Uint8Array(await uploaded.arrayBuffer());
     originalBytes.value = buf;
@@ -34,7 +41,10 @@ async function onUpload(uploaded: File) {
     // 若直接传 buf，originalBytes 也会被一并置空，导致后续 qpdf 拿到 0 字节。
     const doc = await loadPdf(buf.slice());
     totalPages.value = doc.numPages;
-    const rendered = await renderAllPages(doc, 220);
+    const rendered = await renderAllPages(doc, 220, (done, total) => {
+      progressPercent.value = (done / total) * 100;
+      progressText.value = t('tools.pdf-organize.texts.progress-rendering', { done, total });
+    });
     pages.value = rendered.map((r) => ({
       id: r.pageNumber,
       dataUrl: r.dataUrl,
@@ -46,6 +56,8 @@ async function onUpload(uploaded: File) {
   } catch (e: any) {
     errorMsg.value = e?.message ?? t('tools.pdf-organize.texts.error-load');
     status.value = 'error';
+  } finally {
+    progressVisible.value = false;
   }
 }
 
@@ -186,6 +198,8 @@ async function applySplit() {
         accept=".pdf"
         @file-upload="onUpload"
       />
+
+      <ProgressBar :visible="progressVisible" :percent="progressPercent" :text="progressText" />
     </div>
 
     <c-alert v-if="errorMsg" type="error" mt-2>{{ errorMsg }}</c-alert>

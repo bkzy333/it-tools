@@ -29,6 +29,7 @@ import {
   type CropRect,
 } from './image-encode.service';
 import ImageCropSelector from '@/components/ImageCropSelector.vue';
+import ProgressBar from '@/components/ProgressBar.vue';
 
 const { t } = useI18n();
 
@@ -317,6 +318,11 @@ watch(imageHeight, () => {
 // 原图是否含透明通道（用于透明→JPG 提示）
 const originalHasAlpha = ref(false);
 
+// 上传 / 处理进度条（复用 ProgressBar 组件）
+const progressVisible = ref(false);
+const progressPercent = ref(-1);
+const progressText = ref('');
+
 // ---- 单图模式：输出格式 / 质量 / 白底 ----
 const singleQuality = ref(0.9);
 const singleFillWhite = ref(true);
@@ -334,6 +340,9 @@ async function handleFileUpload(uploadedFile: File) {
   }
 
   imageFile.value = uploadedFile;
+  progressVisible.value = true;
+  progressPercent.value = -1;
+  progressText.value = t('tools.image-resizer.texts.progress-reading');
 
   try {
     // Read the file as a Data URL
@@ -392,6 +401,8 @@ async function handleFileUpload(uploadedFile: File) {
     originalHasAlpha.value = await hasAlphaChannel(uploadedFile);
   } catch (error) {
     console.error('Error reading file:', error);
+  } finally {
+    progressVisible.value = false;
   }
 }
 
@@ -483,6 +494,9 @@ async function handleCompressFile(uploadedFile: File) {
   compressResult.value = null;
   compressStatus.value = 'processing';
   compressError.value = '';
+  progressVisible.value = true;
+  progressPercent.value = -1;
+  progressText.value = t('tools.image-resizer.texts.progress-compressing');
   try {
     const result = await compressImage(uploadedFile, {
       targetKb: compressTargetKb.value,
@@ -494,6 +508,8 @@ async function handleCompressFile(uploadedFile: File) {
   } catch (e: any) {
     compressError.value = e.toString();
     compressStatus.value = 'error';
+  } finally {
+    progressVisible.value = false;
   }
 }
 
@@ -691,33 +707,46 @@ async function onBatchUpload(files: File[]) {
     }
   });
 
+  progressVisible.value = true;
+  progressPercent.value = 0;
+  progressText.value = t('tools.image-resizer.texts.progress-reading-batch', { done: 0, total: files.length });
+
   const items: BatchItem[] = [];
   let anyAlpha = false;
-  for (const file of files) {
-    const { w, h } = await readDimensions(file);
-    const isAlpha = await hasAlphaChannel(file);
-    if (isAlpha) {
-      anyAlpha = true;
+  try {
+    for (const file of files) {
+      const { w, h } = await readDimensions(file);
+      const isAlpha = await hasAlphaChannel(file);
+      if (isAlpha) {
+        anyAlpha = true;
+      }
+      items.push({
+        id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
+        file,
+        baseName: file.name.replace(/\.[^/.]+$/, ''),
+        status: 'pending',
+        originalSizeKb: file.size / 1024,
+        originalWidth: w,
+        originalHeight: h,
+        originalUrl: URL.createObjectURL(file),
+        resultBlob: null,
+        resultUrl: null,
+        resultWidth: 0,
+        resultHeight: 0,
+        resultSizeKb: 0,
+        format: batchFormat.value,
+        savedPercent: 0,
+        error: '',
+        comparePos: 50,
+      });
+      progressPercent.value = (items.length / files.length) * 100;
+      progressText.value = t('tools.image-resizer.texts.progress-reading-batch', {
+        done: items.length,
+        total: files.length,
+      });
     }
-    items.push({
-      id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
-      file,
-      baseName: file.name.replace(/\.[^/.]+$/, ''),
-      status: 'pending',
-      originalSizeKb: file.size / 1024,
-      originalWidth: w,
-      originalHeight: h,
-      originalUrl: URL.createObjectURL(file),
-      resultBlob: null,
-      resultUrl: null,
-      resultWidth: 0,
-      resultHeight: 0,
-      resultSizeKb: 0,
-      format: batchFormat.value,
-      savedPercent: 0,
-      error: '',
-      comparePos: 50,
-    });
+  } finally {
+    progressVisible.value = false;
   }
   batchHasTransparent.value = anyAlpha;
   batchQueue.value = items;
@@ -752,11 +781,23 @@ async function startBatch() {
     item.savedPercent = 0;
   });
 
+  progressVisible.value = true;
+  progressPercent.value = 0;
+  progressText.value = t('tools.image-resizer.texts.progress-processing-batch', {
+    done: 0,
+    total: batchQueue.value.length,
+  });
+
   const files = batchQueue.value.map((i) => i.file);
+  const total = files.length;
+  let doneCount = 0;
   await processBatch(
     files,
     (file: File, index: number) => getOpts(batchQueue.value[index]),
     (index: number, result: ProcessResult | null, error: string | null) => {
+      doneCount++;
+      progressPercent.value = (doneCount / total) * 100;
+      progressText.value = t('tools.image-resizer.texts.progress-processing-batch', { done: doneCount, total });
       const item = batchQueue.value[index];
       if (result) {
         item.status = 'done';
@@ -778,6 +819,7 @@ async function startBatch() {
     3,
   );
   batchProcessing.value = false;
+  progressVisible.value = false;
 }
 
 function downloadOne(item: BatchItem) {
@@ -827,6 +869,8 @@ function formatSize(kb: number): string {
 <template>
   <n-card>
     <div>
+      <ProgressBar :visible="progressVisible" :percent="progressPercent" :text="progressText" />
+
       <!-- File input -->
       <c-file-upload
         mb-2
