@@ -1655,6 +1655,31 @@ tools:
       tag-for-details-about-range-options-see: 有关范围选项的详细信息，请参阅
       tag-qpdf-documentation: QPDF文档
       tag-concat-pdfs: 合并PDF
+  pdf-organize:
+    title: PDF页面整理与拆分
+    description: 上传PDF后立即预览每一页，可拖拽重排、旋转、删除、提取页面，也能按页数或选中页批量拆分，纯本地处理
+    texts:
+      upload-title: 拖放PDF文件至此或点击选择文件
+      mode-organize: 整理
+      mode-split: 拆分
+      btn-reverse: 反转顺序
+      btn-reset: 重置
+      opt-extract-selected: 仅导出选中页
+      select-label: 选
+      summary: 将输出 {out} 页（共 {total} 页）
+      hint-organize: 拖动卡片可调整顺序，点旋转按90°递增，点删除可暂存（不影响原文件）；右侧上下箭头也可移动
+      label-output-name: 输出文件名
+      btn-apply: 应用并下载
+      split-every: 每N页拆一份
+      split-each: 选中页各成文件
+      split-every-n: 每
+      split-every-hint: 页拆成一份（如填2则1-2、3-4…各一份）
+      split-each-hint: 在下方预览中勾选要单独成文件的页面
+      btn-split: 拆分并下载
+      error-load: 无法读取该PDF，请确认文件未损坏
+      error-empty: 请至少保留一页
+      error-select: 请先勾选要拆出的页面
+      error-run: 处理失败，请重试或换用更小的文件
   pdf-text-extractor:
     title: PDF文本提取工具
     description: 从PDF中提取文本

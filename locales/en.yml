@@ -1722,6 +1722,31 @@ tools:
       tag-for-details-about-range-options-see: For details about Range options, see
       tag-qpdf-documentation: QPDF Documentation
       tag-concat-pdfs: Concat PDFs
+  pdf-organize:
+    title: PDF Organize & Split
+    description: Preview every page right after upload, then reorder, rotate, delete or extract pages, or split by page count / selected pages. Fully local.
+    texts:
+      upload-title: Drag and drop a PDF file here, or click to select a file
+      mode-organize: Organize
+      mode-split: Split
+      btn-reverse: Reverse order
+      btn-reset: Reset
+      opt-extract-selected: Export selected pages only
+      select-label: Pick
+      summary: Will output {out} page(s) (of {total} total)
+      hint-organize: Drag cards to reorder, click rotate to add 90°, click delete to set aside (original file untouched); arrow buttons also move pages
+      label-output-name: Output file name
+      btn-apply: Apply & download
+      split-every: Every N pages
+      split-each: Selected pages separate
+      split-every-n: Every
+      split-every-hint: pages per file (e.g. 2 → 1-2, 3-4…)
+      split-each-hint: Tick the pages you want as separate files in the preview below
+      btn-split: Split & download
+      error-load: Cannot read this PDF, please confirm it is not corrupted
+      error-empty: Keep at least one page
+      error-select: Select the pages to split out first
+      error-run: Processing failed, please retry or use a smaller file
   pdf-text-extractor:
     title: PDF Text Extractor
     description: Extract text from PDF

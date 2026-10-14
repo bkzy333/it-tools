@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-14T01:19:29.712Z",
+  "generatedAt": "2026-10-14T01:59:02.158Z",
   "sourceCommit": "extracted at build time",
-  "total": 116,
+  "total": 117,
   "tiers": {
-    "L1": 93,
+    "L1": 94,
     "L2": 22,
     "L3": 1
   },
@@ -2098,6 +2098,30 @@
       "isExternalAccess": false,
       "title": "PDF合并工具",
       "description": "将多个PDF合并为一个",
+      "categoryZh": "PDF 工具",
+      "categorySeoName": "PDF 在线处理工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/pdf-organize",
+      "slug": "pdf-organize",
+      "category": "PDF",
+      "keywords": [
+        "pdf",
+        "organize",
+        "split",
+        "rotate",
+        "reorder",
+        "delete"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "pdf"
+      ],
+      "isExternalAccess": false,
+      "title": "PDF页面整理与拆分",
+      "description": "上传PDF后立即预览每一页，可拖拽重排、旋转、删除、提取页面，也能按页数或选中页批量拆分，纯本地处理",
       "categoryZh": "PDF 工具",
       "categorySeoName": "PDF 在线处理工具",
       "tier": "L1"
