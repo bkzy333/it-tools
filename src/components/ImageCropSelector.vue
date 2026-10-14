@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue';
-import type { CropRect } from '@/tools/image-resizer/image-encode.service';
+
+/** 归一化裁剪框：相对原图的比例，范围 0~1（与 image-resizer 的 CropRect / ocr-image 的 NormRect 结构一致） */
+export interface CropRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 const props = defineProps<{
   src: string;
-  modelValue: CropRect;
+  /** 归一化裁剪框；null 表示未选（显示整图，拖动后产出非空框） */
+  modelValue: CropRect | null;
   /** 可选锁定比例（宽/高），>0 时拖拽保持该比例 */
   aspectRatio?: number;
 }>();
 const emit = defineEmits<{ 'update:modelValue': [CropRect] }>();
 
-const rect = ref<CropRect>({ ...props.modelValue });
+const FULL: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+
+const rect = ref<CropRect | null>(props.modelValue ? { ...props.modelValue } : null);
 const wrap = ref<HTMLElement | null>(null);
 const dragging = ref(false);
 
@@ -32,15 +42,18 @@ const MIN = 0.05;
 let mode: Handle = 'move';
 let startX = 0;
 let startY = 0;
-let startRect: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+let startRect: CropRect = { ...FULL };
 let pointerId = -1;
 
-const rectStyle = computed(() => ({
-  left: `${rect.value.x * 100}%`,
-  top: `${rect.value.y * 100}%`,
-  width: `${rect.value.w * 100}%`,
-  height: `${rect.value.h * 100}%`,
-}));
+const rectStyle = computed(() => {
+  const r = rect.value ?? FULL;
+  return {
+    left: `${r.x * 100}%`,
+    top: `${r.y * 100}%`,
+    width: `${r.w * 100}%`,
+    height: `${r.h * 100}%`,
+  };
+});
 
 function clamp(v: number, lo: number, hi: number) {
   return v < lo ? lo : v > hi ? hi : v;
@@ -64,7 +77,7 @@ function onPointerDown(e: PointerEvent, m: Handle) {
   mode = m;
   startX = e.clientX;
   startY = e.clientY;
-  startRect = { ...rect.value };
+  startRect = rect.value ? { ...rect.value } : { ...FULL };
   pointerId = e.pointerId;
   dragging.value = true;
   wrap.value?.setPointerCapture(pointerId);
@@ -130,7 +143,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="wrap" class="img-crop" :class="{ 'is-dragging': dragging }">
+  <div
+    ref="wrap"
+    class="img-crop"
+    :class="{ 'is-dragging': dragging }"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
+  >
     <img :src="src" alt="" draggable="false" @dragstart.prevent />
     <div class="img-crop__rect" :style="rectStyle" @pointerdown="onPointerDown($event, 'move')">
       <span
@@ -151,12 +171,15 @@ onBeforeUnmount(() => {
   max-width: 100%;
   line-height: 0;
   user-select: none;
+  -webkit-user-select: none;
   touch-action: none;
 
   img {
     display: block;
     max-width: 100%;
     height: auto;
+    // 移动端点按不出现默认高亮/选中
+    -webkit-tap-highlight-color: transparent;
   }
 
   &__rect {
@@ -165,6 +188,7 @@ onBeforeUnmount(() => {
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
     cursor: move;
     box-sizing: border-box;
+    touch-action: none;
   }
 
   &__handle {
@@ -175,6 +199,7 @@ onBeforeUnmount(() => {
     border: 1px solid #fff;
     border-radius: 2px;
     box-sizing: border-box;
+    touch-action: none;
   }
 
   .h-nw {
@@ -220,6 +245,20 @@ onBeforeUnmount(() => {
     top: 50%;
     transform: translateY(-50%);
     cursor: ew-resize;
+  }
+}
+
+// 移动端（触摸屏）：视觉手柄保持 12px，但把可点热区扩大到约 44px
+// （handle 含 1px 边框，padding box 10px + 两侧各 17px = 44px），
+// 达到手指触摸的推荐目标尺寸，让缩放点更容易捏住、又不遮挡视线。
+@media (pointer: coarse) {
+  .img-crop__handle::after {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: -17px;
+    right: -17px;
+    bottom: -17px;
   }
 }
 </style>

@@ -9,7 +9,7 @@ import { textStatistics } from '../text-statistics/text-statistics.service';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
 import { computeInkBBox, type NormRect } from './ocr-region.service';
-import OcrRegionSelector from './OcrRegionSelector.vue';
+import ImageCropSelector from '@/components/ImageCropSelector.vue';
 
 const { t } = useI18n();
 
@@ -422,7 +422,7 @@ async function recognize() {
         {{ t('tools.ocr-image.texts.hint-auto-detect-failed') }}
       </n-alert>
 
-      <OcrRegionSelector v-model="selection" :src="displaySrc" />
+      <ImageCropSelector v-model="selection" :src="displaySrc" />
 
       <n-space mt-3>
         <n-button type="primary" :disabled="ocrInProgress" @click="recognize">
