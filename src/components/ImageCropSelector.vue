@@ -55,6 +55,22 @@ const rectStyle = computed(() => {
   };
 });
 
+// 裁剪框外遮罩：四块（上/下/左/右），只盖住图片内非选区部分，
+// 不溢出图片、不遮住外部的按钮/文字（替代原先的 box-shadow 9999px 遮罩）
+const shadeStyles = computed(() => {
+  const r = rect.value ?? FULL;
+  const top = r.y * 100;
+  const bottom = (1 - r.y - r.h) * 100;
+  const left = r.x * 100;
+  const right = (1 - r.x - r.w) * 100;
+  return {
+    top: { top: '0', left: '0', right: '0', height: `${top}%` },
+    bottom: { bottom: '0', left: '0', right: '0', height: `${bottom}%` },
+    left: { top: `${top}%`, left: '0', bottom: `${bottom}%`, width: `${left}%` },
+    right: { top: `${top}%`, right: '0', bottom: `${bottom}%`, width: `${right}%` },
+  };
+});
+
 function clamp(v: number, lo: number, hi: number) {
   return v < lo ? lo : v > hi ? hi : v;
 }
@@ -152,6 +168,10 @@ onBeforeUnmount(() => {
     @pointercancel="onPointerUp"
   >
     <img :src="src" alt="" draggable="false" @dragstart.prevent />
+    <div class="img-crop__shade" :style="shadeStyles.top" />
+    <div class="img-crop__shade" :style="shadeStyles.bottom" />
+    <div class="img-crop__shade" :style="shadeStyles.left" />
+    <div class="img-crop__shade" :style="shadeStyles.right" />
     <div class="img-crop__rect" :style="rectStyle" @pointerdown="onPointerDown($event, 'move')">
       <span
         v-for="h in HANDLES"
@@ -185,10 +205,15 @@ onBeforeUnmount(() => {
   &__rect {
     position: absolute;
     border: 1.5px solid #2080f0;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
     cursor: move;
     box-sizing: border-box;
     touch-action: none;
+  }
+
+  &__shade {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
   }
 
   &__handle {

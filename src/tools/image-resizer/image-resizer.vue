@@ -1168,16 +1168,21 @@ function formatSize(kb: number): string {
       </n-space>
 
       <div v-if="batchCropType === 'region'" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px">
-        <p style="margin: 0 0 8px; font-size: 13px; color: #666">
+        <n-alert type="info" :show-icon="true" style="margin-bottom: 10px">
           {{ t('tools.image-resizer.texts.text-crop-region-hint') }}
-        </p>
+        </n-alert>
         <ImageCropSelector v-if="batchQueue.length" :src="batchQueue[0].originalUrl" v-model="batchRegionCrop" />
         <n-alert v-else type="warning" :show-icon="true">
           {{ t('tools.image-resizer.texts.text-crop-region-upload-first') }}
         </n-alert>
-        <n-button size="small" mt-2 @click="batchRegionCrop = { x: 0, y: 0, w: 1, h: 1 }">
-          {{ t('tools.image-resizer.texts.btn-crop-reset') }}
-        </n-button>
+        <n-space mt-2>
+          <n-button size="small" @click="batchRegionCrop = { x: 0, y: 0, w: 1, h: 1 }">
+            {{ t('tools.image-resizer.texts.btn-crop-reset') }}
+          </n-button>
+          <n-button size="small" quaternary @click="batchCropType = 'none'">
+            {{ t('tools.image-resizer.texts.btn-crop-exit') }}
+          </n-button>
+        </n-space>
       </div>
 
       <!-- 缩放模式参数 -->
