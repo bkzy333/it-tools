@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue';
+import { ref, computed, onBeforeUnmount, watch } from 'vue';
 
 /** 归一化裁剪框：相对原图的比例，范围 0~1（与 image-resizer 的 CropRect / ocr-image 的 NormRect 结构一致） */
 export interface CropRect {
@@ -23,6 +23,16 @@ const FULL: CropRect = { x: 0, y: 0, w: 1, h: 1 };
 const rect = ref<CropRect | null>(props.modelValue ? { ...props.modelValue } : null);
 const wrap = ref<HTMLElement | null>(null);
 const dragging = ref(false);
+
+// 外部 v-model 变化时同步内部状态（如「重置为整图」）；拖动中不同步以免打断手势
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (!dragging.value) {
+      rect.value = v ? { ...v } : null;
+    }
+  },
+);
 
 type Edge = 'n' | 's' | 'w' | 'e';
 type Handle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'move';
@@ -180,6 +190,10 @@ onBeforeUnmount(() => {
         :class="h.cls"
         @pointerdown.stop="onPointerDown($event, h.key)"
       />
+      <!-- 蓝框右下角操作按钮（由父组件通过 slot 注入，如「确认/取消/应用到全部」） -->
+      <div v-if="$slots.actions" class="img-crop__actions" @pointerdown.stop @click.stop>
+        <slot name="actions" />
+      </div>
     </div>
   </div>
 </template>
@@ -214,6 +228,18 @@ onBeforeUnmount(() => {
     position: absolute;
     background: rgba(0, 0, 0, 0.45);
     pointer-events: none;
+  }
+
+  // 蓝框右下角操作按钮区：紧跟蓝框右下角下方，随蓝框移动
+  &__actions {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    white-space: nowrap;
+    pointer-events: auto;
   }
 
   &__handle {

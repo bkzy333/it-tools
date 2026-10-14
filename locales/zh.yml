@@ -879,17 +879,15 @@ tools:
       label-crop-mode: 裁剪方式
       crop-none: 不裁剪
       crop-preset: 按预设居中裁剪
-      crop-region: 统一区域裁剪
+      crop-custom: 自定义裁剪
       text-crop-preset-hint: 按所选尺寸居中裁剪并缩放到精确尺寸
-      text-crop-region-hint: 拖动蓝色框可移动选区，拖动四角或四边可调整大小；下方所有图片将按此区域裁剪
+      text-crop-custom-hint: 拖动蓝色框选定要保留的区域；「确认」仅保存当前这张，「应用到全部」让所有图片都按此区域裁剪
+      text-crop-custom-idle: 已设置 {done}/{total} 张的裁剪区域，点击下方缩略图可继续调整其它图片
       text-crop-region-upload-first: 请先上传图片，再框选裁剪区域
-      btn-crop-reset: 重置为整图
-      btn-crop-exit: 取消裁剪
-      btn-crop-single: 单独裁剪
-      crop-modal-title: 单独裁剪该图片
-      text-crop-modal-hint: 拖动选框选定要保留的区域，确认后仅对该图生效
+      tag-cropped: 已裁剪
+      btn-crop-confirm: 确认
       btn-crop-cancel: 取消
-      btn-crop-confirm: 应用裁剪
+      btn-crop-apply-all: 应用到全部
       progress-reading: 正在读取图片…
       progress-compressing: 正在压缩图片…
       progress-reading-batch: 正在读取图片 {done}/{total}

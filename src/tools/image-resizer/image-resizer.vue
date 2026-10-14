@@ -15,7 +15,6 @@ import { compressImage, type CompressResult } from './image-compress.service';
 import {
   hasAlphaChannel,
   processBatch,
-  processImage,
   type OutputFormat,
   type ProcessOptions,
   type ProcessResult,
@@ -568,60 +567,70 @@ const batchScenePreset = ref<string>('custom');
 const formatOptions = SUPPORTED_FORMATS.map((f) => ({ label: FORMAT_LABELS[f], value: f }));
 
 // ===================== 批量裁剪 =====================
-// none = 不裁剪；preset = 按预设尺寸居中裁；region = 统一相对区域裁（所有图同比例/位置）
-const batchCropType = ref<'none' | 'preset' | 'region'>('none');
-// 统一相对区域裁剪框（归一化 0~1）
-const batchRegionCrop = ref<CropRect>({ x: 0, y: 0, w: 1, h: 1 });
-// 单独裁剪弹窗
-const cropModalShow = ref(false);
-const cropModalItem = ref<BatchItem | null>(null);
-const cropModalRect = ref<CropRect>({ x: 0, y: 0, w: 1, h: 1 });
+// none = 不裁剪；preset = 按预设尺寸居中裁；custom = 自定义裁剪（每张图独立区域，可「应用到全部」）
+const batchCropType = ref<'none' | 'preset' | 'custom'>('none');
+// 自定义裁剪：当前正在编辑的图片 id（null = 未在编辑，蓝框/遮罩隐藏）
+const editingId = ref<string | null>(null);
+// 当前编辑中的临时裁剪框（未确认）
+const editingRect = ref<CropRect>({ x: 0, y: 0, w: 1, h: 1 });
+const editingItem = computed(() => batchQueue.value.find((i) => i.id === editingId.value) ?? null);
+// 已划定裁剪区域的图片数
+const croppedCount = computed(() => batchQueue.value.filter((i) => i.cropOverride).length);
+
+// 切换裁剪方式
+function onCropTypeChange(value: 'none' | 'preset' | 'custom') {
+  batchCropType.value = value;
+  if (value === 'custom') {
+    // 进入自定义裁剪：默认编辑第一张
+    const first = batchQueue.value[0];
+    if (first) {
+      editingId.value = first.id;
+      editingRect.value = first.cropOverride ? { ...first.cropOverride } : { x: 0, y: 0, w: 1, h: 1 };
+    } else {
+      editingId.value = null;
+    }
+  } else {
+    editingId.value = null;
+  }
+}
 
 // 裁剪区选预设：切到「按预设居中裁剪」模式（复用原 resize 预设设置）
 function onCropPresetChange(value: string) {
   batchCropType.value = 'preset';
+  editingId.value = null;
   applyBatchScenePreset(value);
 }
 
-function openItemCrop(item: BatchItem) {
-  cropModalItem.value = item;
-  cropModalRect.value = item.cropOverride ? { ...item.cropOverride } : { x: 0, y: 0, w: 1, h: 1 };
-  cropModalShow.value = true;
+// 点缩略图切换编辑该图
+function editItem(item: BatchItem) {
+  editingId.value = item.id;
+  editingRect.value = item.cropOverride ? { ...item.cropOverride } : { x: 0, y: 0, w: 1, h: 1 };
 }
 
-async function confirmItemCrop() {
-  const item = cropModalItem.value;
-  if (!item) {
-    return;
+// 确认：保存当前编辑图的裁剪区域，退出编辑（蓝框/遮罩消失）
+function confirmCrop() {
+  const item = batchQueue.value.find((i) => i.id === editingId.value);
+  if (item) {
+    item.cropOverride = { ...editingRect.value };
   }
-  const rect = { ...cropModalRect.value };
-  cropModalShow.value = false;
-  await reprocessItem(item, rect);
+  editingId.value = null;
 }
 
-// 用新的裁剪框单独重处理某张（复用当前批量格式/质量等设置，只改源裁剪区）
-async function reprocessItem(item: BatchItem, rect: CropRect) {
-  item.cropOverride = rect;
-  item.status = 'processing';
-  item.error = '';
-  item.resultBlob = null;
-  item.resultUrl = null;
-  item.savedPercent = 0;
-  try {
-    const result = await processImage(item.file, getOpts(item));
-    item.status = 'done';
-    item.resultBlob = result.blob;
-    item.resultUrl = URL.createObjectURL(result.blob);
-    item.resultWidth = result.width;
-    item.resultHeight = result.height;
-    item.resultSizeKb = result.sizeKb;
-    item.format = result.format;
-    item.savedPercent =
-      item.originalSizeKb > 0 ? Math.max(0, Math.round((1 - result.sizeKb / item.originalSizeKb) * 100)) : 0;
-  } catch (e: any) {
-    item.status = 'error';
-    item.error = e?.message ?? t('tools.image-resizer.texts.text-failed');
+// 应用到全部：当前区域复制到所有图片
+function applyCropToAll() {
+  for (const item of batchQueue.value) {
+    item.cropOverride = { ...editingRect.value };
   }
+  editingId.value = null;
+}
+
+// 取消：撤销当前这张图的裁剪（恢复整图），退出编辑
+function cancelCrop() {
+  const item = batchQueue.value.find((i) => i.id === editingId.value);
+  if (item) {
+    item.cropOverride = null;
+  }
+  editingId.value = null;
 }
 
 /**
@@ -637,8 +646,6 @@ function getOpts(item: BatchItem): ProcessOptions {
     if (preset && preset.w) {
       crop = centerCropRect(item.originalWidth, item.originalHeight, preset.w, preset.h);
     }
-  } else if (batchCropType.value === 'region') {
-    crop = batchRegionCrop.value;
   }
 
   const base: Omit<ProcessOptions, 'mode'> = {
@@ -1148,10 +1155,10 @@ function formatSize(kb: number): string {
       <!-- 裁剪 -->
       <n-space align="center" :wrap="false">
         <span style="font-size: 13px; font-weight: 500; min-width: 70px">{{ t('tools.image-resizer.texts.label-crop-mode') }}：</span>
-        <n-radio-group v-model:value="batchCropType">
+        <n-radio-group v-model:value="batchCropType" @update:value="onCropTypeChange">
           <n-radio-button value="none">{{ t('tools.image-resizer.texts.crop-none') }}</n-radio-button>
           <n-radio-button value="preset">{{ t('tools.image-resizer.texts.crop-preset') }}</n-radio-button>
-          <n-radio-button value="region">{{ t('tools.image-resizer.texts.crop-region') }}</n-radio-button>
+          <n-radio-button value="custom">{{ t('tools.image-resizer.texts.crop-custom') }}</n-radio-button>
         </n-radio-group>
       </n-space>
 
@@ -1167,22 +1174,46 @@ function formatSize(kb: number): string {
         <span style="color: #666; font-size: 12px">{{ t('tools.image-resizer.texts.text-crop-preset-hint') }}</span>
       </n-space>
 
-      <div v-if="batchCropType === 'region'" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px">
+      <div v-if="batchCropType === 'custom'" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px">
         <n-alert type="info" :show-icon="true" style="margin-bottom: 10px">
-          {{ t('tools.image-resizer.texts.text-crop-region-hint') }}
+          {{ t('tools.image-resizer.texts.text-crop-custom-hint') }}
         </n-alert>
-        <ImageCropSelector v-if="batchQueue.length" :src="batchQueue[0].originalUrl" v-model="batchRegionCrop" />
-        <n-alert v-else type="warning" :show-icon="true">
+
+        <!-- 当前编辑图 + 蓝框 + 确认/取消/应用到全部按钮 -->
+        <ImageCropSelector v-if="editingItem" :src="editingItem.originalUrl" v-model="editingRect">
+          <template #actions>
+            <n-button size="tiny" type="primary" @click="confirmCrop">
+              {{ t('tools.image-resizer.texts.btn-crop-confirm') }}
+            </n-button>
+            <n-button size="tiny" quaternary @click="cancelCrop">
+              {{ t('tools.image-resizer.texts.btn-crop-cancel') }}
+            </n-button>
+            <n-button size="tiny" @click="applyCropToAll">
+              {{ t('tools.image-resizer.texts.btn-crop-apply-all') }}
+            </n-button>
+          </template>
+        </ImageCropSelector>
+        <n-alert v-else-if="!batchQueue.length" type="warning" :show-icon="true">
           {{ t('tools.image-resizer.texts.text-crop-region-upload-first') }}
         </n-alert>
-        <n-space mt-2>
-          <n-button size="small" @click="batchRegionCrop = { x: 0, y: 0, w: 1, h: 1 }">
-            {{ t('tools.image-resizer.texts.btn-crop-reset') }}
-          </n-button>
-          <n-button size="small" quaternary @click="batchCropType = 'none'">
-            {{ t('tools.image-resizer.texts.btn-crop-exit') }}
-          </n-button>
-        </n-space>
+        <n-alert v-else type="success" :show-icon="true">
+          {{ t('tools.image-resizer.texts.text-crop-custom-idle', { done: croppedCount, total: batchQueue.length }) }}
+        </n-alert>
+
+        <!-- 缩略图列表：点击切换编辑该图，已裁剪的标注 -->
+        <div v-if="batchQueue.length" class="crop-thumbs">
+          <div
+            v-for="item in batchQueue"
+            :key="item.id"
+            class="crop-thumb"
+            :class="{ active: item.id === editingId, cropped: !!item.cropOverride }"
+            @click="editItem(item)"
+          >
+            <img :src="item.originalUrl" :alt="item.baseName" />
+            <span v-if="item.cropOverride" class="crop-thumb-badge">{{ t('tools.image-resizer.texts.tag-cropped') }}</span>
+            <span class="crop-thumb-name">{{ item.baseName }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- 缩放模式参数 -->
@@ -1317,9 +1348,6 @@ function formatSize(kb: number): string {
               <n-button size="small" @click="downloadOne(item)">
                 {{ t('tools.image-resizer.texts.btn-download-one') }}
               </n-button>
-              <n-button size="small" @click="openItemCrop(item)">
-                {{ t('tools.image-resizer.texts.btn-crop-single') }}
-              </n-button>
             </n-space>
           </template>
           <p v-else style="margin: 6px 0 0; font-size: 12px; color: #999">
@@ -1328,25 +1356,6 @@ function formatSize(kb: number): string {
         </div>
       </div>
     </div>
-
-    <!-- 单独裁剪弹窗 -->
-    <n-modal
-      v-model:show="cropModalShow"
-      :title="t('tools.image-resizer.texts.crop-modal-title')"
-      preset="card"
-      style="max-width: 560px"
-    >
-      <div v-if="cropModalItem" style="text-align: center">
-        <ImageCropSelector :src="cropModalItem.originalUrl" v-model="cropModalRect" />
-        <p style="margin: 8px 0 0; font-size: 12px; color: #888">
-          {{ t('tools.image-resizer.texts.text-crop-modal-hint') }}
-        </p>
-        <n-space justify="end" mt-3>
-          <n-button @click="cropModalShow = false">{{ t('tools.image-resizer.texts.btn-crop-cancel') }}</n-button>
-          <n-button type="primary" @click="confirmItemCrop">{{ t('tools.image-resizer.texts.btn-crop-confirm') }}</n-button>
-        </n-space>
-      </div>
-    </n-modal>
   </n-card>
 </template>
 
@@ -1558,5 +1567,56 @@ a:hover {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* 自定义裁剪缩略图列表 */
+.crop-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.crop-thumb {
+  position: relative;
+  width: 72px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.crop-thumb:hover {
+  border-color: #b0d4ff;
+}
+.crop-thumb.active {
+  border-color: #2080f0;
+}
+.crop-thumb img {
+  display: block;
+  width: 100%;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.crop-thumb-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #1ea54c;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+.crop-thumb-name {
+  display: block;
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 0;
 }
 </style>
