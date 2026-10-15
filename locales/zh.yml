@@ -1536,7 +1536,8 @@ tools:
       sep-comma: 逗号
       sep-pause: 顿号
       sep-custom: 自定义
-      placeholder-custom-separator: 输入自定义分隔符（如 | 或 ;）
+      placeholder-custom-separator: 输入自定义分隔符（例如 ---）
+      # 注意：i18n 文案里不要写半角竖线，vue-i18n 会把它当复数分隔符拆成多个分支。
       col-input: 录入金额
       col-output: 大写金额
       col-en-amount-output: 英文大写金额
@@ -3296,7 +3297,7 @@ tools:
       opt-delimiter-pipe: 竖线
       opt-delimiter-custom: 自定义
       label-custom-delimiter: 自定义分隔符
-      placeholder-custom-delimiter: 填写分隔符，例如 | 或 空格
+      placeholder-custom-delimiter: 填写分隔符，例如 --- 或 空格
       label-source: 数据表
       placeholder-source: 从 Excel 复制的区域直接粘进来，默认用制表符分隔
       label-header-row: 首行是表头
@@ -3340,7 +3341,7 @@ tools:
       opt-delimiter-pipe: 竖线
       opt-delimiter-custom: 自定义
       label-custom-delimiter: 自定义分隔符
-      placeholder-custom-delimiter: 填写分隔符，例如 | 或 空格
+      placeholder-custom-delimiter: 填写分隔符，例如 --- 或 空格
       label-source: 数据表
       placeholder-source: 从 Excel 复制的区域直接粘进来，默认用制表符分隔
       label-header-row: 首行是表头
@@ -3672,7 +3673,22 @@ tools:
       error-network: 翻译服务暂时不可用，请稍后重试
       error-empty-result: 翻译结果为空，请检查输入文本后重试
       status-translating: 翻译中……
-      cached-hint: 本次结果来自缓存，未消耗翻译额度
+      label-input-batch: 待翻译文本（一行一条）
+      placeholder-input-batch: 从 Excel 复制一列粘贴进来，或一行写一条待翻译内容……
+      opt-batch-mode: 批量翻译模式
+      hint-batch-mode: 一次最多 {n} 条，结果逐行对应，可一键复制回表格或导出 Excel。
+      label-separator: 分隔符
+      sep-newline: 换行
+      sep-comma: 逗号
+      sep-pause: 顿号
+      sep-custom: 自定义
+      placeholder-custom-separator: 自定义分隔符，例如 ---
+      note-separator: 默认按换行分隔，正好对应从 Excel 复制的一列；待翻译内容本身含逗号时，不要选逗号分隔。
+      status-batch-count: 共 {n} 条
+      error-too-many-items: 一次最多翻译 {n} 条，当前 {count} 条，请分批处理。
+      note-dedup: 已合并 {n} 条重复内容，未重复请求翻译。
+      col-input: 原文
+      col-output: 译文
   image-translate:
     title: 图片翻译
     description: 上传图片识别文字并翻译，译文绘制回原图可下载，仅支持中英互译

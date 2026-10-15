@@ -72,7 +72,6 @@ const language = useQueryParamOrStorage({ name: 'lang', storageName: 'ocr-image:
 const pageSeparator = '\n=============\n';
 const ocrInProgress = ref(false);
 const ocrError = ref('');
-const ocrHitCache = ref(false);
 const ocrText = ref('');
 const fileInput = ref<File | null>(null);
 
@@ -256,7 +255,6 @@ async function callOcrApi(base64: string, languageType: string): Promise<string>
   if (!resp.ok) {
     throw new Error(data.message || data.error || `OCR 请求失败 (${resp.status})`);
   }
-  ocrHitCache.value = Boolean(data.hitCache);
   return data.text || '';
 }
 
@@ -306,7 +304,6 @@ function withTimeout<T>(p: Promise<T>, ms: number, msg: string): Promise<T> {
 async function enterSelectStage(file: File) {
   ocrText.value = '';
   ocrError.value = '';
-  ocrHitCache.value = false;
   autoDetectFailed.value = false;
   try {
     if (file.type.match('^image/')) {
@@ -351,7 +348,6 @@ async function recognize() {
   }
   ocrInProgress.value = true;
   ocrError.value = '';
-  ocrHitCache.value = false;
   const rect = selection.value ?? { x: 0, y: 0, w: 1, h: 1 };
   const sources = pdfPages.value.length ? pdfPages.value : [displaySrc.value];
   // 先把选区裁好、压缩（一次），API 与 tesseract 兜底都复用同一组小图
@@ -460,10 +456,6 @@ async function recognize() {
 
     <n-alert v-if="ocrError" type="error" title="OCR 失败" mt-2>
       {{ ocrError }}
-    </n-alert>
-
-    <n-alert v-if="ocrHitCache && ocrText && stage === 'result'" type="success" :show-icon="true">
-      {{ t('tools.text-translate.texts.cached-hint') }}
     </n-alert>
 
     <c-card

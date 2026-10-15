@@ -1603,7 +1603,7 @@ tools:
       sep-comma: Comma
       sep-pause: Enumeration comma (、)
       sep-custom: Custom
-      placeholder-custom-separator: Enter a custom separator (e.g. | or ;)
+      placeholder-custom-separator: Enter a custom separator (e.g. ---)
       col-input: Input amount
       col-output: Capitalized amount
       col-en-amount-output: English amount in words
@@ -3395,7 +3395,7 @@ tools:
       opt-delimiter-pipe: Pipe
       opt-delimiter-custom: Custom
       label-custom-delimiter: Custom delimiter
-      placeholder-custom-delimiter: Type a delimiter, e.g., | or a single space
+      placeholder-custom-delimiter: Type a delimiter, e.g. --- or a single space
       label-source: Data table
       placeholder-source: Paste a range copied from Excel; tab is the default delimiter
       label-header-row: First row is the header
@@ -3439,7 +3439,7 @@ tools:
       opt-delimiter-pipe: Pipe
       opt-delimiter-custom: Custom
       label-custom-delimiter: Custom delimiter
-      placeholder-custom-delimiter: Type a delimiter, e.g., | or a single space
+      placeholder-custom-delimiter: Type a delimiter, e.g. --- or a single space
       label-source: Data table
       placeholder-source: Paste a range copied from Excel; tab is the default delimiter
       label-header-row: First row is the header
@@ -3771,7 +3771,22 @@ tools:
       error-network: Translation service is temporarily unavailable, please try again later
       error-empty-result: The translation result is empty, please check your input and try again
       status-translating: Translating……
-      cached-hint: This result came from cache, no quota was consumed
+      label-input-batch: Text to translate (one item per line)
+      placeholder-input-batch: Paste a column copied from Excel, or put one item per line……
+      opt-batch-mode: Batch translation mode
+      hint-batch-mode: "Up to {n} items per run. Results are returned line by line, ready to copy back into your spreadsheet or export to Excel."
+      label-separator: Separator
+      sep-newline: New line
+      sep-comma: Comma
+      sep-pause: Ideographic comma
+      sep-custom: Custom
+      placeholder-custom-separator: "Custom separator, e.g. ---"
+      note-separator: "New line is the default and matches a column copied from Excel. Do not pick the comma separator when your text itself contains commas."
+      status-batch-count: "{n} items"
+      error-too-many-items: "At most {n} items per run, got {count}. Please split it into smaller batches."
+      note-dedup: "{n} duplicate items were merged, so they were not translated again."
+      col-input: Source
+      col-output: Translation
   image-translate:
     title: Image Translate
     description: Upload an image, recognize the text and translate it; the translated text is drawn back onto the image and can be downloaded. Chinese to English and vice versa only.

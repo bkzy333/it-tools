@@ -69,3 +69,51 @@ export async function translateText(text: string, source: string, target: string
   }
   return (await res.json()) as TextTranslateResponse;
 }
+
+// ── 批量翻译 ──────────────────────────────────────────────────────────────────
+// 一次 HTTP 请求带多条文本，后端逐行对应返回（顺序与入参一致）。
+// 与单条共用 /api/translate 入口：传 text = 单条，传 texts = 批量。
+
+/** 一次最多多少条。与后端 translate.ts 的 BATCH_MAX_ITEMS 保持一致（后端也会兜底校验）。 */
+export const BATCH_MAX_ITEMS = 50;
+
+export interface BatchTranslateItem {
+  TargetText?: string;
+  /** 该条失败时的原因；空字符串表示成功 */
+  err?: string;
+  hitCache?: boolean;
+}
+
+export interface BatchTranslateResponse {
+  /** 逐行结果，顺序与入参 texts 一致 */
+  results?: BatchTranslateItem[];
+  /** 整批失败原因（条数/字符数超限、本月额度用尽等） */
+  err?: string;
+  hitCache?: boolean;
+}
+
+/** 接口明确报错（4xx/5xx 且后端给了原因），用于和「网络不通」区分，好给用户看真话。 */
+export class TranslateRequestError extends Error {}
+
+export async function translateTexts(
+  texts: string[],
+  source: string,
+  target: string,
+): Promise<BatchTranslateResponse> {
+  const res = await fetch('/api/translate', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ texts, source, target }),
+  });
+  let data: BatchTranslateResponse = {};
+  try {
+    data = (await res.json()) as BatchTranslateResponse;
+  } catch {
+    /* 非 JSON 响应（网关错误页等）按状态码兜底 */
+  }
+  if (!res.ok) {
+    // 后端给了原因就用它；没给（网关错误页等）留空，由调用方回落到通用文案，别把 HTTP 404 抛给用户。
+    throw new TranslateRequestError(data.err || '');
+  }
+  return data;
+}

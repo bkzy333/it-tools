@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T11:27:42.117Z",
+  "generatedAt": "2026-10-15T13:51:06.538Z",
   "sourceCommit": "extracted at build time",
   "total": 111,
   "tiers": {
@@ -1307,7 +1307,11 @@
       "keywords": [
         "image",
         "translate",
+        "翻译",
         "图片翻译",
+        "图片识别",
+        "文字识别",
+        "中英互译",
         "ocr"
       ],
       "redirectFrom": [],
@@ -2755,7 +2759,10 @@
         "text",
         "translate",
         "翻译",
-        "机器翻译"
+        "文本翻译",
+        "机器翻译",
+        "批量翻译",
+        "中英互译"
       ],
       "redirectFrom": [],
       "npmPackages": [],
