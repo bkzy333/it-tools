@@ -48,7 +48,8 @@ const STOP = 0.95;
 
 // —— IP 软限流上限（比文本严，接近图片的粒度）——
 const OCR_PER_HOUR = 30;
-const OCR_PER_DAY = 100;
+// 单 IP 日上限压到 50（月度免费额度仅 1000，避免单 IP 一天吃掉 1/20 月额度）
+const OCR_PER_DAY = 50;
 
 // —— 用量记账采样（把 KV 写压到「真实调用数 / USAGE_SAMPLE」）——
 const USAGE_SAMPLE = 20;

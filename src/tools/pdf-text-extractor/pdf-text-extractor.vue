@@ -30,6 +30,9 @@ const ocrPercent = ref(-1);
 const ocrText = ref('');
 const ocrError = ref('');
 
+/** 单次上传 PDF 的页数上限（超出直接在读取阶段拒绝，避免渲染/提取大文件浪费资源） */
+const MAX_PDF_PAGES = 50;
+
 const selectedCount = computed(() => pages.value.filter((p) => p.selected).length);
 
 /** 待 OCR 的页数 = 已勾选 且 尚无文字 且 尚未 OCR 过的页 */
@@ -85,6 +88,15 @@ async function onUpload(uploaded: File) {
     const doc = await loadPdf(buf.slice());
     docRef.value = doc;
     totalPages.value = doc.numPages;
+
+    // 页数上限：超出直接拒绝，不再渲染/提取，先给明确提示
+    if (totalPages.value > MAX_PDF_PAGES) {
+      errorMessage.value = t('tools.pdf-text-extractor.texts.error-too-many-pages', {
+        count: totalPages.value,
+        max: MAX_PDF_PAGES,
+      });
+      return;
+    }
 
     // 1) 渲染页面缩略图（带进度）
     const rendered = await renderAllPages(doc, 220, (done, total) => {
@@ -254,6 +266,9 @@ async function startOcr() {
           accept=".pdf"
           @file-upload="onUpload"
         />
+        <p text-xs op-60 mt-1>
+          {{ t('tools.pdf-text-extractor.texts.hint-max-pages', { max: MAX_PDF_PAGES }) }}
+        </p>
         <ProgressBar :visible="progressVisible" :percent="progressPercent" :text="progressText" />
       </div>
     </div>

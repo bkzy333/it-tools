@@ -57,7 +57,8 @@ export async function putOcrCache(kv: KvLike | undefined, key: string, value: st
 // —— IP 软限流（按小时 / 按天双闸，采样写 KV 压低免费版每天 1000 次写入限额）——
 const RATE_SAMPLE = 20;
 const OCR_PER_HOUR = 30;
-const OCR_PER_DAY = 200;
+// 单 IP 日上限压到 50（月度免费额度仅 1000，避免单 IP 一天吃掉 1/20 月额度；主防线仍是 WAF 硬限速）
+const OCR_PER_DAY = 50;
 
 async function ipToken(req: Request): Promise<string> {
   const ip =

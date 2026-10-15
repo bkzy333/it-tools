@@ -1717,6 +1717,8 @@ tools:
       label-ocr-none: 已无需要OCR的页
       progress-ocr: 正在OCR识别 {done}/{total}
       hint-ocr: 仅对勾选且尚无文字的页进行OCR，可大幅减少用量；同一页图片会缓存，重复识别不耗额度
+      hint-max-pages: 单次上传最多支持 {max} 页，超出请拆分后重试
+      error-too-many-pages: PDF 页数过多（当前 {count} 页），单次最多支持 {max} 页，请拆分后重试
       badge-need-ocr: 需OCR
       badge-ocr-done: 已OCR
   date-time-converter:

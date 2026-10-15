@@ -1784,6 +1784,8 @@ tools:
       label-ocr-none: No pages need OCR
       progress-ocr: "OCR recognizing {done}/{total}"
       hint-ocr: OCR only runs on ticked pages with no text, greatly reducing usage. The same page image is cached, so re-OCR costs nothing.
+      hint-max-pages: "At most {max} pages per upload. Split larger PDFs and retry."
+      error-too-many-pages: "Too many pages (got {count}). At most {max} pages per upload. Please split and retry."
       badge-need-ocr: Need OCR
       badge-ocr-done: OCR'd
   date-time-converter:
