@@ -16,10 +16,12 @@ const props = withDefaults(
     pages: PreviewPage[];
     rotatable?: boolean;
     deletable?: boolean;
+    /** 是否显示上下移动按钮（文本提取等不需要重排的场景传 false） */
+    movable?: boolean;
     selectable?: boolean;
     selectLabel?: string;
   }>(),
-  { rotatable: true, deletable: true, selectable: false, selectLabel: '选' },
+  { rotatable: true, deletable: true, movable: true, selectable: false, selectLabel: '选' },
 );
 
 const emit = defineEmits<{
@@ -56,8 +58,8 @@ function move(dir: 'up' | 'down', index: number) {
       v-for="(p, i) in pages"
       :key="p.id"
       class="pdf-prev-card"
-      :class="{ deleted: p.deleted }"
-      draggable="true"
+      :class="{ deleted: p.deleted, 'pdf-prev-card--static': !movable }"
+      :draggable="movable"
       @dragstart="onDragStart(p.id)"
       @dragover.prevent
       @drop="onDrop(p.id)"
@@ -89,7 +91,7 @@ function move(dir: 'up' | 'down', index: number) {
           <IconRestore v-if="p.deleted" :size="16" />
           <IconTrash v-else :size="16" />
         </button>
-        <span class="pp-move">
+        <span v-if="movable" class="pp-move">
           <button class="pp-btn" title="上移" :disabled="i === 0" @click="move('up', i)">
             <IconArrowUp :size="14" />
           </button>
@@ -125,6 +127,9 @@ function move(dir: 'up' | 'down', index: number) {
 }
 .pdf-prev-card.deleted {
   opacity: 0.45;
+}
+.pdf-prev-card--static {
+  cursor: default;
 }
 .pp-head {
   display: flex;

@@ -1757,12 +1757,24 @@ tools:
     description: Extract text from PDF
     texts:
       title-drag-and-drop-a-pdf-file-here-or-click-to-select-a-file: Drag and drop a PDF file here, or click to select a file
+      label-selected: "{selected} of {total} pages selected"
+      select-label: Pick
+      btn-select-all: Select all
+      btn-invert: Invert
+      btn-clear: Clear
+      hint-select: Tick the pages you want text from, and the output below updates instantly. Untick a page to drop its text.
       label-merge-pages: Merge pages
       title-output: Output
       label-file-name: "File name:"
       label-text: "Text:"
       label-total-pages: "Total Pages:"
-      tag-extract-text: Extract text
+      progress-reading: Reading file…
+      progress-rendering: Rendering thumbnails {done}/{total}
+      progress-extracting: Extracting text {done}/{total}
+      error-load: Cannot read this PDF, please confirm it is not corrupted
+      error-encrypted: This PDF is password-protected, please remove the password first
+      error-empty-selection: Tick at least one page, otherwise there is no text to extract
+      warn-no-text: No text found. This PDF may be scanned or image-based, try the OCR tool first.
   date-time-converter:
     texts:
       message-this-date-is-invalid-for-this-format: This date is invalid for this format

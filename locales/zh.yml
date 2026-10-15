@@ -1690,12 +1690,24 @@ tools:
     description: 从PDF中提取文本
     texts:
       title-drag-and-drop-a-pdf-file-here-or-click-to-select-a-file: 拖放PDF文件至此或点击选择文件
+      label-selected: 已选 {selected}/{total} 页
+      select-label: 提取
+      btn-select-all: 全选
+      btn-invert: 反选
+      btn-clear: 清空
+      hint-select: 勾选需要提取文字的页面，下方文本会实时更新；取消勾选即去掉该页内容
       label-merge-pages: 合并页面
       title-output: 输出
       label-file-name: 文件名：
       label-text: 文本：
       label-total-pages: 总页数：
-      tag-extract-text: 提取文本
+      progress-reading: 正在读取文件…
+      progress-rendering: 正在渲染页面缩略图 {done}/{total}
+      progress-extracting: 正在提取文字 {done}/{total}
+      error-load: 无法读取该PDF，请确认文件未损坏
+      error-encrypted: 该PDF设有打开密码，请先解密后再提取文字
+      error-empty-selection: 请至少勾选一页，否则没有可提取的文字
+      warn-no-text: 未提取到任何文字，该PDF可能是扫描版或图片型，建议先用OCR工具识别
   date-time-converter:
     texts:
       message-this-date-is-invalid-for-this-format: 此日期在此格式下无效
