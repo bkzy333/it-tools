@@ -1748,6 +1748,7 @@ tools:
     converters: 转换器
     barcodes: 条形码
     finance: 金融
+    life: 生活工具
   websocket-tester:
     title: WebSocket测试工具
     description: 允许测试WebSocket连接
@@ -1765,7 +1766,7 @@ tools:
       label-url: URL
   qr-code-decoder:
     title: 二维码解码器
-    description: 二维码读取器
+    description: 二维码解码器：上传二维码图片，识别其中包含的文本、网址等内容
     texts:
       title-drag-and-drop-a-qr-code-here-or-click-to-select-a-file: 拖放二维码至此，或点击选择文件
       tag-decoded: 已解码

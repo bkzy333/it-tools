@@ -37,7 +37,7 @@ const title = computed(() =>
 );
 
 const description = computed(
-  () => `${meta.value.seo}，共 ${tools.value.length} 个免费在线工具，全部浏览器本地运行，无需注册。`,
+  () => `${meta.value.seo}，共 ${tools.value.length} 个免费在线工具，打开即用，无需注册。`,
 );
 
 useHead({

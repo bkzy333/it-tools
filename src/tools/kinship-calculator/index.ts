@@ -20,6 +20,6 @@ export const tool = defineTool({
   ],
   component: () => import('./kinship-calculator.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Users')),
-  category: 'Data',
-  tags: ['data'],
+  category: 'Life',
+  tags: ['life'],
 });

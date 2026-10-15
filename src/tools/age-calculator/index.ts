@@ -25,6 +25,6 @@ export const tool = defineTool({
   // icon 必须用 defineAsyncComponent：同步 import 会把 1500 个图标打进首屏包
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/Hourglass')),
   createdAt: new Date('2026-10-07'),
-  category: 'Datetime',
-  tags: ['datetime'],
+  category: 'Life',
+  tags: ['life'],
 });

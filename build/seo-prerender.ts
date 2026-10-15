@@ -781,7 +781,7 @@ export function seoPrerender(): Plugin {
         html = injectBody(html, body);
         html = rewriteHead(html, {
           title: indexedCount > 0 ? `${seoName} - ${indexedCount} 个免费工具 - ${SITE_NAME}` : `${seoName} - ${SITE_NAME}`,
-          description: `${seoName}，共 ${list.length} 个免费在线工具，全部浏览器本地运行，无需注册。`,
+          description: `${seoName}，共 ${list.length} 个免费在线工具，打开即用，无需注册。`,
           keywords: `${categoryZh},${seoName},在线工具`,
           canonical: url(route),
           robots: categoryNoindex ? 'noindex,follow' : undefined,
@@ -815,7 +815,7 @@ export function seoPrerender(): Plugin {
         html = rewriteHead(html, {
           title: `Excel 工具箱 - ${SITE_NAME}`,
           description:
-            'Excel 相关免费在线工具汇总：多工作簿汇总、合并/拆分单元格、文本提取、去重、数值舍入、CSV/JSON 互转等，全部浏览器本地运行，文件不上传服务器。',
+            'Excel 相关免费在线工具汇总：多工作簿汇总、合并/拆分单元格、文本提取、去重、数值舍入、CSV/JSON 互转等，打开即用，无需安装。',
           keywords: 'Excel工具,Excel在线,表格处理,多工作簿汇总,合并单元格,数据清洗',
           canonical: url('/excel'),
           jsonLd: [
@@ -952,7 +952,7 @@ export function seoPrerender(): Plugin {
           breadcrumbHtml([{ name: '首页', href: '/' }, { name: '关于' }]),
           `<h1>关于${esc(SITE_NAME)}</h1>`,
           `<p class="seo-lead">${esc(
-            `${SITE_NAME}是一个完全免费的在线工具合集，收录了 ${tools.length} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密解密、日期计算、网络工具等，全部在浏览器本地运行，数据不上传服务器。`,
+            `${SITE_NAME}是一个完全免费的在线工具合集，收录了 ${tools.length} 个实用工具，涵盖 PDF 处理、图片编辑、文本转换、单位换算、加密解密、日期计算、网络工具等日常场景，打开网页就能用，无需注册。`,
           )}</p>`,
           `<h2>数据怎么处理</h2>`,
           `<p>绝大多数工具是纯前端计算，你输入的文本、上传的图片和文件都在你自己的浏览器里处理，不会上传到服务器。少数需要联网获取公开数据的工具（如汇率、IP 归属、天气）会在页面上明确标注。</p>`,
@@ -966,7 +966,7 @@ export function seoPrerender(): Plugin {
         html = injectBody(html, body);
         html = rewriteHead(html, {
           title: `关于 - ${SITE_NAME}`,
-          description: `${SITE_NAME}是一个完全免费的在线工具合集，收录 ${tools.length} 个实用工具，全部在浏览器本地运行，数据不上传服务器。`,
+          description: `${SITE_NAME}是一个完全免费的在线工具合集，收录 ${tools.length} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密解密、日期计算、网络工具等，打开即用，无需注册。`,
           keywords: '在线工具箱,关于我们,在线工具',
           canonical: url('/about'),
           jsonLd: [breadcrumbLd([{ name: '首页', href: '/' }, { name: '关于' }])],
@@ -986,7 +986,10 @@ export function seoPrerender(): Plugin {
             count: list.filter((t) => t.tier !== 'L3').length,
           }));
 
-        const topTools = tools.filter((t) => t.tier === 'L1').slice(0, 40);
+        // 静态页给足全部 L1 工具的内链：首页是权重最高的页面，每把 L1 工具都该从这里
+        // 直达（爬虫不执行懒加载，只列 40 个等于把内链权重让给分类页二级分发）。
+        // 运行时首页仍是懒加载，用户滚动能看到同一批工具，不构成 cloaking。
+        const topTools = tools.filter((t) => t.tier === 'L1');
         const homeBody = [
           `<h1>${HOME_TITLE}</h1>`,
           `<p class="seo-lead">${esc(homeLead(tools.filter((t) => t.tier !== 'L3').length))}</p>`,

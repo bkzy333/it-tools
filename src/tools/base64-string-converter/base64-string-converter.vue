@@ -45,9 +45,9 @@ const { copy: copyText } = useCopy({
  * 用户看不出它到底有没有做对 UTF-8。base64 那一段是 text 这一段的编码结果。
  */
 const exampleData = {
-  text: '在线工具箱 gjxtools.com\n所有工具都在浏览器本地运行，数据不上传服务器。',
+  text: '在线工具箱 gjxtools.com\nPDF、图片、文本、单位换算等实用工具，打开即用。',
   base64:
-    '5Zyo57q/5bel5YW3566xIGdqeHRvb2xzLmNvbQrmiYDmnInlt6Xlhbfpg73lnKjmtY/op4jlmajmnKzlnLDov5DooYzvvIzmlbDmja7kuI3kuIrkvKDmnI3liqHlmajjgII=',
+    '5Zyo57q/5bel5YW3566xIGdqeHRvb2xzLmNvbQpQREbjgIHlm77niYfjgIHmlofmnKzjgIHljZXkvY3mjaLnrpfnrYnlrp7nlKjlt6XlhbfvvIzmiZPlvIDljbPnlKjjgII=',
 };
 
 function loadEncodeExample() {

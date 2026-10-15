@@ -1815,6 +1815,7 @@ tools:
     converters: Converters
     barcodes: Barcodes
     finance: Finance
+    life: Life tools
   websocket-tester:
     title: Websocket tester
     description: Allows to test WebSocket connections
@@ -1832,7 +1833,7 @@ tools:
       label-url: Url
   qr-code-decoder:
     title: QR Code decoder
-    description: QR Code Reader
+    description: "QR Code decoder: upload a QR code image to read the text, URL or content inside"
     texts:
       title-drag-and-drop-a-qr-code-here-or-click-to-select-a-file: Drag and drop a QR Code here, or click to select a file
       tag-decoded: Decoded

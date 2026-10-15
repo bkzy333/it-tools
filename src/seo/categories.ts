@@ -34,6 +34,7 @@ export const CATEGORIES: Record<string, CategoryMeta> = {
   Generators: { zh: '随机生成', seo: '随机数与标识生成器', slug: 'generators' },
   Images: { zh: '图片处理', seo: '图片在线处理工具', slug: 'images' },
   JSON: { zh: 'JSON 工具', seo: 'JSON 在线格式化与转换', slug: 'json' },
+  Life: { zh: '生活工具', seo: '生活便民在线计算工具', slug: 'life' },
   Markdown: { zh: 'Markdown', seo: 'Markdown 在线工具', slug: 'markdown' },
   Measurement: { zh: '测量工具', seo: '度量衡单位换算', slug: 'measurement' },
   Network: { zh: '网络工具', seo: '网络与 IP 在线工具', slug: 'network' },

@@ -14,7 +14,7 @@ export const HOME_TITLE = '在线工具箱 - 免费实用的在线工具合集';
 
 const LEAD_TAIL =
   '文本处理、JSON 格式化、加密解密、单位换算、图片处理、PDF 工具、日期计算、网络工具等，' +
-  '全部在浏览器本地运行，无需注册，数据不上传服务器。';
+  '打开即用，无需注册。';
 
 /**
  * 首页导语。构建期传入的是 tier !== 'L3' 的工具数，运行时传入的是前端实际加载的
@@ -26,5 +26,5 @@ export function homeLead(toolCount: number): string {
 
 /** meta description：和 <h1> 同源，只是更短（静态 HTML 里用的就是这一份） */
 export function homeDescription(toolCount: number): string {
-  return `收录 ${toolCount} 个免费在线工具：文本、JSON、加密解密、单位换算、图片、PDF、日期计算等，全部浏览器本地运行，无需注册，数据不上传。`;
+  return `收录 ${toolCount} 个免费在线工具：文本、JSON、加密解密、单位换算、图片、PDF、日期计算、网络工具等，打开即用，无需注册。`;
 }

@@ -10,18 +10,18 @@ const SITE_DOMAIN = 'https://gjxtools.com';
 const CONTACT_EMAIL = 'zhendafang5202023@163.com';
 // ==================================================================
 
+const toolStore = useToolStore();
+const { favoriteToolsName } = storeToRefs(toolStore);
+
 useHead({
   title: `关于 - ${SITE_NAME}`,
   meta: [
     {
       name: 'description',
-      content: `${SITE_NAME}是一个完全免费的在线工具合集，涵盖 PDF、图片、文本、单位换算、加密、日期计算等工具，全部在浏览器本地运行，数据不上传服务器。`,
+      content: `${SITE_NAME}是一个完全免费的在线工具合集，收录 ${toolStore.tools.length} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密、日期计算、网络工具等，打开即用，无需注册。`,
     },
   ],
 });
-
-const toolStore = useToolStore();
-const { favoriteToolsName } = storeToRefs(toolStore);
 
 const message = useMessage();
 const importFavoritesJson = ref('');
@@ -54,7 +54,7 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
 
     <n-card title="为什么用它" mx-auto mt-30px>
       <ul class="feature-list">
-        <li><b>隐私安全</b>：绝大多数工具直接在你的浏览器里完成计算，文件和数据不会上传到任何服务器。</li>
+        <li><b>隐私安全</b>：绝大多数工具直接在你的浏览器里完成计算，文件和数据不会上传到任何服务器；少数需要联网获取数据的工具（如汇率、IP 查询）会在页面上明确标注。</li>
         <li><b>随手可用</b>：电脑、手机浏览器都能打开，界面自适应小屏幕。</li>
         <li><b>收藏功能</b>：把常用工具加进收藏，左侧菜单置顶显示。</li>
         <li><b>深色模式</b>：右上角可切换跟随系统 / 浅色 / 深色。</li>
@@ -85,7 +85,7 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
 
     <n-card title="隐私政策" mx-auto mt-30px>
       <p class="hint">
-        本站工具在你的浏览器本地运行，文件和数据不会上传到服务器。详细说明见
+        绝大多数工具在你的浏览器本地运行，文件和数据不会上传到服务器；少数需要联网的工具会在页面上标注数据去向。详细说明见
         <c-link to="/privacy">隐私政策</c-link>。
       </p>
     </n-card>

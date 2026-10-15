@@ -18,6 +18,7 @@ const CATEGORY_PRIORITY = [
   'pdf',
   'text',
   'datetime',
+  'life',
   'finance',
   'measurement',
   'barcodes',

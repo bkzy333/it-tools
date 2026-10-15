@@ -23,6 +23,6 @@ export const tool = defineTool({
   component: () => import('./retirement-age-calculator.vue'),
   icon: defineAsyncComponent(() => import('@vicons/tabler/es/CalendarStats')),
   createdAt: new Date('2026-10-04'),
-  category: 'Datetime',
-  tags: ['datetime'],
+  category: 'Life',
+  tags: ['life'],
 });
