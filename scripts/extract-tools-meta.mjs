@@ -354,6 +354,9 @@ const FORCE_UP = new Set([
   // Data 分类默认只有 L2，但这两个是完整功能页（带教程正文），按 L1 对待
   'table-lookup',
   'table-pivot',
+  // 金额大写转换器：2026-10 融合英文金额大写（/english-amount）与数字英文互转
+  // （/english-numbers）后为全站最大数字家族，且承接两个 301，按 L1 对待
+  'rmb-numbers',
 ]);
 
 function decideTier(slug, category) {

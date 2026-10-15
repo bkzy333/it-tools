@@ -1588,8 +1588,12 @@ tools:
     externalAccess: "This tool calls our OCR service (a Baidu Cloud proxy) by default; it only falls back to in-browser Tesseract (which downloads language models from https://cdn.jsdelivr.net) when the server is unreachable."
   rmb-numbers:
     title: RMB Uppercase Converter
-    description: RMB/Renminbi Capitalization Conversion Tool
+    description: "Convert numeric amounts into RMB/Renminbi capitalization (壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分) following Chinese financial document conventions, for expense reports, invoices and contracts. Also supports English amount in words (SAY + currency + ONLY) and number-to-English/English-to-number conversion, one entry per line with per-row copy and Excel export."
     texts:
+      tab-rmb: "RMB Uppercase"
+      tab-en-amount: "English Amount"
+      tab-en-number: "Number to English"
+      tab-en-to-number: "English to Number"
       title-lower-case-amount: Lower Case Amount
       placeholder-enter-the-amount-in-lowercase-example-1314-52: "Enter the amount in lowercase (example: 1314.52)"
       title-amount-in-capital-letters: Amount in Capital Letters
@@ -1600,16 +1604,28 @@ tools:
       sep-pause: Enumeration comma (、)
       sep-custom: Custom
       placeholder-custom-separator: Enter a custom separator (e.g. | or ;)
-      btn-convert: Convert
-      btn-copy: Copy
-      btn-copy-all: Copy all results
-      btn-export-excel: Export to Excel (CSV)
       col-input: Input amount
       col-output: Capitalized amount
-      msg-empty: Please enter at least one amount before converting
-      msg-copied: Copied to clipboard
+      col-en-amount-output: English amount in words
+      col-number: Number
+      col-english: English
       text-invalid: Unrecognized amount
       tip-batch: "Batch supported: one amount per line, or split multiple amounts by the selected separator (thousands commas and the ¥ symbol are allowed)"
+      title-en-amount: "Enter amounts (batch supported)"
+      placeholder-en-amount: "One amount per line, e.g. 1234.56; thousands commas and the ¥ symbol are allowed"
+      label-currency: Currency
+      opt-full-form: "Full form (spell out the currency name)"
+      opt-hyphenated: "Hyphenate tens and ones"
+      title-en-amount-result: English amount in words
+      note-en-amount: English amount supports a single positive number only (rounded to 2 decimals, negatives rejected)
+      title-number-input: "Enter numbers (batch supported)"
+      placeholder-number: "One number per line, e.g. 1234567.89; negatives, decimals and thousands commas are allowed"
+      opt-comma: "Separate groups with commas"
+      title-result: Result
+      hint-batch-number: "Lines are split by newline by default; paste many numbers at once for a batch conversion."
+      title-english-input: "Enter English words (batch supported)"
+      placeholder-english: "One reading per line, e.g. one million two hundred thirty-four"
+      hint-batch-english: "English readings contain commas, so use newlines. Pick Custom only if you need another separator."
   timezone-converter:
     title: Timezone Converter
     description: Convert Date-Time from a timezone to others and get timezone vs
@@ -3224,22 +3240,17 @@ tools:
       hint-insert-everyn: "Insert once every N chars"
   number-process:
     title: Number Processing
-    description: Batch process numbers - add/remove thousands separators, convert to/from scientific notation, spell out in English or Chinese currency, and convert between Roman and Arabic numerals (including Unicode variant). One-click copy and export.
+    description: Batch process numbers - add/remove thousands separators, convert to/from scientific notation, and convert between Roman and Arabic numerals (including Unicode variant). One-click copy and export.
     texts:
       options-title: Operation & options
       label-operation: Operation
       label-sep: Thousands separator
       label-precision: Precision (decimal places)
       hint-precision: Leave empty to keep original decimals
-      label-currency: Currency
-      note-english-amount: English amount supports a single positive number only (rounded to 2 decimals, negatives rejected)
       op-add-thousands: Add thousands separator
       op-remove-thousands: Remove thousands separator
       op-to-scientific: To scientific notation
       op-from-scientific: To plain number
-      op-to-english: To English words
-      op-to-english-amount: To English currency amount
-      op-to-chinese-amount: To Chinese currency amount
       op-to-roman: Number to Roman
       op-from-roman: Roman to number
       op-to-roman-unicode: Number to Roman (Unicode)
@@ -3695,32 +3706,6 @@ tools:
       cat-decor: Decorative
       cat-pinyin: Pinyin
       cat-misc: Miscellaneous
-  english-numbers:
-    title: "Numbers to English"
-    description: "Convert between Arabic numerals and English words in bulk, with optional hyphenation and comma grouping. All local."
-    texts:
-      tab-to-english: "Number to English"
-      tab-to-number: "English to Number"
-      title-input-number: "Enter numbers (batch supported)"
-      placeholder-number: "One number per line, e.g. 1234567.89"
-      opt-hyphenated: "Hyphenate tens and ones"
-      opt-comma: "Separate groups with commas"
-      title-result: Result
-      title-input-english: "Enter English words (batch supported)"
-      placeholder-english: "One reading per line, e.g. one million two hundred thirty-four"
-      label-separator: Separator
-      sep-newline: Newline
-      sep-comma: Comma
-      sep-pause: Pause
-      sep-custom: Custom
-      placeholder-custom-sep: "Custom separator"
-      hint-batch-number: "Lines are split by newline by default; paste many numbers at once for a batch conversion."
-      hint-batch-english: "English readings contain commas, so use newlines. Pick Custom only if you need another separator."
-      action-clear: Clear
-      file-to-english: number-to-english
-      file-to-number: english-to-number
-      col-number: Number
-      col-english: English
   date-uppercase:
     title: "Chinese Date in Uppercase"
     description: "Convert a date to the uppercase form used on checks and bills (零壹贰叁肆伍陆柒捌玖拾), following accounting date conventions."
@@ -3732,17 +3717,6 @@ tools:
       label-year: Year
       label-month: Month
       label-day: Day
-  english-amount:
-    title: "English Amount in Words"
-    description: "Convert an amount to English uppercase (SAY + currency + amount + ONLY), supporting USD/EUR/GBP/CNY/HKD/JPY."
-    texts:
-      title-input: "Enter an amount"
-      placeholder-amount: "e.g. 1234.56"
-      label-currency: Currency
-      opt-full-form: "Full form (spell out the currency name)"
-      opt-hyphenated: "Hyphenate tens and ones"
-      title-result: Result
-      hint-empty: "Result appears once you enter an amount"
   english-date-format:
     title: "English Date Format"
     description: "Convert a date into American and British English date formats (with ordinal suffixes), 8 formats in total."

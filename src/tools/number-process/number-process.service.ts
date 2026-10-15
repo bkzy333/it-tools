@@ -1,32 +1,20 @@
 /**
- * 批量数字处理：对齐 lddgo「在线数字处理」的 11 项操作。
+ * 批量数字处理：对齐 lddgo「在线数字处理」的 8 项操作。
  *
- * 复用站内已有转换逻辑，保证格式与本仓库 english-numbers / english-amount / rmb-numbers 一致：
- * - 转为英文大写数字   → numberToEnglish（连字符 + 逗号分组）
- * - 转为英文金额大写   → amountToEnglish（"SAY US DOLLARS ... ONLY" 美分表达）
- * - 转为中文金额大写   → rmbText（壹贰叁… 角分）
- *
- * 其余（千分位加减、科学计数法互转、罗马数字 ASCII/Unicode 互转）为站内空缺能力，这里自研。
+ * 覆盖：千分位加减、科学计数法互转、罗马数字 ASCII/Unicode 互转。
+ * （原「转为英文大写 / 英文金额 / 中文金额」三个 op 于 2026-10 移除——
+ *  能力已并入金额大写转换器 /rmb-numbers，避免同站同能力多入口互相蚕食。）
  *
  * 边界约定（注释 + 单测双锁）：
  * - 输入按换行批量处理，每行一个值；空行原样保留（行数对齐）。
- * - 英文金额大写仅支持单个数字、不支持负数、四舍五入到 2 位小数（与参考站一致）。
- * - 中文金额大写不支持负数（参考站示例均为正数）。
  * - 罗马数字范围 [1, 3999] / [I, MMMCMXCIX]；Unicode 变体仅是字形替换，可逆。
  */
-
-import { numberToEnglish } from '../english-numbers/english-numbers.service';
-import { amountToEnglish } from '../english-amount/english-amount.service';
-import { rmbText } from '../rmb-numbers/rmb-numbers.service';
 
 export type NumberOp =
   | 'addThousands'
   | 'removeThousands'
   | 'toScientific'
   | 'fromScientific'
-  | 'toEnglish'
-  | 'toEnglishAmount'
-  | 'toChineseAmount'
   | 'toRoman'
   | 'fromRoman'
   | 'toRomanUnicode'
@@ -38,8 +26,6 @@ export interface NumberProcessOptions {
   precision?: number | null;
   /** 千分位字符，默认 ',' */
   thousandsSep?: string;
-  /** 英文金额币种，默认 'USD' */
-  currency?: string;
 }
 
 export interface LineResult {
@@ -167,59 +153,12 @@ function fromRomanUnicode(unicode: string): string {
   return fromRoman(ascii);
 }
 
-// ---- 英文 / 中文 金额 ----
-
-function toEnglishOp(str: string): string {
-  return numberToEnglish(str, { hyphenated: true, useComma: true });
-}
-
-function toEnglishAmountOp(str: string, currency: string): string {
-  const n = Number(str);
-  if (Number.isNaN(n)) {
-    throw new Error(`不是有效数字：${str}`);
-  }
-  if (n < 0) {
-    throw new Error('英文金额大写不支持负数');
-  }
-  const rounded = Math.round(n * 100) / 100;
-  return amountToEnglish(rounded, { currencyCode: currency, fullForm: true, hyphenated: true });
-}
-
-function toChineseAmountOp(str: string): string {
-  const n = Number(str);
-  if (Number.isNaN(n)) {
-    throw new Error(`不是有效数字：${str}`);
-  }
-  if (n < 0) {
-    throw new Error('中文金额大写不支持负数');
-  }
-  return rmbText(n);
-}
-
 // ---- 主入口 ----
 
 export function processNumbers(input: string, options: NumberProcessOptions): NumberProcessResult {
-  const { op, precision = null, thousandsSep = ',', currency = 'USD' } = options;
+  const { op, precision = null, thousandsSep = ',' } = options;
   const warnings: string[] = [];
   const lines = input.split(/\r?\n/);
-
-  // 英文金额大写仅支持单个数字
-  if (op === 'toEnglishAmount') {
-    const nonEmpty = lines.map((l) => l.trim()).filter((l) => l !== '');
-    if (nonEmpty.length === 0) {
-      return { lines: [], warnings };
-    }
-    if (nonEmpty.length > 1) {
-      warnings.push('英文金额大写仅支持单个数字，已忽略多余行');
-    }
-    const first = nonEmpty[0];
-    try {
-      return { lines: [{ ok: true, value: toEnglishAmountOp(first, currency) }], warnings };
-    } catch (e) {
-      warnings.push(`${first}：${(e as Error).message}`);
-      return { lines: [{ ok: false, value: first }], warnings };
-    }
-  }
 
   const results: LineResult[] = [];
   lines.forEach((raw, idx) => {
@@ -242,12 +181,6 @@ export function processNumbers(input: string, options: NumberProcessOptions): Nu
           break;
         case 'fromScientific':
           value = fromScientificOp(line, precision);
-          break;
-        case 'toEnglish':
-          value = toEnglishOp(line);
-          break;
-        case 'toChineseAmount':
-          value = toChineseAmountOp(line);
           break;
         case 'toRoman':
           value = toRoman(Number(line));

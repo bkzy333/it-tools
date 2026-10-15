@@ -1521,8 +1521,12 @@ tools:
     externalAccess: "此工具默认调用本站 OCR 服务（百度智能云代理）识别图片；仅在服务端不可用时回退到浏览器端 Tesseract（会从 https://cdn.jsdelivr.net 下载语言模型）。"
   rmb-numbers:
     title: 人民币大写转换器
-    description: 在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额
+    description: 在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额；同时支持英文大写金额（SAY + 币种 + ONLY）与数字英文读数互转，批量每行一条、逐行复制并可导出 Excel
     texts:
+      tab-rmb: 人民币大写
+      tab-en-amount: 英文大写金额
+      tab-en-number: 数字转英文
+      tab-en-to-number: 英文转数字
       title-lower-case-amount: 小写金额
       placeholder-enter-the-amount-in-lowercase-example-1314-52: 输入小写金额（示例：1314.52）
       title-amount-in-capital-letters: 大写金额
@@ -1533,16 +1537,28 @@ tools:
       sep-pause: 顿号
       sep-custom: 自定义
       placeholder-custom-separator: 输入自定义分隔符（如 | 或 ;）
-      btn-convert: 转换
-      btn-copy: 复制
-      btn-copy-all: 复制全部结果
-      btn-export-excel: 导出 Excel（CSV）
       col-input: 录入金额
       col-output: 大写金额
-      msg-empty: 请输入至少一个金额后再转换
-      msg-copied: 已复制到剪贴板
+      col-en-amount-output: 英文大写金额
+      col-number: 数字
+      col-english: 英文
       text-invalid: 无法识别的金额
       tip-batch: 支持批量：每行一个金额，或用所选分隔符拆分多个金额（可含千分位逗号、¥ 符号）
+      title-en-amount: 输入金额（支持批量）
+      placeholder-en-amount: 每行一个金额，如 1234.56；可含千分位逗号与 ¥ 符号
+      label-currency: 币种
+      opt-full-form: 完整句式（写明币种英文全称）
+      opt-hyphenated: 十位与个位之间用连字符
+      title-en-amount-result: 英文大写结果
+      note-en-amount: 英文金额大写仅支持单个数字、不支持负数，自动四舍五入到 2 位小数
+      title-number-input: 输入数字（支持批量）
+      placeholder-number: 每行一个数字，如 1234567.89；支持负号、小数与千分位
+      opt-comma: 组间用逗号分隔
+      title-result: 转换结果
+      hint-batch-number: 默认按换行分隔，可一次粘贴多个数字批量转换，结果按行一一对应
+      title-english-input: 输入英文读数（支持批量）
+      placeholder-english: 每行一个英文读数，如 one million two hundred thirty-four
+      hint-batch-english: 英文读数自带逗号，建议按换行分隔；要用别的符号请选「自定义」
   timezone-converter:
     title: 时区转换器
     description: |
@@ -3123,22 +3139,17 @@ tools:
       hint-insert-everyn: 每隔几个字符插入一次
   number-process:
     title: 数字处理
-    description: 批量处理数字：添加/移除千分位、科学计数法互转、转为英文大写/英文金额/中文金额大写、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出
+    description: 批量处理数字：添加/移除千分位、科学计数法互转、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出
     texts:
       options-title: 操作与选项
       label-operation: 操作
       label-sep: 千分位字符
       label-precision: 精度（保留小数位）
       hint-precision: 留空则保持原小数位
-      label-currency: 币种
-      note-english-amount: 英文金额大写仅支持单个数字、不支持负数，自动四舍五入到 2 位小数
       op-add-thousands: 添加千分位
       op-remove-thousands: 移除千分位
       op-to-scientific: 转为科学计数法
       op-from-scientific: 转为普通数字
-      op-to-english: 转为英文大写数字
-      op-to-english-amount: 转为英文金额大写数字
-      op-to-chinese-amount: 转为中文金额大写数字
       op-to-roman: 数字转罗马数字
       op-from-roman: 罗马数字转数字
       op-to-roman-unicode: 数字转罗马数字(Unicode)
@@ -3590,32 +3601,6 @@ tools:
       cat-decor: 装饰符号
       cat-pinyin: 拼音注音
       cat-misc: 其他符号
-  english-numbers:
-    title: 数字英文互转
-    description: 阿拉伯数字与英文读数互转，支持批量转换、连字符与逗号分隔，纯本地处理
-    texts:
-      tab-to-english: 数字转英文
-      tab-to-number: 英文转数字
-      title-input-number: 输入数字（支持批量）
-      placeholder-number: 每行一个数字，如 1234567.89；支持负号、小数与千分位
-      opt-hyphenated: 十位与个位之间用连字符
-      opt-comma: 组间用逗号分隔
-      title-result: 转换结果
-      title-input-english: 输入英文读数（支持批量）
-      placeholder-english: 每行一个英文读数，如 one million two hundred thirty-four
-      label-separator: 分隔符
-      sep-newline: 换行
-      sep-comma: 逗号
-      sep-pause: 顿号
-      sep-custom: 自定义
-      placeholder-custom-sep: 自定义分隔符
-      hint-batch-number: 默认按换行分隔，可一次粘贴多个数字批量转换，结果按行一一对应
-      hint-batch-english: 英文读数自带逗号，建议按换行分隔；要用别的符号请选「自定义」
-      action-clear: 清空
-      file-to-english: 数字转英文
-      file-to-number: 英文转数字
-      col-number: 数字
-      col-english: 英文
   date-uppercase:
     title: 日期大写
     description: 将日期转换为支票/票据用的中文大写（零壹贰叁肆伍陆柒捌玖拾），符合会计日期书写规范
@@ -3627,17 +3612,6 @@ tools:
       label-year: 年
       label-month: 月
       label-day: 日
-  english-amount:
-    title: 英文金额大写
-    description: 将金额转换为英文大写（SAY + 币种 + 金额 + ONLY），支持美元/欧元/英镑/人民币/港元/日元
-    texts:
-      title-input: 输入金额
-      placeholder-amount: 如 1234.56
-      label-currency: 币种
-      opt-full-form: 完整句式（写明币种英文全称）
-      opt-hyphenated: 十位与个位之间用连字符
-      title-result: 大写结果
-      hint-empty: 输入金额后自动显示结果
   english-date-format:
     title: 英文日期格式
     description: 将日期转换为美式/英式英文日期格式（含序数词后缀），共 8 种格式

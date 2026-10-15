@@ -55,34 +55,6 @@ describe('number-process: 科学计数法互转', () => {
   });
 });
 
-describe('number-process: 英文/中文 大写', () => {
-  it('转为英文大写数字', () => {
-    const r = processNumbers('123', { op: 'toEnglish' });
-    expect(r.lines[0].value).toBe('one hundred twenty-three');
-  });
-
-  it('转为英文金额大写（美分表达）', () => {
-    const r = processNumbers('123.68', { op: 'toEnglishAmount' });
-    expect(r.lines[0].value).toBe('SAY US DOLLARS ONE HUNDRED TWENTY-THREE DOLLARS AND SIXTY-EIGHT CENTS ONLY');
-  });
-
-  it('英文金额大写仅支持单值', () => {
-    const r = processNumbers('123.68\n456.00', { op: 'toEnglishAmount' });
-    expect(r.lines).toHaveLength(1);
-    expect(r.warnings.some((w) => w.includes('单个数字'))).toBe(true);
-  });
-
-  it('英文金额大写不支持负数', () => {
-    const r = processNumbers('-123.68', { op: 'toEnglishAmount' });
-    expect(r.lines[0].ok).toBe(false);
-  });
-
-  it('转为中文金额大写', () => {
-    const r = processNumbers('1314.52', { op: 'toChineseAmount' });
-    expect(r.lines[0].value).toBe('壹仟叁佰壹拾肆元伍角贰分');
-  });
-});
-
 describe('number-process: 罗马数字互转', () => {
   it('数字转罗马', () => {
     const r = processNumbers('3999', { op: 'toRoman' });

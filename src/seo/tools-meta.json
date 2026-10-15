@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-15T08:13:29.316Z",
+  "generatedAt": "2026-10-15T09:45:40.052Z",
   "sourceCommit": "extracted at build time",
-  "total": 117,
+  "total": 115,
   "tiers": {
     "L1": 94,
-    "L2": 22,
+    "L2": 20,
     "L3": 1
   },
   "categories": {
@@ -874,35 +874,6 @@
       "tier": "L1"
     },
     {
-      "path": "/english-amount",
-      "slug": "english-amount",
-      "category": "Data",
-      "keywords": [
-        "英文金额大写",
-        "美元大写",
-        "金额英文",
-        "英文数字大写",
-        "金额大写英文",
-        "SAY ONLY",
-        "english amount",
-        "amount in words",
-        "美元金额大写",
-        "票据英文金额"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "data",
-        "convert"
-      ],
-      "isExternalAccess": false,
-      "title": "英文金额大写",
-      "description": "将金额转换为英文大写（SAY + 币种 + 金额 + ONLY），支持美元/欧元/英镑/人民币/港元/日元",
-      "categoryZh": "数据处理",
-      "categorySeoName": "数据格式转换工具",
-      "tier": "L2"
-    },
-    {
       "path": "/english-date-format",
       "slug": "english-date-format",
       "category": "Datetime",
@@ -928,36 +899,6 @@
       "description": "将日期转换为美式/英式英文日期格式（含序数词后缀），共 8 种格式",
       "categoryZh": "日期与时间",
       "categorySeoName": "日期时间在线计算",
-      "tier": "L1"
-    },
-    {
-      "path": "/english-numbers",
-      "slug": "english-numbers",
-      "category": "Text",
-      "keywords": [
-        "数字转英文",
-        "英文转数字",
-        "数字英文",
-        "英文读数",
-        "英文数字转换",
-        "数字转英文批量",
-        "number to words",
-        "english numbers",
-        "阿拉伯数字英文",
-        "金额英文"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "data-cleaning",
-        "convert"
-      ],
-      "isExternalAccess": false,
-      "title": "数字英文互转",
-      "description": "阿拉伯数字与英文读数互转，支持批量转换、连字符与逗号分隔，纯本地处理",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
       "tier": "L1"
     },
     {
@@ -2010,7 +1951,7 @@
       ],
       "isExternalAccess": false,
       "title": "数字处理",
-      "description": "批量处理数字：添加/移除千分位、科学计数法互转、转为英文大写/英文金额/中文金额大写、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出",
+      "description": "批量处理数字：添加/移除千分位、科学计数法互转、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出",
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
       "tier": "L2"
@@ -2364,11 +2305,21 @@
         "rmb",
         "renminbi",
         "cny",
-        "number",
-        "uppercase",
-        "人民币",
-        "大写",
-        "转换"
+        "人民币大写",
+        "大写金额",
+        "金额大写",
+        "人民币大写转换器",
+        "美元大写",
+        "金额英文",
+        "SAY ONLY",
+        "english amount",
+        "amount in words",
+        "票据英文金额",
+        "数字转英文",
+        "英文转数字",
+        "number to words",
+        "english numbers",
+        "英文读数"
       ],
       "redirectFrom": [],
       "npmPackages": [],
@@ -2378,10 +2329,10 @@
       ],
       "isExternalAccess": false,
       "title": "人民币大写转换器",
-      "description": "在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额",
+      "description": "在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额；同时支持英文大写金额（SAY + 币种 + ONLY）与数字英文读数互转，批量每行一条、逐行复制并可导出 Excel",
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
-      "tier": "L2"
+      "tier": "L1"
     },
     {
       "path": "/salary-calculator",

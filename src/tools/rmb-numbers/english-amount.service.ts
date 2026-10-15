@@ -17,7 +17,7 @@
  * 2. 完整：SAY US DOLLARS 金额 ONLY
  */
 
-import { numberToEnglish } from '../english-numbers/english-numbers.service';
+import { numberToEnglish } from './english-numbers.service';
 
 export interface CurrencyDef {
   code: string;

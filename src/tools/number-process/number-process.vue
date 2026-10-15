@@ -11,36 +11,22 @@ const message = useMessage();
 const op = ref<NumberOp>('addThousands');
 const precision = ref<number | null>(null);
 const sep = ref(',');
-const currency = ref('USD');
 
 const opOptions = computed(() => [
   { value: 'addThousands', label: t('tools.number-process.texts.op-add-thousands') },
   { value: 'removeThousands', label: t('tools.number-process.texts.op-remove-thousands') },
   { value: 'toScientific', label: t('tools.number-process.texts.op-to-scientific') },
   { value: 'fromScientific', label: t('tools.number-process.texts.op-from-scientific') },
-  { value: 'toEnglish', label: t('tools.number-process.texts.op-to-english') },
-  { value: 'toEnglishAmount', label: t('tools.number-process.texts.op-to-english-amount') },
-  { value: 'toChineseAmount', label: t('tools.number-process.texts.op-to-chinese-amount') },
   { value: 'toRoman', label: t('tools.number-process.texts.op-to-roman') },
   { value: 'fromRoman', label: t('tools.number-process.texts.op-from-roman') },
   { value: 'toRomanUnicode', label: t('tools.number-process.texts.op-to-roman-unicode') },
   { value: 'fromRomanUnicode', label: t('tools.number-process.texts.op-from-roman-unicode') },
 ]);
 
-const currencyOptions = computed(() => [
-  { value: 'USD', label: 'USD - US DOLLARS' },
-  { value: 'CNY', label: 'CNY - CHINESE YUAN' },
-  { value: 'EUR', label: 'EUR - EURO' },
-  { value: 'GBP', label: 'GBP - POUNDS STERLING' },
-  { value: 'JPY', label: 'JPY - JAPANESE YEN' },
-  { value: 'HKD', label: 'HKD - HONG KONG DOLLARS' },
-]);
-
 const needsPrecision = computed(() =>
   ['addThousands', 'removeThousands', 'toScientific', 'fromScientific'].includes(op.value),
 );
 const needsSep = computed(() => ['addThousands', 'removeThousands'].includes(op.value));
-const needsCurrency = computed(() => op.value === 'toEnglishAmount');
 
 const defaultValue = '120943423.4567\n-120943423.4567';
 const input = ref(defaultValue);
@@ -49,7 +35,6 @@ function loadExample() {
   input.value = defaultValue;
   precision.value = null;
   sep.value = ',';
-  currency.value = 'USD';
 }
 
 const result = computed(() => {
@@ -60,7 +45,6 @@ const result = computed(() => {
     op: op.value,
     precision: precision.value,
     thousandsSep: sep.value,
-    currency: currency.value,
   });
 });
 
@@ -141,19 +125,6 @@ function exportCsv() {
           />
           <span text-xs op-50>{{ t('tools.number-process.texts.hint-precision') }}</span>
         </div>
-
-        <div v-if="needsCurrency" flex flex-wrap items-center gap-3>
-          <span text-sm op-70>{{ t('tools.number-process.texts.label-currency') }}</span>
-          <c-select
-            v-model:value="currency"
-            :options="currencyOptions"
-            style="min-width: 240px; max-width: 100%"
-          />
-        </div>
-
-        <p v-if="needsCurrency" m-0 text-xs op-60>
-          {{ t('tools.number-process.texts.note-english-amount') }}
-        </p>
       </n-space>
     </c-card>
 
