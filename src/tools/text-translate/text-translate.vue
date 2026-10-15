@@ -4,6 +4,7 @@
  *
  * 交互约定（2026-10 用户明确要求）：
  * - 只在点「翻译」按钮时请求，绝不随输入自动翻译（既浪费额度，也会翻到半截内容）。
+ *   改输入或改语言都不会清空上一次结果 —— 用户往往要对照新旧内容再决定，清掉反而碍事。
  * - 不做「结果来自缓存」之类的内部提示：省了多少额度是后台的事，不该占用用户注意力。
  * - 批量模式：一行（或自定义分隔符）一条，一次请求交给后端，结果逐行对应，
  *   可直接复制回 Excel B 列，也可导出 TXT / Excel（走全站统一的 BatchResultTable）。
@@ -13,7 +14,7 @@
  * - 后端对每条先查缓存，跨用户 / 跨模式（单条翻过的句子批量里也命中）复用。
  * - 未命中的条目在后端合并成 ≤2000 字符的批次，一批一次调用腾讯云。
  */
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
@@ -81,16 +82,6 @@ function onSourceChange() {
 // 进入页面时用已存偏好；并做一次合法性校验（腾讯云约束：源/目标并非任意可互通）。
 onSourceChange();
 
-/** 输入或语言一变，上一次的结果就对不上了 —— 直接清掉，避免误读成「新内容的译文」。 */
-function resetOutput() {
-  result.value = '';
-  batchRows.value = [];
-  errorMsg.value = '';
-  dedupedCount.value = 0;
-}
-
-watch([text, source, target, sep, customSep, batchMode], resetOutput);
-
 async function doTranslate() {
   // 重叠保护：正在翻译时忽略新触发，避免无意识的重复点击刷额度。
   if (loading.value) {
@@ -110,7 +101,6 @@ async function doTranslate() {
     return;
   }
   loading.value = true;
-  result.value = '';
   try {
     // 后端返回扁平结构 { TargetText, err? }（translate.ts 已解包腾讯云 Response）。
     const data = await translateText(input, source.value, target.value);
@@ -124,6 +114,7 @@ async function doTranslate() {
       errorMsg.value = t('tools.text-translate.texts.error-empty-result');
       return;
     }
+    // 成功才覆盖：失败时留着上一次的结果，用户还能对照 / 复制，不至于白翻一次。
     result.value = targetText;
   } catch {
     errorMsg.value = t('tools.text-translate.texts.error-network');
@@ -134,8 +125,6 @@ async function doTranslate() {
 
 async function doTranslateBatch() {
   const list = batchTokens.value;
-  batchRows.value = [];
-  dedupedCount.value = 0;
   if (list.length === 0) {
     errorMsg.value = t('tools.text-translate.texts.error-empty');
     return;
@@ -150,7 +139,6 @@ async function doTranslateBatch() {
 
   // 去重只请求唯一条目：Excel 一列里同名词/同句很常见，去掉重复能直接省掉对应字符与调用。
   const unique = [...new Set(list)];
-  dedupedCount.value = list.length - unique.length;
 
   loading.value = true;
   try {
@@ -175,6 +163,7 @@ async function doTranslateBatch() {
     });
     // 映射回原始行序：去重后行数变少，这里按原顺序展开，方便逐行贴回 Excel。
     batchRows.value = list.map((token) => bySource.get(token) as BatchRow);
+    dedupedCount.value = list.length - unique.length;
   } catch (e) {
     errorMsg.value
       = e instanceof TranslateRequestError && e.message
