@@ -3165,79 +3165,117 @@ tools:
       milestones-done: All preset milestones reached
       copied: Result copied
   text-format:
-    title: Text Format
-    description: Batch clean and reformat text in one pass — trim whitespace, drop
-      empty lines, add or strip prefixes and suffixes, indent or dedent, find
-      and replace, then sort and dedupe, with live preview.
+    title: Text Processing
+    description: Online text toolkit - dedupe, sort, trim whitespace and empty lines, split, merge, regex filter, find and replace, indent, line numbers and case conversion. One-click presets plus free pipeline editing, with batch processing and duplicate line counts.
     texts:
       label-input: Input
-      placeholder-input: Paste the text to process here, the result updates live
-      label-space: Whitespace
-      opt-remove-left-space: Trim leading whitespace
-      opt-remove-right-space: Trim trailing whitespace
-      opt-remove-all-space: Remove all inline whitespace
-      opt-remove-empty-line: Remove empty lines
-      label-prefix-suffix: Prefix and suffix
-      label-prefix-suffix-mode: Mode
-      opt-prefix-suffix-mode-none: No change
-      opt-prefix-suffix-mode-add: Add
-      opt-prefix-suffix-mode-remove: Remove
-      placeholder-prefix: Prefix to add or remove
-      placeholder-suffix: Suffix to add or remove
-      label-indent: Indentation
-      label-indent-mode: Mode
-      opt-indent-mode-none: No change
-      opt-indent-mode-add: Add indent
-      opt-indent-mode-remove: Remove indent
-      label-indent-method: Unit
-      opt-indent-method-space: Spaces
-      opt-indent-method-tab: Tab
-      label-indent-columns: Spaces per indent
-      label-replace: Replace
-      opt-replace-using: Enable replace
-      label-replace-from: Replace
-      label-replace-to: With
-      hint-replace-multi: "Replace multiple targets at once: separate them with a pipe | in the 'Replace' field, and they will all be replaced with the 'With' value."
-      opt-replacer-mode-custom: Custom
-      opt-replacer-mode-newline: Newline
-      label-order: Sorting and dedupe
-      label-order-by: Order
-      opt-order-none: Keep order
-      opt-order-asc: Ascending
-      opt-order-desc: Descending
-      opt-remove-repeat: Remove duplicate lines
-      opt-show-line-number: Show line numbers
-      title-result: Result
-      label-total-lines: Total lines
-      label-empty-lines: Empty lines
-      label-duplicate-lines: Duplicates
-      action-copy: Copy result
-      action-download: Download
-      action-clear: Clear
-      label-advanced: Advanced transforms
-      hint-advanced: "The four transforms below are off by default; enable them individually. When several are on, they run in order: reverse -> script -> truncate -> insert."
-      label-reverse: Reverse
-      opt-reverse-none: No reverse
-      opt-reverse-chars: Reverse whole text
+      placeholder-input: Paste the text to process here, one record per line, the result updates live
+      placeholder-result: The processed result appears here
+      label-presets: One-click presets
+      hint-presets: Click a preset to fill in a whole pipeline in one go, then tweak it under Advanced pipeline below
+      preset-dedupe-sort: Dedupe and sort
+      preset-clean-space: Trim and drop empty lines
+      preset-add-number: Add line numbers
+      preset-split: Split by separator
+      preset-merge-rows: Merge into one line
+      preset-merge-cols: Merge by columns
+      preset-filter: Filter lines by regex
+      preset-upper: UPPERCASE
+      preset-lower: lowercase
+      preset-one-click-clean: One-click clean
+      preset-add-affix: Add prefix and suffix
+      label-advanced: Advanced pipeline
+      label-add-op: Add operation
+      label-workflow: Current pipeline (runs top to bottom)
+      hint-no-op: No operations yet - add one above, or start with a preset
+      group-line: Line operations (per line / whole line set)
+      group-text: Text operations (whole text)
+      op-trim: Trim whitespace
+      op-remove-empty: Remove empty lines
+      op-dedupe: Dedupe
+      op-sort: Sort
+      op-add-prefix: Add prefix
+      op-add-suffix: Add suffix
+      op-number: Add line numbers
+      op-wrap-quote: Wrap in quotes
+      op-indent: Indent / dedent
+      op-filter: Regex filter
+      op-split: Split by separator
+      op-merge: Merge
+      op-case: Change case
+      op-replace: Replace
+      op-reverse: Reverse
+      op-script: Sub / super script
+      op-truncate: Truncate
+      op-insert: Insert
+      param-mode: Mode
+      param-text: Text
+      param-start: Start
+      param-step: Step
+      param-quote: Quote
+      param-method: Unit
+      param-count: Spaces
+      param-pattern: Regex
+      param-invert: Invert
+      param-delimiter: Separator
+      param-output: Joiner
+      param-input: Column separator
+      param-skip-empty: Skip empty
+      param-all-space: Remove all whitespace
+      param-from: Find
+      param-to: Replace with
+      param-n: Chars
+      param-position: Position
+      param-interval: Interval
+      opt-sort-none: Keep order
+      opt-sort-asc: Ascending (locale)
+      opt-sort-desc: Descending (locale)
+      opt-sort-asc-num: Ascending (numeric)
+      opt-sort-desc-num: Descending (numeric)
+      opt-sort-asc-bin: Ascending (binary)
+      opt-sort-desc-bin: Descending (binary)
+      opt-sort-asc-upper: Ascending (upper first)
+      opt-sort-desc-upper: Descending (upper first)
+      opt-indent-add: Add indent
+      opt-indent-remove: Remove indent
+      opt-method-space: Spaces
+      opt-method-tab: Tab
+      opt-yes: "Yes"
+      opt-no: "No"
+      opt-merge-rows: Join lines into one
+      opt-merge-cols: Join columns per line
+      opt-delim-comma: Comma
+      opt-delim-semicolon: Semicolon
+      opt-delim-tab: Tab
+      opt-delim-newline: Newline
+      opt-delim-space: Space
+      opt-case-lower: lowercase
+      opt-case-upper: UPPERCASE
       opt-reverse-lines: Reverse lines
+      opt-reverse-chars: Reverse whole text
       opt-reverse-words: Reverse words
-      label-script: Sub / super script
-      opt-script-none: No change
       opt-script-sub: Subscript
       opt-script-super: Superscript
-      label-truncate: Truncate
-      opt-truncate-none: No truncate
       opt-truncate-head: Keep first N chars
       opt-truncate-tail: Keep last N chars
       opt-truncate-range: Keep a range
-      label-insert: Insert
-      opt-insert-none: No insert
       opt-insert-atpos: At position
       opt-insert-everyn: Every N chars
-      placeholder-insert-text: Text to insert
-      label-insert-pos: Insert position
-      hint-insert-atpos: "Insert after the N-th char (0 = at the very front)"
-      hint-insert-everyn: "Insert once every N chars"
+      tab-text: Result
+      tab-count: Duplicate counts
+      label-output-lines: Output lines
+      label-count-order: Order
+      opt-count-none: First seen
+      opt-count-desc: Count descending
+      opt-count-asc: Count ascending
+      placeholder-count: Enter text and this tab counts duplicate lines, exportable as CSV
+      label-total: Total lines
+      label-duplicate: Duplicates
+      label-empty: Empty lines
+      action-clear: Clear
+      action-copy-csv: Copy CSV
+      action-download-csv: Download CSV
+      msg-copied-csv: CSV copied to clipboard
   number-process:
     title: Number Processing
     description: Batch process numbers - add/remove thousands separators, convert to/from scientific notation, and convert between Roman and Arabic numerals (including Unicode variant). One-click copy and export.
@@ -3460,109 +3498,6 @@ tools:
       action-copy-tsv: Copy as TSV
       message-highlight-count: '{n} matches highlighted'
       message-copied-tsv: Copied as TSV
-  text-dedupe:
-    title: Text Dedupe and Sort
-    description: Remove duplicate lines, sort them, drop blank lines and trim
-      whitespace in one pass, with live counts of total, duplicate and empty
-      lines.
-    texts:
-      tab-dedupe: Dedupe and sort
-      tab-count: Duplicate count
-      label-input: Input
-      placeholder-input: Paste the text to process here
-      label-input-delimiter: Input delimiter
-      placeholder-input-delimiter: Custom delimiter, e.g. --- or ***
-      opt-delimiter-newline: Newline[↵]
-      opt-delimiter-tab: Tab[⇥]
-      opt-delimiter-space: Space[ ]
-      opt-delimiter-comma: Comma[,]
-      opt-delimiter-comma-full: Fullwidth comma[，]
-      opt-delimiter-slash: Slash[/]
-      opt-delimiter-semicolon: Semicolon[;]
-      opt-delimiter-semicolon-full: Fullwidth semicolon[；]
-      opt-delimiter-custom: Custom
-      label-order-by: Sort result
-      opt-order-none: Keep order
-      opt-order-asc: Ascending
-      opt-order-desc: Descending
-      label-count-order-by: Sort by count
-      opt-count-order-none: Keep order
-      opt-count-order-desc: By count descending
-      opt-count-order-asc: By count ascending
-      opt-remove-repeat: Remove duplicate lines
-      opt-remove-first-last-space: Trim edges
-      opt-remove-empty-line: Remove blank lines
-      opt-show-line-number: Show line numbers
-      opt-quote-items: Wrap items in single quotes (build an array)
-      label-output-delimiter: Output delimiter
-      placeholder-output-delimiter: Custom delimiter, e.g. , or ;
-      title-result: Result
-      label-total-lines: Total lines
-      label-duplicate-lines: Duplicates
-      label-empty-lines: Blank lines
-      action-copy: Copy result
-      action-download: Download
-      action-download-csv: Export CSV
-      action-clear: Clear
-  text-split:
-    title: Text Split
-    description: Split text into multiple lines or parts with a chosen delimiter,
-      then optionally sort, trim and number them before joining back with a
-      different output delimiter.
-    texts:
-      label-input: Input
-      placeholder-input: Paste the text to split here
-      label-input-delimiter: Input delimiter
-      placeholder-input-delimiter: Custom delimiter, e.g. --- or ***
-      label-output-delimiter: Output delimiter
-      placeholder-output-delimiter: Delimiter used to join the result
-      label-order-by: Sort result
-      opt-order-none: Keep order
-      opt-order-asc: Ascending
-      opt-order-desc: Descending
-      opt-delimiter-newline: Newline[↵]
-      opt-delimiter-tab: Tab[⇥]
-      opt-delimiter-space: Space[ ]
-      opt-delimiter-comma: Comma[,]
-      opt-delimiter-comma-full: Fullwidth comma[，]
-      opt-delimiter-slash: Slash[/]
-      opt-delimiter-semicolon: Semicolon[;]
-      opt-delimiter-semicolon-full: Fullwidth semicolon[；]
-      opt-delimiter-custom: Custom
-      opt-remove-first-last-space: Trim edges
-      opt-show-line-number: Show line numbers
-      title-result: Result
-      label-part-count: Parts
-      hint-unchanged: Delimiter not found, output unchanged
-      action-copy: Copy result
-      action-download: Download
-      action-clear: Clear
-  text-merge:
-    title: Text Merge
-    description: "Merge multiple lines or columns with a custom delimiter, with options to skip empty values, trim spaces and remove all whitespace; copy the result as TSV to paste straight back into Excel."
-    texts:
-      label-input: Input
-      placeholder-input: Paste text here (multi-column data copied from Excel pastes with Tab between columns)
-      label-mode: Merge mode
-      opt-mode-rows: Join rows (all lines into one)
-      opt-mode-cols: Join columns (each line's cells into one)
-      label-input-delimiter: Input column delimiter (columns mode only)
-      label-output-delimiter: Output delimiter
-      placeholder-custom-delimiter: Custom delimiter
-      opt-delimiter-comma: Comma
-      opt-delimiter-semicolon: Semicolon
-      opt-delimiter-tab: Tab
-      opt-delimiter-newline: Newline
-      opt-delimiter-space: Space
-      opt-delimiter-custom: Custom
-      opt-skip-empty: Skip empty values
-      title-result: Result
-      label-cell-count: Cells
-      action-copy-tsv: Copy as TSV
-      action-clear: Clear
-      message-copied-tsv: Copied as TSV
-      opt-remove-first-last-space: "Trim leading and trailing spaces"
-      opt-remove-all-space: "Remove all whitespace (tabs and full-width spaces included)"
   sequence-generator:
     title: Sequence Generator
     description: Generate ordered sequences by number, letter, roman numeral, Chinese numeral, weekday, month, heavenly stems, earthly branches, or your own custom list, with prefix/suffix and zero-padding.
@@ -3604,40 +3539,6 @@ tools:
       action-copy: Copy
       action-download: Download
       placeholder-result: The generated sequence will appear here
-  text-workflow:
-    title: Text Workflow
-    description: Chain operations like trim, case change, reverse, sort, dedupe, replace and numbering into an ordered pipeline to batch-process text with live preview.
-    texts:
-      label-add-op: "Add operation"
-      label-workflow: "Current workflow (runs in order)"
-      label-input: "Input text"
-      placeholder-input: "Paste the text to process here"
-      title-result: Result
-      placeholder-result: The result will appear here in real time
-      hint-no-op: "No operations yet. Click a button above to add one."
-      action-copy: "Copy result"
-      action-clear: Clear
-      op-trim: "Trim spaces"
-      op-remove-empty: "Remove empty lines"
-      op-lowercase: lowercase
-      op-uppercase: UPPERCASE
-      op-reverse: Reverse
-      op-sort: Sort
-      op-dedupe: Dedupe
-      op-replace: Replace
-      op-add-prefix: "Add prefix"
-      op-add-suffix: "Add suffix"
-      op-number: "Add numbering"
-      param-mode: Mode
-      param-from: From
-      param-to: To
-      param-text: Text
-      param-start: Start
-      param-step: Step
-      param-reverse-lines: "Reverse lines"
-      param-reverse-chars: "Reverse chars"
-      param-sort-asc: Ascending
-      param-sort-desc: Descending
   text-numbering:
     title: "Text Numbering"
     description: "Add incrementing numbers to each line of text, with multiple number formats, start value, step and zero-padding."

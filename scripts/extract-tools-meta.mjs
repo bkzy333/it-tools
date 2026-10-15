@@ -500,7 +500,10 @@ fs.writeFileSync(
     },
     null,
     2,
-  ),
+  )
+    // 仓库工作区统一 CRLF（Windows）；直接写 LF 会让 git add 报
+    // "LF will be replaced by CRLF" 且需要每次手动还原（2026-10-15 踩过）
+    .replace(/\n/g, '\r\n'),
   'utf-8',
 );
 

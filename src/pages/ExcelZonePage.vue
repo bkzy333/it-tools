@@ -23,10 +23,8 @@ const TAB_MAP: Record<string, 'file' | 'clean' | 'calc'> = {
   'excel-cell-merge': 'file',
   'excel-cell-unmerge': 'file',
   'text-extract': 'clean',
-  'text-dedupe': 'clean',
-  // 2026-10-13：原 'text-join' 已合并进 'text-merge'（两者核心功能重复）
-  'text-merge': 'clean',
-  'text-split': 'clean',
+  // 2026-10-15：text-dedupe / text-merge / text-split 已并入 text-format（文本家族融合）
+  'text-format': 'clean',
   'number-rounding': 'clean',
   'csv-to-json': 'clean',
   'json-to-csv': 'clean',

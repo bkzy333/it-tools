@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-15T09:45:40.052Z",
+  "generatedAt": "2026-10-15T11:27:42.117Z",
   "sourceCommit": "extracted at build time",
-  "total": 115,
+  "total": 111,
   "tiers": {
-    "L1": 94,
+    "L1": 90,
     "L2": 20,
     "L3": 1
   },
@@ -2602,28 +2602,6 @@
       "tier": "L1"
     },
     {
-      "path": "/text-dedupe",
-      "slug": "text-dedupe",
-      "category": "Text",
-      "keywords": [
-        "text",
-        "dedupe"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "excel",
-        "data-cleaning"
-      ],
-      "isExternalAccess": false,
-      "title": "文本去重排序",
-      "description": "对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
-      "tier": "L1"
-    },
-    {
       "path": "/text-diff",
       "slug": "text-diff",
       "category": "Text",
@@ -2686,32 +2664,7 @@
       ],
       "isExternalAccess": false,
       "title": "文本处理",
-      "description": "对文本批量执行去空格、去空行、去前后缀、缩进反缩进、替换、排序与去重，实时预览处理结果。",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
-      "tier": "L1"
-    },
-    {
-      "path": "/text-merge",
-      "slug": "text-merge",
-      "category": "Text",
-      "keywords": [
-        "text",
-        "merge",
-        "concat",
-        "join",
-        "tsv"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "excel",
-        "data-cleaning"
-      ],
-      "isExternalAccess": false,
-      "title": "文本合并",
-      "description": "把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值、去首尾空格与删除所有空格，并可一键复制为 TSV 直接粘回 Excel。",
+      "description": "在线文本处理工具：去重排序、去空格空行、拆分合并、正则过滤、查找替换、缩进、行号、大小写转换，一键预设加自由编排，支持批量处理与重复行统计",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
@@ -2762,28 +2715,6 @@
       "isExternalAccess": false,
       "title": "文本查重",
       "description": "检测两段文本的内容重复率，按中文字符与英文单词分词比对，高亮重复内容，全部在本地完成、数据不上传",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
-      "tier": "L1"
-    },
-    {
-      "path": "/text-split",
-      "slug": "text-split",
-      "category": "Text",
-      "keywords": [
-        "text",
-        "split"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "excel",
-        "data-cleaning"
-      ],
-      "isExternalAccess": false,
-      "title": "文本分割",
-      "description": "用指定分隔符把文本拆成多行或多段，可排序、去首尾空格、加行号，再用另一个分隔符拼回去。",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"
@@ -2859,31 +2790,6 @@
       "isExternalAccess": false,
       "title": "排版纠正",
       "description": "自动纠正中英文混排的排版问题：中英文与中文数字之间加空格、半角标点转全角、折叠重复标点，提升文案可读性",
-      "categoryZh": "文本处理",
-      "categorySeoName": "文本处理在线工具",
-      "tier": "L1"
-    },
-    {
-      "path": "/text-workflow",
-      "slug": "text-workflow",
-      "category": "Text",
-      "keywords": [
-        "text",
-        "workflow",
-        "pipeline",
-        "工作流",
-        "文本处理",
-        "批处理"
-      ],
-      "redirectFrom": [],
-      "npmPackages": [],
-      "tags": [
-        "text",
-        "data-cleaning"
-      ],
-      "isExternalAccess": false,
-      "title": "文本工作流",
-      "description": "把去空格、大小写、反转、排序、去重、替换、加序号等操作按顺序串成一条流水线，批量处理文本，实时预览每一步的结果",
       "categoryZh": "文本处理",
       "categorySeoName": "文本处理在线工具",
       "tier": "L1"

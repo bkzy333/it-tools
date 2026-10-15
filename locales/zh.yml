@@ -3067,76 +3067,116 @@ tools:
       copied: 结果已复制
   text-format:
     title: 文本处理
-    description: 对文本批量执行去空格、去空行、去前后缀、缩进反缩进、替换、排序与去重，实时预览处理结果。
+    description: 在线文本处理工具：去重排序、去空格空行、拆分合并、正则过滤、查找替换、缩进、行号、大小写转换，一键预设加自由编排，支持批量处理与重复行统计
     texts:
       label-input: 输入内容
-      placeholder-input: 在此粘贴需要处理的文本，处理结果会实时更新
-      label-space: 去除空格
-      opt-remove-left-space: 去掉行首空格
-      opt-remove-right-space: 去掉行尾空格
-      opt-remove-all-space: 删除行内所有空格
-      opt-remove-empty-line: 移除空行
-      label-prefix-suffix: 前后缀
-      label-prefix-suffix-mode: 处理方式
-      opt-prefix-suffix-mode-none: 不处理
-      opt-prefix-suffix-mode-add: 添加前后缀
-      opt-prefix-suffix-mode-remove: 删除前后缀
-      placeholder-prefix: 要添加或删除的前缀
-      placeholder-suffix: 要添加或删除的后缀
-      label-indent: 缩进
-      label-indent-mode: 处理方式
-      opt-indent-mode-none: 不处理
-      opt-indent-mode-add: 增加缩进
-      opt-indent-mode-remove: 减少缩进
-      label-indent-method: 缩进符
-      opt-indent-method-space: 空格
-      opt-indent-method-tab: 制表符
-      label-indent-columns: 每个缩进的空格数
-      label-replace: 替换
-      opt-replace-using: 执行替换
-      label-replace-from: 将
-      label-replace-to: 替换成
-      hint-replace-multi: 支持一次替换多个内容：在「将」里用竖线 | 分隔多个目标，它们会被全部替换成「替换成」的内容。
-      opt-replacer-mode-custom: 自定义
-      opt-replacer-mode-newline: 换行符
-      label-order: 排序与去重
-      label-order-by: 结果排序
-      opt-order-none: 不排序
-      opt-order-asc: 升序
-      opt-order-desc: 降序
-      opt-remove-repeat: 去掉重复行
-      opt-show-line-number: 显示行号
-      title-result: 处理结果
-      label-total-lines: 总行数
-      label-empty-lines: 空行
-      label-duplicate-lines: 重复杂行
-      action-copy: 复制结果
-      action-download: 下载
-      action-clear: 清空
-      label-advanced: 高级变换
-      hint-advanced: 下面的四种变换默认都不生效，按需单独开启；多个同时开启时按「倒序 → 上下标 → 截取 → 插入」的顺序串接。
-      label-reverse: 倒序
-      opt-reverse-none: 不倒序
-      opt-reverse-chars: 整段字符倒序
+      placeholder-input: 在此粘贴需要处理的文本，每行一条记录，处理结果会实时更新
+      placeholder-result: 处理结果会显示在这里
+      label-presets: 一键预设
+      hint-presets: 点一下即按预设流程处理，之后还能在下方「高级编排」里继续调整增删
+      preset-dedupe-sort: 去重排序
+      preset-clean-space: 清除空格空行
+      preset-add-number: 添加行号
+      preset-split: 按分隔符拆分
+      preset-merge-rows: 合并为一行
+      preset-merge-cols: 按列合并
+      preset-filter: 正则过滤行
+      preset-upper: 转为大写
+      preset-lower: 转为小写
+      preset-one-click-clean: 一键清洗
+      preset-add-affix: 添加前后缀
+      label-advanced: 高级编排
+      label-add-op: 添加操作
+      label-workflow: 当前流水线（从上到下依次执行）
+      hint-no-op: 还没有添加任何操作，点上方按钮添加，或先试试「一键预设」
+      group-line: 行级操作（对每一行 / 行集合生效）
+      group-text: 文本级操作（对整段文本生效）
+      op-trim: 去首尾空格
+      op-remove-empty: 删除空行
+      op-dedupe: 去重
+      op-sort: 排序
+      op-add-prefix: 添加前缀
+      op-add-suffix: 添加后缀
+      op-number: 添加行号
+      op-wrap-quote: 引号包裹
+      op-indent: 缩进/反缩进
+      op-filter: 正则过滤
+      op-split: 按分隔符拆分
+      op-merge: 合并
+      op-case: 大小写转换
+      op-replace: 替换
+      op-reverse: 倒序
+      op-script: 上下标
+      op-truncate: 截取
+      op-insert: 插入
+      param-mode: 模式
+      param-text: 文本
+      param-start: 起始值
+      param-step: 步长
+      param-quote: 引号
+      param-method: 缩进符
+      param-count: 空格数
+      param-pattern: 正则表达式
+      param-invert: 反向保留
+      param-delimiter: 分隔符
+      param-output: 连接符
+      param-input: 列分隔符
+      param-skip-empty: 跳过空值
+      param-all-space: 删除所有空白
+      param-from: 查找
+      param-to: 替换为
+      param-n: 字符数
+      param-position: 位置
+      param-interval: 间隔
+      opt-sort-none: 不排序
+      opt-sort-asc: 升序（语言相关）
+      opt-sort-desc: 降序（语言相关）
+      opt-sort-asc-num: 升序（按数值）
+      opt-sort-desc-num: 降序（按数值）
+      opt-sort-asc-bin: 升序（二进制）
+      opt-sort-desc-bin: 降序（二进制）
+      opt-sort-asc-upper: 升序（大写优先）
+      opt-sort-desc-upper: 降序（大写优先）
+      opt-indent-add: 增加缩进
+      opt-indent-remove: 减少缩进
+      opt-method-space: 空格
+      opt-method-tab: 制表符
+      opt-yes: 是
+      opt-no: 否
+      opt-merge-rows: 多行拼成一行
+      opt-merge-cols: 每行按列连接
+      opt-delim-comma: 逗号
+      opt-delim-semicolon: 分号
+      opt-delim-tab: 制表符
+      opt-delim-newline: 换行符
+      opt-delim-space: 空格
+      opt-case-lower: 转为小写
+      opt-case-upper: 转为大写
       opt-reverse-lines: 逐行倒序
+      opt-reverse-chars: 整段字符倒序
       opt-reverse-words: 逐词倒序
-      label-script: 上下标
-      opt-script-none: 不转换
       opt-script-sub: 下标
       opt-script-super: 上标
-      label-truncate: 截取
-      opt-truncate-none: 不截取
       opt-truncate-head: 保留前 N 个字符
       opt-truncate-tail: 保留后 N 个字符
       opt-truncate-range: 保留中间区间
-      label-insert: 插入
-      opt-insert-none: 不插入
       opt-insert-atpos: 指定位置插入
       opt-insert-everyn: 每隔 N 个字符插入
-      placeholder-insert-text: 要插入的文本
-      label-insert-pos: 插入位置
-      hint-insert-atpos: 插到第几个字符之后（0 = 最前面）
-      hint-insert-everyn: 每隔几个字符插入一次
+      tab-text: 文本结果
+      tab-count: 重复统计
+      label-output-lines: 输出行数
+      label-count-order: 排序方式
+      opt-count-none: 按首次出现
+      opt-count-desc: 按次数降序
+      opt-count-asc: 按次数升序
+      placeholder-count: 输入文本后，这里按行统计重复次数，可导出 CSV
+      label-total: 总行数
+      label-duplicate: 重复行数
+      label-empty: 空行数
+      action-clear: 清空
+      action-copy-csv: 复制 CSV
+      action-download-csv: 下载 CSV
+      msg-copied-csv: 已复制 CSV 到剪贴板
   number-process:
     title: 数字处理
     description: 批量处理数字：添加/移除千分位、科学计数法互转、罗马数字与阿拉伯数字互转（含 Unicode 变体），支持一键复制与导出
@@ -3359,105 +3399,6 @@ tools:
       action-copy-tsv: 复制为 TSV
       message-highlight-count: 发现 {n} 处高亮
       message-copied-tsv: 已复制为 TSV
-  text-dedupe:
-    title: 文本去重排序
-    description: 对文本去除重复行、多行排序、剔除空行，并统计总行数与重复行。
-    texts:
-      tab-dedupe: 去重排序
-      tab-count: 行重复统计
-      label-input: 输入内容
-      placeholder-input: 在此粘贴要处理的文本
-      label-input-delimiter: 输入分隔符
-      placeholder-input-delimiter: 填写自定义分隔符，例如 --- 或 ***
-      opt-delimiter-newline: 换行符[↵]
-      opt-delimiter-tab: 制表符[⇥]
-      opt-delimiter-space: 空格[ ]
-      opt-delimiter-comma: 逗号[,]
-      opt-delimiter-comma-full: 逗号[，]
-      opt-delimiter-slash: 斜杠[/]
-      opt-delimiter-semicolon: 分号[;]
-      opt-delimiter-semicolon-full: 分号[；]
-      opt-delimiter-custom: 自定义
-      label-order-by: 结果排序
-      opt-order-none: 不排序
-      opt-order-asc: 升序
-      opt-order-desc: 降序
-      label-count-order-by: 统计排序
-      opt-count-order-none: 不排序
-      opt-count-order-desc: 重复次数降序
-      opt-count-order-asc: 重复次数升序
-      opt-remove-repeat: 去掉重复行
-      opt-remove-first-last-space: 去除行首尾空格
-      opt-remove-empty-line: 去除空白行
-      opt-show-line-number: 显示行号
-      opt-quote-items: 用单引号包裹（生成数组）
-      label-output-delimiter: 输出分隔符
-      placeholder-output-delimiter: 填写自定义分隔符，例如 , 或 ;
-      title-result: 处理结果
-      label-total-lines: 总行数
-      label-duplicate-lines: 重复行数
-      label-empty-lines: 空白行
-      action-copy: 复制结果
-      action-download: 下载
-      action-download-csv: 导出 CSV
-      action-clear: 清空
-  text-split:
-    title: 文本分割
-    description: 用指定分隔符把文本拆成多行或多段，可排序、去首尾空格、加行号，再用另一个分隔符拼回去。
-    texts:
-      label-input: 输入内容
-      placeholder-input: 在此粘贴要分割的文本
-      label-input-delimiter: 输入分隔符
-      placeholder-input-delimiter: 填写自定义分隔符，例如 --- 或 ***
-      label-output-delimiter: 结果分隔符
-      placeholder-output-delimiter: 填写用于重新拼接的分隔符
-      label-order-by: 结果排序
-      opt-order-none: 不排序
-      opt-order-asc: 升序
-      opt-order-desc: 降序
-      opt-delimiter-newline: 换行符[↵]
-      opt-delimiter-tab: 制表符[⇥]
-      opt-delimiter-space: 空格[ ]
-      opt-delimiter-comma: 逗号[,]
-      opt-delimiter-comma-full: 逗号[，]
-      opt-delimiter-slash: 斜杠[/]
-      opt-delimiter-semicolon: 分号[;]
-      opt-delimiter-semicolon-full: 分号[；]
-      opt-delimiter-custom: 自定义
-      opt-remove-first-last-space: 去除行首尾空格
-      opt-show-line-number: 显示行号
-      title-result: 分割结果
-      label-part-count: 分割段数
-      hint-unchanged: 未找到输入分隔符，已原样输出
-      action-copy: 复制结果
-      action-download: 下载
-      action-clear: 清空
-  text-merge:
-    title: 文本合并
-    description: 把多行或多列文本按自定义分隔符拼接成一行或一列，支持跳过空值、去首尾空格与删除所有空格，并可一键复制为 TSV 直接粘回 Excel。
-    texts:
-      label-input: 输入内容
-      placeholder-input: 粘贴文本（从 Excel 复制的多列数据可直接粘贴，列以 Tab 分隔）
-      label-mode: 合并模式
-      opt-mode-rows: 多行拼接（所有行连成一行）
-      opt-mode-cols: 多列拼接（每行内部连成一列）
-      label-input-delimiter: 输入列分隔符（仅多列模式）
-      label-output-delimiter: 输出分隔符
-      placeholder-custom-delimiter: 填写自定义分隔符
-      opt-delimiter-comma: 逗号
-      opt-delimiter-semicolon: 分号
-      opt-delimiter-tab: 制表符
-      opt-delimiter-newline: 换行符
-      opt-delimiter-space: 空格
-      opt-delimiter-custom: 自定义
-      opt-skip-empty: 跳过空值
-      title-result: 合并结果
-      label-cell-count: 单元格数
-      action-copy-tsv: 复制为 TSV
-      action-clear: 清空
-      message-copied-tsv: 已复制为 TSV
-      opt-remove-first-last-space: 去掉每行首尾空格
-      opt-remove-all-space: 删除所有空格（含制表符、全角空格）
   sequence-generator:
     title: 序列生成器
     description: 按数字、字母、罗马数字、中文数字、星期、月份、天干地支等规则批量生成序号序列，支持前缀后缀与补零
@@ -3499,40 +3440,6 @@ tools:
       action-copy: 复制
       action-download: 下载
       placeholder-result: 生成结果将显示在这里
-  text-workflow:
-    title: 文本工作流
-    description: 把去空格、大小写、反转、排序、去重、替换、加序号等操作按顺序串成一条流水线，批量处理文本，实时预览每一步的结果
-    texts:
-      label-add-op: 添加操作
-      label-workflow: 当前工作流（按顺序执行）
-      label-input: 输入文本
-      placeholder-input: 在此粘贴要处理的文本
-      title-result: 处理结果
-      placeholder-result: 结果将实时显示在这里
-      hint-no-op: 还没有添加操作，点击上面的按钮添加
-      action-copy: 复制结果
-      action-clear: 清空
-      op-trim: 去首尾空格
-      op-remove-empty: 删除空行
-      op-lowercase: 转小写
-      op-uppercase: 转大写
-      op-reverse: 反转
-      op-sort: 排序
-      op-dedupe: 去重
-      op-replace: 替换
-      op-add-prefix: 加前缀
-      op-add-suffix: 加后缀
-      op-number: 加序号
-      param-mode: 方式
-      param-from: 将
-      param-to: 替换成
-      param-text: 内容
-      param-start: 起始
-      param-step: 步长
-      param-reverse-lines: 按行反转
-      param-reverse-chars: 按字符反转
-      param-sort-asc: 升序
-      param-sort-desc: 降序
   text-numbering:
     title: 文本加序号
     description: 给多行文本的每一行自动添加递增序号，支持多种序号格式、起始值、步长与前置补零

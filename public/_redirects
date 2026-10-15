@@ -920,3 +920,18 @@
 /english-amount/  /rmb-numbers/   301
 /english-numbers  /rmb-numbers/   301
 /english-numbers/ /rmb-numbers/   301
+
+# ============================================================================
+# 2026-10-15 文本家族融合：text-format（文本处理）吸收 text-dedupe / text-merge /
+# text-split / text-workflow 四工具（能力全部并入，含一键预设层 + 重复统计 Tab）。
+# 因为存在功能等价页，四个旧路径 301 到 /text-format/ 工具页而不是分类页 ——
+# 权重不流失，且老链接直达可用工具。list-converter 保留独立，不重定向。
+# ============================================================================
+/text-dedupe   /text-format/   301
+/text-dedupe/  /text-format/   301
+/text-merge    /text-format/   301
+/text-merge/   /text-format/   301
+/text-split    /text-format/   301
+/text-split/   /text-format/   301
+/text-workflow /text-format/   301
+/text-workflow/ /text-format/  301

@@ -9,6 +9,8 @@
  *     · 大分类（Text 有 23 个）只按固定顺序取前 6 个，导致真正该互链的一对被截断
  *       —— /text-merge 与 /text-join 功能近乎重复，却从未互相推荐过。
  *       （2026-10-13 已把 /text-join 合并进 /text-merge，表中不再有该条目）
+ *       （2026-10-15 文本家族大融合：/text-merge 又与 text-dedupe / text-split /
+ *        text-workflow 一并并入 /text-format，本节只剩 /text-format 一个入口）
  *   内链是给爬虫理解站内结构和给用户找下一步用法的，随机推荐两边都不讨好，只能人工策划。
  *
  * 使用方式（两边共用同一份，绝不各写一套）：
@@ -230,14 +232,7 @@ export const RELATED_TOOLS: Record<string, string[]> = {
   '/table-transpose': ['/table-converter', '/table-pivot', '/table-lookup', '/excel-cell-unmerge', '/json-html-table'],
 
   // ---------------- 文本处理 ----------------
-  '/case-converter': [
-    '/text-format',
-    '/text-typography',
-    '/fullwidth-halfwidth-converter',
-    '/text-split',
-    '/list-converter',
-    '/text-workflow',
-  ],
+  '/case-converter': ['/text-format', '/text-typography', '/fullwidth-halfwidth-converter', '/list-converter'],
   '/chinese-pinyin-converter': [
     '/chinese-script-converter',
     '/wubi-dict',
@@ -259,17 +254,14 @@ export const RELATED_TOOLS: Record<string, string[]> = {
     '/chinese-pinyin-converter',
     '/special-symbols',
   ],
-  '/list-converter': ['/text-split', '/text-merge', '/text-format', '/text-dedupe', '/csv-to-json'],
-  '/regex-tester': ['/text-extract', '/text-format', '/text-split', '/json-diff', '/text-workflow'],
+  '/list-converter': ['/text-format', '/csv-to-json', '/regex-tester'],
+  '/regex-tester': ['/text-extract', '/text-format', '/json-diff', '/list-converter'],
   '/special-symbols': ['/text-typography', '/fullwidth-halfwidth-converter', '/text-format', '/wubi-dict', '/kinship-calculator'],
-  '/text-dedupe': ['/text-format', '/text-split', '/list-converter', '/text-similarity', '/text-diff'],
-  '/text-diff': ['/text-similarity', '/json-diff', '/text-dedupe', '/text-format', '/text-extract'],
-  '/text-extract': ['/regex-tester', '/text-split', '/text-format', '/text-statistics', '/html-strip'],
-  '/text-format': ['/text-dedupe', '/text-split', '/case-converter', '/text-merge', '/text-workflow', '/regex-tester'],
-  '/text-merge': ['/text-split', '/list-converter', '/text-format', '/text-numbering', '/text-dedupe'],
-  '/text-numbering': ['/text-merge', '/text-split', '/list-converter', '/sequence-generator', '/text-dedupe'],
-  '/text-similarity': ['/text-diff', '/text-dedupe', '/text-format', '/text-statistics', '/text-translate'],
-  '/text-split': ['/text-merge', '/text-format', '/list-converter', '/text-numbering', '/text-dedupe'],
+  '/text-diff': ['/text-similarity', '/json-diff', '/text-format', '/text-extract', '/text-statistics'],
+  '/text-extract': ['/regex-tester', '/text-format', '/text-statistics', '/html-strip', '/list-converter'],
+  '/text-format': ['/case-converter', '/list-converter', '/regex-tester', '/text-statistics', '/text-typography'],
+  '/text-numbering': ['/list-converter', '/sequence-generator', '/text-format', '/case-converter', '/text-statistics'],
+  '/text-similarity': ['/text-diff', '/text-format', '/text-statistics', '/text-translate', '/text-extract'],
   '/text-statistics': ['/text-extract', '/text-similarity', '/text-typography', '/typing-speed-test', '/text-format'],
   '/text-translate': ['/image-translate', '/text-typography', '/chinese-script-converter', '/text-similarity', '/ocr-image'],
   '/text-typography': [
@@ -279,7 +271,6 @@ export const RELATED_TOOLS: Record<string, string[]> = {
     '/special-symbols',
     '/text-format',
   ],
-  '/text-workflow': ['/text-format', '/text-split', '/text-merge', '/text-extract', '/regex-tester'],
   '/typing-speed-test': ['/text-statistics', '/text-format', '/text-typography', '/case-converter', '/text-translate'],
   '/wubi-dict': ['/chinese-pinyin-converter', '/chinese-script-converter', '/special-symbols', '/text-extract', '/text-format'],
 
@@ -426,7 +417,7 @@ export const RELATED_TOOLS: Record<string, string[]> = {
   ],
 
   // ---------------- 生成器 ----------------
-  '/random-picker': ['/sequence-generator', '/text-split', '/list-converter', '/text-dedupe', '/token-generator'],
+  '/random-picker': ['/sequence-generator', '/list-converter', '/text-format', '/token-generator'],
   '/sequence-generator': ['/random-picker', '/token-generator', '/uuid-generator', '/text-numbering', '/crontab-generator'],
   '/token-generator': ['/uuid-generator', '/sequence-generator', '/random-picker', '/hash-text', '/encryption'],
   '/uuid-generator': ['/token-generator', '/sequence-generator', '/hash-text', '/random-picker', '/encryption'],
