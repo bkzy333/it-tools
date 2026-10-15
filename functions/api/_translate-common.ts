@@ -102,7 +102,7 @@ export function json(data: unknown, status = 200): Response {
 }
 
 // —— 缓存 key ——
-async function sha256Hex(msg: string): Promise<string> {
+export async function sha256Hex(msg: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }

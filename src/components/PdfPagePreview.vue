@@ -9,6 +9,8 @@ export interface PreviewPage {
   rotation: number;
   deleted: boolean;
   selected: boolean;
+  /** 文本状态（文本提取场景用）：text=已有原生文字 / none=尚无文字需OCR / ocr=已OCR识别。缺省不渲染徽标 */
+  status?: 'text' | 'none' | 'ocr';
 }
 
 const props = withDefaults(
@@ -20,8 +22,20 @@ const props = withDefaults(
     movable?: boolean;
     selectable?: boolean;
     selectLabel?: string;
+    /** status='none' 徽标文案（文本提取：需OCR） */
+    statusNeedText?: string;
+    /** status='ocr' 徽标文案（文本提取：已OCR） */
+    statusOcrText?: string;
   }>(),
-  { rotatable: true, deletable: true, movable: true, selectable: false, selectLabel: '选' },
+  {
+    rotatable: true,
+    deletable: true,
+    movable: true,
+    selectable: false,
+    selectLabel: '选',
+    statusNeedText: '需OCR',
+    statusOcrText: '已OCR',
+  },
 );
 
 const emit = defineEmits<{
@@ -76,6 +90,8 @@ function move(dir: 'up' | 'down', index: number) {
         <img :src="p.dataUrl" :style="{ transform: `rotate(${p.rotation}deg)` }" alt="" draggable="false" />
         <span v-if="p.deleted" class="pp-del-badge">已删除</span>
         <span v-if="p.rotation" class="pp-rot-badge">{{ p.rotation }}°</span>
+        <span v-if="p.status === 'none'" class="pp-status-badge pp-status-badge--need">{{ statusNeedText }}</span>
+        <span v-else-if="p.status === 'ocr'" class="pp-status-badge pp-status-badge--done">{{ statusOcrText }}</span>
       </div>
 
       <div class="pp-actions">
@@ -179,6 +195,17 @@ function move(dir: 'up' | 'down', index: number) {
 .pp-rot-badge {
   top: 4px;
   right: 4px;
+  background: #2080f0;
+}
+.pp-status-badge {
+  position: absolute;
+  white-space: nowrap;
+  bottom: 4px;
+  left: 4px;
+  background: #f0a020;
+  font-weight: 600;
+}
+.pp-status-badge--done {
   background: #2080f0;
 }
 .pp-actions {

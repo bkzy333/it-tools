@@ -1708,6 +1708,17 @@ tools:
       error-encrypted: 该PDF设有打开密码，请先解密后再提取文字
       error-empty-selection: 请至少勾选一页，否则没有可提取的文字
       warn-no-text: 未提取到任何文字，该PDF可能是扫描版或图片型，建议先用OCR工具识别
+      error-ocr-empty: 没有需要OCR的页面，请先勾选「尚无文字」的页
+      error-ocr: OCR识别失败：{msg}
+      ocr-range: OCR页码范围（如 2, 20-38）
+      btn-apply-range: 应用范围
+      btn-ocr: 开始OCR
+      label-ocr-pending: 将识别 {n} 页
+      label-ocr-none: 已无需要OCR的页
+      progress-ocr: 正在OCR识别 {done}/{total}
+      hint-ocr: 仅对勾选且尚无文字的页进行OCR，可大幅减少用量；同一页图片会缓存，重复识别不耗额度
+      badge-need-ocr: 需OCR
+      badge-ocr-done: 已OCR
   date-time-converter:
     texts:
       message-this-date-is-invalid-for-this-format: 此日期在此格式下无效

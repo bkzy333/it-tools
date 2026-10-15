@@ -1775,6 +1775,17 @@ tools:
       error-encrypted: This PDF is password-protected, please remove the password first
       error-empty-selection: Tick at least one page, otherwise there is no text to extract
       warn-no-text: No text found. This PDF may be scanned or image-based, try the OCR tool first.
+      error-ocr-empty: No pages need OCR. Tick the pages that have no text first.
+      error-ocr: "OCR failed: {msg}"
+      ocr-range: "OCR page range (e.g. 2, 20-38)"
+      btn-apply-range: Apply range
+      btn-ocr: Start OCR
+      label-ocr-pending: "Will OCR {n} page(s)"
+      label-ocr-none: No pages need OCR
+      progress-ocr: "OCR recognizing {done}/{total}"
+      hint-ocr: OCR only runs on ticked pages with no text, greatly reducing usage. The same page image is cached, so re-OCR costs nothing.
+      badge-need-ocr: Need OCR
+      badge-ocr-done: OCR'd
   date-time-converter:
     texts:
       message-this-date-is-invalid-for-this-format: This date is invalid for this format

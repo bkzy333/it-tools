@@ -5,14 +5,22 @@
 //
 // 注意：腾讯云 TMT 当前日语代码是 ja、韩语是 ko（老文档的 jp/kr 已废弃，用了会报不支持的语言）。
 
-interface TmtEnv {
+interface TencentEnv {
   TENCENT_SECRET_ID?: string;
   TENCENT_SECRET_KEY?: string;
 }
+/** 兼容旧名（翻译链路 context.env 结构兼容此类型） */
+export type TmtEnv = TencentEnv;
 
-const HOST = 'tmt.tencentcloudapi.com';
-const SERVICE = 'tmt';
-const VERSION = '2018-03-21';
+export interface CallTencentOpts {
+  host: string;
+  service: string;
+  version: string;
+  action: string;
+  payloadObj: Record<string, unknown>;
+  region?: string;
+  timeoutMs?: number;
+}
 
 async function sha256Hex(msg: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
@@ -30,16 +38,14 @@ function hex(bytes: Uint8Array): string {
 }
 
 /**
- * 调用腾讯云 TMT 任意 Action（文本翻译 TextTranslate / 图片翻译 ImageTranslate 等）。
- * 返回腾讯云原始 JSON，形如 { Response: { ... } } 或 { Response: { Error: { Code, Message } } }。
+ * 通用腾讯云 API v3 签名（TC3-HMAC-SHA256）。TMT / OCR / 任意其他腾讯云产品都走这里，
+ * 区别只在 host/service/version/action。返回腾讯云原始 JSON。
  */
-export async function callTmt(
-  env: TmtEnv,
-  action: string,
-  payloadObj: Record<string, unknown>,
-  region = 'ap-guangzhou',
-  timeoutMs = 25_000,
+export async function callTencent(
+  env: TencentEnv,
+  opts: CallTencentOpts,
 ): Promise<{ Response?: { Error?: { Code: string; Message: string } } & Record<string, unknown> }> {
+  const { host, service, version, action, payloadObj, region = 'ap-guangzhou', timeoutMs = 25_000 } = opts;
   // trim 兜底：在 Cloudflare 后台粘贴密钥时极易带入首尾空格或换行，
   // 那会让派生密钥整体错位、返回值同样是 AuthFailure.SignatureFailure。
   const secretId = env.TENCENT_SECRET_ID?.trim();
@@ -56,24 +62,24 @@ export async function callTmt(
   //    再叠加拼接公式里的 '\n'，规范请求串在 `host:...` 之后会出现一个空行。
   //    少了它 → 规范请求串哈希不同 → 必然 AuthFailure.SignatureFailure。
   //    官方 SDK（tencentcloud-sdk-nodejs/common/sign.js 的 sign3）就是 headers += `host:...\n`。
-  const canonicalHeaders = `content-type:application/json; charset=utf-8\nhost:${HOST}\n`;
+  const canonicalHeaders = `content-type:application/json; charset=utf-8\nhost:${host}\n`;
   const signedHeaders = 'content-type;host';
   const canonicalRequest = ['POST', '/', '', canonicalHeaders, signedHeaders, hashedPayload].join('\n');
-  const scope = `${date}/${SERVICE}/tc3_request`;
+  const scope = `${date}/${service}/tc3_request`;
   const stringToSign = ['TC3-HMAC-SHA256', t, scope, await sha256Hex(canonicalRequest)].join('\n');
   const kDate = await hmac(new TextEncoder().encode('TC3' + secretKey), date);
-  const kService = await hmac(kDate, SERVICE);
+  const kService = await hmac(kDate, service);
   const kSigning = await hmac(kService, 'tc3_request');
   const signature = hex(await hmac(kSigning, stringToSign));
   const authorization = `TC3-HMAC-SHA256 Credential=${secretId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
-  const res = await fetch(`https://${HOST}`, {
+  const res = await fetch(`https://${host}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      Host: HOST,
+      Host: host,
       'X-TC-Action': action,
-      'X-TC-Version': VERSION,
+      'X-TC-Version': version,
       'X-TC-Region': region,
       'X-TC-Timestamp': String(t),
       Authorization: authorization,
@@ -83,4 +89,31 @@ export async function callTmt(
   });
 
   return res.json();
+}
+
+// ── TMT 专用薄封装（保持翻译链路调用方式不变）──
+const TMT_HOST = 'tmt.tencentcloudapi.com';
+const TMT_SERVICE = 'tmt';
+const TMT_VERSION = '2018-03-21';
+
+/**
+ * 调用腾讯云 TMT 任意 Action（文本翻译 TextTranslate / 图片翻译 ImageTranslate 等）。
+ * 返回腾讯云原始 JSON，形如 { Response: { ... } } 或 { Response: { Error: { Code, Message } } }。
+ */
+export async function callTmt(
+  env: TmtEnv,
+  action: string,
+  payloadObj: Record<string, unknown>,
+  region = 'ap-guangzhou',
+  timeoutMs = 25_000,
+): Promise<{ Response?: { Error?: { Code: string; Message: string } } & Record<string, unknown> }> {
+  return callTencent(env, {
+    host: TMT_HOST,
+    service: TMT_SERVICE,
+    version: TMT_VERSION,
+    action,
+    payloadObj,
+    region,
+    timeoutMs,
+  });
 }
