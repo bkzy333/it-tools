@@ -6,7 +6,7 @@
 // 防护链路（同翻译）：防套壳 → 图片体积上限(8MB) → 缓存命中(0 消耗) → 月度预算闸(80/90/95%)
 //   → IP 软限流(采样兜底) → miss 才调腾讯云 + 写缓存(TTL30d) + 累加用量。
 // 密钥走 Cloudflare 环境变量 TENCENT_SECRET_ID / TENCENT_SECRET_KEY（与翻译同一套）；
-// 月度额度上限走 OCR_MONTHLY_QUOTA（默认 10000）。硬限速建议再加一条 Cloudflare WAF
+// 月度额度上限走 OCR_MONTHLY_QUOTA（默认 1000，对齐腾讯云通用文字识别免费额度）。硬限速建议再加一条 Cloudflare WAF
 // 速率限制规则匹配 /api/pdf-ocr。KV 绑定 TOOLS_USAGE（与翻译同一命名空间，txocr: 前缀隔离）。
 
 import { callTencent } from './_tmt';
@@ -33,7 +33,7 @@ const OCR_VERSION = '2018-11-19';
 
 function monthlyQuota(env: OcrEnv): number {
   const n = Number(env.OCR_MONTHLY_QUOTA);
-  return Number.isFinite(n) && n > 0 ? n : 10_000;
+  return Number.isFinite(n) && n > 0 ? n : 1000;
 }
 
 export async function onRequestOptions(): Promise<Response> {

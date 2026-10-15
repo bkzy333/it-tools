@@ -20,7 +20,7 @@ export interface OcrEnv {
   TOOLS_USAGE?: KvLike;
   TG_BOT_TOKEN?: string;
   TG_CHAT_ID?: string;
-  /** OCR 月度免费额度上限（默认 10000），可在此环境变量覆盖 */
+  /** OCR 月度免费额度上限（默认 1000，对齐腾讯云通用文字识别免费额度），可在此环境变量覆盖 */
   OCR_MONTHLY_QUOTA?: string;
 }
 
@@ -94,7 +94,7 @@ export async function ocrRateLimited(
   return { limited: false, count: nd + 1 };
 }
 
-// —— 全局预算闸（月度免费额度，默认 10000 次，可用 OCR_MONTHLY_QUOTA 环境变量覆盖）——
+// —— 全局预算闸（月度免费额度，默认 1000 次，对齐腾讯云通用文字识别免费额度，可用 OCR_MONTHLY_QUOTA 环境变量覆盖）——
 const WARN = 0.8;
 const LIMIT = 0.9;
 const STOP = 0.95;
