@@ -1375,7 +1375,7 @@ tools:
       an-error-occured-processing-heic-heif-is-invalid: 处理过程中发生错误：HEIC/HEIF 无效。
   html-editor:
     title: HTML在线编辑器
-    description: 左边写 HTML 代码，右边实时预览渲染效果；支持直接编辑渲染后的页面、上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。
+    description: 左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。
     texts:
       mode-source: 源码模式
       mode-visual: 编辑模式
@@ -1389,13 +1389,40 @@ tools:
       button-clear: 清空
       label-source-code: HTML 源码
       label-preview: 实时预览
-      hint-visual-mode: 点页面里的文字就能直接改，改完自动同步回源码；编辑时链接不会跳转，想试交互请切回源码模式。
+      hint-visual-mode: 点文字直接改，点元素改它的样式（颜色 / 字号 / 内外边距），缩小时可用上方面包屑跳到想改的那一层；编辑时链接不会跳转，想试交互请切回源码模式。
       toast-copied: 已复制
       toast-uploaded: "已载入 {name}"
       toast-decoded: "文件按 {encoding} 编码解码"
       toast-cleared: 已清空
       error-upload-failed: 读取文件失败，请确认是 .html / .htm 文件
       error-popup-blocked: 浏览器拦截了新标签，请允许本站弹出窗口后重试
+      style-background-color: 背景色
+      style-color: 文字颜色
+      style-font-size: 字号
+      style-font-weight: 字体粗细
+      style-weight-normal: 常规
+      style-weight-bold: 粗体
+      style-text-align: 对齐
+      style-align-left: 左
+      style-align-center: 居中
+      style-align-right: 右
+      style-align-justify: 两端对齐
+      style-box-group: 内外边距
+      style-padding: 内边距
+      style-margin: 外边距
+      style-side-top: 上
+      style-side-right: 右
+      style-side-bottom: 下
+      style-side-left: 左
+      style-value-unset: 未设置
+      style-empty-hint: 点一下预览里的元素，这里会列出它当前的样式，改完自动同步回源码。
+      button-reset-styles: 重置样式
+      button-remove-element: 删除元素
+      confirm-reset-styles: 将清掉这个元素及其内部所有节点的内联样式，确定吗？
+      confirm-remove-element: 这个元素会从页面里移除，且无法撤销，确定吗？
+      error-invalid-style: 这个值不是有效的 CSS 值，已还原
+      toast-styles-reset: 已重置该元素的样式
+      toast-element-removed: 已删除该元素
   html-prettifier:
     title: HTML美化器
     description: 美化HTML代码

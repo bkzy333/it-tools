@@ -1452,7 +1452,7 @@ tools:
       an-error-occured-processing-heic-heif-is-invalid: "An error occured processing: HEIC/HEIF is invalid."
   html-editor:
     title: HTML Online Editor
-    description: Write HTML on the left and watch it render live on the right. Edit the rendered page directly, upload an .html file, preview at desktop / tablet / phone sizes, then copy the source, download the file or open it in a new tab.
+    description: Write HTML on the left and watch it render live on the right. Edit the rendered page directly, click any element to restyle it (color, size, padding, margin), upload an .html file, preview at desktop / tablet / phone sizes, then copy the source, download the file or open it in a new tab.
     texts:
       mode-source: Source
       mode-visual: Visual edit
@@ -1466,13 +1466,40 @@ tools:
       button-clear: Clear
       label-source-code: HTML source
       label-preview: Live preview
-      hint-visual-mode: Click any text in the preview to edit it directly; changes sync back to the source. Links do not navigate while editing — switch back to Source to try the interaction.
+      hint-visual-mode: Click any text to edit it, or any element to restyle it (color, size, padding, margin). Use the breadcrumb above to jump between levels. Links do not navigate while editing — switch back to Source to try the interaction.
       toast-copied: Copied
       toast-uploaded: "Loaded {name}"
       toast-decoded: "Decoded as {encoding}"
       toast-cleared: Cleared
       error-upload-failed: Could not read the file — make sure it is an .html or .htm file
       error-popup-blocked: The browser blocked the new tab. Allow pop-ups for this site and try again.
+      style-background-color: Background
+      style-color: Text color
+      style-font-size: Font size
+      style-font-weight: Font weight
+      style-weight-normal: Normal
+      style-weight-bold: Bold
+      style-text-align: Align
+      style-align-left: Left
+      style-align-center: Center
+      style-align-right: Right
+      style-align-justify: Justify
+      style-box-group: Padding and margin
+      style-padding: Padding
+      style-margin: Margin
+      style-side-top: Top
+      style-side-right: Right
+      style-side-bottom: Bottom
+      style-side-left: Left
+      style-value-unset: Not set
+      style-empty-hint: Click any element in the preview and its current styles show up here — changes sync back to the source.
+      button-reset-styles: Reset styles
+      button-remove-element: Remove element
+      confirm-reset-styles: This clears the inline styles of this element and everything inside it. Continue?
+      confirm-remove-element: This removes the element from the page and cannot be undone. Continue?
+      error-invalid-style: That is not a valid CSS value — reverted
+      toast-styles-reset: Element styles reset
+      toast-element-removed: Element removed
   html-prettifier:
     title: HTML Prettifier
     description: Prettify HTML code

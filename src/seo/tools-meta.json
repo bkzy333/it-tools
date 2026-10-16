@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T13:02:54.732Z",
+  "generatedAt": "2026-10-16T14:25:37.413Z",
   "sourceCommit": "extracted at build time",
   "total": 113,
   "tiers": {
@@ -1119,6 +1119,8 @@
         "playground",
         "preview",
         "sandbox",
+        "visual editor",
+        "css editor",
         "在线编辑器",
         "html编辑器",
         "在线html",
@@ -1127,7 +1129,15 @@
         "网页编辑器",
         "实时预览",
         "代码编辑",
-        "html在线运行"
+        "html在线运行",
+        "样式",
+        "改样式",
+        "样式编辑",
+        "元素样式",
+        "css样式",
+        "可视化编辑",
+        "改颜色",
+        "改字号"
       ],
       "redirectFrom": [],
       "npmPackages": [],
@@ -1137,7 +1147,7 @@
       ],
       "isExternalAccess": false,
       "title": "HTML在线编辑器",
-      "description": "左边写 HTML 代码，右边实时预览渲染效果；支持直接编辑渲染后的页面、上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。",
+      "description": "左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。",
       "categoryZh": "网页工具",
       "categorySeoName": "网页与 URL 在线工具",
       "tier": "L1"

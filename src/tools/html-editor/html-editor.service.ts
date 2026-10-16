@@ -26,7 +26,16 @@ export const DEVICE_PRESETS: DevicePreset[] = [
 export const EDITOR_STYLE_ID = 'gjx-html-editor-edit-style';
 
 /**
- * 编辑模式下给预览文档加的样式：提示「这块能改」。
+ * 样式面板选中的元素上挂的属性名。
+ *
+ * 用「属性 + 注入 CSS 描边」而不是直接改元素的 `el.style.outline`：
+ * 后者会污染用户元素的内联样式，且截屏/序列化的时机稍有偏差就会把描边写进源码。
+ * 属性同样要剥离，但剥离点只有一个（serializeFrame），漏不掉。
+ */
+export const EDITOR_SELECTED_ATTR = 'data-gjx-selected';
+
+/**
+ * 编辑模式下给预览文档加的样式：提示「这块能改」、标出「当前选中」。
  * 只是视觉辅助，不改变用户内容的布局。
  */
 export const EDITOR_HINT_CSS = `
@@ -38,7 +47,170 @@ export const EDITOR_HINT_CSS = `
   outline: 1px solid rgba(24, 160, 88, 1);
   outline-offset: 1px;
 }
+[${EDITOR_SELECTED_ATTR}='true'] {
+  outline: 2px solid rgba(24, 160, 88, 1) !important;
+  outline-offset: 1px;
+}
 `;
+
+/** 盒模型的四个方向，顺序即面板里的展示顺序。 */
+export const BOX_SIDES = ['top', 'right', 'bottom', 'left'] as const;
+export type BoxSide = (typeof BOX_SIDES)[number];
+export type BoxSides = Record<BoxSide, number>;
+
+/** 样式面板里可编辑的字段 —— 与参考站（htmleditor.cc）一致：七个常用属性，不含圆角/边框/行高。 */
+export interface ElementStyleValues {
+  backgroundColor: string;
+  color: string;
+  fontSize: number;
+  fontWeight: string;
+  textAlign: string;
+  padding: BoxSides;
+  margin: BoxSides;
+}
+
+export const FONT_SIZE_MIN = 8;
+export const FONT_SIZE_MAX = 160;
+export const BOX_VALUE_MAX = 1000;
+
+/**
+ * `rgb(31, 41, 51)` / `rgba(24, 160, 88, 1)` / `#1F2933` → `#1f2933`。
+ *
+ * 面板里的颜色框只认 `#rrggbb`，而 `getComputedStyle` 一律给 `rgb()` 字符串，必须转换。
+ * 解不了（含完全透明、`color-mix()` 之类）返回 null —— 调用方据此显示「未设置」，
+ * 而不是编一个看似合理的颜色骗用户。
+ */
+export function toHexColor(value: string): string | null {
+  const text = value.trim().toLowerCase();
+
+  if (/^#[0-9a-f]{6}$/.test(text)) {
+    return text;
+  }
+
+  if (/^#[0-9a-f]{3}$/.test(text)) {
+    return `#${text[1]}${text[1]}${text[2]}${text[2]}${text[3]}${text[3]}`;
+  }
+
+  const match = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(text);
+
+  if (!match) {
+    return null;
+  }
+
+  const alpha = match[4] === undefined ? 1 : Number.parseFloat(match[4]) / (match[4].endsWith('%') ? 100 : 1);
+
+  if (alpha === 0) {
+    return null;
+  }
+
+  return `#${[match[1], match[2], match[3]]
+    .map((channel) => Math.max(0, Math.min(255, Math.round(Number.parseFloat(channel)))).toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+/** `32px` → 32；`1.5em` / `auto` / 空 → 0。面板只处理像素，非像素值按 0 显示（改一下就变成像素了）。 */
+export function parsePixelValue(value: string): number {
+  const match = /^(-?[\d.]+)px$/.exec(value.trim());
+
+  return match ? Math.round(Number.parseFloat(match[1])) : 0;
+}
+
+/**
+ * `getComputedStyle().textAlign` 在标准模式下会给 `start` / `end`，面板的下拉只认具体方向。
+ * 归一到具体方向；识别不了的（`justify` 等）原样返回，免得把用户文档里的原值改掉。
+ */
+export function normalizeTextAlign(value: string): string {
+  const text = value.trim().toLowerCase();
+
+  if (text === 'start') {
+    return 'left';
+  }
+
+  if (text === 'end') {
+    return 'right';
+  }
+
+  return text;
+}
+
+/**
+ * 面板的字体粗细只给两档（与参考站一致）。`getComputedStyle` 会给 400/500/600/700，
+ * 归一到最近的一档 —— 不归一的话下拉框匹配不到值会显示成空白，看着像坏了。
+ */
+export function normalizeFontWeight(value: string): string {
+  const weight = Number.parseInt(value, 10);
+
+  if (Number.isNaN(weight)) {
+    return '400';
+  }
+
+  return weight >= 600 ? '700' : '400';
+}
+
+/** 面包屑里那一级的显示名：标签名 + 第一个 class（`div.card`），够用来分辨同级兄弟。 */
+export function describeElement(el: Element): string {
+  const tag = el.tagName.toLowerCase();
+  const firstClass = typeof el.className === 'string' ? el.className.trim().split(/\s+/)[0] : '';
+
+  return firstClass ? `${tag}.${firstClass}` : tag;
+}
+
+/**
+ * 从 `body` 到自身的层级路径，用于面包屑。
+ *
+ * 为什么需要：桌面档在窄面板里会整体等比缩小（见过 44%），小元素点不准。
+ * 有路径就能从父级直接跳到想要的那一层，不用靠鼠标精度。
+ */
+export function elementPath(el: Element): Element[] {
+  const path: Element[] = [];
+  let current: Element | null = el;
+
+  while (current && current.tagName.toLowerCase() !== 'html') {
+    path.unshift(current);
+    current = current.parentElement;
+  }
+
+  return path;
+}
+
+/**
+ * 摘掉元素及其所有子节点的内联样式。
+ *
+ * 范围含子节点是刻意的：用户点的是「这块」，想恢复的是「这一块的原样」，
+ * 只清当前节点的话，他改过的子节点样式会留下，看起来像没重置干净。
+ * 调用方负责先弹确认框。
+ */
+export function clearInlineStyles(el: Element): void {
+  el.removeAttribute('style');
+
+  for (const child of Array.from(el.querySelectorAll('[style]'))) {
+    child.removeAttribute('style');
+  }
+}
+
+/** 读元素当前**生效**的样式值填面板（而不是只读内联样式）—— 空框会让用户以为自己没设过。 */
+export function readElementStyles(win: Window, el: Element): ElementStyleValues {
+  const computed = win.getComputedStyle(el);
+  const sides = (prefix: 'padding' | 'margin'): BoxSides =>
+    BOX_SIDES.reduce<BoxSides>(
+      (result, side) => {
+        result[side] = parsePixelValue(computed[`${prefix}${side[0].toUpperCase()}${side.slice(1)}` as 'paddingTop']);
+
+        return result;
+      },
+      { top: 0, right: 0, bottom: 0, left: 0 },
+    );
+
+  return {
+    backgroundColor: toHexColor(computed.backgroundColor) ?? '',
+    color: toHexColor(computed.color) ?? '',
+    fontSize: parsePixelValue(computed.fontSize),
+    fontWeight: normalizeFontWeight(computed.fontWeight),
+    textAlign: normalizeTextAlign(computed.textAlign),
+    padding: sides('padding'),
+    margin: sides('margin'),
+  };
+}
 
 /** 浏览器认的编码名和文件里写的可能不一样，统一成 TextDecoder 认识的标准标签。 */
 const CHARSET_ALIASES: Record<string, string> = {
@@ -164,8 +336,8 @@ export function looksLikeFullDocument(source: string): boolean {
 /**
  * 把预览文档序列化回源码。编辑模式靠它把用户改的内容写回源码框。
  *
- * 注入的样式元素必须摘掉，否则「用户的源码」里会多出一段我们的 CSS。
- * 摘掉之后再放回去 —— 用户还在继续编辑，那点悬停高亮得留着。
+ * 注入物必须全部摘掉，否则「用户的源码」里会多出一段我们的 CSS 和几个 `data-gjx-selected`。
+ * 摘掉之后再放回去 —— 用户还在继续编辑，悬停/选中高亮得留着。
  */
 export function serializeFrame(doc: Document, { asDocument }: { asDocument: boolean }): string {
   const injected = doc.getElementById(EDITOR_STYLE_ID);
@@ -174,6 +346,12 @@ export function serializeFrame(doc: Document, { asDocument }: { asDocument: bool
   const { body } = doc;
   const restoreEditable = body?.getAttribute('contenteditable') ?? null;
   body?.removeAttribute('contenteditable');
+
+  // 选中的元素上挂着描边属性，同样不能出现在源码里
+  const selected = Array.from(doc.querySelectorAll(`[${EDITOR_SELECTED_ATTR}]`));
+  for (const el of selected) {
+    el.removeAttribute(EDITOR_SELECTED_ATTR);
+  }
 
   try {
     if (!asDocument) {
@@ -186,6 +364,9 @@ export function serializeFrame(doc: Document, { asDocument }: { asDocument: bool
   } finally {
     if (body && restoreEditable !== null) {
       body.setAttribute('contenteditable', restoreEditable);
+    }
+    for (const el of selected) {
+      el.setAttribute(EDITOR_SELECTED_ATTR, 'true');
     }
     if (injected) {
       doc.head?.appendChild(injected);

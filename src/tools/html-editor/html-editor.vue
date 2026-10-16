@@ -2,23 +2,35 @@
 import { useI18n } from 'vue-i18n';
 import { Base64 } from 'js-base64';
 import { useDebounceFn } from '@vueuse/core';
-import { useMessage } from 'naive-ui';
+import { useMessage, useThemeVars } from 'naive-ui';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import CodeBlockCopyable from '@/components/CodeBlockCopyable.vue';
 import { useCopy } from '@/composable/copy';
 import { useDownloadFileFromBase64 } from '@/composable/downloadBase64';
 import { appBaseUrl } from '@/utils/base-url';
 import {
+  BOX_VALUE_MAX,
   DEVICE_PRESETS,
   EDITOR_HINT_CSS,
+  EDITOR_SELECTED_ATTR,
   EDITOR_STYLE_ID,
+  FONT_SIZE_MAX,
+  FONT_SIZE_MIN,
+  clearInlineStyles,
   decodeHtmlFile,
+  describeElement,
+  elementPath,
   looksLikeFullDocument,
+  readElementStyles,
   serializeFrame,
 } from './html-editor.service';
+import type { BoxSide, ElementStyleValues } from './html-editor.service';
 
 const { t } = useI18n();
 const message = useMessage();
+// 面板的边框/底色/强调色都跟主题走：`--n-border-color` 只在 naive 组件内部局部定义，
+// 在工具页自己的元素上引用它会解析成 undefined，整条 border 声明变成非法声明而**不渲染**。
+const themeVars = useThemeVars();
 
 // 打开即有值：自包含的 HTML（样式 + 脚本都在里面），而且带交互，用户一看就知道能干什么。
 const exampleData = `<!DOCTYPE html>
@@ -93,6 +105,12 @@ const writtenWindows = new WeakSet<Window>();
 function writeIntoWindow(target: Window, html: string) {
   writtenWindows.add(target);
 
+  // document.open() 会**清掉该文档上所有事件监听**（规范如此，不是浏览器怪癖）。
+  // 所以写新文档前必须把「已接线」标记撤掉：否则第二次进编辑模式时监听器已经没了、
+  // 而 WeakSet 还以为接过线，点击选中与键入全部静默失效。
+  // 实测表现极具误导性：第一次进编辑模式一切正常，来回切一次就点不动、也输不进字。
+  wiredDocuments.delete(target.document);
+
   try {
     target.document.open();
     target.document.write(html);
@@ -125,6 +143,171 @@ function disableVisualEditing() {
 
   doc?.body?.removeAttribute('contenteditable');
   doc?.getElementById(EDITOR_STYLE_ID)?.remove();
+  clearSelection();
+}
+
+// ——— 样式面板（编辑模式）———
+// 选中的元素用模块级变量持有，**不进 Vue 响应式系统**：DOM 节点被 reactive() 包成 Proxy 之后，
+// 拿它做 DOM 操作时身份会变（contains 判不出来、setAttribute 落到代理上），排查成本极高。
+// 需要驱动界面的只有「有没有选中 / 路径文字 / 字段值」这几项，单独用 ref 存。
+let selectedEl: Element | null = null;
+let pathElements: Element[] = [];
+const hasSelection = ref(false);
+const selectedTag = ref('');
+const selectedPath = ref<string[]>([]);
+const boxOpen = ref(false);
+
+const emptySides = () => ({ top: 0, right: 0, bottom: 0, left: 0 });
+const BOX_GROUPS = ['padding', 'margin'] as const;
+const styleValues = ref<ElementStyleValues>({
+  backgroundColor: '',
+  color: '',
+  fontSize: 16,
+  fontWeight: '400',
+  textAlign: 'left',
+  padding: emptySides(),
+  margin: emptySides(),
+});
+
+/** 四向数值框的标签。写死静态 key，不用 `style-side-${side}` 拼（动态键过不了 i18n 静态扫描）。 */
+const boxSideLabels = computed<{ side: BoxSide; label: string }[]>(() => [
+  { side: 'top', label: t('tools.html-editor.texts.style-side-top') },
+  { side: 'right', label: t('tools.html-editor.texts.style-side-right') },
+  { side: 'bottom', label: t('tools.html-editor.texts.style-side-bottom') },
+  { side: 'left', label: t('tools.html-editor.texts.style-side-left') },
+]);
+
+function refreshStyleValues() {
+  const win = frame.value?.contentWindow;
+
+  if (win && selectedEl) {
+    styleValues.value = readElementStyles(win, selectedEl);
+  }
+}
+
+function clearSelection() {
+  selectedEl?.removeAttribute(EDITOR_SELECTED_ATTR);
+  selectedEl = null;
+  pathElements = [];
+  selectedPath.value = [];
+  selectedTag.value = '';
+  hasSelection.value = false;
+}
+
+/** 选中一个元素：描边高亮 + 把它当前生效的样式读进面板。 */
+function selectElement(el: Element) {
+  if (!frame.value?.contentDocument?.body?.contains(el)) {
+    return;
+  }
+
+  selectedEl?.removeAttribute(EDITOR_SELECTED_ATTR);
+  selectedEl = el;
+  el.setAttribute(EDITOR_SELECTED_ATTR, 'true');
+
+  pathElements = elementPath(el);
+  selectedPath.value = pathElements.map(describeElement);
+  selectedTag.value = describeElement(el);
+  hasSelection.value = true;
+  refreshStyleValues();
+}
+
+/** 面包屑跳级：桌面档在窄面板里会整体缩小（见过 44%），小元素点不准，靠路径直接跳。 */
+function selectPathIndex(index: number) {
+  const el = pathElements[index];
+
+  if (el) {
+    selectElement(el);
+  }
+}
+
+/**
+ * 拿选中元素当「能写 style 的元素」用。
+ *
+ * **不能用 `instanceof HTMLElement`**：选中的元素属于预览 iframe 的文档，是那个 realm 的
+ * HTMLElement 实例，而父窗口里的 `HTMLElement` 是另一个构造函数 —— 跨 realm 判 instanceof
+ * 恒为 false，于是整条写样式的路被静默拦掉（不报错、界面照样正常，只是改了没反应）。
+ * 只判有没有 `style`：HTML 元素与 SVG 元素都有，够用且跨 realm 成立。
+ */
+function asStylable(el: Element | null): HTMLElement | null {
+  return el && 'style' in el ? (el as HTMLElement) : null;
+}
+
+/**
+ * 写一条内联样式到选中元素上。
+ *
+ * 值合法不合法交给浏览器判，但**必须先删旧值再设新值**：CSSOM 会静默丢弃非法声明，
+ * 若旧值还留着，`getPropertyValue` 返回的是旧值 —— 分不清「新值生效」与「新值被丢掉」，
+ * 于是非法输入既不报错也不提示，用户以为改成功了。
+ * 清空输入框 = 把这声明从内联样式里删掉（回到文档原本的样子）。
+ */
+function applyStyle(property: string, value: string) {
+  const element = asStylable(selectedEl);
+
+  if (!element) {
+    return;
+  }
+
+  const previous = element.style.getPropertyValue(property);
+  element.style.removeProperty(property);
+  element.style.setProperty(property, value);
+
+  if (value.trim() !== '' && !element.style.getPropertyValue(property)) {
+    if (previous) {
+      element.style.setProperty(property, previous);
+    }
+
+    message.warning(t('tools.html-editor.texts.error-invalid-style'));
+    refreshStyleValues();
+
+    return;
+  }
+
+  refreshStyleValues();
+  frameDirty = true;
+  syncFromFrameNow();
+}
+
+const applyFontSize = (size: number) => applyStyle('font-size', `${size}px`);
+const applyBoxSide = (group: 'padding' | 'margin', side: BoxSide, value: number) =>
+  applyStyle(`${group}-${side}`, `${Math.max(0, Math.round(value || 0))}px`);
+
+/** 拖滑块时只改 DOM（实时看效果），松手（change）才回写源码 —— 否则每移动 1px 就刷一次源码框。 */
+function previewFontSize(size: number) {
+  const element = asStylable(selectedEl);
+
+  if (!element) {
+    return;
+  }
+
+  element.style.setProperty('font-size', `${size}px`);
+  styleValues.value.fontSize = size;
+}
+
+function resetSelectedStyles() {
+  if (!selectedEl) {
+    return;
+  }
+
+  clearInlineStyles(selectedEl);
+  refreshStyleValues();
+  frameDirty = true;
+  syncFromFrameNow();
+  message.success(t('tools.html-editor.texts.toast-styles-reset'));
+}
+
+function removeSelectedElement() {
+  const element = selectedEl;
+
+  if (!element) {
+    return;
+  }
+
+  // 先清选中（连带摘掉描边属性）再删节点，避免把编辑器的痕迹留在残留 DOM 上
+  clearSelection();
+  element.remove();
+  frameDirty = true;
+  syncFromFrameNow();
+  message.success(t('tools.html-editor.texts.toast-element-removed'));
 }
 
 /** 把编辑模式下用户改的内容落回源码。读的是实时 DOM，所以随时调用都拿到最新值。 */
@@ -149,6 +332,8 @@ function renderPreview() {
 
   writtenAsDocument = looksLikeFullDocument(htmlSource.value);
   frameWritten = true;
+  // 整份文档被换掉了，之前选中的元素已经不在这个文档里
+  clearSelection();
   writeIntoWindow(frame.value!.contentWindow!, htmlSource.value);
 
   if (mode.value === 'visual') {
@@ -227,10 +412,22 @@ function onFrameInput() {
  * 想看链接效果切回源码模式 —— 那边的预览是可交互的。
  */
 function onFrameClick(event: MouseEvent) {
-  const anchor = (event.target as Element | null)?.closest?.('a[href]');
+  const target = event.target as Element | null;
 
-  if (anchor) {
+  if (!target) {
+    return;
+  }
+
+  if (target.closest?.('a[href]')) {
     event.preventDefault();
+  }
+
+  // 点到页面留白时 target 是 <html>，按 body 算 —— 否则用户改不了整页背景
+  const doc = frame.value?.contentDocument;
+  const picked = doc && target === doc.documentElement ? doc.body : target;
+
+  if (picked) {
+    selectElement(picked);
   }
 }
 
@@ -412,7 +609,7 @@ onBeforeUnmount(() => {
       </n-button>
     </div>
 
-    <div class="grid gap-4" :class="mode === 'source' ? 'lg:grid-cols-2' : 'grid-cols-1'">
+    <div class="grid gap-4" :class="mode === 'source' ? 'lg:grid-cols-2' : 'mode-visual-grid'">
       <!-- 用 v-show 而不是 v-if：切换模式时不能把编辑器卸载掉，否则撤销历史和滚动位置全丢 -->
       <div v-show="mode === 'source'">
         <div class="mb-1 text-xs op-60">{{ t('tools.html-editor.texts.label-source-code') }}</div>
@@ -452,6 +649,168 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
+
+      <aside v-if="mode === 'visual'" class="style-panel">
+        <template v-if="hasSelection">
+          <div class="style-panel-head">
+            <code class="style-tag" data-test-id="style-selected-tag">{{ selectedTag }}</code>
+            <div class="flex shrink-0 items-center gap-1">
+              <n-popconfirm @positive-click="resetSelectedStyles">
+                <template #trigger>
+                  <n-button size="tiny" quaternary data-test-id="style-reset">
+                    {{ t('tools.html-editor.texts.button-reset-styles') }}
+                  </n-button>
+                </template>
+                {{ t('tools.html-editor.texts.confirm-reset-styles') }}
+              </n-popconfirm>
+
+              <n-popconfirm @positive-click="removeSelectedElement">
+                <template #trigger>
+                  <n-button size="tiny" quaternary type="error" data-test-id="style-remove">
+                    {{ t('tools.html-editor.texts.button-remove-element') }}
+                  </n-button>
+                </template>
+                {{ t('tools.html-editor.texts.confirm-remove-element') }}
+              </n-popconfirm>
+            </div>
+          </div>
+
+          <div class="style-path" data-test-id="style-path">
+            <template v-for="(label, index) in selectedPath" :key="`${index}-${label}`">
+              <span v-if="index > 0" class="style-path-sep">›</span>
+              <button
+                type="button"
+                class="style-path-item"
+                :class="{ 'is-current': index === selectedPath.length - 1 }"
+                @click="selectPathIndex(index)"
+              >
+                {{ label }}
+              </button>
+            </template>
+          </div>
+
+          <div class="style-fields">
+            <label class="style-row">
+              <span class="style-label">{{ t('tools.html-editor.texts.style-background-color') }}</span>
+              <span class="style-control">
+                <input
+                  class="style-swatch"
+                  type="color"
+                  :value="styleValues.backgroundColor || '#ffffff'"
+                  @change="applyStyle('background-color', ($event.target as HTMLInputElement).value)"
+                >
+                <input
+                  class="style-text"
+                  type="text"
+                  data-test-id="style-background-color"
+                  :placeholder="t('tools.html-editor.texts.style-value-unset')"
+                  :value="styleValues.backgroundColor"
+                  @change="applyStyle('background-color', ($event.target as HTMLInputElement).value)"
+                >
+              </span>
+            </label>
+
+            <label class="style-row">
+              <span class="style-label">{{ t('tools.html-editor.texts.style-color') }}</span>
+              <span class="style-control">
+                <input
+                  class="style-swatch"
+                  type="color"
+                  :value="styleValues.color || '#000000'"
+                  @change="applyStyle('color', ($event.target as HTMLInputElement).value)"
+                >
+                <input
+                  class="style-text"
+                  type="text"
+                  data-test-id="style-color"
+                  :placeholder="t('tools.html-editor.texts.style-value-unset')"
+                  :value="styleValues.color"
+                  @change="applyStyle('color', ($event.target as HTMLInputElement).value)"
+                >
+              </span>
+            </label>
+
+            <label class="style-row">
+              <span class="style-label">{{ t('tools.html-editor.texts.style-font-size') }}</span>
+              <span class="style-control">
+                <input
+                  class="style-range"
+                  type="range"
+                  data-test-id="style-font-size"
+                  :min="FONT_SIZE_MIN"
+                  :max="FONT_SIZE_MAX"
+                  :value="styleValues.fontSize"
+                  @input="previewFontSize(Number(($event.target as HTMLInputElement).value))"
+                  @change="applyFontSize(Number(($event.target as HTMLInputElement).value))"
+                >
+                <span class="style-unit">{{ styleValues.fontSize }} px</span>
+              </span>
+            </label>
+
+            <label class="style-row">
+              <span class="style-label">{{ t('tools.html-editor.texts.style-font-weight') }}</span>
+              <span class="style-control">
+                <select
+                  class="style-select"
+                  data-test-id="style-font-weight"
+                  :value="styleValues.fontWeight"
+                  @change="applyStyle('font-weight', ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="400">{{ t('tools.html-editor.texts.style-weight-normal') }}</option>
+                  <option value="700">{{ t('tools.html-editor.texts.style-weight-bold') }}</option>
+                </select>
+              </span>
+            </label>
+
+            <label class="style-row">
+              <span class="style-label">{{ t('tools.html-editor.texts.style-text-align') }}</span>
+              <span class="style-control">
+                <select
+                  class="style-select"
+                  data-test-id="style-text-align"
+                  :value="styleValues.textAlign"
+                  @change="applyStyle('text-align', ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="left">{{ t('tools.html-editor.texts.style-align-left') }}</option>
+                  <option value="center">{{ t('tools.html-editor.texts.style-align-center') }}</option>
+                  <option value="right">{{ t('tools.html-editor.texts.style-align-right') }}</option>
+                  <option value="justify">{{ t('tools.html-editor.texts.style-align-justify') }}</option>
+                </select>
+              </span>
+            </label>
+
+            <button type="button" class="style-group-toggle" data-test-id="style-box-toggle" @click="boxOpen = !boxOpen">
+              <span class="style-caret">{{ boxOpen ? '▾' : '▸' }}</span>
+              {{ t('tools.html-editor.texts.style-box-group') }}
+            </button>
+
+            <div v-show="boxOpen" class="style-box-groups">
+              <div v-for="group in BOX_GROUPS" :key="group">
+                <div class="style-box-title">
+                  {{ group === 'padding' ? t('tools.html-editor.texts.style-padding') : t('tools.html-editor.texts.style-margin') }}
+                </div>
+                <div class="style-box-sides">
+                  <label v-for="field in boxSideLabels" :key="`${group}-${field.side}`" class="style-box-side">
+                    <span>{{ field.label }}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      :max="BOX_VALUE_MAX"
+                      :data-test-id="`style-${group}-${field.side}`"
+                      :value="styleValues[group][field.side]"
+                      @change="applyBoxSide(group, field.side, Number(($event.target as HTMLInputElement).value))"
+                    >
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <p v-else class="style-empty" data-test-id="style-empty">
+          {{ t('tools.html-editor.texts.style-empty-hint') }}
+        </p>
+      </aside>
     </div>
   </div>
 </template>
@@ -487,7 +846,194 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   background: #fff;
-  border: 1px solid var(--n-border-color);
+  border: 1px solid v-bind('themeVars.borderColor');
   border-radius: 6px;
+}
+
+/* ——— 编辑模式的样式面板 ——— */
+/* 视觉模式下面板与预览并排：预览仍是主体，面板只占固定一列；窄屏自动堆到预览下方 */
+.mode-visual-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .mode-visual-grid {
+    grid-template-columns: minmax(0, 1fr) 288px;
+  }
+}
+
+.style-panel {
+  align-self: start;
+  max-height: 620px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid v-bind('themeVars.borderColor');
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.style-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid v-bind('themeVars.borderColor');
+}
+
+.style-tag {
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 面包屑：档位缩放后小元素点不准，靠它从父级直接跳到想改的那一层 */
+.style-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.style-path-sep {
+  opacity: 0.45;
+}
+
+.style-path-item {
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.style-path-item:hover,
+.style-path-item.is-current {
+  background: rgba(24, 160, 88, 0.14);
+  opacity: 1;
+}
+
+.style-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.style-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.style-label {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.style-control {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.style-swatch {
+  flex: none;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid v-bind('themeVars.borderColor');
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.style-text,
+.style-select,
+.style-box-side input {
+  min-width: 0;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid v-bind('themeVars.borderColor');
+  border-radius: 4px;
+  background: v-bind('themeVars.cardColor');
+  color: inherit;
+  font-size: 11px;
+}
+
+.style-text,
+.style-select {
+  flex: 1;
+}
+
+.style-range {
+  flex: 1;
+  min-width: 0;
+  accent-color: v-bind('themeVars.primaryColor');
+}
+
+.style-unit {
+  flex: none;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.style-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding-top: 8px;
+  border: 0;
+  border-top: 1px solid v-bind('themeVars.borderColor');
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  opacity: 0.72;
+  cursor: pointer;
+}
+
+.style-box-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.style-box-title {
+  margin-bottom: 4px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.style-box-sides {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.style-box-side {
+  display: grid;
+  gap: 2px;
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.style-box-side input {
+  width: 100%;
+  padding: 0 4px;
+  text-align: center;
+}
+
+.style-empty {
+  font-size: 12px;
+  line-height: 1.7;
+  opacity: 0.65;
 }
 </style>
