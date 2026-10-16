@@ -13,6 +13,10 @@ dist
 dist-ssr
 # 构建前把上一版 dist 改名留档的备份目录，不能进仓库
 dist-*
+# 例外：miniPaint 自托管产物必须入库。线上由 Cloudflare Pages 从仓库构建，
+# public/ 下的文件会被原样发布；若这里的 bundle.js 不入库，图片编辑器 iframe 会加载不到 JS（空白壳）。
+!public/minipaint/dist/
+!public/minipaint/dist/**
 coverage
 *.local
 
