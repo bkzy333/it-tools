@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T07:19:58.512Z",
+  "generatedAt": "2026-10-16T11:45:34.985Z",
   "sourceCommit": "extracted at build time",
   "total": 112,
   "tiers": {
@@ -2295,7 +2295,15 @@
         "background",
         "image",
         "rmbg",
-        "modnet"
+        "modnet",
+        "抠图",
+        "去背景",
+        "移除背景",
+        "背景透明",
+        "透明背景",
+        "换底色",
+        "证件照",
+        "白底图"
       ],
       "redirectFrom": [],
       "npmPackages": [],

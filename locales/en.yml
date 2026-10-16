@@ -2687,11 +2687,8 @@ tools:
   remove-background:
     title: Remove Image Background
     description: Remove background from an image using AI
-    externalAccess: Downloads Remove Background models from HuggingFace. Processing
-      is done in your browser
+    externalAccess: "The background-removal model (about 34MB) is downloaded once from this site, then cached by your browser. Processing is done entirely in your browser."
     texts:
-      label-rmbg-1-4-cpu-wasm: RMBG‑1.4 (CPU/WASM)
-      label-modnet-webgpu: MODNet (WebGPU)
       label-transparent: Transparent
       label-solid-color: Solid Color
       label-pattern: "Pattern:"
@@ -2701,7 +2698,8 @@ tools:
       label-dots: Dots
       label-checkerboard: Checkerboard
       title-drag-and-drop-an-image-or-click-to-select: Drag and drop an image or click to select
-      label-model: "Model:"
+      label-background-mode: "Background:"
+      label-background-color: "Background color:"
       label-blur: "Blur:"
       label-contrast: "Contrast:"
       label-brightness: "Brightness:"
@@ -2709,6 +2707,13 @@ tools:
       title-result: Result
       tag-apply-background: Apply Background
       tag-download-result: Download Result
+      tag-copy-result: Copy Image
+      tag-copied: Copied to clipboard
+      error-copy-failed: Copy failed. Please use the Download Result button instead.
+      error-model-load-failed: "Failed to load the AI model. The model files are served from this site; please check your network and refresh."
+      error-process-failed: "Processing failed. The image may be too large or in an unsupported format. Please try another image."
+      hint-first-load: "First use loads the AI model and runtime (about 34MB in total). Your browser caches them afterwards, so they are not downloaded again."
+      hint-loading-runtime: "Loading the AI runtime (about 21MB)..."
   html-to-data:
     texts:
       label-paste-your-html-content: "Paste your HTML content:"

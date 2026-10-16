@@ -2800,10 +2800,8 @@ tools:
   remove-background:
     title: 移除图片背景
     description: 使用人工智能去除图像背景
-    externalAccess: 从 HuggingFace 下载移除背景模型。处理过程在您的浏览器中完成。
+    externalAccess: 首次使用会从本站下载移除背景模型（约 34MB），下载后由浏览器缓存。处理过程完全在您的浏览器中完成。
     texts:
-      label-rmbg-1-4-cpu-wasm: RMBG-1.4（CPU/WASM）
-      label-modnet-webgpu: MODNet（WebGPU）
       label-transparent: 透明的
       label-solid-color: 纯色
       label-pattern: 图案：
@@ -2813,7 +2811,8 @@ tools:
       label-dots: 点
       label-checkerboard: 棋盘
       title-drag-and-drop-an-image-or-click-to-select: 拖放图片或点击选择
-      label-model: 模型：
+      label-background-mode: 背景：
+      label-background-color: 背景颜色：
       label-blur: 模糊：
       label-contrast: 对比：
       label-brightness: 亮度：
@@ -2821,6 +2820,13 @@ tools:
       title-result: 结果
       tag-apply-background: 应用背景
       tag-download-result: 下载结果
+      tag-copy-result: 复制图片
+      tag-copied: 已复制到剪贴板
+      error-copy-failed: 复制失败，请改用「下载结果」保存
+      error-model-load-failed: AI 模型加载失败。模型文件由本站提供，请确认网络可用后刷新重试
+      error-process-failed: 处理失败：图片可能过大或格式不受支持，换一张图片再试
+      hint-first-load: 首次使用需加载 AI 模型与运行环境（合计约 34MB），加载一次后浏览器会缓存，不会重复下载
+      hint-loading-runtime: 正在加载 AI 运行环境（约 21MB）…
   html-to-data:
     texts:
       label-paste-your-html-content: 粘贴您的HTML内容：

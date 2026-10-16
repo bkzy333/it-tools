@@ -1,19 +1,38 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-import { onMounted, ref } from 'vue';
 import type { BackgroundRemovalPipeline, ProgressInfo } from '@huggingface/transformers';
 import { RawImage, env, pipeline } from '@huggingface/transformers';
+import { useMessage } from 'naive-ui';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import ImageCompareSlider from '@/components/ImageCompareSlider.vue';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
+import { appBaseUrl } from '@/utils/base-url';
 
-// 模型权重的下载源，按顺序尝试，第一个能用就用。
-// 默认走 huggingface.co，国内网络基本连不上（会报 TypeError: Failed to fetch），
-// 所以优先用国内镜像 hf-mirror.com。
-// 如果你把权重托管到了 Cloudflare R2（推荐，长期稳定），把下面的地址改成你的
-// R2 公开域名即可，目录结构保持 <model>/resolve/main/... 不用动其它代码。
-const R2_MODEL_HOST = ''; // 例：https://pub-xxxxxxxx.r2.dev
-const MODEL_HOSTS = [R2_MODEL_HOST, 'https://hf-mirror.com', 'https://huggingface.co'].filter(Boolean);
+// ——— 模型与推理运行时全部自托管同源（public/ai/），不依赖任何第三方域名 ———
+// 模型：Xenova/modnet 的 fp16 版（12.4MB）；运行时：onnxruntime-web 的 wasm（21MB）。
+// 为什么自托管：hf-mirror.com 对浏览器跨域请求不返回 CORS 头（真浏览器实测直接被拒），
+// huggingface.co 在国内连接超时——「让浏览器去远程仓库下模型」这条路走不通。
+// 为什么用 fp16 而不是 q8 量化版：q8 会明显劣化抠图质量（实测正面特写人像会被整张误删），
+// fp16 与 fp32 输出一致而体积只有一半。
+//
+// ⚠ 这里必须用 appBaseUrl（运行期解析 <base href>），不能用 import.meta.env.BASE_URL：
+// 本仓库的构建是路径无关的，BASE_URL 在产物里是 "./"，而 ORT 加载 wasm 用的是动态 import()，
+// 它按**模块** URL（/assets/）解析而不是页面 URL —— 用 "./ai/ort/" 会去请求
+// /assets/ai/ort/ort-wasm-simd-threaded.jsep.mjs，落到 SPA fallback 拿到 text/html，
+// 最终报 "no available backend found"。详见 src/utils/base-url.ts。
+const modelBase = `${appBaseUrl}ai/`;
+env.allowRemoteModels = false;
+env.allowLocalModels = true;
+env.localModelPath = `${modelBase}models/`;
+env.backends.onnx.wasm!.wasmPaths = `${modelBase}ort/`;
+// 本站不能开 COOP/COEP（会连带打死 AdSense 与第三方统计），crossOriginIsolated 恒为 false，
+// 多线程 wasm 只会拿到一个假 worker 并在控制台报错。显式钉成 1 线程，单张图实测 1~2 秒。
+env.backends.onnx.wasm!.numThreads = 1;
+
+const MODEL_FILE = 'Xenova/modnet';
 
 const { t } = useI18n();
+const message = useMessage();
 
 const inputImage = ref<File | null>(null);
 const inputUrl = ref<string | null>(null);
@@ -21,13 +40,9 @@ const outputUrl = ref<string | null>(null);
 const loading = ref(false);
 const error = ref('');
 
-const webgpuAvailable = ref(false);
-
-const selectedModel = useQueryParamOrStorage({ name: 'model', storageName: 'rmbg:m', defaultValue: 'rmbg' });
-const modelOptions = [
-  { label: t('tools.remove-background.texts.label-rmbg-1-4-cpu-wasm'), value: 'rmbg' },
-  { label: t('tools.remove-background.texts.label-modnet-webgpu'), value: 'modnet' },
-];
+/** 模型加载阶段：idle 未开始 / runtime 下载运行时 wasm / model 下载模型权重 / ready 就绪 */
+const modelPhase = ref<'idle' | 'runtime' | 'model' | 'ready'>('idle');
+const modelPercent = ref(0);
 
 const backgroundMode = useQueryParamOrStorage({ name: 'bgmode', storageName: 'rmbg:bgm', defaultValue: 'transparent' });
 const backgroundOptions = [
@@ -38,7 +53,7 @@ const backgroundOptions = [
   { label: t('tools.remove-background.texts.label-adjust-contrast-brightness'), value: 'adjust' },
 ];
 
-const backgroundColor = useQueryParamOrStorage({ name: 'model', storageName: 'rmbg:bg', defaultValue: '#ffffff' });
+const backgroundColor = useQueryParamOrStorage({ name: 'bgcolor', storageName: 'rmbg:bg', defaultValue: '#ffffff' });
 const patternName = useQueryParamOrStorage({ name: 'pattern', storageName: 'rmbg:pa', defaultValue: 'stripes' });
 const patternOptions = [
   { label: t('tools.remove-background.texts.label-diagonal-stripes'), value: 'stripes' },
@@ -50,81 +65,52 @@ const blurAmount = useQueryParamOrStorage({ name: 'blur', storageName: 'rmbg:bl'
 const contrast = useQueryParamOrStorage({ name: 'contrast', storageName: 'rmbg:co', defaultValue: 1 });
 const brightness = useQueryParamOrStorage({ name: 'bright', storageName: 'rmbg:br', defaultValue: 1 });
 
-const modelLoading = ref(false);
-const modelLoadingProgress = ref(0);
+let bodyRemovalPipeline: BackgroundRemovalPipeline | null = null;
 
-let rmbgPipeline: BackgroundRemovalPipeline | null = null;
-let modnetPipeline: BackgroundRemovalPipeline | null = null;
+// pipeline() 的重载签名有几十个任务分支，直接调用会让 tsc 报 TS2590（联合类型过于复杂），
+// 所以先收窄成一个窄签名再调用。
+const createPipeline = pipeline as unknown as (
+  task: string,
+  model: string,
+  options: { dtype: string; progress_callback: (p: ProgressInfo) => void },
+) => Promise<BackgroundRemovalPipeline>;
 
-onMounted(() => {
-  webgpuAvailable.value = !!navigator.gpu;
-});
-
-async function onUpload(file: File) {
+function onUpload(file: File) {
+  if (inputUrl.value) {
+    URL.revokeObjectURL(inputUrl.value);
+  }
   inputImage.value = file;
   inputUrl.value = URL.createObjectURL(file);
   outputUrl.value = null;
+  error.value = '';
 }
 
-// 依次尝试各个模型源，避免单一源不可用就整个功能报废
-async function loadPipelineWithFallback(model: string, options: Record<string, unknown>) {
-  let lastError: unknown = new Error('没有可用的模型下载源');
-
-  for (const host of MODEL_HOSTS) {
-    try {
-      env.remoteHost = host;
-      // cast：pipeline 的重载类型过于复杂，这里统一按 any 处理
-      return await (pipeline as any)('background-removal', model, options);
-    } catch (e) {
-      console.warn(`[remove-background] 从 ${host} 加载 ${model} 失败`, e);
-      lastError = e;
-    }
+function onProgress(p: ProgressInfo) {
+  // 运行时 wasm 由 onnxruntime 自己加载，没有进度回调；只有模型文件会报进度
+  if (p && typeof (p as any).progress === 'number') {
+    modelPhase.value = 'model';
+    modelPercent.value = Math.round((p as any).progress);
   }
-
-  throw lastError;
 }
 
-async function loadPipelines() {
-  if (rmbgPipeline && (selectedModel.value !== 'modnet' || modnetPipeline)) {
+async function ensurePipeline() {
+  if (bodyRemovalPipeline) {
     return;
   }
 
-  modelLoading.value = true;
-  modelLoadingProgress.value = 0;
-
-  const update = (p: ProgressInfo) => {
-    // @ts-expect-error: progress check
-    if (p && typeof p.progress === 'number') {
-      // @ts-expect-error: progress check
-      modelLoadingProgress.value = Math.round(p.progress * 100);
-    }
-  };
+  modelPhase.value = 'runtime';
+  modelPercent.value = 0;
 
   try {
-    if (!rmbgPipeline) {
-      // dtype q8：用量化版权重（约 42MB），fp32 版本有 168MB，国内网络基本下不动
-      rmbgPipeline = (await loadPipelineWithFallback('briaai/RMBG-1.4', {
-        dtype: 'q8',
-        progress_callback: update,
-      })) as BackgroundRemovalPipeline;
-    }
-
-    if (webgpuAvailable.value && selectedModel.value === 'modnet' && !modnetPipeline) {
-      modnetPipeline = (await loadPipelineWithFallback('Xenova/modnet', {
-        device: 'webgpu',
-        dtype: 'q8',
-        progress_callback: update,
-      })) as BackgroundRemovalPipeline;
-    }
+    bodyRemovalPipeline = await createPipeline('background-removal', MODEL_FILE, {
+      dtype: 'fp16',
+      progress_callback: onProgress,
+    });
+    modelPhase.value = 'ready';
+    modelPercent.value = 100;
   } catch (e) {
-    console.error('[remove-background] 模型加载失败', e);
-    error.value =
-      'AI 模型下载失败。该工具需联网下载一次模型（约 42MB），请检查网络后重试；' +
-      '若网络正常仍失败，可能是浏览器或插件拦截了对模型下载域名的跨域请求（hf-mirror.com / huggingface.co）。';
+    modelPhase.value = 'idle';
     throw e;
-  } finally {
-    modelLoading.value = false;
-    modelLoadingProgress.value = 100;
   }
 }
 
@@ -211,7 +197,6 @@ const backgroundRenderers = {
 };
 
 function rawImageToCanvas(raw: RawImage) {
-  // Create canvas
   const canvas = document.createElement('canvas');
   canvas.width = raw.width;
   canvas.height = raw.height;
@@ -221,7 +206,6 @@ function rawImageToCanvas(raw: RawImage) {
 
   const { data, width, height, channels } = raw;
 
-  // Fill ImageData (always RGBA)
   for (let i = 0, j = 0; i < width * height; i++) {
     const r = data[i * channels + 0] ?? 0;
     const g = data[i * channels + 1] ?? 0;
@@ -239,7 +223,8 @@ function rawImageToCanvas(raw: RawImage) {
 }
 
 async function removeBackground() {
-  if (!inputImage.value) {
+  // loading 期间再点会并发跑两次推理（n-spin 只加遮罩，不禁用按钮），这里直接拦住
+  if (!inputImage.value || loading.value) {
     return;
   }
 
@@ -247,25 +232,25 @@ async function removeBackground() {
   loading.value = true;
 
   try {
-    await loadPipelines();
+    // 模型/运行时加载失败与图片处理失败要分开报，否则「图片格式不支持」会被误报成「模型加载失败」
+    try {
+      await ensurePipeline();
+    } catch (e: any) {
+      console.error('[remove-background] 模型加载失败', e);
+      error.value = t('tools.remove-background.texts.error-model-load-failed');
+      return;
+    }
 
     const file = inputImage.value;
     const originalImage = await createImageBitmap(file);
     const imageBitmap = await RawImage.fromBlob(file)!;
-
-    let results: RawImage[];
-    if (selectedModel.value === 'modnet' && webgpuAvailable.value) {
-      results = await modnetPipeline!(imageBitmap);
-    } else {
-      results = await rmbgPipeline!(imageBitmap);
-    }
+    const results = await bodyRemovalPipeline!(imageBitmap);
 
     const canvas = document.createElement('canvas');
     canvas.width = imageBitmap.width;
     canvas.height = imageBitmap.height;
     const ctx = canvas.getContext('2d')!;
 
-    // 1. Draw background
     backgroundRenderers[backgroundMode.value](
       ctx,
       canvas.width,
@@ -283,19 +268,47 @@ async function removeBackground() {
     ctx.drawImage(rawImageToCanvas(results[0]), 0, 0, canvas.width, canvas.height);
 
     outputUrl.value = canvas.toDataURL('image/png')!;
+    originalImage.close();
   } catch (e: any) {
-    // loadPipelines 里已经给出更友好的中文提示，这里不要覆盖
-    error.value = error.value || String(e?.message ?? e);
+    console.error('[remove-background] 处理失败', e);
+    error.value = t('tools.remove-background.texts.error-process-failed');
+  } finally {
+    loading.value = false;
   }
-
-  loading.value = false;
 }
+
+const outputFileName = computed(() => {
+  const base = (inputImage.value?.name || 'image').replace(/\.[^.]+$/, '');
+  return `${base}-removebg.png`;
+});
 
 function downloadResult() {
   const a = document.createElement('a');
   a.href = outputUrl.value!;
-  a.download = `${inputImage.value?.name || 'edited'}.png`;
+  a.download = outputFileName.value;
   a.click();
+}
+
+async function copyResult() {
+  if (!outputUrl.value) {
+    return;
+  }
+
+  try {
+    const ClipboardItemCtor = (window as any).ClipboardItem;
+    if (!navigator.clipboard || !ClipboardItemCtor) {
+      throw new Error('clipboard-image-unsupported');
+    }
+    // 传入 Promise<Blob> 而不是先 await：Chrome 要求写入动作发生在用户手势内
+    const item = new ClipboardItemCtor({
+      'image/png': fetch(outputUrl.value).then((r) => r.blob()),
+    });
+    await navigator.clipboard.write([item]);
+    message.success(t('tools.remove-background.texts.tag-copied'));
+  } catch (e) {
+    console.warn('[remove-background] 复制失败', e);
+    message.error(t('tools.remove-background.texts.error-copy-failed'));
+  }
 }
 </script>
 
@@ -310,20 +323,11 @@ function downloadResult() {
     />
 
     <n-form label-placement="left">
-      <n-form-item v-if="webgpuAvailable" :label="t('tools.remove-background.texts.label-model')">
-        <n-select v-model:value="selectedModel" :options="modelOptions" />
-      </n-form-item>
-
-      <!-- 选了 modnet 但浏览器不支持 WebGPU 时说明一下，避免用户一头雾水 -->
-      <n-alert v-if="selectedModel === 'modnet' && !webgpuAvailable" type="warning" mb-3>
-        当前浏览器不支持 WebGPU，已自动改用 RMBG-1.4 模型（首次使用需下载约 42MB）。
-      </n-alert>
-
-      <n-form-item :label="t('tools.remove-background.texts.label-model')">
+      <n-form-item :label="t('tools.remove-background.texts.label-background-mode')">
         <n-select v-model:value="backgroundMode" :options="backgroundOptions" />
       </n-form-item>
 
-      <n-form-item v-if="backgroundMode === 'color'" :label="t('tools.remove-background.texts.label-model')">
+      <n-form-item v-if="backgroundMode === 'color'" :label="t('tools.remove-background.texts.label-background-color')">
         <n-color-picker v-model:value="backgroundColor" />
       </n-form-item>
 
@@ -346,17 +350,29 @@ function downloadResult() {
       </div>
     </n-form>
 
+    <!-- 首次使用提示：模型与运行环境都是本站自己托管，加载一次后走浏览器缓存 -->
+    <n-alert v-if="modelPhase === 'idle'" type="info" mb-3>
+      {{ t('tools.remove-background.texts.hint-first-load') }}
+    </n-alert>
+
+    <div v-if="modelPhase === 'runtime'" mb-3>
+      <n-progress type="line" :percentage="100" processing />
+      <div class="text-sm opacity-70">
+        {{ t('tools.remove-background.texts.hint-loading-runtime') }}
+      </div>
+    </div>
+
     <n-progress
-      v-if="modelLoading"
+      v-else-if="modelPhase === 'model'"
       type="line"
-      :percentage="modelLoadingProgress"
+      :percentage="modelPercent"
       indicator-placement="inside"
-      processing
+      mb-3
     />
 
     <n-space justify="center" mb-1>
       <n-spin :show="loading" mb-1>
-        <n-button type="success" :disabled="!inputImage" @click="removeBackground">
+        <n-button type="success" :disabled="!inputImage || loading" @click="removeBackground">
           {{ t('tools.remove-background.texts.tag-apply-background') }}
         </n-button>
       </n-spin>
@@ -366,20 +382,24 @@ function downloadResult() {
       {{ error }}
     </c-alert>
 
-    <n-space v-if="outputUrl" justify="center">
-      <n-button @click="downloadResult">
-        {{ t('tools.remove-background.texts.tag-download-result') }}
-      </n-button>
-    </n-space>
+    <div v-if="outputUrl && inputUrl">
+      <ImageCompareSlider
+        :before-src="inputUrl"
+        :after-src="outputUrl"
+        :before-label="t('tools.remove-background.texts.title-original')"
+        :after-label="t('tools.remove-background.texts.title-result')"
+        checkerboard
+        mb-3
+      />
 
-    <n-space justify="center" mr-1>
-      <NCard v-if="inputUrl" :title="t('tools.remove-background.texts.title-original')">
-        <n-image :src="inputUrl" width="260" />
-      </NCard>
-
-      <NCard v-if="outputUrl" :title="t('tools.remove-background.texts.title-result')">
-        <n-image :src="outputUrl" width="260" />
-      </NCard>
-    </n-space>
+      <n-space justify="center" mb-3>
+        <n-button type="success" @click="downloadResult">
+          {{ t('tools.remove-background.texts.tag-download-result') }}
+        </n-button>
+        <n-button @click="copyResult">
+          {{ t('tools.remove-background.texts.tag-copy-result') }}
+        </n-button>
+      </n-space>
+    </div>
   </div>
 </template>
