@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import wasm from 'vite-plugin-wasm';
 
-import type { Plugin } from 'vite';
+import type { Connect, Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
@@ -23,6 +23,45 @@ import { visualizer } from 'rollup-plugin-visualizer';
 
 // 构建期把单一 index.html 展开成每个路由一份的静态 HTML（SEO + AdSense 的关键改造）
 import { seoPrerender } from './build/seo-prerender';
+// html-editor 的预览壳页。线上由 Pages Function 提供，本地没有 Functions 运行时 —— 这里补上同一个路由，
+// 保证 dev / preview / 线上三处是同一份实现（否则 iframe 里会套一层 SPA，本地看到的是假象）。
+import { PREVIEW_SHELL_HEADERS, PREVIEW_SHELL_HTML, PREVIEW_SHELL_PATH } from './functions/_preview-shell';
+
+/**
+ * 本地给 `vite dev` / `vite preview` 提供 /html-preview 壳页。
+ *
+ * 不写这个中间件的话，本地这个路径会落到 SPA 回退上，iframe 里加载的是整站页面，
+ * 看起来「能用」但和线上完全不是一回事 —— 这正是本项目最怕的「本地验证得出错误结论」。
+ */
+function htmlPreviewShell(): Plugin {
+  const serveShell: Connect.NextHandleFunction = (req, res, next) => {
+    // connect 会把挂载路径剥掉，所以这里是 '/'；带子路径的请求交回 Vite
+    const subPath = (req.url ?? '').split('?')[0];
+
+    if (subPath !== '' && subPath !== '/') {
+      next();
+
+      return;
+    }
+
+    res.statusCode = 200;
+    for (const [name, value] of Object.entries(PREVIEW_SHELL_HEADERS)) {
+      res.setHeader(name, value);
+    }
+    res.end(PREVIEW_SHELL_HTML);
+  };
+
+  return {
+    name: 'gjxtools-html-preview-shell',
+    // 直接 use（而不是 return 一个函数）= 插在 Vite 内部中间件之前，才能抢在 SPA 回退前拦下
+    configureServer(server) {
+      server.middlewares.use(PREVIEW_SHELL_PATH, serveShell);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(PREVIEW_SHELL_PATH, serveShell);
+    },
+  };
+}
 
 // Where the app will be served from. The build itself is path-agnostic -- `base` below is
 // relative, so every asset URL is resolved against the file that references it -- and this
@@ -144,7 +183,9 @@ export default defineConfig({
         // 否则浏览器直接访问 /api/feedback 会被 SW 当成 SPA 未知路由，fallback 到 index.html 导致 404。
         // /minipaint/* 同理：图片编辑器是同源 iframe（public/minipaint/index.html），
         // 导航请求一旦被 fallback 成 SPA 空壳，iframe 里显示的就是工具站自己。
-        navigateFallbackDenylist: [/^\/(api|health|minipaint)(\/.*)?$/],
+        // /html-preview 同理，而且它是**导航请求**（html-editor 的预览 iframe src）：
+        // 被 fallback 成 SPA 之后，预览区里跑的就是工具站自己，且壳页那份独立 CSP 也拿不到。
+        navigateFallbackDenylist: [/^\/(api|health|minipaint|html-preview)(\/.*)?$/],
         runtimeCaching: [
           {
             urlPattern: ({ sameOrigin, request }) =>
@@ -217,6 +258,7 @@ export default defineConfig({
     Unocss(),
     nodePolyfills(),
     wasm(),
+    htmlPreviewShell(),
     visualizer(),
     // 必须排在最后：它读的是 dist/index.html 的最终内容（baseHref、PWA 注入都已生效），
     // 并且要覆盖 vite-plugin-sitemap 那套（那份 sitemap 不分层、还把 noindex 页也收进去了）
@@ -308,10 +350,24 @@ export default defineConfig({
     watch: {
       ignored: ['**/.pnpm-store/**'],
     },
+    // 这里原本是上游 it-tools 带过来的：
+    //   'Cross-Origin-Opener-Policy': 'same-origin',
+    //   'Cross-Origin-Embedder-Policy': 'require-corp',
+    // 两条都去掉了，原因有三，任何一条都足够：
+    //   1. 线上（public/_headers）根本没有这两个头 —— 留着就是「本地比线上严」，
+    //      而本地严格导致的失败会被误读成线上也坏（本项目最怕的那种结论）。
+    //   2. 本站是刻意不开跨域隔离的：remove-background.vue 写着「本站不能开 COOP/COEP
+    //      （会连带打死 AdSense 与第三方统计），crossOriginIsolated 恒为 false」，并把
+    //      ORT 的 numThreads 固定为 1。也就是说这两个头对本站没有任何消费方。
+    //   3. COEP: require-corp 会被**同源子框架继承**，且宿主页一旦带上它，被嵌文档
+    //      自己必须也声明 COEP 头，否则 Chrome 直接 `net::ERR_BLOCKED_BY_RESPONSE`，
+    //      官方 blockedReason = `coep-frame-resource-needs-coep-header`。
+    //      实测后果：/html-editor 的预览 iframe、以及任何同源 iframe 都被拦成空白页
+    //      （表现极像跨域：contentDocument === null），而 curl 拿到的却是正常 200。
+    //      miniPaint 那种 public/ 下的静态文件恰好因为吃到同一个头而躲过，才让这个坑更隐蔽。
+    // 将来若真要开跨域隔离，请只对确实需要的路由加，别再用 `server.headers` 全站铺。
     headers: {
       //   'Cross-Origin-Resource-Policy': 'same-site',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
 });

@@ -1450,6 +1450,29 @@ tools:
       label-output-format: Output format
       title-drag-and-drop-a-heic-file-here-or-click-to-select-a-file: Drag and drop a HEIC file here, or click to select a file
       an-error-occured-processing-heic-heif-is-invalid: "An error occured processing: HEIC/HEIF is invalid."
+  html-editor:
+    title: HTML Online Editor
+    description: Write HTML on the left and watch it render live on the right. Edit the rendered page directly, upload an .html file, preview at desktop / tablet / phone sizes, then copy the source, download the file or open it in a new tab.
+    texts:
+      mode-source: Source
+      mode-visual: Visual edit
+      device-desktop: Desktop
+      device-tablet: Tablet
+      device-mobile: Phone
+      drop-file: Drop an .html file here, or click to pick one
+      button-copy-source: Copy source
+      button-download: Download HTML
+      button-open-new-tab: Open in new tab
+      button-clear: Clear
+      label-source-code: HTML source
+      label-preview: Live preview
+      hint-visual-mode: Click any text in the preview to edit it directly; changes sync back to the source. Links do not navigate while editing — switch back to Source to try the interaction.
+      toast-copied: Copied
+      toast-uploaded: "Loaded {name}"
+      toast-decoded: "Decoded as {encoding}"
+      toast-cleared: Cleared
+      error-upload-failed: Could not read the file — make sure it is an .html or .htm file
+      error-popup-blocked: The browser blocked the new tab. Allow pop-ups for this site and try again.
   html-prettifier:
     title: HTML Prettifier
     description: Prettify HTML code

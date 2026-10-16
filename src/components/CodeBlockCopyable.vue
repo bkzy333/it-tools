@@ -37,6 +37,11 @@ const props = withDefaults(
     maxHeight?: string;
     showLineNumbers?: boolean;
     showFoldGutter?: boolean;
+    /**
+     * 可编辑模式。默认只读（历史上唯一的用法都是「展示结果」）；
+     * 需要用户改代码的工具（如 html-editor）打开它，并通过 `update:value` 拿回内容。
+     */
+    editable?: boolean;
   }>(),
   {
     language: 'txt',
@@ -45,8 +50,13 @@ const props = withDefaults(
     downloadFileName: '',
     downloadButtonText: t('textareaCopyable.download'),
     maxHeight: '400px',
+    editable: false,
   },
 );
+
+const emits = defineEmits<{
+  (event: 'update:value', value: string): void;
+}>();
 
 const {
   value,
@@ -58,6 +68,7 @@ const {
   copyMessage,
   downloadFileName,
   downloadButtonText,
+  editable,
 } = toRefs(props);
 
 const styleStore = useStyleStore();
@@ -140,8 +151,16 @@ function themeExtension() {
 function createExtensions() {
   return [
     basicSetup,
-    EditorView.editable.of(false),
-    EditorState.readOnly.of(true),
+    // 只读是默认档：历史上这个组件只用来「给别人看结果」
+    ...(editable.value
+      ? [
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              emits('update:value', update.state.doc.toString());
+            }
+          }),
+        ]
+      : [EditorView.editable.of(false), EditorState.readOnly.of(true)]),
     EditorView.lineWrapping,
     keymap.of(foldKeymap),
     themeCompartment.of(themeExtension()),

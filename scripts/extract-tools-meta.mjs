@@ -338,6 +338,9 @@ const FORCE_UP = new Set([
   'yaml-viewer',
   'xml-formatter',
   'html-prettifier',
+  // HTML 在线编辑器：Web 分类默认 L2，但中文「html 在线编辑器 / html 在线运行」搜索量真实存在，
+  // 且已配 L1 深度正文（seo/content/web-dev-others.ts），按 L1 收录
+  'html-editor',
   'html-to-markdown',
   'url-cleaner',
   'meta-tag-generator',
