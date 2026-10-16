@@ -1643,7 +1643,6 @@ tools:
     description: Konverter datoer og klokkeslæt mellem gregorianske, julianske,
       hebraiske, islamiske, persiske, maya-, indiske, franske republikanske,
       ISO-8601-, Unix-tid og Excel-serieformater
-    externalAccess: nul
     texts:
       label-january: januar
       label-february: februar
@@ -1860,11 +1859,9 @@ tools:
     title: HTML til data
     description: Konverter HTML-tabel til JSON, YAML, CSV, SQL INSERT, XML, Markdown
       eller XLSX
-    externalAccess: nul
   css-js-prettify-minify:
     title: CSS/JS Forskøn og minimer
     description: Forskøn eller minimer din CSS- og JavaScript-kode online.
-    externalAccess: nul
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1882,7 +1879,6 @@ tools:
     title: Cloudflare DNS/RDAP-forespørgsler
     description: Forespørg DNS-poster og RDAP for ethvert domænenavn online ved
       hjælp af Cloudflare DNS/RDAP.org.
-    externalAccess: nul
     texts:
       message-please-enter-a-valid-domain-name: Indtast venligst et gyldigt domænenavn
       text-dns-records-copied-to-the-clipboard: DNS-poster kopieret til udklipsholderen
@@ -1952,7 +1948,6 @@ tools:
   markdown-preview:
     title: Forhåndsvisning af Markdown
     description: Live forhåndsvisning af Markdown, mens du skriver
-    externalAccess: nul
     texts:
       placeholder-your-markdown-content: Dit Markdown-indhold...
       label-your-markdown-to-preview: "Din Markdown til forhåndsvisning:"
@@ -1960,7 +1955,6 @@ tools:
   markdown-table-generator:
     title: Generator for markdown-tabel
     description: Opret GitHub-inspirerede Markdown-tabeller med en visuel editor.
-    externalAccess: nul
     texts:
       label-left: Venstre
       label-center: Centrum

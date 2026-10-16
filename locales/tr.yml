@@ -1667,7 +1667,6 @@ tools:
     description: Gregoryen, Jülyen, İbrani, İslami, Fars, Maya, Hint, Fransız
       Cumhuriyet, ISO-8601, Unix zamanı ve Excel seri formatları arasında tarih
       ve saat dönüştürme.
-    externalAccess: hükümsüz
     texts:
       label-january: Ocak
       label-february: Şubat
@@ -1885,12 +1884,10 @@ tools:
     title: HTML'den veriye
     description: HTML tablosunu JSON, YAML, CSV, SQL INSERT, XML, Markdown veya XLSX
       formatına dönüştürün.
-    externalAccess: hükümsüz
   css-js-prettify-minify:
     title: CSS/JS Güzelleştirme ve Küçültme
     description: CSS ve JavaScript kodunuzu çevrimiçi olarak daha şık hale getirin
       veya küçültün.
-    externalAccess: hükümsüz
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1908,7 +1905,6 @@ tools:
     title: Cloudflare DNS/RDAP Sorguları
     description: Cloudflare DNS/RDAP.org kullanarak herhangi bir alan adı için DNS
       kayıtlarını ve RDAP'ı çevrimiçi olarak sorgulayabilirsiniz.
-    externalAccess: hükümsüz
     texts:
       message-please-enter-a-valid-domain-name: Lütfen geçerli bir alan adı girin.
       text-dns-records-copied-to-the-clipboard: DNS kayıtları panoya kopyalandı
@@ -1979,7 +1975,6 @@ tools:
   markdown-preview:
     title: Markdown önizlemesi
     description: Yazarken Markdown'ın canlı önizlemesi.
-    externalAccess: hükümsüz
     texts:
       placeholder-your-markdown-content: Markdown içeriğiniz...
       label-your-markdown-to-preview: "Önizlemek istediğiniz Markdown dosyası:"
@@ -1988,7 +1983,6 @@ tools:
     title: Markdown Tablosu Oluşturucu
     description: Görsel bir düzenleyici kullanarak GitHub tarzı Markdown tabloları
       oluşturun.
-    externalAccess: hükümsüz
     texts:
       label-left: Sol
       label-center: Merkez

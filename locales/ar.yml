@@ -1680,7 +1680,6 @@ tools:
     description: تحويل التواريخ والأوقات بين التنسيقات الميلادية، واليوليانية،
       والعبرية، والإسلامية، والفارسية، والماياوية، والهندية، والفرنسية
       الجمهورية، وISO-8601، وتوقيت يونكس، والتنسيقات التسلسلية لبرنامج إكسل.
-    externalAccess: باطل
     texts:
       label-january: يناير
       label-february: فبراير
@@ -1896,11 +1895,9 @@ tools:
     title: تحويل HTML إلى بيانات
     description: تحويل جدول HTML إلى JSON أو YAML أو CSV أو SQL INSERT أو XML أو
       Markdown أو XLSX
-    externalAccess: باطل
   css-js-prettify-minify:
     title: تنسيق وتصغير ملفات CSS/JS
     description: قم بتنسيق أو تصغير كود CSS و JavaScript الخاص بك عبر الإنترنت.
-    externalAccess: باطل
     texts:
       label-javascript: جافا سكريبت
       label-css: CSS
@@ -1918,7 +1915,6 @@ tools:
     title: استعلامات Cloudflare DNS/RDAP
     description: استعلم عن سجلات نظام أسماء النطاقات (DNS) و RDAP لأي اسم نطاق عبر
       الإنترنت باستخدام Cloudflare DNS/RDAP.org.
-    externalAccess: باطل
     texts:
       message-please-enter-a-valid-domain-name: الرجاء إدخال اسم نطاق صالح
       text-dns-records-copied-to-the-clipboard: تم نسخ سجلات نظام أسماء النطاقات إلى الحافظة
@@ -1988,7 +1984,6 @@ tools:
   markdown-preview:
     title: معاينة Markdown
     description: معاينة مباشرة لـ Markdown أثناء الكتابة
-    externalAccess: باطل
     texts:
       placeholder-your-markdown-content: محتوى Markdown الخاص بك...
       label-your-markdown-to-preview: "ملف Markdown الخاص بك للمعاينة:"
@@ -1996,7 +1991,6 @@ tools:
   markdown-table-generator:
     title: مولد جداول Markdown
     description: أنشئ جداول Markdown بنكهة GitHub باستخدام محرر مرئي.
-    externalAccess: باطل
     texts:
       label-left: غادر
       label-center: مركز

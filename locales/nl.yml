@@ -1651,7 +1651,6 @@ tools:
     description: Converteer datums en tijden tussen Gregoriaanse, Juliaanse,
       Hebreeuwse, Islamitische, Perzische, Maya-, Indiase, Franse Republikeinse,
       ISO-8601, Unix-tijd en Excel-seriële formaten.
-    externalAccess: "null"
     texts:
       label-january: Januari
       label-february: Februari
@@ -1868,11 +1867,9 @@ tools:
     title: HTML naar data
     description: Converteer een HTML-tabel naar JSON, YAML, CSV, SQL INSERT, XML,
       Markdown of XLSX.
-    externalAccess: "null"
   css-js-prettify-minify:
     title: CSS/JS Opmaak & Minimalisatie
     description: Verklein of minimaliseer je CSS- en JavaScript-code online.
-    externalAccess: "null"
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1890,7 +1887,6 @@ tools:
     title: Cloudflare DNS/RDAP-query's
     description: Raadpleeg DNS-records en RDAP voor elke domeinnaam online via
       Cloudflare DNS/RDAP.org.
-    externalAccess: "null"
     texts:
       message-please-enter-a-valid-domain-name: Voer een geldige domeinnaam in.
       text-dns-records-copied-to-the-clipboard: DNS-records gekopieerd naar het klembord.
@@ -1960,7 +1956,6 @@ tools:
   markdown-preview:
     title: Markdown-voorbeeld
     description: Live preview van Markdown terwijl je typt
-    externalAccess: "null"
     texts:
       placeholder-your-markdown-content: Uw Markdown-inhoud...
       label-your-markdown-to-preview: "Uw Markdown-document om te bekijken:"
@@ -1968,7 +1963,6 @@ tools:
   markdown-table-generator:
     title: Markdown-tabelgenerator
     description: Maak GitHub-achtige Markdown-tabellen met een visuele editor.
-    externalAccess: "null"
     texts:
       label-left: Links
       label-center: Centrum

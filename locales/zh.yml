@@ -2659,7 +2659,6 @@ tools:
         leap-year: 闰年
     title: 日历转换器
     description: 在公历、儒略历、希伯来历、伊斯兰历、波斯历、玛雅历、印度历、法国共和历、ISO-8601、Unix 时间和 Excel 序列号格式之间转换日期和时间
-    externalAccess: 无效的
     texts:
       label-january: 一月
       label-february: 二月
@@ -2834,11 +2833,9 @@ tools:
       error-multiple-json-blocks: 无法一次性转换多个表
     title: HTML 转数据
     description: 将 HTML 表格转换为 JSON、YAML、CSV、SQL INSERT、XML、Markdown 或 XLSX 格式。
-    externalAccess: 无效的
   css-js-prettify-minify:
     title: CSS/JS 美化和压缩
     description: 在线美化或压缩您的 CSS 和 JavaScript 代码。
-    externalAccess: 无效的
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -2855,7 +2852,7 @@ tools:
   dns-query:
     title: Cloudflare DNS/RDAP 查询
     description: 使用 Cloudflare DNS/RDAP.org 在线查询任何域名的 DNS 记录和 RDAP。
-    externalAccess: 无效的
+    externalAccess: "此工具用 Cloudflare 的 DNS over HTTPS 接口（https://cloudflare-dns.com）查询域名的 DNS 记录，并通过 RDAP 接口（https://rdap.org）查询 Whois 信息。请求由浏览器直接发起，本站不中转、不留存。"
     texts:
       message-please-enter-a-valid-domain-name: 请输入有效的域名
       text-dns-records-copied-to-the-clipboard: 复制到剪贴板的 DNS 记录
@@ -2924,7 +2921,6 @@ tools:
   markdown-preview:
     title: Markdown 预览
     description: 输入时可实时预览 Markdown 内容
-    externalAccess: 无效的
     texts:
       placeholder-your-markdown-content: 您的 Markdown 内容……
       label-your-markdown-to-preview: 要预览的 Markdown 文件：
@@ -2932,7 +2928,6 @@ tools:
   markdown-table-generator:
     title: Markdown 表格生成器
     description: 使用可视化编辑器创建 GitHub 风格的 Markdown 表格。
-    externalAccess: 无效的
     texts:
       label-left: 左边
       label-center: 中心

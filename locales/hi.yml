@@ -1741,7 +1741,6 @@ tools:
     description: ग्रेगोरियन, जूलियन, हिब्रू, इस्लामिक, फारसी, माया, भारतीय, फ्रेंच
       रिपब्लिकन, आईएसओ-8601, यूनिक्स टाइम और एक्सेल सीरियल फॉर्मेट के बीच
       तिथियों और समय को परिवर्तित करें।
-    externalAccess: व्यर्थ
     texts:
       label-january: जनवरी
       label-february: फ़रवरी
@@ -1958,11 +1957,9 @@ tools:
     title: HTML से डेटा
     description: HTML टेबल को JSON, YAML, CSV, SQL INSERT, XML, Markdown या XLSX
       फॉर्मेट में बदलें।
-    externalAccess: व्यर्थ
   css-js-prettify-minify:
     title: CSS/JS प्रेटिफ़ाई और मिनिमाइज़
     description: अपने CSS और JavaScript कोड को ऑनलाइन ही सुंदर या छोटा बनाएं।
-    externalAccess: व्यर्थ
     texts:
       label-javascript: जावास्क्रिप्ट
       label-css: सीएसएस
@@ -1980,7 +1977,6 @@ tools:
     title: क्लाउडफ्लेयर DNS/RDAP क्वेरीज़
     description: Cloudflare DNS/RDAP.org का उपयोग करके किसी भी डोमेन नाम के लिए DNS
       रिकॉर्ड और RDAP की ऑनलाइन जांच करें।
-    externalAccess: व्यर्थ
     texts:
       message-please-enter-a-valid-domain-name: कृपया एक वैध डोमेन नाम दर्ज करें
       text-dns-records-copied-to-the-clipboard: DNS रिकॉर्ड क्लिपबोर्ड पर कॉपी हो गए हैं
@@ -2050,7 +2046,6 @@ tools:
   markdown-preview:
     title: मार्कडाउन पूर्वावलोकन
     description: टाइप करते समय मार्कडाउन का लाइव पूर्वावलोकन
-    externalAccess: व्यर्थ
     texts:
       placeholder-your-markdown-content: आपकी मार्कडाउन सामग्री...
       label-your-markdown-to-preview: "पूर्वावलोकन के लिए आपका मार्कडाउन:"
@@ -2058,7 +2053,6 @@ tools:
   markdown-table-generator:
     title: मार्कडाउन टेबल जनरेटर
     description: विजुअल एडिटर की मदद से GitHub-स्टाइल की Markdown टेबल बनाएं।
-    externalAccess: व्यर्थ
     texts:
       label-left: बाएं
       label-center: केंद्र

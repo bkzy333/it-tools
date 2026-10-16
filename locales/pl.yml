@@ -1701,7 +1701,6 @@ tools:
       juliańskim, hebrajskim, islamskim, perskim, Majów, indyjskim,
       francusko-republikańskim, ISO‑8601, czasem Unix i formatami seryjnymi
       programu Excel
-    externalAccess: nieważny
     texts:
       label-january: Styczeń
       label-february: Luty
@@ -1919,11 +1918,9 @@ tools:
     title: HTML do danych
     description: Konwertuj tabelę HTML na formaty JSON, YAML, CSV, SQL INSERT, XML,
       Markdown lub XLSX
-    externalAccess: nieważny
   css-js-prettify-minify:
     title: CSS/JS Upiększ i pomniejsz
     description: Upiększ lub zminimalizuj swój kod CSS i JavaScript online.
-    externalAccess: nieważny
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1941,7 +1938,6 @@ tools:
     title: Zapytania DNS/RDAP Cloudflare
     description: Sprawdź rekordy DNS i RDAP dla dowolnej nazwy domeny online,
       korzystając z Cloudflare DNS/RDAP.org.
-    externalAccess: nieważny
     texts:
       message-please-enter-a-valid-domain-name: Proszę podać prawidłową nazwę domeny
       text-dns-records-copied-to-the-clipboard: Rekordy DNS skopiowane do schowka
@@ -2011,7 +2007,6 @@ tools:
   markdown-preview:
     title: Podgląd Markdown
     description: Podgląd na żywo Markdown podczas pisania
-    externalAccess: nieważny
     texts:
       placeholder-your-markdown-content: Twoja treść w formacie Markdown...
       label-your-markdown-to-preview: "Twój Markdown do podglądu:"
@@ -2019,7 +2014,6 @@ tools:
   markdown-table-generator:
     title: Generator tabel Markdown
     description: Twórz tabele Markdown dostosowane do GitHub za pomocą edytora wizualnego.
-    externalAccess: nieważny
     texts:
       label-left: Lewy
       label-center: Centrum

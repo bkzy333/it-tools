@@ -1676,7 +1676,6 @@ tools:
     description: Converti date e orari tra i formati gregoriano, giuliano, ebraico,
       islamico, persiano, maya, indiano, repubblicano francese, ISO‑8601, orario
       Unix e seriale di Excel.
-    externalAccess: nulla
     texts:
       label-january: Gennaio
       label-february: Febbraio
@@ -1893,11 +1892,9 @@ tools:
       error-multiple-json-blocks: Impossibile convertire più tabelle contemporaneamente
     title: HTML in dati
     description: Converti tabelle HTML in JSON, YAML, CSV, SQL INSERT, XML, Markdown o XLSX
-    externalAccess: nulla
   css-js-prettify-minify:
     title: CSS/JS Abbellisci e minimizza
     description: Formatta o minimizza il tuo codice CSS e JavaScript online.
-    externalAccess: nulla
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1915,7 +1912,6 @@ tools:
     title: Query DNS/RDAP di Cloudflare
     description: È possibile interrogare i record DNS e RDAP per qualsiasi nome di
       dominio online utilizzando Cloudflare DNS/RDAP.org.
-    externalAccess: nulla
     texts:
       message-please-enter-a-valid-domain-name: Inserisci un nome di dominio valido
       text-dns-records-copied-to-the-clipboard: I record DNS sono stati copiati negli appunti.
@@ -1986,7 +1982,6 @@ tools:
   markdown-preview:
     title: Anteprima dello sconto
     description: Anteprima in tempo reale del Markdown durante la digitazione
-    externalAccess: nulla
     texts:
       placeholder-your-markdown-content: Il tuo contenuto Markdown...
       label-your-markdown-to-preview: "Il tuo file Markdown da visualizzare in anteprima:"
@@ -1994,7 +1989,6 @@ tools:
   markdown-table-generator:
     title: Generatore di tabelle Markdown
     description: Crea tabelle Markdown in stile GitHub con un editor visuale.
-    externalAccess: nulla
     texts:
       label-left: Sinistra
       label-center: Centro

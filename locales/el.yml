@@ -1779,7 +1779,6 @@ tools:
     description: Μετατροπή ημερομηνιών και ωρών μεταξύ Γρηγοριανού, Ιουλιανού,
       Εβραϊκού, Ισλαμικού, Περσικού, Μάγια, Ινδικού, Γαλλικού Ρεπουμπλικανικού,
       ISO‑8601, ώρας Unix και σειριακών μορφών Excel
-    externalAccess: άκυρος
     texts:
       label-january: Ιανουάριος
       label-february: Φεβρουάριος
@@ -1995,12 +1994,10 @@ tools:
       error-multiple-json-blocks: Δεν είναι δυνατή η μετατροπή πολλών πινάκων ταυτόχρονα
     title: HTML σε δεδομένα
     description: Μετατροπή πίνακα HTML σε JSON, YAML, CSV, SQL INSERT, XML, Markdown ή XLSX
-    externalAccess: άκυρος
   css-js-prettify-minify:
     title: CSS/JS Prettify & Minify
     description: Ομορφύνετε ή ελαχιστοποιήστε τον κώδικα CSS και JavaScript σας στο
       διαδίκτυο.
-    externalAccess: άκυρος
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -2018,7 +2015,6 @@ tools:
     title: Ερωτήματα DNS/RDAP του Cloudflare
     description: Υποβάλετε ερωτήματα για εγγραφές DNS και RDAP για οποιοδήποτε όνομα
       τομέα στο διαδίκτυο χρησιμοποιώντας το Cloudflare DNS/RDAP.org.
-    externalAccess: άκυρος
     texts:
       message-please-enter-a-valid-domain-name: Παρακαλώ εισάγετε ένα έγκυρο όνομα τομέα
       text-dns-records-copied-to-the-clipboard: Οι εγγραφές DNS αντιγράφηκαν στο πρόχειρο
@@ -2089,7 +2085,6 @@ tools:
   markdown-preview:
     title: Προεπισκόπηση Markdown
     description: Ζωντανή προεπισκόπηση του Markdown καθώς πληκτρολογείτε
-    externalAccess: άκυρος
     texts:
       placeholder-your-markdown-content: Το περιεχόμενό σας στο Markdown...
       label-your-markdown-to-preview: "Η κατάταξή σας για προεπισκόπηση:"
@@ -2097,7 +2092,6 @@ tools:
   markdown-table-generator:
     title: Γεννήτρια πίνακα Markdown
     description: Δημιουργήστε πίνακες Markdown με βάση το GitHub με έναν οπτικό επεξεργαστή.
-    externalAccess: άκυρος
     texts:
       label-left: Αριστερά
       label-center: Κέντρο

@@ -1600,7 +1600,6 @@ tools:
     title: 달력 변환기
     description: 그레고리력, 율리우스력, 히브리력, 이슬람력, 페르시아력, 마야력, 인도력, 프랑스 공화국력, ISO-8601, 유닉스
       시간 및 엑셀 직렬화 형식 간의 날짜 및 시간을 변환합니다.
-    externalAccess: 널
     texts:
       label-january: 1월
       label-february: 2월
@@ -1813,11 +1812,9 @@ tools:
       error-multiple-json-blocks: 여러 테이블을 한 번에 변환할 수 없습니다.
     title: HTML을 데이터로 변환
     description: HTML 테이블을 JSON, YAML, CSV, SQL INSERT, XML, Markdown 또는 XLSX 형식으로 변환합니다.
-    externalAccess: 널
   css-js-prettify-minify:
     title: CSS/JS 보기 좋게 정리하고 최소화하기
     description: CSS 및 JavaScript 코드를 온라인에서 보기 좋게 정리하거나 최소화하세요.
-    externalAccess: 널
     texts:
       label-javascript: 자바스크립트
       label-css: CSS
@@ -1834,7 +1831,6 @@ tools:
   dns-query:
     title: 클라우드플레어 DNS/RDAP 쿼리
     description: Cloudflare DNS/RDAP.org를 사용하여 온라인으로 모든 도메인 이름의 DNS 레코드 및 RDAP를 조회할 수 있습니다.
-    externalAccess: 널
     texts:
       message-please-enter-a-valid-domain-name: 유효한 도메인 이름을 입력하세요.
       text-dns-records-copied-to-the-clipboard: DNS 레코드가 클립보드에 복사되었습니다.
@@ -1903,7 +1899,6 @@ tools:
   markdown-preview:
     title: 마크다운 미리보기
     description: 입력하는 동안 마크다운의 실시간 미리보기가 제공됩니다.
-    externalAccess: 널
     texts:
       placeholder-your-markdown-content: 마크다운 콘텐츠...
       label-your-markdown-to-preview: "미리 보기를 위한 마크다운 파일:"
@@ -1911,7 +1906,6 @@ tools:
   markdown-table-generator:
     title: 마크다운 테이블 생성기
     description: 시각적 편집기를 사용하여 GitHub 스타일의 Markdown 테이블을 만드세요.
-    externalAccess: 널
     texts:
       label-left: 왼쪽
       label-center: 센터

@@ -2547,7 +2547,6 @@ tools:
     description: Convert dates and times between Gregorian, Julian, Hebrew, Islamic,
       Persian, Mayan, Indian, French Republican, ISO‑8601, Unix time, and Excel
       serial formats
-    externalAccess: "null"
     texts:
       label-january: January
       label-february: February
@@ -2721,11 +2720,9 @@ tools:
       error-multiple-json-blocks: Cannot convert multiple tables at once
     title: HTML to data
     description: Convert HTML table to JSON, YAML, CSV, SQL INSERT, XML, Markdown or XLSX
-    externalAccess: "null"
   css-js-prettify-minify:
     title: CSS/JS Prettify & Minify
     description: Prettify or minify your CSS and JavaScript code online.
-    externalAccess: "null"
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -2743,7 +2740,7 @@ tools:
     title: Cloudflare DNS/RDAP Queries
     description: Query DNS records and RDAP for any domain name online using
       Cloudflare DNS/RDAP.org.
-    externalAccess: "null"
+    externalAccess: "This tool resolves DNS records for a given domain using Cloudflare's DNS over HTTPS API (https://cloudflare-dns.com). It resolves Whois through the RDAP API (https://rdap.org)."
     texts:
       message-please-enter-a-valid-domain-name: Please enter a valid domain name
       text-dns-records-copied-to-the-clipboard: DNS records copied to the clipboard
@@ -2813,7 +2810,6 @@ tools:
   markdown-preview:
     title: Markdown preview
     description: Live preview of Markdown as you type
-    externalAccess: "null"
     texts:
       placeholder-your-markdown-content: Your Markdown content...
       label-your-markdown-to-preview: "Your Markdown to preview:"
@@ -2821,7 +2817,6 @@ tools:
   markdown-table-generator:
     title: Markdown Table Generator
     description: Create GitHub-flavored Markdown tables with a visual editor.
-    externalAccess: "null"
     texts:
       label-left: Left
       label-center: Center

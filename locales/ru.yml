@@ -1716,7 +1716,6 @@ tools:
     description: Преобразование дат и времени между григорианским, юлианским,
       еврейским, исламским, персидским, майянским, индийским, французским
       республиканским, ISO-8601, Unix-форматом и форматом серийных чисел Excel.
-    externalAccess: нулевой
     texts:
       label-january: Январь
       label-february: Февраль
@@ -1935,11 +1934,9 @@ tools:
     title: HTML в данные
     description: Преобразуйте HTML-таблицу в JSON, YAML, CSV, SQL INSERT, XML,
       Markdown или XLSX.
-    externalAccess: нулевой
   css-js-prettify-minify:
     title: Улучшение и минимизация CSS/JS
     description: Улучшайте или минимизируйте свой CSS и JavaScript код онлайн.
-    externalAccess: нулевой
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1957,7 +1954,6 @@ tools:
     title: DNS/RDAP-запросы Cloudflare
     description: С помощью Cloudflare DNS/RDAP.org вы можете запрашивать DNS-записи
       и RDAP-доступ для любого доменного имени в режиме онлайн.
-    externalAccess: нулевой
     texts:
       message-please-enter-a-valid-domain-name: Пожалуйста, введите допустимое доменное имя.
       text-dns-records-copied-to-the-clipboard: DNS-записи скопированы в буфер обмена
@@ -2029,7 +2025,6 @@ tools:
     title: Предварительный просмотр Markdown
     description: Предварительный просмотр Markdown в режиме реального времени по
       мере ввода текста.
-    externalAccess: нулевой
     texts:
       placeholder-your-markdown-content: Ваш контент в формате Markdown...
       label-your-markdown-to-preview: "Предварительный просмотр вашего Markdown-файла:"
@@ -2037,7 +2032,6 @@ tools:
   markdown-table-generator:
     title: Генератор таблиц Markdown
     description: Создавайте таблицы Markdown в стиле GitHub с помощью визуального редактора.
-    externalAccess: нулевой
     texts:
       label-left: Левый
       label-center: Центр

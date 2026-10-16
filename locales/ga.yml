@@ -1732,7 +1732,6 @@ tools:
     description: Tiontaigh dátaí agus amanna idir formáidí sraitheacha Gregorian,
       Julian, Eabhraise, Ioslamacha, Peirsis, Mayan, Indiach, Poblachtánach na
       Fraince, ISO‑8601, am Unix, agus Excel
-    externalAccess: nialas
     texts:
       label-january: Eanáir
       label-february: Feabhra
@@ -1948,11 +1947,9 @@ tools:
       error-multiple-json-blocks: Ní féidir táblaí iolracha a thiontú ag an am céanna
     title: HTML go sonraí
     description: Tiontaigh tábla HTML go JSON, YAML, CSV, SQL INSERT, XML, Markdown nó XLSX
-    externalAccess: nialas
   css-js-prettify-minify:
     title: CSS/JS Áilleachtú & Laghdaigh
     description: Déan do chód CSS agus JavaScript a mhaisiú nó a laghdú ar líne.
-    externalAccess: nialas
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1970,7 +1967,6 @@ tools:
     title: Iarratais DNS/RDAP Cloudflare
     description: Déan fiosrúcháin ar thaifid DNS agus RDAP le haghaidh aon ainm
       fearainn ar líne ag baint úsáide as Cloudflare DNS/RDAP.org.
-    externalAccess: nialas
     texts:
       message-please-enter-a-valid-domain-name: Cuir isteach ainm fearainn bailí le do thoil
       text-dns-records-copied-to-the-clipboard: Taifid DNS cóipeáilte chuig an ghearrthaisce
@@ -2040,7 +2036,6 @@ tools:
   markdown-preview:
     title: Réamhamharc marcála síos
     description: Réamhamharc beo ar Markdown agus tú ag clóscríobh
-    externalAccess: nialas
     texts:
       placeholder-your-markdown-content: D'ábhar Markdown...
       label-your-markdown-to-preview: 'Do Mharcáil síos le réamhamharc:'
@@ -2048,7 +2043,6 @@ tools:
   markdown-table-generator:
     title: Gineadóir Tábla Marcála
     description: Cruthaigh táblaí Markdown atá bunaithe ar GitHub le heagarthóir amhairc.
-    externalAccess: nialas
     texts:
       label-left: Ar chlé
       label-center: Lár

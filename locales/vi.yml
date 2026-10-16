@@ -1700,7 +1700,6 @@ tools:
     description: Chuyển đổi ngày giờ giữa các định dạng Gregorian, Julian, Do Thái,
       Hồi giáo, Ba Tư, Maya, Ấn Độ, Cộng hòa Pháp, ISO-8601, thời gian Unix và
       định dạng số sê-ri Excel.
-    externalAccess: vô giá trị
     texts:
       label-january: Tháng Một
       label-february: Tháng hai
@@ -1917,11 +1916,9 @@ tools:
     title: Chuyển đổi HTML sang dữ liệu
     description: Chuyển đổi bảng HTML sang JSON, YAML, CSV, SQL INSERT, XML,
       Markdown hoặc XLSX.
-    externalAccess: vô giá trị
   css-js-prettify-minify:
     title: Làm đẹp và thu nhỏ CSS/JS
     description: Làm đẹp hoặc thu nhỏ mã CSS và JavaScript của bạn trực tuyến.
-    externalAccess: vô giá trị
     texts:
       label-javascript: JavaScript
       label-css: CSS
@@ -1939,7 +1936,6 @@ tools:
     title: Truy vấn DNS/RDAP của Cloudflare
     description: Truy vấn bản ghi DNS và RDAP cho bất kỳ tên miền nào trực tuyến
       bằng Cloudflare DNS/RDAP.org.
-    externalAccess: vô giá trị
     texts:
       message-please-enter-a-valid-domain-name: Vui lòng nhập tên miền hợp lệ.
       text-dns-records-copied-to-the-clipboard: Bản ghi DNS đã được sao chép vào clipboard
@@ -2009,7 +2005,6 @@ tools:
   markdown-preview:
     title: Xem trước Markdown
     description: Xem trước trực tiếp nội dung Markdown khi bạn đang gõ.
-    externalAccess: vô giá trị
     texts:
       placeholder-your-markdown-content: Nội dung Markdown của bạn...
       label-your-markdown-to-preview: "Mã Markdown bạn cần xem trước:"
@@ -2017,7 +2012,6 @@ tools:
   markdown-table-generator:
     title: Công cụ tạo bảng Markdown
     description: Tạo bảng Markdown theo phong cách GitHub bằng trình soạn thảo trực quan.
-    externalAccess: vô giá trị
     texts:
       label-left: Bên trái
       label-center: Trung tâm
