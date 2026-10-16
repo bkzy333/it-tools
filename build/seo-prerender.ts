@@ -333,7 +333,11 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
     );
     parts.push(
       `<h2>${esc(tool.title)}是什么</h2>`,
-      `<p>${esc(tool.title)}属于${esc(tool.categoryZh)}分类。${esc(tool.description)}它是一个网页版工具，打开就能用，不需要下载安装，也不需要注册账号。</p>`,
+      // 这句必须和运行时 ToolUsageGuide.vue 的兜底 intro 逐字同源：L2/L3 没有手写长文，
+      // 静态运行时各写一套句式就是给爬虫和用户看两段话（cloaking）。
+      `<p>${esc(
+        `${tool.title}是一个免费的在线工具，${tool.description}打开网页就能用，不用下载安装，也不用注册。`,
+      )}</p>`,
       `<h2>怎么用</h2>`,
       `<ol><li>在页面上方输入或上传你要处理的内容</li><li>按需要调整选项</li><li>结果会实时显示，可以直接复制或下载</li></ol>`,
     );
@@ -348,9 +352,17 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
     );
   }
 
+  // 「同类XX工具」的 XX 必须走 categoryAllLabel：分类名本身已带「工具」时不能再拼一个
+  // （否则会出现「同类生活工具工具」这种鬼话）。运行时 ToolUsageGuide.vue 用的是同一个函数。
+  const catLabel = categoryAllLabel({
+    zh: tool.categoryZh,
+    seo: tool.categorySeoName,
+    slug: categorySlug(tool.category),
+  });
+
   parts.push(
-    `<h2>同类${esc(tool.categoryZh)}工具</h2>`,
-    `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}/">查看全部${esc(tool.categoryZh)}工具</a></p>`,
+    `<h2>同类${esc(catLabel)}</h2>`,
+    `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}/">查看全部${esc(catLabel)}</a></p>`,
   );
 
   return parts.filter(Boolean).join('\n');
@@ -364,6 +376,9 @@ function renderCategoryPage(category: string, categoryZh: string, seoName: strin
   // 可索引的排前面，剩下的照常列出 —— 用户照样找得到，页面也有真内容。
   const ordered = [...tools.filter((t) => t.tier !== 'L3'), ...tools.filter((t) => t.tier === 'L3')];
 
+  // 「全部XX工具」的 XX 必须和 CategoryPage.vue 走同一个函数，否则标题会打架（cloaking）。
+  const allLabel = categoryAllLabel({ zh: categoryZh, seo: seoName, slug: categorySlug(category) });
+
   const list = ordered
     .map(
       (t) =>
@@ -375,13 +390,13 @@ function renderCategoryPage(category: string, categoryZh: string, seoName: strin
     breadcrumbHtml(bc),
     `<h1>${esc(seoName)}</h1>`,
     `<p class="seo-lead">${esc(
-      `${categoryZh}分类共收录 ${tools.length} 个免费在线工具，全部在浏览器里运行，不用注册、不用安装，打开网页就能用。`,
+      `${categoryZh}分类共收录 ${tools.length} 个免费在线工具，打开即用，无需注册。`,
     )}</p>`,
-    `<h2>全部${esc(categoryZh)}工具（${tools.length} 个）</h2>`,
+    `<h2>全部${esc(allLabel)}（${tools.length} 个）</h2>`,
     `<ul>${list}</ul>`,
     `<h2>关于${esc(categoryZh)}</h2>`,
     `<p>${esc(
-      `这一页汇总了本站所有${categoryZh}相关的工具。每个工具点进去都能直接使用，处理过程在浏览器本地完成，输入的数据不会上传到服务器。`,
+      `这一页汇总了本站所有${categoryZh}相关的工具。每个工具点进去都能直接使用，处理结果可一键复制或导出；少数需要联网获取数据的工具会在页面上标注数据去向。`,
     )}</p>`,
   ].join('\n');
 }
@@ -556,6 +571,7 @@ interface TrustPage {
 async function loadSeoData(root: string): Promise<{
   content: Record<string, ToolContent>;
   trustPages: TrustPage[];
+  toolMetaDescription: (path: string, fallback: string) => string;
 }> {
   const entry = path.join(root, 'src/seo/seo-entry.ts');
   if (!fs.existsSync(entry)) {
@@ -587,6 +603,9 @@ async function loadSeoData(root: string): Promise<{
   return {
     content: (mod.allToolContent ?? {}) as Record<string, ToolContent>,
     trustPages: (mod.TRUST_PAGES ?? []) as TrustPage[],
+    // 和运行时 tool.layout.vue 共用同一个函数，静态/运行的 meta description 不会漂移
+    toolMetaDescription: (mod.toolMetaDescription ??
+      ((_path: string, fallback: string) => fallback)) as (path: string, fallback: string) => string,
   };
 }
 
@@ -595,11 +614,13 @@ async function loadSeoData(root: string): Promise<{
 import { parseFrontmatter } from '../src/seo/frontmatter';
 import { GUIDE_INDEX } from '../src/seo/guide-index';
 import { renderGuideMarkdown, type GuideTocItem } from '../src/seo/guide-render';
-import { HOME_TITLE, homeDescription, homeLead } from '../src/seo/home-heading';
+import { HOME_TITLE, homeDescription, homeLead, aboutDescription } from '../src/seo/home-heading';
 // 相关工具的内链关系：和运行时 ToolUsageGuide.vue 共用同一张人工策划映射表。
 // 之前这里算的是「同分类取 8 个」，运行时算的是「同分类 + 随机补齐 6 个」，两边结果不一致
 // —— 爬虫和用户看到的相关工具不是同一批，这就是 cloaking。现在统一走一张表。
 import { getRelatedToolPaths } from '../src/seo/related-tools';
+// 分类页的「全部XX工具」标签：和运行时 CategoryPage.vue 共用同一个函数。
+import { categoryAllLabel } from '../src/seo/categories';
 
 /**
  * 核对 src/seo/guide-index.ts 和 md 原文里的标题是否一致。
@@ -662,7 +683,7 @@ export function seoPrerender(): Plugin {
       }
       const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
       const tools: ToolMeta[] = meta.tools;
-      const { content, trustPages } = await loadSeoData(root);
+      const { content, trustPages, toolMetaDescription } = await loadSeoData(root);
 
       const byCategory = new Map<string, ToolMeta[]>();
       for (const tool of tools) {
@@ -692,9 +713,8 @@ export function seoPrerender(): Plugin {
 
         const body = renderToolPage(tool, content[tool.path], related);
         const noindex = tool.tier === 'L3';
-        const description = content[tool.path]?.intro
-          ? `${content[tool.path].intro.slice(0, 110)}…`
-          : tool.description;
+        // meta description 与运行时（tool.layout.vue）共用同一个函数，别在这里另写一套
+        const description = toolMetaDescription(tool.path, tool.description);
 
         const jsonLd: unknown[] = [
           {
@@ -780,7 +800,10 @@ export function seoPrerender(): Plugin {
         let html = injectStyle(template);
         html = injectBody(html, body);
         html = rewriteHead(html, {
-          title: indexedCount > 0 ? `${seoName} - ${indexedCount} 个免费工具 - ${SITE_NAME}` : `${seoName} - ${SITE_NAME}`,
+          // 标题里的工具数必须用全量 list.length，和运行时 CategoryPage.vue 的 title 一致
+          // （之前这里用 indexedCount，network 分类静态标题写 6 个、运行时写 7 个）。
+          // indexedCount 只留给 noindex 判断用。
+          title: list.length > 0 ? `${seoName} - ${list.length} 个免费工具 - ${SITE_NAME}` : `${seoName} - ${SITE_NAME}`,
           description: `${seoName}，共 ${list.length} 个免费在线工具，打开即用，无需注册。`,
           keywords: `${categoryZh},${seoName},在线工具`,
           canonical: url(route),
@@ -966,7 +989,7 @@ export function seoPrerender(): Plugin {
         html = injectBody(html, body);
         html = rewriteHead(html, {
           title: `关于 - ${SITE_NAME}`,
-          description: `${SITE_NAME}是一个完全免费的在线工具合集，收录 ${tools.length} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密解密、日期计算、网络工具等，打开即用，无需注册。`,
+          description: aboutDescription(SITE_NAME, tools.length),
           keywords: '在线工具箱,关于我们,在线工具',
           canonical: url('/about'),
           jsonLd: [breadcrumbLd([{ name: '首页', href: '/' }, { name: '关于' }])],
@@ -977,14 +1000,15 @@ export function seoPrerender(): Plugin {
 
       // ---------- 6. 首页：补上静态的分类导航，让爬虫第一波就能抓到内链 ----------
       {
-        const homeCategories = [...byCategory.entries()]
-          .filter(([, list]) => list.some((t) => t.tier !== 'L3'))
-          .map(([category, list]) => ({
-            name: list[0].categoryZh,
-            seoName: list[0].categorySeoName,
-            slug: categorySlug(category),
-            count: list.filter((t) => t.tier !== 'L3').length,
-          }));
+        // 分类芯片的计数与「是否展示这个分类」都必须和运行时 Home.page.vue 一致：
+        // 运行时按 store 全量工具统计，之前这里按 tier !== 'L3' 统计，
+        // network 分类静态芯片写 6、运行时写 7（首页导语同样差一个），都是 cloaking。
+        const homeCategories = [...byCategory.entries()].map(([category, list]) => ({
+          name: list[0].categoryZh,
+          seoName: list[0].categorySeoName,
+          slug: categorySlug(category),
+          count: list.length,
+        }));
 
         // 静态页给足全部 L1 工具的内链：首页是权重最高的页面，每把 L1 工具都该从这里
         // 直达（爬虫不执行懒加载，只列 40 个等于把内链权重让给分类页二级分发）。
@@ -992,7 +1016,7 @@ export function seoPrerender(): Plugin {
         const topTools = tools.filter((t) => t.tier === 'L1');
         const homeBody = [
           `<h1>${HOME_TITLE}</h1>`,
-          `<p class="seo-lead">${esc(homeLead(tools.filter((t) => t.tier !== 'L3').length))}</p>`,
+          `<p class="seo-lead">${esc(homeLead(tools.length))}</p>`,
           `<h2>按分类浏览</h2>`,
           `<div class="seo-tags">${homeCategories
             .map((c) => `<a class="seo-tag" href="/category/${c.slug}/">${esc(c.name)}（${c.count}）</a>`)
@@ -1013,7 +1037,7 @@ export function seoPrerender(): Plugin {
         html = injectBody(html, homeBody);
         html = rewriteHead(html, {
           title: HOME_TITLE,
-          description: homeDescription(tools.filter((t) => t.tier !== 'L3').length),
+          description: homeDescription(tools.length),
           keywords: '在线工具,在线工具箱,实用工具,JSON格式化,Base64,单位换算,加密解密,二维码生成',
           canonical: `${SITE_URL}/`,
           jsonLd: [

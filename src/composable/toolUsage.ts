@@ -1,4 +1,5 @@
 import { useStorage } from '@vueuse/core';
+import { normalizeRoutePath } from '@/seo/route-path';
 
 // 工具使用频次统计
 // 1) 本机维度：localStorage，key = it-tools-usage，用于首页「你常用的工具」
@@ -14,11 +15,9 @@ const usage = useStorage<Record<string, number>>(STORAGE_KEY, {});
 /**
  * 路由里读到的 path 是带尾斜杠的（/json-prettify/），而 /api/hot 只收 /json-prettify
  * （后端要拿它拼 KV key，尾斜杠会写进去导致同一个工具被记成两个）。
- * 以前没做这层规范化，每个工具页都会 POST 一个 400，控制台跟着红一片。
+ * 规范化统一走 src/seo/route-path.ts —— 这个坑在站内反复出现，别再各写一份。
  */
-function normalizeToolPath(path: string): string {
-  return path.length > 1 ? path.replace(/\/+$/, '') : path;
-}
+const normalizeToolPath = (path: string): string => normalizeRoutePath(path);
 
 export function recordToolVisit(rawPath: string) {
   const path = normalizeToolPath(rawPath);

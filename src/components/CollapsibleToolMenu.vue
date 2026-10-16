@@ -2,13 +2,19 @@
 import { useStorage } from '@vueuse/core';
 import { useThemeVars } from 'naive-ui';
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 import MenuIconItem from './MenuIconItem.vue';
 import MenuItemWithTooltip from './MenuItemTooltip.vue';
+import { normalizeRoutePath } from '@/seo/route-path';
 import type { Tool, ToolCategory } from '@/tools/tools.types';
 
 const props = withDefaults(defineProps<{ toolsByCategory?: ToolCategory[] }>(), { toolsByCategory: () => [] });
 const { toolsByCategory } = toRefs(props);
 const route = useRoute();
+
+// 站内 URL 带尾斜杠（/age-calculator/），菜单项的 value 是工具 path（不带）。
+// 不剥掉的话高亮永远匹配不上，侧栏看不出当前在哪个工具页。
+const activePath = computed(() => normalizeRoutePath(route.path));
 
 // Memoize component creation functions - wrap in markRaw to prevent reactivity
 const makeLabel = (tool: Tool) => () => markRaw(h(MenuItemWithTooltip, { tool, key: tool.path }));
@@ -96,7 +102,7 @@ function getAnimationDuration(itemCount: number): number {
 
 // Function to check if any tool in the category is active
 function isCategoryActive(components: Tool[]): boolean {
-  return components.some((tool) => tool.path === route.path);
+  return components.some((tool) => tool.path === activePath.value);
 }
 
 // Depends on the tool list only: holding the collapsed/active flags in here rebuilt
@@ -209,7 +215,7 @@ const themeVars = useThemeVars();
         <n-menu
           v-if="openedCategories[name]"
           class="menu"
-          :value="route.path"
+          :value="activePath"
           :collapsed-width="64"
           :collapsed-icon-size="22"
           :options="tools"

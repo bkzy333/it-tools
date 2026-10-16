@@ -26,6 +26,8 @@
  *   - 新增/删除工具后，跑 `node scripts/verify-related-tools.mjs` 校验表里没有死链和自引用。
  */
 
+import { normalizeRoutePath } from './route-path';
+
 /** 工具 path → 相关工具 path 列表（有序，第一位最相关） */
 export const RELATED_TOOLS: Record<string, string[]> = {
   // ---------------- 日期与时间 ----------------
@@ -448,9 +450,12 @@ export function getRelatedToolPaths(
   // noindex 页面（L3）不给内链：链过去既没有收录价值，也可能把权重导向不收录的页
   const indexable = new Set(allTools.filter((t) => t.tier !== 'L3').map((t) => t.path));
 
+  // 运行时 route.path 带尾斜杠，映射表的 key 不带 —— 先规范化，否则相关工具区块直接空掉
+  const self = normalizeRoutePath(currentPath);
+
   const picked: string[] = [];
   const push = (p: string) => {
-    if (p === currentPath || picked.includes(p)) {
+    if (p === self || picked.includes(p)) {
       return;
     }
     if (!known.has(p) || !indexable.has(p)) {
@@ -461,7 +466,7 @@ export function getRelatedToolPaths(
     }
   };
 
-  const manual = RELATED_TOOLS[currentPath];
+  const manual = RELATED_TOOLS[self];
   for (const p of manual ?? []) {
     push(p);
   }
@@ -471,7 +476,7 @@ export function getRelatedToolPaths(
   // 再自动塞一个同分类顺序取到的工具进去，既违背策划意图，质量也不可控
   //（实测 /text-merge 策划 5 个，却被补进「大小写转换器」）。
   if (!manual) {
-    const current = allTools.find((t) => t.path === currentPath);
+    const current = allTools.find((t) => t.path === self);
     if (current?.category) {
       for (const t of allTools) {
         if (picked.length >= limit) {

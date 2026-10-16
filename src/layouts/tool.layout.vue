@@ -15,9 +15,21 @@ import { watch } from 'vue';
 import { useTheme } from '../ui/c-link/c-link.theme';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import { recordToolVisit, reportToolVisit } from '@/composable/toolUsage';
+import { useToolStore } from '@/tools/tools.store';
+import { toolMetaDescription } from '@/seo/content';
+import { categorySlug } from '@/seo/categories';
+import { normalizeRoutePath } from '@/seo/route-path';
 import type { Tool } from '@/tools/tools.types';
 
 const route = useRoute();
+const toolStore = useToolStore();
+const { t } = useI18n();
+
+// 站内 URL 带尾斜杠（/age-calculator/），而工具表 / i18n key 都不带。
+// 这里统一剥一次：之前 i18nKey 用 route.path.trim().replace('/', '') 只替掉了第一个斜杠，
+// 剩下的尾斜杠让 tools.age-calculator/.title 这种键全部查空、静默走 meta 兜底；
+// FavoriteButton 拿到带斜杠的 path 当存储键，侧栏收藏列表按 path 反查不到，收藏直接丢。
+const routePath = computed(() => normalizeRoutePath(route.path));
 
 // 打开工具页：本机计数（「你常用的工具」）+ 上报服务端（全站「热门工具」）
 watch(
@@ -28,6 +40,20 @@ watch(
   },
   { immediate: true },
 );
+
+const i18nKey = computed<string>(() => routePath.value.replace(/\//g, ''));
+const toolTitle = computed<string>(() => t(`tools.${i18nKey.value}.title`, String(route.meta.name)));
+const toolDescription = computed<string>(() => t(`tools.${i18nKey.value}.description`, String(route.meta.description)));
+const currentTool = computed(() => toolStore.tools.find((tool) => tool.path === routePath.value));
+const categoryZh = computed<string>(() => currentTool.value?.category ?? '');
+const categoryHref = computed<string>(() => {
+  const raw = currentTool.value?.rawCategory ?? '';
+  return raw ? `/category/${categorySlug(raw)}` : '';
+});
+
+// meta description 必须和静态 HTML 同源：L1 深耕页用正文 intro 截断，L2/L3 用工具自身描述。
+// 之前运行时只写 route.meta.description（ locales 短句），静态用 intro 截断，90 个 L1 页两套话。
+const metaDescription = computed<string>(() => toolMetaDescription(routePath.value, toolDescription.value));
 
 const head = computed<HeadObject>(() => ({
   title: `${route.meta.name} - 在线工具箱`,
@@ -46,19 +72,19 @@ const head = computed<HeadObject>(() => ({
     },
     {
       name: 'description',
-      content: route.meta?.description as string,
+      content: metaDescription.value,
     },
     {
       itemprop: 'description',
-      content: route.meta?.description as string,
+      content: metaDescription.value,
     },
     {
       property: 'og:description',
-      content: route.meta?.description as string,
+      content: metaDescription.value,
     },
     {
       property: 'twitter:description',
-      content: route.meta?.description as string,
+      content: metaDescription.value,
     },
     {
       name: 'keywords',
@@ -67,11 +93,7 @@ const head = computed<HeadObject>(() => ({
   ],
 }));
 useHead(head);
-const { t } = useI18n();
 
-const i18nKey = computed<string>(() => route.path.trim().replace('/', ''));
-const toolTitle = computed<string>(() => t(`tools.${i18nKey.value}.title`, String(route.meta.name)));
-const toolDescription = computed<string>(() => t(`tools.${i18nKey.value}.description`, String(route.meta.description)));
 const toolFooter = computed<string>(() => {
   const createLink = (linkText: string, url: string) => {
     return `[${linkText.replace('[', '\\[').replace(']', '\\]')}](${url.replace('(', '%28').replace(')', '%29')})`;
@@ -95,6 +117,16 @@ const linkTheme = useTheme();
 
 <template>
   <div class="tool-layout">
+    <!-- 面包屑：静态 HTML 的 #seo-static 里有一份一模一样的（首页 / 分类 / 工具名），
+         运行时补上，避免爬虫和用户看到的两页内容不一致（cloaking）。 -->
+    <nav v-if="categoryZh" class="seo-crumbs" aria-label="面包屑">
+      <router-link to="/">首页</router-link>
+      <span class="sep">/</span>
+      <router-link :to="categoryHref">{{ categoryZh }}</router-link>
+      <span class="sep">/</span>
+      <span>{{ toolTitle }}</span>
+    </nav>
+
     <div class="tool-header">
       <div flex flex-nowrap items-center justify-between>
         <n-h1>
@@ -116,7 +148,7 @@ const linkTheme = useTheme();
         </n-h1>
 
         <div flex items-center>
-          <FavoriteButton :tool="{ name: route.meta.name, path: route.path } as Tool" />
+          <FavoriteButton :tool="{ name: route.meta.name, path: routePath } as Tool" />
           <tool-feedback-button />
         </div>
       </div>
@@ -182,6 +214,25 @@ const linkTheme = useTheme();
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
+
+  .seo-crumbs {
+    font-size: 13px;
+    margin: 24px 0 14px;
+    opacity: 0.7;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .sep {
+      margin: 0 6px;
+    }
+  }
 
   .tool-header {
     padding: 40px 0;

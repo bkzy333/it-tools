@@ -3,6 +3,7 @@ import { useHead } from '@vueuse/head';
 import { useMessage } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { useToolStore } from '@/tools/tools.store';
+import { aboutDescription } from '@/seo/home-heading';
 
 // ===================== 上线前请改成你自己的信息 =====================
 const SITE_NAME = '在线工具箱';
@@ -18,7 +19,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: `${SITE_NAME}是一个完全免费的在线工具合集，收录 ${toolStore.tools.length} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密、日期计算、网络工具等，打开即用，无需注册。`,
+      content: aboutDescription(SITE_NAME, toolStore.tools.length),
     },
   ],
 });

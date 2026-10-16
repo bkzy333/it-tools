@@ -74,3 +74,14 @@ export function allCategories(): { category: string; meta: CategoryMeta }[] {
 export function categoryMeta(category: string): CategoryMeta {
   return CATEGORIES[category] ?? { zh: category, seo: category, slug: categorySlug(category) };
 }
+
+/**
+ * 「全部XX工具」里那个 XX。
+ *
+ * 有的分类中文名本身已经带「工具」（PDF 工具 / JSON 工具 / 网络工具…），模板里再拼一个
+ * 就会变成「全部PDF 工具工具」这种鬼话。构建期（renderCategoryPage）和运行时
+ * （CategoryPage.vue）都调这个函数，避免两边各判一次判出两种结果。
+ */
+export function categoryAllLabel(meta: CategoryMeta): string {
+  return meta.zh.endsWith('工具') ? meta.zh : `${meta.zh}工具`;
+}

@@ -11,6 +11,7 @@ import cryptoConvertersNetwork from './crypto-converters-network';
 import mediaDatetimeGenerators from './media-datetime-generators';
 import webDevOthers from './web-dev-others';
 import dataTools from './data-tools';
+import { normalizeRoutePath } from '../route-path';
 import type { ToolContent } from './types';
 
 export type { ToolContent, ToolContentFaq, ToolContentExample } from './types';
@@ -24,13 +25,29 @@ const ALL_CONTENT: Record<string, ToolContent> = {
 };
 
 export function getToolContent(path: string): ToolContent | undefined {
-  return ALL_CONTENT[path];
+  return ALL_CONTENT[normalizeRoutePath(path)];
 }
 
 export function hasToolContent(path: string): boolean {
-  return Object.prototype.hasOwnProperty.call(ALL_CONTENT, path);
+  return Object.prototype.hasOwnProperty.call(ALL_CONTENT, normalizeRoutePath(path));
 }
 
 export const allToolContent = ALL_CONTENT;
 
 export const toolContentCount = Object.keys(ALL_CONTENT).length;
+
+/**
+ * 工具页 meta description 的唯一算法。
+ *
+ * 构建期（build/seo-prerender.ts 写进静态 HTML 的 <meta name="description">）和
+ * 运行时（src/layouts/tool.layout.vue 挂载后替换的那一份）都必须调这个函数：
+ * 之前两边各写各的 —— 静态用 content.intro 截断，运行时用 locales 里的短描述，
+ * 90 个 L1 页的 meta description 静态运行两套话（head 里的内容不一致也是 cloaking）。
+ *
+ * @param path 工具访问路径（带不带尾斜杠都行，内部会规范化）
+ * @param fallback 没有深耕正文时的描述（L2/L3 用工具自身的 description）
+ */
+export function toolMetaDescription(path: string, fallback: string): string {
+  const intro = ALL_CONTENT[normalizeRoutePath(path)]?.intro;
+  return intro ? `${intro.slice(0, 110)}…` : fallback;
+}

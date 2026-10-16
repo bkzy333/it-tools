@@ -2,9 +2,14 @@
 import IconMessageReport from '~icons/tabler/message-report';
 import { useMessage } from 'naive-ui';
 import { useRoute } from 'vue-router';
+import { normalizeRoutePath } from '@/seo/route-path';
 
 const route = useRoute();
 const message = useMessage();
+
+// /api/hot 收到的 path 是不带尾斜杠的（composable/toolUsage.ts 里剥过），
+// 反馈若带斜杠发过去，同一个工具在 KV 里会变成两条记录，统计对不上。
+const toolPath = computed(() => normalizeRoutePath(route.path));
 
 const showModal = ref(false);
 const content = ref('');
@@ -24,7 +29,7 @@ async function submit() {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        tool: route.path,
+        tool: toolPath.value,
         toolName: String(route.meta.name ?? ''),
         message: text.slice(0, 2000),
         contact: contact.value.trim().slice(0, 200),

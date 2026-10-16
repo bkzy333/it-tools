@@ -13,7 +13,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@vueuse/head';
 import { useToolStore } from '@/tools/tools.store';
-import { findCategory, categoryMeta } from '@/seo/categories';
+import { findCategory, categoryMeta, categoryAllLabel } from '@/seo/categories';
 import type { ToolWithCategory } from '@/tools/tools.types';
 
 const route = useRoute();
@@ -26,9 +26,16 @@ const found = computed(() => findCategory(String(route.params.slug ?? '')));
 const category = computed(() => found.value?.category ?? '');
 const meta = computed(() => found.value?.meta ?? categoryMeta(''));
 
+// ⚠ 踩过的坑：toolStore.tools 里的 category 已经被 i18n 翻成当前语言（中文站下是
+// 「日期与时间」），而 findCategory 返回的是 index.ts 里的原始英文值（'Datetime'）。
+// 拿中文比英文 → 永远空列表，页面上写着「全部日期与时间工具（0 个）」，
+// 而构建期那份静态 HTML 是按英文算的、显示 10 个 —— 这就是 cloaking，必须比 rawCategory。
 const tools = computed<ToolWithCategory[]>(() =>
-  category.value ? toolStore.tools.filter((tool) => tool.category === category.value) : [],
+  category.value ? toolStore.tools.filter((tool) => (tool.rawCategory ?? tool.category) === category.value) : [],
 );
+
+/** 「全部XX工具」的 XX：自带「工具」二字的分类不再重复拼，见 categoryAllLabel。 */
+const allLabel = computed(() => categoryAllLabel(meta.value));
 
 const title = computed(() =>
   tools.value.length > 0
@@ -60,10 +67,10 @@ useHead({
 
     <h1>{{ meta.seo }}</h1>
     <p class="seo-lead">
-      {{ meta.zh }}分类共收录 {{ tools.length }} 个免费在线工具，全部在浏览器里运行，不用注册、不用安装，打开网页就能用。
+      {{ meta.zh }}分类共收录 {{ tools.length }} 个免费在线工具，打开即用，无需注册。
     </p>
 
-    <h2>全部{{ meta.zh }}工具（{{ tools.length }} 个）</h2>
+    <h2>全部{{ allLabel }}（{{ tools.length }} 个）</h2>
     <ul class="tool-list">
       <li v-for="tool in tools" :key="tool.path">
         <router-link :to="tool.path">{{ tool.name }}</router-link>
@@ -74,7 +81,7 @@ useHead({
 
     <h2>关于{{ meta.zh }}</h2>
     <p>
-      这一页汇总了本站所有{{ meta.zh }}相关的工具。每个工具点进去都能直接使用，处理过程在浏览器本地完成，输入的数据不会上传到服务器。
+      这一页汇总了本站所有{{ meta.zh }}相关的工具。每个工具点进去都能直接使用，处理结果可一键复制或导出；少数需要联网获取数据的工具会在页面上标注数据去向。
     </p>
   </div>
 </template>

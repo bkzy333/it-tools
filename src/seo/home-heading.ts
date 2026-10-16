@@ -17,8 +17,9 @@ const LEAD_TAIL =
   '打开即用，无需注册。';
 
 /**
- * 首页导语。构建期传入的是 tier !== 'L3' 的工具数，运行时传入的是前端实际加载的
- * 工具数，两边可能差一两个（L3 页面不进 sitemap），属于动态数据差异，文案本身同源。
+ * 首页导语。构建期（seo-prerender.ts）和运行时（Home.page.vue）传入的都是全量工具数，
+ * 两边必须一致 —— 曾经构建期按 tier !== 'L3' 统计、运行时按 store 全量统计，
+ * 差一个数就是静态运行两套话（cloaking）。L3 工具只是不进 sitemap，站点上真实存在。
  */
 export function homeLead(toolCount: number): string {
   return `收录 ${toolCount} 个免费在线工具：${LEAD_TAIL}`;
@@ -27,4 +28,13 @@ export function homeLead(toolCount: number): string {
 /** meta description：和 <h1> 同源，只是更短（静态 HTML 里用的就是这一份） */
 export function homeDescription(toolCount: number): string {
   return `收录 ${toolCount} 个免费在线工具：文本、JSON、加密解密、单位换算、图片、PDF、日期计算、网络工具等，打开即用，无需注册。`;
+}
+
+/**
+ * 关于页 meta description。构建期（seo-prerender.ts）和运行时（About.vue）必须共用：
+ * 之前两边各写各的，一个写「加密解密」一个写「加密」，工具数各算各的，
+ * 爬虫和用户看到两套话 —— head 里的内容不一致同样是 cloaking。
+ */
+export function aboutDescription(siteName: string, toolCount: number): string {
+  return `${siteName}是一个完全免费的在线工具合集，收录 ${toolCount} 个实用工具，涵盖 PDF、图片、文本、单位换算、加密解密、日期计算、网络工具等，打开即用，无需注册。`;
 }

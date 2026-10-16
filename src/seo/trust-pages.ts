@@ -4,6 +4,8 @@
 //
 // 上线前必须替换：CONTACT_EMAIL 换成你自己的域名邮箱（别用 Gmail）。
 
+import { normalizeRoutePath } from './route-path';
+
 export const SITE_NAME = '在线工具箱';
 export const SITE_DOMAIN = 'gjxtools.com';
 export const SITE_URL = `https://${SITE_DOMAIN}`;
@@ -229,5 +231,8 @@ export const TRUST_PAGES: TrustPage[] = [
 ];
 
 export function getTrustPage(path: string): TrustPage | undefined {
-  return TRUST_PAGES.find((page) => page.path === path);
+  // 站内 URL 带尾斜杠（/privacy/），表里的 path 不带 —— 不规范化会查空，
+  // 页面整个渲染不出来（v-if="page" 直接 false），静态 HTML 有正文、运行时一片空白。
+  const p = normalizeRoutePath(path);
+  return TRUST_PAGES.find((page) => page.path === p);
 }

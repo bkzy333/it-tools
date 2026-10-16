@@ -4,6 +4,8 @@
 //
 // 想给某个工具补说明，照下面的格式加一条即可，key 用工具的访问路径（带斜杠）。
 
+import { normalizeRoutePath } from '@/seo/route-path';
+
 export interface ToolUsage {
   intro: string;
   steps: string[];
@@ -198,5 +200,6 @@ const TOOL_USAGE: Record<string, ToolUsage> = {
 };
 
 export function getToolUsage(path: string): ToolUsage | undefined {
-  return TOOL_USAGE[path];
+  // 运行时 route.path 带尾斜杠，这里的 key 不带 —— 不规范化会直接落空
+  return TOOL_USAGE[normalizeRoutePath(path)];
 }

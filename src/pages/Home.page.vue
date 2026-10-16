@@ -287,7 +287,7 @@ onUnmounted(() => {
         <div class="category-chips">
           <router-link v-for="item in categories" :key="item.category" class="chip" :to="`/category/${item.meta.slug}`">
             {{ item.category }}
-            <span class="count">{{ item.count }}</span>
+            <span class="count">（{{ item.count }}）</span>
           </router-link>
         </div>
       </div>

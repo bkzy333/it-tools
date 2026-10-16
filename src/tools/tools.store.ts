@@ -5,6 +5,7 @@ import * as _ from 'es-toolkit/compat';
 import type { Tool, ToolCategory, ToolWithCategory } from './tools.types';
 import { tools as allTools } from './index';
 import { useITStorage } from '@/composable/queryParams';
+import { normalizeRoutePath } from '@/seo/route-path';
 
 import { translate as t } from '@/plugins/i18n.plugin';
 
@@ -77,7 +78,13 @@ export const useToolStore = defineStore('tools', () => {
 
   const favoriteTools = computed(() => {
     return favoriteToolsName.value
-      .map((favoriteName) => tools.value.find(({ name, path }) => name === favoriteName || path === favoriteName))
+      .map((favoriteName) => {
+        // 历史数据里可能存着带尾斜杠的 path（/age-calculator/）：工具页跳转过来的
+        // route.path 是带斜杠的，直接存进去侧栏按 path 反查不到，收藏就丢了。
+        // 读取时规范化一次，老数据也能重新匹配上。
+        const key = normalizeRoutePath(favoriteName);
+        return tools.value.find(({ name, path }) => name === favoriteName || path === key);
+      })
       .filter(Boolean) as ToolWithCategory[]; // cast because .filter(Boolean) does not remove undefined from type
   });
 
@@ -89,27 +96,30 @@ export const useToolStore = defineStore('tools', () => {
     newTools: computed(() => tools.value.filter(({ isNew }) => isNew)),
 
     addToolToFavorites({ tool }: { tool: MaybeRef<Tool> }) {
-      const toolPath = get(tool).path;
-      if (toolPath) {
+      // 存规范化后的 path：带尾斜杠的键在侧栏列表里匹配不到任何工具
+      const toolPath = normalizeRoutePath(get(tool).path);
+      if (toolPath && !favoriteToolsName.value.includes(toolPath)) {
         favoriteToolsName.value.push(toolPath);
       }
     },
 
     removeToolFromFavorites({ tool }: { tool: MaybeRef<Tool> }) {
+      const toolPath = normalizeRoutePath(get(tool).path);
       favoriteToolsName.value = favoriteToolsName.value.filter(
-        (name) => get(tool).name !== name && get(tool).path !== name,
-      );
-      favoriteToolsName.value = favoriteToolsName.value.filter(
-        (name) => get(tool).name !== name && get(tool).path !== name,
+        (name) => get(tool).name !== name && normalizeRoutePath(name) !== toolPath,
       );
     },
 
     isToolFavorite({ tool }: { tool: MaybeRef<Tool> }) {
-      return favoriteToolsName.value.includes(get(tool).name) || favoriteToolsName.value.includes(get(tool).path);
+      const toolPath = normalizeRoutePath(get(tool).path);
+      return (
+        favoriteToolsName.value.includes(get(tool).name) ||
+        favoriteToolsName.value.some((name) => normalizeRoutePath(name) === toolPath)
+      );
     },
 
     updateFavoriteTools(newOrder: ToolWithCategory[]) {
-      favoriteToolsName.value = newOrder.map((tool) => tool.path);
+      favoriteToolsName.value = newOrder.map((tool) => normalizeRoutePath(tool.path));
     },
   };
 });

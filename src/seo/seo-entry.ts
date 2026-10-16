@@ -4,6 +4,6 @@
 // 运行时（Vue）走各自的 import，不经过这个文件 —— 但读的是同样的数据源，
 // 保证用户看到的页面和爬虫拿到的静态 HTML 是同一套文案。
 
-export { allToolContent, getToolContent, toolContentCount } from './content/index';
+export { allToolContent, getToolContent, toolContentCount, toolMetaDescription } from './content/index';
 export { TRUST_PAGES, getTrustPage, SITE_NAME, SITE_DOMAIN, SITE_URL, CONTACT_EMAIL } from './trust-pages';
 export type { ToolContent, ToolContentFaq, ToolContentExample } from './content/types';

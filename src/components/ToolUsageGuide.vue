@@ -9,13 +9,20 @@ import { getToolUsage } from '@/tools/tool-usage';
 // AdSense 会直接判违规 —— 所以不要在这里另写一套文案。
 import { getToolContent } from '@/seo/content';
 import { getRelatedToolPaths } from '@/seo/related-tools';
+import { categoryAllLabel, categoryMeta, categorySlug } from '@/seo/categories';
+import { normalizeRoutePath } from '@/seo/route-path';
 
 const route = useRoute();
 const toolStore = useToolStore();
 const themeVars = useThemeVars();
 
+// 站内 URL 带尾斜杠（/age-calculator/），而工具 path / content / usage / related
+// 四张表的 key 都不带。这里统一剥一次，下面所有查找都用剥过的值 —— 之前每张表
+// 各查各的，currentTool 和 related 的守卫漏了规范化，相关工具区块整个不渲染。
+const routePath = computed(() => normalizeRoutePath(route.path));
+
 // 工具名和描述取自 store（已按当前语言翻译），避免直接引用 route.meta 里的英文原名
-const currentTool = computed(() => toolStore.tools.find((tool) => tool.path === route.path));
+const currentTool = computed(() => toolStore.tools.find((tool) => tool.path === routePath.value));
 
 const toolName = computed(() => currentTool.value?.name ?? String(route.meta.name ?? ''));
 const toolDescription = computed(() => currentTool.value?.description ?? String(route.meta.description ?? ''));
@@ -26,8 +33,8 @@ const runsOnlyLocally = computed(() => !route.meta.externAccessDescription);
 // 登记过的工具显示定制文案，没登记的用工具自身的名称 + 描述拼装，
 // 避免出现 400 个页面共用一段完全相同的话（会被搜索引擎判为低质重复内容）。
 // L1 深度页走 src/seo/content，其余回退到旧的 tool-usage.ts
-const deep = computed(() => getToolContent(route.path));
-const usage = computed(() => deep.value ?? getToolUsage(route.path));
+const deep = computed(() => getToolContent(routePath.value));
+const usage = computed(() => deep.value ?? getToolUsage(routePath.value));
 
 const example = computed(() => deep.value?.example);
 const faq = computed(() => deep.value?.faq ?? []);
@@ -44,19 +51,35 @@ const tips = computed(() => usage.value?.tips ?? []);
 
 const relatedTools = computed(() => {
   const all = toolStore.tools;
-  if (!all.some((tool) => tool.path === route.path)) {
+  if (!all.some((tool) => tool.path === routePath.value)) {
     return [];
   }
 
   // 推荐关系取自 src/seo/related-tools.ts —— 和 build/seo-prerender.ts 是同一张表。
   // ⚠️ 这里千万不要另写一套推荐逻辑：静态 HTML 是爬虫看到的版本，运行时是用户看到的版本，
   // 两边一旦算出不同的推荐列表，就等于给爬虫和用户看不同内容（cloaking），AdSense 判违规。
-  const paths = getRelatedToolPaths(route.path, all);
+  const paths = getRelatedToolPaths(routePath.value, all);
 
   // 标题走 store（已按当前语言翻译），不在这里硬编码中文名
   return paths
     .map((p) => all.find((tool) => tool.path === p))
     .filter((tool): tool is NonNullable<typeof tool> => Boolean(tool));
+});
+
+// 「同类XX工具」区块：和静态 HTML 里 renderToolPage 末尾那段是同一份内容
+// （分类链接 + 同套标签函数），少任何一半都是 cloaking。
+const categoryLabel = computed(() => {
+  const raw = currentTool.value?.rawCategory ?? '';
+  if (!raw) {
+    return '';
+  }
+  // categoryAllLabel 负责「分类名本身已带『工具』时不再拼一个」
+  // （否则生活工具会变成「同类生活工具工具」）。
+  return categoryAllLabel(categoryMeta(raw));
+});
+const categoryHref = computed(() => {
+  const raw = currentTool.value?.rawCategory ?? '';
+  return raw ? `/category/${categorySlug(raw)}` : '';
 });
 </script>
 
@@ -65,7 +88,7 @@ const relatedTools = computed(() => {
     <div class="usage-block">
       <h2>{{ toolName }}是什么</h2>
       <p>{{ intro }}</p>
-      <p v-if="runsOnlyLocally" class="hint">本工具在你的浏览器本地运行，输入的内容不会上传到服务器。</p>
+      <p v-if="runsOnlyLocally" class="hint">所有计算都在你的浏览器本地完成，输入的内容不会上传到服务器。</p>
     </div>
 
     <div class="usage-block">
@@ -105,6 +128,13 @@ const relatedTools = computed(() => {
         <RouterLink v-for="tool in relatedTools" :key="tool.path" :to="tool.path" class="related-item">
           {{ tool.name }}
         </RouterLink>
+      </div>
+    </div>
+
+    <div v-if="categoryLabel" class="usage-block">
+      <h2>同类{{ categoryLabel }}</h2>
+      <div class="related-list">
+        <RouterLink :to="categoryHref" class="related-item">查看全部{{ categoryLabel }}</RouterLink>
       </div>
     </div>
   </div>
