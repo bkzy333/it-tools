@@ -837,6 +837,12 @@ tools:
       label-your-string-decoded: "Your string decoded :"
       placeholder-your-string-decoded: Your string decoded
       tag-copy: Copy
+  image-editor:
+    title: Image editor
+    description: Free online image editor with layers, filters, selections, brushes, crop and color
+      adjustments. Edit images right in your browser, no installation needed, everything stays on your device.
+    texts:
+      loading: Loading editor...
   image-resizer:
     title: Image resizer
     description: Resize, crop and compress images online. Supports JPG/PNG/WebP/BMP/ICO/SVG,

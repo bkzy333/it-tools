@@ -142,7 +142,9 @@ export default defineConfig({
         navigateFallback: 'index.html',
         // /api/* 是 Cloudflare Pages Functions，必须绕过 Service Worker 的 navigateFallback，
         // 否则浏览器直接访问 /api/feedback 会被 SW 当成 SPA 未知路由，fallback 到 index.html 导致 404。
-        navigateFallbackDenylist: [/^\/(api|health)(\/.*)?$/],
+        // /minipaint/* 同理：图片编辑器是同源 iframe（public/minipaint/index.html），
+        // 导航请求一旦被 fallback 成 SPA 空壳，iframe 里显示的就是工具站自己。
+        navigateFallbackDenylist: [/^\/(api|health|minipaint)(\/.*)?$/],
         runtimeCaching: [
           {
             urlPattern: ({ sameOrigin, request }) =>

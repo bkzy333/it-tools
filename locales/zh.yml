@@ -805,6 +805,11 @@ tools:
       label-your-string-decoded: 您的字符串已解码：
       placeholder-your-string-decoded: 您的字符串已解码
       tag-copy: 复制
+  image-editor:
+    title: 图片编辑器
+    description: 免费的在线图片编辑器，支持图层、滤镜、选区、画笔、裁剪、调色等专业功能，打开网页就能修图，无需安装软件，图片全程在浏览器本地处理不上传。
+    texts:
+      loading: 编辑器加载中…
   image-resizer:
     title: 图像调整器
     description: 在线缩放、裁剪、压缩图片，支持 JPG/PNG/WebP/BMP/ICO/SVG 多种格式，可批量处理并单独微调。

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-15T13:51:06.538Z",
+  "generatedAt": "2026-10-16T07:19:58.512Z",
   "sourceCommit": "extracted at build time",
-  "total": 111,
+  "total": 112,
   "tiers": {
-    "L1": 90,
+    "L1": 91,
     "L2": 20,
     "L3": 1
   },
@@ -1266,6 +1266,45 @@
       "isExternalAccess": false,
       "title": "图片格式转换工具",
       "description": "在线把图片在 PNG、JPG、WebP、GIF、BMP 等格式之间互相转换，转换在浏览器本地完成，图片不会上传到服务器",
+      "categoryZh": "图片处理",
+      "categorySeoName": "图片在线处理工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/image-editor",
+      "slug": "image-editor",
+      "category": "Images",
+      "keywords": [
+        "image",
+        "editor",
+        "photo",
+        "paint",
+        "draw",
+        "layers",
+        "filters",
+        "ps",
+        "图片编辑",
+        "图片编辑器",
+        "在线ps",
+        "在线PS",
+        "在线修图",
+        "修图",
+        "图片处理",
+        "改图",
+        "绘图",
+        "画图",
+        "图层",
+        "滤镜",
+        "照片编辑"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "images"
+      ],
+      "isExternalAccess": false,
+      "title": "图片编辑器",
+      "description": "免费的在线图片编辑器，支持图层、滤镜、选区、画笔、裁剪、调色等专业功能，打开网页就能修图，无需安装软件，图片全程在浏览器本地处理不上传。",
       "categoryZh": "图片处理",
       "categorySeoName": "图片在线处理工具",
       "tier": "L1"
