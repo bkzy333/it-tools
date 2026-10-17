@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-16T14:25:37.413Z",
+  "generatedAt": "2026-10-17T05:19:24.634Z",
   "sourceCommit": "extracted at build time",
-  "total": 113,
+  "total": 114,
   "tiers": {
-    "L1": 92,
+    "L1": 93,
     "L2": 20,
     "L3": 1
   },
@@ -261,6 +261,37 @@
       "description": "批量进行时间戳与时间互转，支持秒/毫秒单位、多种时间格式，可导出 CSV",
       "categoryZh": "日期与时间",
       "categorySeoName": "日期时间在线计算",
+      "tier": "L1"
+    },
+    {
+      "path": "/bcrypt",
+      "slug": "bcrypt",
+      "category": "Crypto",
+      "keywords": [
+        "bcrypt",
+        "bcrypt在线",
+        "bcrypt生成",
+        "bcrypt校验",
+        "密码哈希",
+        "密码加密",
+        "加盐哈希",
+        "盐值",
+        "cost",
+        "password hash",
+        "password",
+        "hash",
+        "salt"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "crypto"
+      ],
+      "isExternalAccess": false,
+      "title": "bcrypt 密码哈希生成与校验",
+      "description": "用 bcrypt 给密码生成带盐哈希（cost 4~14 可调），或校验密码与已有 $2b$ 哈希是否匹配；自动提示 72 字节截断，全部在浏览器本地完成",
+      "categoryZh": "加密与解密",
+      "categorySeoName": "加密解密与哈希在线工具",
       "tier": "L1"
     },
     {
@@ -1262,6 +1293,9 @@
         "身份证号解析",
         "行政区划代码",
         "校验位",
+        "身份证批量",
+        "批量校验",
+        "批量查询",
         "id card",
         "id number"
       ],

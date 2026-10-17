@@ -1922,6 +1922,35 @@ tools:
       label-constellation: 星座
       title-about: 关于本工具
       hint-disclaimer: 校验通过只说明号码的校验位算得通，不代表这个号码真的存在或被发放。地区信息依据 GB/T 2260 行政区划代码，个别地区可能存在收录偏差
+  bcrypt:
+    title: bcrypt 密码哈希生成与校验
+    description: 用 bcrypt 给密码生成带盐哈希（cost 4~14 可调），或校验密码与已有 $2b$ 哈希是否匹配；自动提示 72 字节截断，全部在浏览器本地完成
+    texts:
+      tab-hash: 生成哈希
+      tab-verify: 校验哈希
+      title-hash: 密码 → bcrypt 哈希
+      title-hash-result: 哈希结果
+      title-verify: 已有哈希 → 校验密码
+      title-error: 生成失败
+      title-about: 关于 bcrypt
+      label-password: 密码
+      placeholder-password: 输入要哈希的密码（建议 ≥ 8 位，不要用已有账号的真实密码）
+      label-cost: 计算强度 cost
+      btn-generate: 生成哈希
+      btn-verify: 校验
+      hint-byte-length: 当前 {bytes} 字节（bcrypt 上限 {max} 字节）
+      hint-truncated: 密码超过 {max} 字节，bcrypt 只取前 {max} 字节计算 —— 后面这截等于没设
+      hint-cost: cost 每 +1 耗时翻倍，当前约 {ms} 毫秒；网页里建议不超过 12
+      hint-random-salt: 每次生成都会用新的随机盐，所以同一密码每次结果都不同；版本 {version}，cost {cost}
+      label-stored-hash: 已有哈希
+      placeholder-stored-hash: 粘贴 $2b$10$… 形式的哈希
+      hint-hash-meta: 版本 {version}，cost {cost}
+      label-candidate: 待校验的密码
+      placeholder-candidate: 输入要拿去做比对的密码
+      verify-ok: 匹配：这个密码就是这个哈希对应的密码
+      verify-fail: 不匹配：密码与这个哈希对不上
+      verify-bad-hash: 这不像一个合法的 bcrypt 哈希（应形如 $2b$10$…，共 60 个字符）
+      hint-about: bcrypt 是单向哈希，不是加密 —— 校验只能重新算一遍再比对，不能「解密」出原密码。忘记密码时程序只能重置，不能找回。另外它只使用密码的前 72 个字节，超长部分会被丢弃。
   chinese-pinyin-converter:
     title: 汉字转拼音
     description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成
