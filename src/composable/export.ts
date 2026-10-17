@@ -28,6 +28,16 @@ export function downloadTextFile(filename: string, content: string) {
   triggerDownload(blob, filename);
 }
 
+/**
+ * 导出任意 Blob（PDF 报告、JSON 等二进制/结构化产物）。
+ *
+ * 与 downloadTextFile 的分工：那个管「纯文本结果」，这个管「程序生成的字节产物」——
+ * 文件哈希计算器的 PDF 报告（手写 PDF 结构，无依赖）走这里，JSON 报告也走这里。
+ */
+export function downloadBlobFile(filename: string, blob: Blob) {
+  triggerDownload(blob, filename);
+}
+
 function escapeCsvCell(cell: string): string {
   if (/[",\n\r]/.test(cell)) {
     return `"${cell.replace(/"/g, '""')}"`;

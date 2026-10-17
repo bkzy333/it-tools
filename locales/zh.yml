@@ -4056,6 +4056,56 @@ tools:
       btn-clear: 清空
       done: 已生成拆分后的文件
       read-error: 读取失败
+  file-hash:
+    title: 文件哈希计算器
+    description: 在浏览器本地计算文件的 MD5、SHA-1、SHA-256/384/512、SHA3-256/512、BLAKE2b 校验值，支持多文件批量、2MB 分块流式读取与预期哈希实时比对，文件不上传
+    texts:
+      title-select-files: 选择文件
+      drop-title: 把文件拖到这里，或点击选择文件
+      drop-subtitle: 支持任意类型、任意大小的文件，可一次多选
+      button-browse: 选择文件
+      button-clear: 清空列表
+      button-example: 载入示例文件
+      example-hint: 没有合适的文件？点这里载入一个示例文件，自动演示「粘贴预期哈希 → 绿色一致」的完整流程
+      privacy-note: 文件只在你的浏览器里读取和计算，不会上传到任何服务器；关掉页面后不会留下任何痕迹
+      label-file-list: 已选 {count} 个文件
+      label-file-name: 文件名
+      label-size: 大小
+      label-status: 状态
+      status-pending: 等待计算
+      status-hashing: 计算中…
+      status-done: 已完成
+      status-error: 失败
+      button-remove: 移除
+      notice-duplicate: 已跳过 {count} 个重复文件（同名同大小同修改时间）
+      notice-too-many: 一次最多处理 {max} 个文件，本次只排入了前 {count} 个
+      title-algorithms: 算法与预期哈希
+      label-algorithms: 哈希算法（可多选，改选会自动重算）
+      tag-legacy: 旧版
+      hint-legacy: MD5 / SHA-1 已有实际可行的碰撞攻击，仅建议用于校验旧文件或旧校验和列表
+      hint-no-algo: 至少选择一种算法才能开始计算
+      label-expected: 预期哈希（可选）
+      placeholder-expected: 粘贴发布方提供的哈希值，输入即实时校验
+      hint-expected-formats: 支持裸十六进制（大小写均可）、sha256sum 输出行「哈希 文件名」、BSD 格式「SHA256 (文件名) = 哈希」、0x 前缀
+      status-expected-empty: 填入预期哈希后，这里会实时显示绿/红比对结果
+      status-expected-unrecognized: 没从粘贴的内容里识别出哈希值，检查一下是不是粘错了
+      status-expected-unknown-length: 识别到 {length} 位十六进制，但该长度对不上任何已知算法
+      status-expected-waiting: 已识别预期哈希，等文件算完自动比对
+      status-match: 与预期一致（{algo}）
+      status-mismatch: 与预期不一致
+      status-match-multi: "{match}/{total} 个文件与预期一致"
+      status-mismatch-multi: 仅 {match}/{total} 个文件与预期一致，其余不一致
+      note-auto-enabled: 粘贴的哈希长度对应 {algo}，已自动勾选
+      title-results: 哈希结果
+      progress-hashing: 正在计算 {name}（第 {done}/{total} 个文件）
+      label-identical: 多文件比对
+      identical-same: "{algo} 全部一致"
+      identical-diff: "{algo} 存在不同"
+      button-export-json: 导出 JSON
+      button-export-pdf: 导出 PDF 报告
+      empty-results: 选好文件后，哈希值会显示在这里
+      error-hash-failed: 计算失败：{reason}
+      message-all-copied: 已复制全部哈希结果
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……

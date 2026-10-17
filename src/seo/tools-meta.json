@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-17T07:08:21.651Z",
+  "generatedAt": "2026-10-17T10:53:07.154Z",
   "sourceCommit": "extracted at build time",
-  "total": 117,
+  "total": 118,
   "tiers": {
-    "L1": 96,
+    "L1": 97,
     "L2": 20,
     "L3": 1
   },
@@ -1020,6 +1020,43 @@
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
       "tier": "L2"
+    },
+    {
+      "path": "/file-hash",
+      "slug": "file-hash",
+      "category": "Crypto",
+      "keywords": [
+        "file",
+        "hash",
+        "checksum",
+        "md5",
+        "sha1",
+        "sha256",
+        "sha384",
+        "sha512",
+        "sha3",
+        "blake2b",
+        "校验",
+        "校验和",
+        "文件校验",
+        "文件哈希",
+        "哈希计算",
+        "md5校验",
+        "sha256校验",
+        "文件指纹",
+        "完整性"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [
+        "hash-wasm"
+      ],
+      "tags": [],
+      "isExternalAccess": false,
+      "title": "文件哈希计算器",
+      "description": "在浏览器本地计算文件的 MD5、SHA-1、SHA-256/384/512、SHA3-256/512、BLAKE2b 校验值，支持多文件批量、2MB 分块流式读取与预期哈希实时比对，文件不上传",
+      "categoryZh": "加密与解密",
+      "categorySeoName": "加密解密与哈希在线工具",
+      "tier": "L1"
     },
     {
       "path": "/free-ssl",

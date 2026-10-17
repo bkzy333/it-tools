@@ -4154,6 +4154,56 @@ tools:
       btn-clear: Clear
       done: Split file generated
       read-error: Failed to read file
+  file-hash:
+    title: File Hash
+    description: "Compute MD5, SHA-1, SHA-256/384/512, SHA3-256/512 and BLAKE2b checksums of any file entirely in your browser. Multi-file batches, 2 MB chunked streaming, and instant verification against an expected hash. Files are never uploaded."
+    texts:
+      title-select-files: Select files
+      drop-title: Drag files here, or click to select
+      drop-subtitle: Any type, any size — multiple files allowed
+      button-browse: Browse files
+      button-clear: Clear list
+      button-example: Load sample file
+      example-hint: "No file at hand? Load a sample file to see the full flow: paste an expected hash and watch it turn green."
+      privacy-note: Files are read and hashed entirely in your browser. Nothing is uploaded, and nothing is left behind when you close the page.
+      label-file-list: "{count} file(s) selected"
+      label-file-name: "File name"
+      label-size: "Size"
+      label-status: "Status"
+      status-pending: Waiting
+      status-hashing: Hashing…
+      status-done: Done
+      status-error: Failed
+      button-remove: Remove
+      notice-duplicate: Skipped {count} duplicate file(s) (same name, size and modification time)
+      notice-too-many: Up to {max} files per run; only the first {count} were queued
+      title-algorithms: Algorithms & expected hash
+      label-algorithms: Hash algorithms (multi-select; changing re-hashes)
+      tag-legacy: legacy
+      hint-legacy: MD5 / SHA-1 have practical collision attacks — keep them for old checksums only
+      hint-no-algo: Pick at least one algorithm to start
+      label-expected: "Expected hash (optional):"
+      placeholder-expected: Paste the publisher’s hash — verified as you type
+      hint-expected-formats: Accepts bare hex (any case), a sha256sum line ("hash filename"), BSD style ("SHA256 (file) = hash"), and 0x prefixes
+      status-expected-empty: Paste an expected hash to see a live green/red comparison here
+      status-expected-unrecognized: No hash value found in what you pasted — check for a copy/paste slip
+      status-expected-unknown-length: Found {length} hex characters, but no known algorithm produces that length
+      status-expected-waiting: Expected hash recognized — comparison runs once hashing finishes
+      status-match: Matches expected hash ({algo})
+      status-mismatch: Does not match expected hash
+      status-match-multi: "{match} of {total} file(s) match the expected hash"
+      status-mismatch-multi: Only {match} of {total} file(s) match the expected hash
+      note-auto-enabled: That hash length means {algo} — checked it for you
+      title-results: Hash results
+      progress-hashing: Hashing {name} (file {done} of {total})
+      label-identical: Multi-file comparison
+      identical-same: "{algo}: identical across all files"
+      identical-diff: "{algo}: files differ"
+      button-export-json: Export JSON
+      button-export-pdf: Export PDF report
+      empty-results: Hash values appear here once you pick files
+      error-hash-failed: "Hashing failed: {reason}"
+      message-all-copied: All hash results copied
 collapsibleToolMenu:
   text:
     expanding: Expanding...
