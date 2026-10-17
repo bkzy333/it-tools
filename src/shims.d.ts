@@ -146,3 +146,48 @@ declare module 'vue3-katex' {
   const Vue3Katex: (app: App, props?: Props, slots?: Slots) => void;
   export default Vue3Katex;
 }
+
+declare module 'sm-crypto' {
+  export interface Sm4Options {
+    mode?: 'cbc' | 'ecb';
+    iv?: number[] | string;
+    padding?: 'pkcs#5' | 'pkcs#7' | 'none';
+    output?: 'string' | 'array';
+  }
+  export const sm4: {
+    encrypt: (data: number[] | string, key: number[] | string, options?: Sm4Options) => number[] | string;
+    decrypt: (data: number[] | string, key: number[] | string, options?: Sm4Options) => number[] | string;
+  };
+
+  export interface Sm2KeyPair {
+    privateKey: string;
+    publicKey: string;
+  }
+  export interface Sm2SignatureOptions {
+    hash?: boolean;
+    publicKey?: string;
+    userId?: string;
+    der?: boolean;
+  }
+  export const sm2: {
+    generateKeyPairHex: () => Sm2KeyPair;
+    getPublicKeyFromPrivateKey: (privateKey: string) => string;
+    verifyPublicKey: (publicKey: string) => boolean;
+    compressPublicKeyHex: (publicKey: string) => string;
+    comparePublicKeyHex: (a: string, b: string) => boolean;
+    doEncrypt: (msg: string | number[], publicKey: string, cipherMode?: 0 | 1) => string;
+    doDecrypt: (
+      encryptData: string,
+      privateKey: string,
+      cipherMode?: 0 | 1,
+      options?: { output?: 'string' | 'array' },
+    ) => string;
+    doSignature: (msg: string | number[], privateKey: string, options?: Sm2SignatureOptions) => string;
+    doVerifySignature: (
+      msg: string | number[],
+      signHex: string,
+      publicKey: string,
+      options?: Sm2SignatureOptions,
+    ) => boolean;
+  };
+}

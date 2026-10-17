@@ -1951,6 +1951,46 @@ tools:
       verify-fail: 不匹配：密码与这个哈希对不上
       verify-bad-hash: 这不像一个合法的 bcrypt 哈希（应形如 $2b$10$…，共 60 个字符）
       hint-about: bcrypt 是单向哈希，不是加密 —— 校验只能重新算一遍再比对，不能「解密」出原密码。忘记密码时程序只能重置，不能找回。另外它只使用密码的前 72 个字节，超长部分会被丢弃。
+  sm4:
+    title: SM4 国密对称加密（ECB / CBC）
+    description: 用国密 SM4 分组密码加密或解密文本，支持 ECB / CBC 与 PKCS#7 填充；密钥和 IV 可写「[HEX]:」前缀直接给原始字节，明文与密文可选 UTF-8 / GBK / UTF-16LE / Base64 / Hex，全部在浏览器本地完成
+    texts:
+      tab-encrypt: 加密
+      tab-decrypt: 解密
+      title-config: 加解密参数（两个方向共用）
+      title-encrypt: 明文 → SM4 密文
+      title-decrypt: SM4 密文 → 明文
+      title-error: 出错了
+      title-about: 关于 SM4 与本站实现
+      label-mode: 分组模式
+      mode-cbc: CBC（需要 16 字节 IV）
+      mode-ecb: ECB（不使用 IV，相同明文块会得到相同密文）
+      label-padding: 填充方式
+      padding-pkcs7: PKCS#7（推荐）
+      padding-none: 不填充（明文须为 16 字节整数倍）
+      label-key: 密钥（16 字节）
+      placeholder-key: "直接写 16 字节文本，或写 [HEX]: 后跟 32 个十六进制字符"
+      label-iv: IV（16 字节）
+      placeholder-iv: "直接写 16 字节文本，或写 [HEX]: 后跟 32 个十六进制字符"
+      label-key-charset: 密钥编码
+      label-iv-charset: IV 编码
+      label-text-charset: 明文编码
+      label-cipher-charset: 密文表示
+      label-plaintext: 明文
+      placeholder-plaintext: 输入要加密的文本
+      label-ciphertext: 密文
+      placeholder-ciphertext: 粘贴要解密的密文（Base64 或 Hex）
+      label-output: 结果
+      btn-use-as-input: 拿去解密
+      charset-utf8: UTF-8
+      charset-gbk: GBK / GB2312
+      charset-utf16le: UTF-16 LE
+      charset-base64: Base64
+      charset-hex: Hex
+      hint-hex-prefix: "密钥或 IV 以「[HEX]:」开头时，后面的内容按原始字节解析（只允许十六进制字符，可夹空格），适合从别处直接粘贴 32 位 hex 密钥；不加前缀就按所选编码当成文本。"
+      hint-padding-none: 选了「不填充」时明文长度必须是 {block} 字节的整数倍，否则会直接报错而不是悄悄补齐。
+      hint-about: sm-crypto 只实现 ECB 与 CBC 两种模式、PKCS#7 与不填充两种填充方式，所以这里没有 CTR / OFB / CFB，也没有 Zero / ISO10126 / Ansix923 —— 需要这些请用 AES 工具。密钥与 IV 不足 16 字节会在末尾补 0x00，超出 16 字节的部分会被丢弃，两种情况页面上都会写出来。
+      hint-charset-binary: 密文是任意字节，用 Base64 或 Hex 表示最稳妥；如果拿 UTF-8 去解二进制密文，会直接提示换格式而不是吐一堆乱码。
   chinese-pinyin-converter:
     title: 汉字转拼音
     description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成

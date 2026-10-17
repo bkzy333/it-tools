@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-17T05:19:24.634Z",
+  "generatedAt": "2026-10-17T05:34:48.624Z",
   "sourceCommit": "extracted at build time",
-  "total": 114,
+  "total": 115,
   "tiers": {
-    "L1": 93,
+    "L1": 94,
     "L2": 20,
     "L3": 1
   },
@@ -2542,6 +2542,38 @@
       "description": "在线计算解除劳动合同的经济补偿金，按工作年限换算补偿月数，自动处理三倍社平封顶与十二年上限，同时给出违法解除的 2N 赔偿金",
       "categoryZh": "金融计算",
       "categorySeoName": "金融与贷款在线计算",
+      "tier": "L1"
+    },
+    {
+      "path": "/sm4",
+      "slug": "sm4",
+      "category": "Crypto",
+      "keywords": [
+        "sm4",
+        "sm4加密",
+        "sm4解密",
+        "sm4在线",
+        "国密",
+        "国密算法",
+        "国密 sm4",
+        "国密加密",
+        "商用密码",
+        "sm4 cbc",
+        "sm4 ecb",
+        "gmssl",
+        "gb/t 32907",
+        "symmetric"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "crypto"
+      ],
+      "isExternalAccess": false,
+      "title": "SM4 国密对称加密（ECB / CBC）",
+      "description": "用国密 SM4 分组密码加密或解密文本，支持 ECB / CBC 与 PKCS#7 填充；密钥和 IV 可写「[HEX]:」前缀直接给原始字节，明文与密文可选 UTF-8 / GBK / UTF-16LE / Base64 / Hex，全部在浏览器本地完成",
+      "categoryZh": "加密与解密",
+      "categorySeoName": "加密解密与哈希在线工具",
       "tier": "L1"
     },
     {
