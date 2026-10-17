@@ -12,17 +12,25 @@
  *    npm 版有 CVE、本地未安装、全站无工具使用）。
  *
  * 保留的雏形核心行为（别改回直觉）：
- * - 电费 = (现在电表 − 上次电表) × 电费单价；水费同理；总费用 = 房租 + 卫生费 + 电费 + 水费（+ 其他费用）
+ * - 电费 = (现在电表 − 上次电表) × 电费单价；水费同理；总费用 = 房租 + 电费 + 水费（+ 其他费用）
  * - 切换房间时，把该房间**最近一期**的「现在读数」自动填进本期「上次读数」
  * - 雏形的 locationData 预设（三屯 1000/100、汀山 3000/300）不内置 —— 首次打开为空，
  *   示例数据走一键示例（幸福小区），见 createExampleState
  *
  * 数据结构（两级：位置 → 房间，记录挂房间）：
- * - 位置（RentLocation）：名字 + 默认电/水单价。**预留 parentId**：将来若真要
- *   「地方 → 栋 → 房间」三级，给位置加父级即可平滑升级，已存记录不用动。
- * - 房间（RentRoom）：名字/昵称 + 房租 + 卫生费 + 可选的单价覆盖（不填继承位置默认）。
- * - 记录（RentRecord）：一期账单的快照 —— 房租/卫生费/单价/读数/费用全部定格，
- *   改房间默认值不会污染历史。
+ * - 位置（RentLocation）：名字 + 默认电/水单价。单价在页面顶部的「配置」区统一设置，
+ *   房间不必再逐个填。改动历史见下面的版本迁移说明。
+ * - 房间（RentRoom）：名字/昵称 + 房租 + 可选的单价覆盖（不填继承位置默认）。
+ * - 记录（RentRecord）：一期账单的快照 —— 房租/单价/读数/费用全部定格，
+ *   改默认值不会污染历史。
+ *
+ * ── 版本迁移（version 1 → 2，2026-10-18 用户要求）──
+ * v1 的房间和记录各带一个「卫生费」字段，现已被删掉：用户说卫生费可以用「其他费用」
+ * （带名称）替代，页面也不该有第二个说不清的杂费入口。
+ * 迁移策略：**结构照留，只抹掉卫生费并重算总费用**。老 localStorage 数据被读到时
+ * （loadState 发现 version < CURRENT_VERSION）：位置/房间全保留，同一位置下的同名房间
+ * 合并（保留最先那条，孤儿记录改挂到它名下），每条记录的 elecFee/waterFee/totalFee
+ * 用快照里的读数与单价重算一遍 — 老总费用里含卫生费，不重算就会出现「明细加不出总计」。
  */
 
 /* ------------------------------------------------------------------ 数据模型 */
@@ -44,10 +52,8 @@ export interface RentRoom {
   locationId: string;
   /** 房间名/昵称，如「3栋301」「老张家」 */
   name: string;
-  /** 月房租 */
+  /** 月房租。杂费统一记在「其他费用」，不再单列卫生费 */
   rent: number;
-  /** 卫生费 */
-  sanitation: number;
   /** 电费单价覆盖；undefined = 继承位置默认 */
   elecPrice?: number;
   /** 水费单价覆盖；undefined = 继承位置默认 */
@@ -61,7 +67,6 @@ export interface RentRecord {
   period: string;
   /* ---- 以下均为保存当期的快照 ---- */
   rent: number;
-  sanitation: number;
   elecPrice: number;
   waterPrice: number;
   elecLast: number;
@@ -79,11 +84,17 @@ export interface RentRecord {
 }
 
 export interface RentState {
-  version: 1;
+  version: typeof CURRENT_VERSION;
   locations: RentLocation[];
   rooms: RentRoom[];
   records: RentRecord[];
 }
+
+/**
+ * 当前数据版本。老存档（v1）被读到时走一次迁移：删卫生费 + 重算总费用。
+ * 新数据一律写 2。改数据结构的同志：升版本的同时必须在 loadState 里补迁移分支。
+ */
+export const CURRENT_VERSION = 2;
 
 export type ExportScope = 'room' | 'location' | 'all';
 
@@ -136,7 +147,6 @@ export function parseNum(input: string | number | null | undefined): number | nu
 
 export interface FeeInput {
   rent: number | null;
-  sanitation: number | null;
   elecPrice: number | null;
   waterPrice: number | null;
   elecLast: number | null;
@@ -164,7 +174,11 @@ export interface FeeResult {
  * 规则（与雏形一致 + 边界处理）：
  * - 四个读数有任缺 → 对应费用为 null（该行留空，不算）
  * - 倒挂（now < last）→ reversed 标记置位，费用照算（负数）
+ * - 房租/其他费用缺填按 0 计
  * - 总费用只在电/水费都可算时非 null
+ *
+ * ⚠ 2026-10-18：卫生费已从模型里删掉（改走带名称的「其他费用」），
+ *   总费用 = 房租 + 电费 + 水费 + 其他费用。老记录的迁移见 CURRENT_VERSION 注释。
  */
 export function computeFees(input: FeeInput): FeeResult {
   const elecDiff = sub(input.elecNow, input.elecLast);
@@ -174,11 +188,10 @@ export function computeFees(input: FeeInput): FeeResult {
   const waterFee = waterDiff !== null && input.waterPrice !== null ? round2(waterDiff * input.waterPrice) : null;
 
   const rent = input.rent ?? 0;
-  const sanitation = input.sanitation ?? 0;
   const other = input.otherAmount ?? 0;
 
   const complete = elecFee !== null && waterFee !== null;
-  const totalFee = complete ? round2(rent + sanitation + elecFee + waterFee + other) : null;
+  const totalFee = complete ? round2(rent + elecFee + waterFee + other) : null;
 
   return {
     elecDiff,
@@ -247,7 +260,7 @@ export function comparePeriod(a: string, b: string): number {
 /* ------------------------------------------------------------------ 存取 */
 
 export function emptyState(): RentState {
-  return { version: 1, locations: [], rooms: [], records: [] };
+  return { version: CURRENT_VERSION, locations: [], rooms: [], records: [] };
 }
 
 /** 生成记录/房间/位置 id。 */
@@ -258,6 +271,8 @@ export function uid(): string {
 /**
  * 读取状态。SSR / 无 localStorage / JSON 损坏 / 结构不对都返回空状态，
  * 绝不让页面白屏 —— 这是「数据全在本地」工具的底线。
+ *
+ * 读到 version < CURRENT_VERSION 的存档时跑一次迁移（见 CURRENT_VERSION 注释）。
  */
 export function loadState(): RentState {
   if (typeof localStorage === 'undefined') {
@@ -268,7 +283,10 @@ export function loadState(): RentState {
     if (!raw) {
       return emptyState();
     }
-    return sanitizeState(JSON.parse(raw));
+    const parsed: unknown = JSON.parse(raw);
+    const legacy = Number((parsed as { version?: unknown } | null)?.version ?? 1) < CURRENT_VERSION;
+    const clean = sanitizeState(parsed);
+    return legacy ? migrateFromLegacy(clean) : clean;
   } catch {
     return emptyState();
   }
@@ -290,6 +308,7 @@ export function saveState(state: RentState): void {
  * 结构清洗：本地数据可能被手改坏/写一半，加载时统一纠正：
  * - 字段缺失补默认值，数字强制转 Number
  * - 位置被删后的孤儿房间、房间被删后的孤儿记录直接清掉
+ * - 同一位置下的同名房间合并到最先那条（其余房间的记录改挂过来），避免列表里出现两个 301
  */
 export function sanitizeState(raw: unknown): RentState {
   const obj = (raw ?? {}) as Partial<RentState>;
@@ -309,28 +328,41 @@ export function sanitizeState(raw: unknown): RentState {
     .filter((l) => l.name !== '');
 
   const locationIds = new Set(cleanLocations.map((l) => l.id));
-  const cleanRooms: RentRoom[] = rooms
+  const rawRooms: RentRoom[] = rooms
     .filter((r): r is RentRoom => !!r && typeof r === 'object' && locationIds.has(String(r.locationId)))
     .map((r) => ({
       id: String(r.id ?? uid()),
       locationId: String(r.locationId),
       name: String(r.name ?? ''),
       rent: toFinite(r.rent),
-      sanitation: toFinite(r.sanitation),
       ...(r.elecPrice !== undefined && r.elecPrice !== null ? { elecPrice: toFinite(r.elecPrice) } : {}),
       ...(r.waterPrice !== undefined && r.waterPrice !== null ? { waterPrice: toFinite(r.waterPrice) } : {}),
     }))
     .filter((r) => r.name !== '');
 
-  const roomIds = new Set(cleanRooms.map((r) => r.id));
+  // 同名房间合并：房间名只在一个位置内有意义，所以按「位置 + 名字」判重
+  const dedupedRooms: RentRoom[] = [];
+  const roomIdRemap = new Map<string, string>();
+  const seenRoom = new Set<string>();
+  for (const room of rawRooms) {
+    const key = `${room.locationId}\u0000${room.name}`;
+    if (seenRoom.has(key)) {
+      roomIdRemap.set(room.id, dedupedRooms.find((r) => r.locationId === room.locationId && r.name === room.name)!.id);
+      continue;
+    }
+    seenRoom.add(key);
+    dedupedRooms.push(room);
+  }
+
+  const roomIds = new Set(dedupedRooms.map((r) => r.id));
   const cleanRecords: RentRecord[] = records
+    .map((rec) => (rec && typeof rec === 'object' ? { ...rec, roomId: roomIdRemap.get(String(rec.roomId)) ?? String(rec.roomId) } : rec))
     .filter((rec): rec is RentRecord => !!rec && typeof rec === 'object' && roomIds.has(String(rec.roomId)))
     .map((rec) => ({
       id: String(rec.id ?? uid()),
       roomId: String(rec.roomId),
       period: PERIOD_RE.test(String(rec.period)) ? String(rec.period) : currentPeriod(),
       rent: toFinite(rec.rent),
-      sanitation: toFinite(rec.sanitation),
       elecPrice: toFinite(rec.elecPrice),
       waterPrice: toFinite(rec.waterPrice),
       elecLast: toFinite(rec.elecLast),
@@ -345,7 +377,39 @@ export function sanitizeState(raw: unknown): RentState {
       createdAt: String(rec.createdAt ?? new Date().toISOString()),
     }));
 
-  return { version: 1, locations: cleanLocations, rooms: cleanRooms, records: cleanRecords };
+  return { version: CURRENT_VERSION, locations: cleanLocations, rooms: dedupedRooms, records: cleanRecords };
+}
+
+/**
+ * v1 存档迁移：卫生费被删掉了，站在 v2 口径上重算每条记录的电/水费与总费用。
+ *
+ * 为什么敢直接重算而不是「总费用里减掉卫生费」：记录里存的是当期的读数与单价快照，
+ * 用它们重算出来的电/水费和原来一模一样（同一套 round2），只是总价里少了卫生费那一截。
+ * 不重算的话，明细表会出现「房租 + 电费 + 水费 + 其他 ≠ 总费用」的自相矛盾行。
+ */
+export function migrateFromLegacy(state: RentState): RentState {
+  return {
+    ...state,
+    version: CURRENT_VERSION,
+    records: state.records.map((rec) => {
+      const fee = computeFees({
+        rent: rec.rent,
+        elecPrice: rec.elecPrice,
+        waterPrice: rec.waterPrice,
+        elecLast: rec.elecLast,
+        elecNow: rec.elecNow,
+        waterLast: rec.waterLast,
+        waterNow: rec.waterNow,
+        otherAmount: rec.otherAmount,
+      });
+      return {
+        ...rec,
+        elecFee: fee.elecFee ?? rec.elecFee,
+        waterFee: fee.waterFee ?? rec.waterFee,
+        totalFee: fee.totalFee ?? rec.totalFee,
+      };
+    }),
+  };
 }
 
 function toFinite(v: unknown): number {
@@ -388,120 +452,19 @@ export function filterRecords(state: RentState, scope: ExportScope, targetId: st
   );
 }
 
-/* ------------------------------------------------------------------ 月度汇总 */
-
-export interface SummaryRoomRow {
-  roomId: string;
-  roomName: string;
-  rent: number;
-  sanitation: number;
-  elecFee: number;
-  waterFee: number;
-  otherAmount: number;
-  totalFee: number;
-}
-
-export interface SummaryLocationRow {
-  locationId: string;
-  locationName: string;
-  rooms: SummaryRoomRow[];
-  totalFee: number;
-}
-
-export interface SummaryPeriodRow {
-  period: string;
-  locations: SummaryLocationRow[];
-  totalFee: number;
-}
-
-/**
- * 月度汇总：账期 → 位置 → 房间 三级分组，数值取记录快照。
- * 传 locationId 只汇总一个位置；不传汇总全部。
- */
-export function monthlySummary(state: RentState, locationId?: string): SummaryPeriodRow[] {
-  const scopeLocations = locationId
-    ? state.locations.filter((l) => l.id === locationId)
-    : state.locations;
-  const roomsByLocation = new Map<string, RentRoom[]>();
-  for (const room of state.rooms) {
-    if (locationId && room.locationId !== locationId) {
-      continue;
-    }
-    const list = roomsByLocation.get(room.locationId) ?? [];
-    list.push(room);
-    roomsByLocation.set(room.locationId, list);
-  }
-  const roomById = new Map(state.rooms.map((r) => [r.id, r]));
-
-  const byPeriod = new Map<string, RentRecord[]>();
-  for (const rec of state.records) {
-    const room = roomById.get(rec.roomId);
-    if (!room || (locationId && room.locationId !== locationId)) {
-      continue;
-    }
-    const list = byPeriod.get(rec.period) ?? [];
-    list.push(rec);
-    byPeriod.set(rec.period, list);
-  }
-
-  const periods = [...byPeriod.keys()].sort(comparePeriod).reverse();
-  return periods.map((period) => {
-    const recs = byPeriod.get(period) ?? [];
-    const locations: SummaryLocationRow[] = scopeLocations
-      .map((loc) => {
-        const locRecs = recs.filter((r) => roomById.get(r.roomId)?.locationId === loc.id);
-        if (locRecs.length === 0) {
-          return null;
-        }
-        const rooms = (roomsByLocation.get(loc.id) ?? [])
-          .map((room) => {
-            const roomRecs = locRecs.filter((r) => r.roomId === room.id);
-            if (roomRecs.length === 0) {
-              return null;
-            }
-            return {
-              roomId: room.id,
-              roomName: room.name,
-              rent: round2(sum(roomRecs.map((r) => r.rent))),
-              sanitation: round2(sum(roomRecs.map((r) => r.sanitation))),
-              elecFee: round2(sum(roomRecs.map((r) => r.elecFee))),
-              waterFee: round2(sum(roomRecs.map((r) => r.waterFee))),
-              otherAmount: round2(sum(roomRecs.map((r) => r.otherAmount))),
-              totalFee: round2(sum(roomRecs.map((r) => r.totalFee))),
-            };
-          })
-          .filter((r): r is SummaryRoomRow => r !== null);
-        return {
-          locationId: loc.id,
-          locationName: loc.name,
-          rooms,
-          totalFee: round2(sum(rooms.map((r) => r.totalFee))),
-        };
-      })
-      .filter((l): l is SummaryLocationRow => l !== null);
-    return {
-      period,
-      locations,
-      totalFee: round2(sum(locations.map((l) => l.totalFee))),
-    };
-  });
-}
-
-function sum(values: number[]): number {
-  return values.reduce((s, v) => s + v, 0);
-}
-
 /* ------------------------------------------------------------------ 导出构建 */
 
-/** CSV/XLSX 表头（列序固定，导出格式别乱调——用户拿 Excel 直接对账）。 */
+/**
+ * CSV/XLSX 表头：前 12 列跟页面「记录明细」表逐列对齐（去掉末尾的删除按钮），
+ * 后面补两列对账要用的单价和写入时间。
+ * ⚠ 2026-10-18 重排过一次：卫生费删除、读数从「电费在前水费在后」改成
+ * 「上次/现在」成对排列。列序动了要同步改 `media-datetime-generators.ts` 的说明。
+ */
 export const CSV_HEADER = [
   '账期',
   '位置',
   '房间',
   '房租',
-  '卫生费',
-  '电费单价',
-  '水费单价',
   '上次电表',
   '现在电表',
   '上次水表',
@@ -509,8 +472,10 @@ export const CSV_HEADER = [
   '电费',
   '水费',
   '其他费用',
-  '其他费用名称',
   '总费用',
+  '其他费用名称',
+  '电费单价',
+  '水费单价',
   '写入时间',
 ];
 
@@ -526,9 +491,6 @@ export function buildCsvRows(records: RentRecord[], state: RentState): string[][
       loc?.name ?? '',
       room?.name ?? '',
       formatMoney(rec.rent),
-      formatMoney(rec.sanitation),
-      formatMoney(rec.elecPrice),
-      formatMoney(rec.waterPrice),
       formatMoney(rec.elecLast),
       formatMoney(rec.elecNow),
       formatMoney(rec.waterLast),
@@ -536,8 +498,10 @@ export function buildCsvRows(records: RentRecord[], state: RentState): string[][
       formatMoney(rec.elecFee),
       formatMoney(rec.waterFee),
       rec.otherName ? formatMoney(rec.otherAmount) : '',
-      rec.otherName,
       formatMoney(rec.totalFee),
+      rec.otherName,
+      formatMoney(rec.elecPrice),
+      formatMoney(rec.waterPrice),
       formatTimestamp(rec.createdAt),
     ];
   });
@@ -555,11 +519,14 @@ export function buildTxtReport(records: RentRecord[], state: RentState, scopeLab
     const loc = room ? locById.get(room.locationId) : undefined;
     lines.push(`[${formatPeriod(rec.period)}] ${loc?.name ?? '?'} / ${room?.name ?? '?'}`);
     lines.push(`  房租费用: ${formatMoney(rec.rent)}`);
-    lines.push(`  卫生费: ${formatMoney(rec.sanitation)}`);
+    lines.push(`  电表读数: ${formatMoney(rec.elecLast)} → ${formatMoney(rec.elecNow)}`);
+    lines.push(`  水表读数: ${formatMoney(rec.waterLast)} → ${formatMoney(rec.waterNow)}`);
     lines.push(`  电费: (${formatMoney(rec.elecNow)} - ${formatMoney(rec.elecLast)}) × ${formatMoney(rec.elecPrice)} = ${formatMoney(rec.elecFee)}`);
     lines.push(`  水费: (${formatMoney(rec.waterNow)} - ${formatMoney(rec.waterLast)}) × ${formatMoney(rec.waterPrice)} = ${formatMoney(rec.waterFee)}`);
     lines.push(`  其他费用: ${rec.otherName ? `${rec.otherName} ${formatMoney(rec.otherAmount)}` : '无'}`);
-    lines.push(`  总费用: ${formatMoney(rec.totalFee)}`);
+    lines.push(
+      `  总费用: ${formatMoney(rec.rent)} + ${formatMoney(rec.elecFee)} + ${formatMoney(rec.waterFee)} + ${formatMoney(rec.otherAmount)} = ${formatMoney(rec.totalFee)}`,
+    );
     lines.push('');
   }
   return lines.join('\n');
@@ -614,13 +581,11 @@ export function createExampleState(): RentState {
     locationId: location.id,
     name: '3栋301',
     rent: 1200,
-    sanitation: 30,
   };
 
   const makeRecord = (period: string, elecLast: number, elecNow: number, waterLast: number, waterNow: number, createdAt: string): RentRecord => {
     const fee = computeFees({
       rent: room.rent,
-      sanitation: room.sanitation,
       elecPrice: location.elecPrice,
       waterPrice: location.waterPrice,
       elecLast,
@@ -635,7 +600,6 @@ export function createExampleState(): RentState {
       roomId: room.id,
       period,
       rent: room.rent,
-      sanitation: room.sanitation,
       elecPrice: location.elecPrice,
       waterPrice: location.waterPrice,
       elecLast,
@@ -652,7 +616,7 @@ export function createExampleState(): RentState {
   };
 
   return {
-    version: 1,
+    version: CURRENT_VERSION,
     locations: [location],
     rooms: [room],
     records: [

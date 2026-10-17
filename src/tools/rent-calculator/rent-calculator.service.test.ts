@@ -1,14 +1,19 @@
 import { describe, expect, it, beforeAll, afterAll, beforeEach } from 'vitest';
 import {
+  buildCsvRows,
+  buildJsonReport,
+  buildTxtReport,
+  comparePeriod,
   computeFees,
   createExampleState,
+  currentPeriod,
   filterRecords,
   formatMoney,
   formatPeriod,
   formatTimestamp,
   latestRecordForRoom,
   loadState,
-  monthlySummary,
+  migrateFromLegacy,
   parseNum,
   recordsForLocation,
   recordsForRoom,
@@ -17,11 +22,6 @@ import {
   sanitizeState,
   saveState,
   shiftPeriod,
-  currentPeriod,
-  comparePeriod,
-  buildCsvRows,
-  buildTxtReport,
-  buildJsonReport,
   PERIOD_RE,
   type RentState,
 } from './rent-calculator.service';
@@ -77,7 +77,6 @@ describe('round2 / formatMoney', () => {
 
 const fullInput = {
   rent: 1200,
-  sanitation: 30,
   elecPrice: 0.6,
   waterPrice: 3.5,
   elecLast: 1024,
@@ -94,7 +93,7 @@ describe('computeFees', () => {
     expect(r.waterDiff).toBe(5);
     expect(r.elecFee).toBe(37.2); // 62 × 0.6
     expect(r.waterFee).toBe(17.5); // 5 × 3.5
-    expect(r.totalFee).toBe(1284.7); // 1200+30+37.2+17.5
+    expect(r.totalFee).toBe(1254.7); // 房租 1200 + 37.2 + 17.5（无卫生费）
     expect(r.reversedElec).toBe(false);
     expect(r.reversedWater).toBe(false);
   });
@@ -118,12 +117,12 @@ describe('computeFees', () => {
     expect(r.reversedWater).toBe(true);
     expect(r.elecFee).toBe(-14.4); // (1000-1024) × 0.6
     expect(r.waterFee).toBe(-21); // (50-56) × 3.5
-    expect(r.totalFee).toBe(1194.6); // 1200+30-14.4-21
+    expect(r.totalFee).toBe(1164.6); // 1200-14.4-21
   });
 
   it('其他费用计入总计', () => {
     const r = computeFees({ ...fullInput, otherAmount: 50 });
-    expect(r.totalFee).toBe(1334.7);
+    expect(r.totalFee).toBe(1304.7);
   });
 
   it('读数为 0 也是有效值（不是缺填）', () => {
@@ -132,8 +131,8 @@ describe('computeFees', () => {
     expect(r.elecFee).toBe(651.6);
   });
 
-  it('房租/卫生费缺填按 0 计', () => {
-    const r = computeFees({ ...fullInput, rent: null, sanitation: null });
+  it('房租缺填按 0 计', () => {
+    const r = computeFees({ ...fullInput, rent: null });
     expect(r.totalFee).toBe(54.7); // 37.2 + 17.5
   });
 });
@@ -182,12 +181,14 @@ describe('period helpers', () => {
 
 /* ------------------------------------------------------------ 状态清洗 */
 
+const CURRENT_VERSION = 2;
+
 describe('sanitizeState', () => {
   it('空/坏输入 → 空状态', () => {
-    expect(sanitizeState(null)).toEqual({ version: 1, locations: [], rooms: [], records: [] });
-    expect(sanitizeState('garbage')).toEqual({ version: 1, locations: [], rooms: [], records: [] });
+    expect(sanitizeState(null)).toEqual({ version: CURRENT_VERSION, locations: [], rooms: [], records: [] });
+    expect(sanitizeState('garbage')).toEqual({ version: CURRENT_VERSION, locations: [], rooms: [], records: [] });
     expect(sanitizeState({ locations: 'x', rooms: 5, records: null })).toEqual({
-      version: 1,
+      version: CURRENT_VERSION,
       locations: [],
       rooms: [],
       records: [],
@@ -198,12 +199,12 @@ describe('sanitizeState', () => {
     const dirty = {
       locations: [{ id: 'l1', name: '幸福小区', elecPrice: 0.6, waterPrice: 3.5 }],
       rooms: [
-        { id: 'r1', locationId: 'l1', name: '301', rent: 1200, sanitation: 30 },
-        { id: 'r2', locationId: 'l-gone', name: '鬼房间', rent: 1, sanitation: 1 },
+        { id: 'r1', locationId: 'l1', name: '301', rent: 1200 },
+        { id: 'r2', locationId: 'l-gone', name: '鬼房间', rent: 1 },
       ],
       records: [
-        { id: 'rec1', roomId: 'r1', period: '2026-10', rent: 1, sanitation: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
-        { id: 'rec2', roomId: 'r-gone', period: '2026-10', rent: 1, sanitation: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
+        { id: 'rec1', roomId: 'r1', period: '2026-10', rent: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
+        { id: 'rec2', roomId: 'r-gone', period: '2026-10', rent: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
       ],
     };
     const s = sanitizeState(dirty);
@@ -211,12 +212,44 @@ describe('sanitizeState', () => {
     expect(s.records.map((r) => r.id)).toEqual(['rec1']);
   });
 
+  it('同一位置下的同名房间合并，记录改挂到留下的那个', () => {
+    const dirty = {
+      locations: [{ id: 'l1', name: '幸福小区', elecPrice: 0.6, waterPrice: 3.5 }],
+      rooms: [
+        { id: 'r1', locationId: 'l1', name: '301', rent: 1200 },
+        { id: 'r2', locationId: 'l1', name: '301', rent: 1300 },
+        { id: 'r3', locationId: 'l1', name: '302', rent: 1500 },
+      ],
+      records: [
+        { id: 'rec-dup', roomId: 'r2', period: '2026-10', rent: 1300, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 1302, createdAt: 'x' },
+      ],
+    };
+    const s = sanitizeState(dirty);
+    expect(s.rooms.map((r) => r.id)).toEqual(['r1', 'r3']);
+    expect(s.rooms[0].rent).toBe(1200); // 保留最先那条的配置
+    expect(s.records[0].roomId).toBe('r1'); // 孤儿记录改挂，不是被删
+  });
+
+  it('不同位置允许同名房间', () => {
+    const s = sanitizeState({
+      locations: [
+        { id: 'l1', name: 'A区', elecPrice: 0, waterPrice: 0 },
+        { id: 'l2', name: 'B区', elecPrice: 0, waterPrice: 0 },
+      ],
+      rooms: [
+        { id: 'r1', locationId: 'l1', name: '301', rent: 1 },
+        { id: 'r2', locationId: 'l2', name: '301', rent: 1 },
+      ],
+    });
+    expect(s.rooms).toHaveLength(2);
+  });
+
   it('数字字段强制转 Number，非法账期回退当月', () => {
     const s = sanitizeState({
       locations: [{ id: 'l1', name: 'A', elecPrice: '0.6', waterPrice: '3.5' }],
-      rooms: [{ id: 'r1', locationId: 'l1', name: '301', rent: '1200', sanitation: '30' }],
+      rooms: [{ id: 'r1', locationId: 'l1', name: '301', rent: '1200' }],
       records: [
-        { id: 'rec1', roomId: 'r1', period: '2026-13', rent: 1, sanitation: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
+        { id: 'rec1', roomId: 'r1', period: '2026-13', rent: 1, elecPrice: 1, waterPrice: 1, elecLast: 1, elecNow: 2, waterLast: 1, waterNow: 2, elecFee: 1, waterFee: 1, otherName: '', otherAmount: 0, totalFee: 4, createdAt: 'x' },
       ],
     });
     expect(s.locations[0].elecPrice).toBe(0.6);
@@ -264,7 +297,7 @@ describe('loadState / saveState', () => {
   beforeEach(() => store.clear());
 
   it('无数据 → 空状态', () => {
-    expect(loadState()).toEqual({ version: 1, locations: [], rooms: [], records: [] });
+    expect(loadState()).toEqual({ version: CURRENT_VERSION, locations: [], rooms: [], records: [] });
   });
 
   it('存取往返', () => {
@@ -277,6 +310,56 @@ describe('loadState / saveState', () => {
     store.set('rent-calculator-state', '{not json');
     expect(loadState().locations).toEqual([]);
   });
+
+  it('v1 存档（含卫生费）→ 自动迁移：结构与历史记录留下，总费用按新口径重算', () => {
+    store.set(
+      'rent-calculator-state',
+      JSON.stringify({
+        version: 1,
+        locations: [{ id: 'l1', name: '三屯', elecPrice: 0.6, waterPrice: 3.5 }],
+        rooms: [{ id: 'r1', locationId: 'l1', name: '301', rent: 1000, sanitation: 30 }],
+        records: [
+          {
+            id: 'rec1',
+            roomId: 'r1',
+            period: '2026-10',
+            rent: 1000,
+            sanitation: 30,
+            elecPrice: 0.6,
+            waterPrice: 3.5,
+            elecLast: 980,
+            elecNow: 1024,
+            waterLast: 52,
+            waterNow: 56,
+            elecFee: 26.4,
+            waterFee: 14,
+            otherName: '',
+            otherAmount: 0,
+            totalFee: 1070.4, // 旧口径含 30 元卫生费
+            createdAt: '2026-11-01T09:00:00.000Z',
+          },
+        ],
+      }),
+    );
+    const s = loadState();
+    expect(s.version).toBe(CURRENT_VERSION);
+    expect(s.locations).toHaveLength(1);
+    expect(s.rooms).toHaveLength(1);
+    expect(s.records).toHaveLength(1);
+    expect(s.rooms[0]).not.toHaveProperty('sanitation');
+    expect(s.records[0]).not.toHaveProperty('sanitation');
+    expect(s.records[0].elecFee).toBe(26.4); // 重算结果不变
+    expect(s.records[0].totalFee).toBe(1040.4); // 1000 + 26.4 + 14，卫生费已被抹掉
+  });
+
+  it('v2 存档不再触发迁移（总价原样保留，哪怕手改过其他费用）', () => {
+    const state = createExampleState();
+    state.records[0]!.otherName = '卫生费';
+    state.records[0]!.otherAmount = 30;
+    state.records[0]!.totalFee = 1284.7; // 手改过，迁移不应把它拉回 1254.70
+    saveState(state);
+    expect(loadState().records.find((r) => r.id === state.records[0]!.id)?.totalFee).toBe(1284.7);
+  });
 });
 
 /* ------------------------------------------------------------ 查询与衔接 */
@@ -287,7 +370,7 @@ function sampleState(): RentState {
     ...base,
     rooms: [
       ...base.rooms,
-      { id: 'room-2', locationId: 'loc-example-1', name: '3栋302', rent: 1500, sanitation: 30 },
+      { id: 'room-2', locationId: 'loc-example-1', name: '3栋302', rent: 1500 },
     ],
     records: [
       ...base.records,
@@ -296,7 +379,6 @@ function sampleState(): RentState {
         roomId: 'room-2',
         period: '2026-10',
         rent: 1500,
-        sanitation: 30,
         elecPrice: 0.6,
         waterPrice: 3.5,
         elecLast: 100,
@@ -307,7 +389,7 @@ function sampleState(): RentState {
         waterFee: 7,
         otherName: '',
         otherAmount: 0,
-        totalFee: 1567,
+        totalFee: 1537, // 1500 + 30 + 7
         createdAt: '2026-11-02T09:00:00.000Z',
       },
     ],
@@ -343,35 +425,70 @@ describe('records 查询', () => {
   });
 });
 
-/* ------------------------------------------------------------ 月度汇总 */
+/* ------------------------------------------------------------ v1 → v2 迁移 */
 
-describe('monthlySummary', () => {
-  it('空状态 → 空数组', () => {
-    expect(monthlySummary({ version: 1, locations: [], rooms: [], records: [] })).toEqual([]);
+describe('migrateFromLegacy（删卫生费）', () => {
+  it('总费用按「房租 + 电费 + 水费 + 其他」重算，电水费数值不变', () => {
+    const legacy: RentState = {
+      version: 2, // 类型上已是新结构，这里手工造一条「总价里还含卫生费」的脏数据
+      locations: [{ id: 'l1', name: '三屯', elecPrice: 0.6, waterPrice: 3.5 }],
+      rooms: [{ id: 'r1', locationId: 'l1', name: '301', rent: 1200 }],
+      records: [
+        {
+          id: 'rec1',
+          roomId: 'r1',
+          period: '2026-10',
+          rent: 1200,
+          elecPrice: 0.6,
+          waterPrice: 3.5,
+          elecLast: 1024,
+          elecNow: 1086,
+          waterLast: 56,
+          waterNow: 61,
+          elecFee: 37.2,
+          waterFee: 17.5,
+          otherName: '',
+          otherAmount: 0,
+          totalFee: 1284.7, // 旧口径：多了 30 元卫生费
+          createdAt: '2026-11-01T09:00:00.000Z',
+        },
+      ],
+    };
+    const [rec] = migrateFromLegacy(legacy).records;
+    expect(rec.elecFee).toBe(37.2);
+    expect(rec.waterFee).toBe(17.5);
+    expect(rec.totalFee).toBe(1254.7);
+    // 明细加得回总计：这是迁移唯一的目的
+    expect(rec.rent + rec.elecFee + rec.waterFee + rec.otherAmount).toBe(rec.totalFee);
   });
 
-  it('按账期→位置→房间分组并合计', () => {
-    const rows = monthlySummary(sampleState());
-    expect(rows.map((r) => r.period)).toEqual(['2026-10', '2026-09']);
+  it('其他费用照算，不被抹掉', () => {
+    const state = createExampleState();
+    state.records[0]!.otherName = '网费';
+    state.records[0]!.otherAmount = 50;
+    const [rec] = migrateFromLegacy(state).records.filter((r) => r.otherAmount === 50);
+    expect(rec.rent + rec.elecFee + rec.waterFee + 50).toBe(rec.totalFee);
+  });
+});
 
-    const oct = rows[0];
-    expect(oct.locations).toHaveLength(1);
-    const loc = oct.locations[0];
-    expect(loc.locationName).toBe('幸福小区');
-    expect(loc.rooms.map((r) => r.roomName)).toEqual(['3栋301', '3栋302']);
-    // 1284.70 + 1567 = 2851.70
-    expect(loc.totalFee).toBe(2851.7);
-    expect(oct.totalFee).toBe(2851.7);
+/* ------------------------------------------------------------ 明细查询 */
 
-    const sep = rows[1];
-    expect(sep.totalFee).toBe(1270.4);
-    expect(sep.locations[0].rooms).toHaveLength(1);
+describe('明细查询', () => {
+  it('详情行能解析出位置名与房间名（记录只存 roomId）', () => {
+    const s = sampleState();
+    const roomById = new Map(s.rooms.map((r) => [r.id, r]));
+    const rec = s.records.find((r) => r.roomId === 'room-2')!;
+    const room = roomById.get(rec.roomId)!;
+    expect(room.name).toBe('3栋302');
+    expect(room.locationId).toBe('loc-example-1');
   });
 
-  it('按位置筛选', () => {
-    const rows = monthlySummary(sampleState(), 'loc-example-1');
-    expect(rows).toHaveLength(2);
-    expect(monthlySummary(sampleState(), 'nope')).toEqual([]);
+  it('全量明细按账期倒序，跨房间铺平', () => {
+    const all = filterRecords(sampleState(), 'all', null);
+    expect(all).toHaveLength(3);
+    expect(all.map((r) => r.period)).toEqual(['2026-10', '2026-10', '2026-09']);
+    // 两条 2026-10 分属不同房间
+    expect(new Set(all.filter((r) => r.period === '2026-10').map((r) => r.roomId)).size).toBe(2);
   });
 });
 
@@ -381,17 +498,22 @@ describe('导出构建', () => {
   const state = createExampleState();
   const records = filterRecords(state, 'all', null);
 
-  it('buildCsvRows：表头 + 快照值 + 三位小数格式', () => {
+  it('buildCsvRows：表头与页面明细同序，数值按快照取源', () => {
     const rows = buildCsvRows(records, state);
     expect(rows).toHaveLength(3); // 表头 + 2 条
-    expect(rows[0]).toContain('账期');
-    expect(rows[0]).toContain('总费用');
+    expect(rows[0].slice(0, 12)).toEqual([
+      '账期', '位置', '房间', '房租', '上次电表', '现在电表', '上次水表', '现在水表', '电费', '水费', '其他费用', '总费用',
+    ]);
+    expect(rows[0]).not.toContain('卫生费');
     expect(rows[1][0]).toBe('2026-10');
     expect(rows[1][1]).toBe('幸福小区');
     expect(rows[1][2]).toBe('3栋301');
-    expect(rows[1][11]).toBe('37.20'); // 电费
-    expect(rows[1][12]).toBe('17.50'); // 水费
-    expect(rows[1][15]).toBe('1284.70'); // 总费用
+    expect(rows[1][3]).toBe('1200.00'); // 房租
+    expect(rows[1][4]).toBe('1024.00'); // 上次电表
+    expect(rows[1][5]).toBe('1086.00'); // 现在电表
+    expect(rows[1][8]).toBe('37.20'); // 电费
+    expect(rows[1][9]).toBe('17.50'); // 水费
+    expect(rows[1][11]).toBe('1254.70'); // 总费用
   });
 
   it('buildTxtReport：人读行文', () => {
@@ -399,8 +521,10 @@ describe('导出构建', () => {
     expect(txt).toContain('房租水电费记录');
     expect(txt).toContain('导出范围：当前位置「幸福小区」');
     expect(txt).toContain('[2026年10月] 幸福小区 / 3栋301');
+    expect(txt).not.toContain('卫生费');
+    expect(txt).toContain('电表读数: 1024.00 → 1086.00');
     expect(txt).toContain('电费: (1086.00 - 1024.00) × 0.60 = 37.20');
-    expect(txt).toContain('总费用: 1284.70');
+    expect(txt).toContain('总费用: 1200.00 + 37.20 + 17.50 + 0.00 = 1254.70');
     expect(txt).toContain('其他费用: 无');
   });
 
@@ -411,7 +535,7 @@ describe('导出构建', () => {
     expect(parsed.count).toBe(2);
     expect(parsed.records[0].locationName).toBe('幸福小区');
     expect(parsed.records[0].roomName).toBe('3栋301');
-    expect(parsed.records[0].totalFee).toBe(1284.7);
+    expect(parsed.records[0].totalFee).toBe(1254.7);
   });
 
   it('formatTimestamp：本地可读格式', () => {
@@ -448,7 +572,6 @@ describe('createExampleState', () => {
     for (const rec of createExampleState().records) {
       const fee = computeFees({
         rent: rec.rent,
-        sanitation: rec.sanitation,
         elecPrice: rec.elecPrice,
         waterPrice: rec.waterPrice,
         elecLast: rec.elecLast,
@@ -465,8 +588,14 @@ describe('createExampleState', () => {
 
   it('总价数值（SEO 正文引用的就是这两个数）', () => {
     const [sep, oct] = createExampleState().records;
-    expect(sep.totalFee).toBe(1270.4);
-    expect(oct.totalFee).toBe(1284.7);
+    expect(sep.totalFee).toBe(1240.4);
+    expect(oct.totalFee).toBe(1254.7);
+  });
+
+  it('示例里没有卫生费字段', () => {
+    const s = createExampleState();
+    expect(s.rooms[0]).not.toHaveProperty('sanitation');
+    expect(s.records[0]).not.toHaveProperty('sanitation');
   });
 
   it('sanitize 后示例仍完整（存取链路）', () => {

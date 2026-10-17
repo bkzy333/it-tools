@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T12:59:11.862Z",
+  "generatedAt": "2026-10-17T23:38:43.550Z",
   "sourceCommit": "extracted at build time",
   "total": 119,
   "tiers": {
@@ -2472,7 +2472,7 @@
       "tags": [],
       "isExternalAccess": false,
       "title": "房租水电计算器",
-      "description": "在浏览器本地计算房租、卫生费、电费、水费及可选其他费用，支持多位置多房间管理、电表水表读数自动衔接、月度汇总，历史记录只存本地浏览器不上传，可导出 CSV、XLSX、TXT、JSON",
+      "description": "在浏览器本地算一期房租账 —— 填电表水表读数自动算出用量、电费、水费和总费用，杂费统一走其他费用，水电单价在顶部配置区设一次即可，记录明细可导出 CSV、XLSX、TXT、JSON",
       "categoryZh": "生活工具",
       "categorySeoName": "生活便民在线计算工具",
       "tier": "L1"
