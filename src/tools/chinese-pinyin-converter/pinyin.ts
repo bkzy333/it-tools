@@ -235,6 +235,13 @@ function padEndWidth(s: string, len: number): string {
 /**
  * 文字在下：返回上下两行、按 alignLength（显示宽度）等宽对齐的注音块。
  * 拼音在上、原文在下，需在等宽字体下查看（CJK 宽度约为拉丁的 2 倍）。
+ *
+ * ⚠️ 只在**复制/导出**用，不要再拿它渲染到页面上：
+ * 这套对齐隐含「CJK 的渲染宽度 = 等宽字体里 2 个拉丁字符」这个前提，而它只在
+ * 「拉丁字符恰好 0.5em」的等宽字体下成立（Ubuntu Mono 是；Consolas 0.55em、
+ * Cascadia Code 0.6em 都不是）。字体一换，汉字列每列就比拼音列窄几像素，
+ * 误差逐列累积，越往右越对不上（16px 下实测每列短 2.75px）。
+ * 页面上请用 buildAlignedCells + 真实列布局（见 .vue 的 .aligned-grid）。
  */
 export function buildAlignedBlock(
   items: PinyinItem[],
@@ -258,3 +265,37 @@ export function buildAlignedBlock(
   }
   return { pinyinLine: pinyinCells.join(''), textLine: textCells.join('') };
 }
+
+export interface AlignedCell {
+  /** 该列的注音（非汉字 / 无读音时就是原字符） */
+  pinyin: string;
+  /** 该列的原文 */
+  char: string;
+}
+
+/**
+ * 「文字在下」的**逐列**数据：页面上用真实列布局渲染它，不靠空格撑宽度。
+ *
+ * 两行共享同一批列宽 → 任何字体下拼音都正好压在对应汉字上。
+ * 与 buildAlignedBlock 必须覆盖同一批字符（同一套 keepUnrecognized 过滤），
+ * 否则页面上看到的列和复制出去的文本会对不上。
+ */
+export function buildAlignedCells(
+  items: PinyinItem[],
+  style: PinyinStyle,
+  opts: JoinOptions = {},
+): AlignedCell[] {
+  const cells: AlignedCell[] = [];
+  for (const item of items) {
+    if (!item.isHan || !item.raw) {
+      if (opts.keepUnrecognized === false) {
+        continue;
+      }
+      cells.push({ pinyin: item.char, char: item.char });
+      continue;
+    }
+    cells.push({ pinyin: formatPinyin(item.raw, style, opts), char: item.char });
+  }
+  return cells;
+}
+

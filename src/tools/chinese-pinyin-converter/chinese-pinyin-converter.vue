@@ -16,6 +16,7 @@ import { appBaseUrl } from '@/utils/base-url';
 import CopyExportBar from '@/components/CopyExportBar.vue';
 import {
   buildAlignedBlock,
+  buildAlignedCells,
   formatItem,
   formatPinyin,
   joinPinyin,
@@ -149,6 +150,14 @@ const output = computed(() => {
 const isBelow = computed(() => rawPosition.value === 'below');
 const hasResult = computed(() => items.value.length > 0);
 
+/**
+ * 「文字在下」页面上的那两行。
+ * 用逐列数据 + 真实列布局渲染，不用 output 里那段空格填充文本 ——
+ * 空格填充的对齐依赖字体度量（详见 pinyin.ts 的 buildAlignedBlock 注释），
+ * 换字体就会逐列错开。output 仍然给「复制全部 / 导出」用。
+ */
+const alignedCells = computed(() => buildAlignedCells(items.value, style.value, formatOpts.value));
+
 const polyphones = computed(() => items.value.filter((item) => item.polyphone));
 
 /** 逐字对照的 Excel 行：表头 + 每字一行（汉字 / 拼音），拼音跟随「拼音格式」与更多参数 */
@@ -262,7 +271,16 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
     </c-card>
 
     <c-card v-if="hasResult" :title="t('tools.chinese-pinyin-converter.texts.title-output')" mb-3>
-      <pre v-if="isBelow" class="aligned-block">{{ output }}</pre>
+      <!-- 文字在下：两行共用一个 grid 的列，列宽由 grid 决定 →
+           拼音与汉字在任何字体下都对齐（字体度量不再参与对齐计算） -->
+      <div v-if="isBelow" class="aligned-block" data-test-id="pinyin-aligned">
+        <div class="aligned-grid" :style="{ '--cell-w': `${alignLength}ch` }">
+          <template v-for="(cell, index) in alignedCells" :key="index">
+            <span class="aligned-py">{{ cell.pinyin }}</span>
+            <span class="aligned-hz">{{ cell.char }}</span>
+          </template>
+        </div>
+      </div>
       <input-copyable v-else :value="output" />
       <div flex justify-end mt-2>
         <CopyExportBar :text="output" filename="拼音" />
@@ -297,16 +315,40 @@ const gridText = computed(() => gridRows.value.slice(1).map((row) => row.join('\
     color: #d03050;
   }
 
+  /* 「文字在下（对齐注音）」的结果块。
+     对齐靠**真实列布局**，不靠空格填充：空格填充隐含「CJK 宽度 = 等宽字体里 2 个
+     拉丁字符」，只在拉丁字符恰好 0.5em 的等宽字体下成立（Ubuntu Mono 是，Consolas
+     0.55em / Cascadia Code 0.6em 都不是），字体一换汉字列就每列窄几像素、逐列累积。
+     这里两行是同一个 grid 的两行、列宽共享，任何字体下都不会错位。
+     复制/导出仍是空格填充的等宽文本（粘贴到等宽字体里查看）。 */
   .aligned-block {
-    margin: 0;
     padding: 12px;
     background: rgb(0 0 0 / 4%);
     border-radius: 6px;
-    font-family: 'Ubuntu Mono', 'Cascadia Code', 'Consolas', monospace;
-    font-size: 16px;
-    line-height: 1.8;
-    white-space: pre;
     overflow-x: auto;
+
+    .aligned-grid {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: auto auto;
+      grid-auto-columns: minmax(var(--cell-w, 7ch), auto);
+      row-gap: 2px;
+      // 列不压缩，超宽交给外层滚动（和原来 pre 的 overflow-x 一致）
+      width: max-content;
+      font-family: 'Ubuntu Mono', 'Cascadia Code', 'Consolas', monospace;
+      line-height: 1.5;
+    }
+
+    .aligned-py {
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0.65;
+    }
+
+    .aligned-hz {
+      font-size: 18px;
+      white-space: nowrap;
+    }
   }
 
   .char-grid {

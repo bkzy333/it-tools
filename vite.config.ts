@@ -185,7 +185,17 @@ export default defineConfig({
         // 导航请求一旦被 fallback 成 SPA 空壳，iframe 里显示的就是工具站自己。
         // /html-preview 同理，而且它是**导航请求**（html-editor 的预览 iframe src）：
         // 被 fallback 成 SPA 之后，预览区里跑的就是工具站自己，且壳页那份独立 CSP 也拿不到。
-        navigateFallbackDenylist: [/^\/(api|health|minipaint|html-preview)(\/.*)?$/],
+        //
+        // 第二条是通配兜底：**最后一段带扩展名的一律当文件**（sitemap.xml、robots.txt、
+        // manifest.webmanifest、ads.txt、*.png、*.wasm… 全在 dist 根目录躺着）。
+        // 少了它，浏览器直接打开 /sitemap.xml 会被 SW 当成 SPA 未知路由、fallback 成
+        // index.html，页面渲染出工具站自己的「404 页面不存在」——看着像 sitemap 没了，
+        // 而 curl/爬虫拿到的是正常 200 的 XML（爬虫不跑 SW，所以爬虫侧一直是对的）。
+        // 站内 128 条路由（工具 / 分类 / 教程）最后一段都是纯 slug，不可能被这条吃掉。
+        navigateFallbackDenylist: [
+          /^\/(api|health|minipaint|html-preview)(\/.*)?$/,
+          /\/[^/?]*\.[a-z0-9]{1,8}$/i,
+        ],
         runtimeCaching: [
           {
             urlPattern: ({ sameOrigin, request }) =>
