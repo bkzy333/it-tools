@@ -377,6 +377,35 @@ tools:
       label-your-encrypted-text: "Your encrypted text:"
       title-error-while-decrypting: Error while decrypting
       label-your-decrypted-text: "Your decrypted text:"
+      title-params: Algorithm & parameters
+      algo-aes-configurable: "AES (configurable: size / mode / padding / IV)"
+      label-key-bits: Key size
+      label-aes-mode: Mode
+      label-padding-mode: Padding
+      padding-pkcs7: PKCS#7 (recommended)
+      padding-zero: "Zero (pad with 0x00; no padding when already aligned)"
+      padding-iso10126: ISO10126 (random bytes + length)
+      padding-ansix923: Ansix923 (zeros + length)
+      padding-none: None (length must be a multiple of 16)
+      label-iv: IV (16 bytes)
+      label-iv-encoding: IV encoding
+      placeholder-iv: "16 bytes of text, or [HEX]: followed by 32 hex characters"
+      placeholder-key: "Key text; or [HEX]: followed by hex characters"
+      placeholder-ciphertext: Paste the ciphertext to decrypt
+      label-input-charset: Plaintext encoding
+      label-output-charset: Ciphertext format
+      charset-utf8: UTF-8
+      charset-gbk: GBK / GB2312
+      charset-utf16le: UTF-16 LE
+      charset-base64: Base64
+      charset-hex: Hex
+      btn-use-as-input: Use as decrypt input
+      hint-legacy-text-key: The key is used as UTF-8 text (legacy algorithms only accept UTF-8 or Hex keys)
+      hint-legacy-hex-key: "The key is used as raw hex bytes, {bytes} bytes in total"
+      hint-legacy-algo: "These algorithms keep their original implementation (UTF-8 text in, Base64 out; AES-GCM and friends prepend a random nonce to the ciphertext), so old ciphertexts still decrypt. Pick the configurable AES above when you need to control key size, mode, padding and IV."
+      hint-hex-prefix: "When a key or IV starts with [HEX]:, everything after it is read as raw bytes (hex characters only, spaces allowed). Without the prefix the value is treated as text using the selected encoding."
+      hint-aes-key: "The key must match the selected size: {bytes} bytes here. Shorter keys are zero-padded, longer ones truncated, and the hint above tells you which happened."
+      hint-stream-mode: "{mode} is a stream mode: no padding is applied and the ciphertext has the same length as the plaintext."
   yaml-prettify:
     title: YAML prettify and format
     description: Prettify your YAML string into a friendly, human-readable format.
@@ -2996,7 +3025,7 @@ tools:
       label-sign-format: Signature format
       label-signature: Signature
       label-verify-message: Original message
-      label-verify-signature: Signature
+      label-verify-signature: Signature to verify
       placeholder-sign-message: Content to sign or verify
       placeholder-signature: Paste the signature as Base64 or Hex
       btn-to-verify: Use for verification
@@ -3007,6 +3036,70 @@ tools:
       charset-base64: Base64
       charset-hex: Hex
       hint-about: "RSA (1977) is asymmetric: the public key encrypts and the private key decrypts, and signing works the other way round. It is orders of magnitude slower than AES and the amount of data it can encrypt is hard-limited by the key size (only 245 bytes for 2048 bit PKCS#1), so real systems use hybrid encryption: AES for the payload, RSA only for the AES key. Everything here runs locally in your browser; the private key never leaves the page."
+  sm2:
+    title: SM2 Encrypt, Decrypt, Sign & Verify
+    description: "Generate SM2 key pairs or use existing keys to encrypt, decrypt, sign and verify. Supports both C1C3C2 (Chinese standard) and C1C2C3 ciphertext layouts, raw and DER signatures, and a configurable userId — all local in your browser."
+    texts:
+      tab-keys: Key pair
+      tab-cipher: Encrypt / Decrypt
+      tab-sign: Sign / Verify
+      title-keys: Key pair
+      title-config: Parameters
+      title-encrypt: Encrypt with public key
+      title-decrypt: Decrypt with private key
+      title-sign: Sign with private key
+      title-verify: Verify with public key
+      title-error: Something went wrong
+      title-about: About SM2
+      label-public-key: Public key (130 hex chars)
+      label-private-key: Private key (64 hex chars)
+      placeholder-public-key: 04 followed by X and Y (130 chars); a missing 04 prefix is added automatically
+      placeholder-private-key: 64 hex characters
+      btn-generate: Generate key pair
+      btn-generating: Generating…
+      btn-derive-public: Derive public key from private key
+      hint-generate-ms: Took {ms} ms
+      hint-key-format: "SM2 keys are plain hex strings: 130 characters for the public key (starting with 04, the uncompressed point marker) and 64 for the private key. A missing 04 is added automatically; compressed keys (02 or 03, 66 chars) are rejected with an explanation."
+      hint-public-ok: Parsed as an SM2 public key ({len} hex chars)
+      hint-private-ok: Parsed as a 64-character SM2 private key
+      hint-empty-key: "No key yet — click Generate key pair above, or paste an existing hex key here."
+      hint-pair-ok: The key pair matches
+      warn-pair-mismatch: "This key pair does not match — the public key derived from the private key differs from the one above. Encryption and verification will fail with mismatched keys."
+      hint-private-warning: The private key only lives in this page and disappears on reload. Never paste a production private key into any online tool.
+      label-cipher-mode: Ciphertext layout
+      cipher-mode-c1c3c2: C1C3C2 (Chinese standard)
+      cipher-mode-c1c2c3: C1C2C3 (legacy / some Java libraries)
+      label-text-charset: Plaintext encoding
+      label-cipher-charset: Ciphertext format
+      label-plaintext: Plaintext
+      label-plaintext-out: Decrypted result
+      label-ciphertext: Ciphertext
+      label-ciphertext-in: Ciphertext to decrypt
+      placeholder-plaintext: Text to encrypt
+      placeholder-ciphertext: Paste the SM2 ciphertext as Hex or Base64
+      hint-cipher-mode: "Both layouts have exactly the same length, so picking the wrong one does not error — it just decrypts to garbage. GM/T 0009 specifies C1C3C2; some older Java implementations use C1C2C3. Follow the other side's documentation."
+      btn-use-as-input: Use as decrypt input
+      label-sign-message: Content to sign
+      label-user-id: User ID (userId)
+      label-sign-format: Signature format
+      sign-format-raw: r and s concatenated (64 bytes)
+      sign-format-der: DER encoding (common in Java / openssl)
+      label-signature: Signature
+      label-verify-message: Original message
+      label-verify-signature: Signature to verify
+      placeholder-sign-message: Content to sign or verify
+      placeholder-signature: "Paste the signature (128 hex chars for raw; DER length varies)"
+      btn-to-verify: Use for verification
+      btn-verify: Verify
+      verify-ok: "Signature is valid — this content was signed by the matching private key and has not been altered"
+      verify-fail: "Verification failed — the message changed, the signature is incomplete, the userId differs, or the public key does not match the signing key"
+      hint-user-id: "SM2 mixes a userId into the digest (defaults to 1234567812345678, the value specified by the standard). Different userIds on each side never verify — and they fail silently. This is the most common cause of cross-system verification failures."
+      charset-utf8: UTF-8
+      charset-gbk: GBK / GB2312
+      charset-utf16le: UTF-16 LE
+      charset-base64: Base64
+      charset-hex: Hex
+      hint-about: "SM2 is the Chinese national elliptic-curve public-key algorithm (GB/T 32918 / GM/T 0003) over the sm2p256v1 curve. It offers the same security as RSA with a far shorter key (256-bit is roughly RSA 3072-bit) and is faster at signing and encryption. Two things differ from RSA: ciphertext has two possible layouts (C1C3C2 / C1C2C3), and signatures are bound to a userId. Everything runs locally in your browser."
   chinese-pinyin-converter:
     title: Chinese to Pinyin
     description: Convert Chinese to pinyin with tone marks, tone numbers (trailing or centered), no tone or initials. Choose where the original text goes (before / after / aligned below / custom), toggle upper case and keep ü, with per-character breakdown — all in your browser.

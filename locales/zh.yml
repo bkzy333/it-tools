@@ -358,6 +358,35 @@ tools:
       label-your-encrypted-text: 您的加密文本：
       title-error-while-decrypting: 解密过程中出错
       label-your-decrypted-text: 解密后的文本：
+      title-params: 算法与参数
+      algo-aes-configurable: AES（可配置：位数 / 模式 / 填充 / IV）
+      label-key-bits: 密钥长度
+      label-aes-mode: 分组模式
+      label-padding-mode: 填充方式
+      padding-pkcs7: PKCS#7（推荐）
+      padding-zero: Zero（补 0，已对齐时不补）
+      padding-iso10126: ISO10126（随机字节 + 长度）
+      padding-ansix923: Ansix923（全 0 + 长度）
+      padding-none: 不填充（长度须为 16 字节整数倍）
+      label-iv: IV（16 字节）
+      label-iv-encoding: IV 编码
+      placeholder-iv: "16 字节 IV 文本，或 [HEX]: 后跟 32 个十六进制字符"
+      placeholder-key: "密钥文本；或 [HEX]: 后跟十六进制字符"
+      placeholder-ciphertext: 粘贴要解密的密文
+      label-input-charset: 明文编码（输入格式）
+      label-output-charset: 密文表示（输出格式）
+      charset-utf8: UTF-8
+      charset-gbk: GBK / GB2312
+      charset-utf16le: UTF-16 LE
+      charset-base64: Base64
+      charset-hex: Hex
+      btn-use-as-input: 拿去解密
+      hint-legacy-text-key: 按 UTF-8 文本当密钥（历史算法只支持 UTF-8 与 Hex 两种密钥编码）
+      hint-legacy-hex-key: 按十六进制原始字节当密钥，共 {bytes} 字节
+      hint-legacy-algo: 这些算法保持原有实现不变（UTF-8 文本进、Base64 出；AES-GCM 等会把随机 nonce 拼在密文前面），用来解开历史密文。需要位数、模式、填充、IV 全部可控时，请选上面的「AES（可配置）」。
+      hint-hex-prefix: "密钥或 IV 以「[HEX]:」开头时，后面的内容按原始字节解析（只允许十六进制字符，可夹空格）。没加前缀就按所选编码当成文本。"
+      hint-aes-key: 密钥长度必须与所选位数匹配：当前需要 {bytes} 字节。不足会在末尾补 0x00，超出会截断，两种情况都写在上方的提示里。
+      hint-stream-mode: "{mode} 是流模式，不需要填充，密文长度与明文相同（不加填充也不会有整块限制）。"
   yaml-prettify:
     title: YAML格式化与美化
     description: 将您的YAML字符串格式化为友好、易读的格式。
@@ -2039,7 +2068,7 @@ tools:
       label-sign-format: 签名格式
       label-signature: 签名
       label-verify-message: 原消息
-      label-verify-signature: 签名
+      label-verify-signature: 待验证的签名
       placeholder-sign-message: 输入要签名或要验签的原始内容
       placeholder-signature: 粘贴 Base64 或 Hex 形式的签名
       btn-to-verify: 拿去验签
@@ -2050,6 +2079,70 @@ tools:
       charset-base64: Base64
       charset-hex: Hex
       hint-about: RSA 是 1977 年提出的非对称算法，加密用公钥、解密用私钥，签名反过来。它的运算比 AES 慢几个数量级，而且能加密的数据长度受密钥长度硬限制（2048 位 PKCS#1 只有 245 字节），所以真实系统里通常做混合加密：用 AES 加密正文，再用 RSA 只加密那把 AES 密钥。本站所有计算都在浏览器本地完成，私钥不会离开这个页面。
+  sm2:
+    title: SM2 国密非对称加密与签名
+    description: 生成 SM2 密钥对，或用已有公钥私钥做加密解密与签名验签；密文支持 C1C3C2（国密标准）与 C1C2C3（旧实现）两种排列，签名支持 raw 与 DER 编码并可指定 userId，全部在浏览器本地完成
+    texts:
+      tab-keys: 密钥对
+      tab-cipher: 加密解密
+      tab-sign: 签名验签
+      title-keys: 密钥对
+      title-config: 参数
+      title-encrypt: 公钥加密
+      title-decrypt: 私钥解密
+      title-sign: 私钥签名
+      title-verify: 公钥验签
+      title-error: 出错了
+      title-about: 关于 SM2
+      label-public-key: 公钥（130 位十六进制）
+      label-private-key: 私钥（64 位十六进制）
+      placeholder-public-key: 04 开头 + X + Y 共 130 位；缺 04 前缀会自动补上
+      placeholder-private-key: 64 位十六进制私钥
+      btn-generate: 生成密钥对
+      btn-generating: 生成中…
+      btn-derive-public: 从私钥推导公钥
+      hint-generate-ms: 耗时 {ms} ms
+      hint-key-format: SM2 的密钥就是十六进制串：公钥 130 位（04 开头，代表未压缩点），私钥 64 位。公钥少写了 04 会自动补，压缩格式（02 / 03 开头 66 位）则会明确拒绝。
+      hint-public-ok: 已识别为 SM2 公钥（{len} 位十六进制）
+      hint-private-ok: 已识别为 64 位 SM2 私钥
+      hint-empty-key: 还没有密钥 —— 点上面的「生成密钥对」，或把已有的十六进制密钥粘进这个框。
+      hint-pair-ok: 公私钥配对正确
+      warn-pair-mismatch: 这对公私钥不配对 —— 私钥推导出来的公钥与上面填的不一致。用不配对的钥匙加密或验签都会失败。
+      hint-private-warning: 私钥只留在本页内存里，刷新就没了。别把生产环境的私钥粘到任何在线工具里。
+      label-cipher-mode: 密文排列
+      cipher-mode-c1c3c2: C1C3C2（国密标准）
+      cipher-mode-c1c2c3: C1C2C3（旧实现 / 部分 Java 库）
+      label-text-charset: 明文编码
+      label-cipher-charset: 密文格式
+      label-plaintext: 明文
+      label-plaintext-out: 解密结果
+      label-ciphertext: 密文
+      label-ciphertext-in: 待解密的密文
+      placeholder-plaintext: 输入要加密的内容
+      placeholder-ciphertext: 粘贴 Hex 或 Base64 形式的 SM2 密文
+      hint-cipher-mode: 两种排列的长度完全一样，选错了不会报错、只会解出一堆乱码 —— 所以这一项不能替你猜。国密标准（GM/T 0009）是 C1C3C2，早期 Java 实现常用 C1C2C3，对接时以对方文档为准。
+      btn-use-as-input: 拿去解密
+      label-sign-message: 要签名的内容
+      label-user-id: 用户标识 userId
+      label-sign-format: 签名格式
+      sign-format-raw: r 与 s 直接拼接（64 字节）
+      sign-format-der: DER 编码（Java / openssl 常用）
+      label-signature: 签名
+      label-verify-message: 原消息
+      label-verify-signature: 待验证的签名
+      placeholder-sign-message: 输入要签名或要验签的原始内容
+      placeholder-signature: 粘贴签名（raw 为 128 位十六进制，DER 长度不固定）
+      btn-to-verify: 拿去验签
+      btn-verify: 验签
+      verify-ok: 验签通过：这段内容确实由对应私钥签出，且没有被改动
+      verify-fail: 验签失败：消息被改过、签名不完整、userId 不一致，或者公钥与签名用的私钥不配对
+      hint-user-id: SM2 签名会把 userId 一起混进摘要（默认 1234567812345678，这是国密标准的默认值）。两端 userId 不一致就永远验不过，而且是「静默失败」—— 这是跨系统联调里最常见的一种「验签不过」。
+      charset-utf8: UTF-8
+      charset-gbk: GBK / GB2312
+      charset-utf16le: UTF-16 LE
+      charset-base64: Base64
+      charset-hex: Hex
+      hint-about: SM2 是国密椭圆曲线公钥密码算法（GB/T 32918 / GM/T 0003），曲线参数为 sm2p256v1。与 RSA 相比，同等安全强度下密钥短得多（256 位约等于 RSA 3072 位），签名与加密也更快。两点和 RSA 不一样：密文有 C1C3C2 与 C1C2C3 两种排列，签名会绑定 userId。本站所有计算都在浏览器本地完成。
   chinese-pinyin-converter:
     title: 汉字转拼音
     description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成

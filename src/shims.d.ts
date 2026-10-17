@@ -181,7 +181,7 @@ declare module 'sm-crypto' {
       privateKey: string,
       cipherMode?: 0 | 1,
       options?: { output?: 'string' | 'array' },
-    ) => string;
+    ) => string | number[];
     doSignature: (msg: string | number[], privateKey: string, options?: Sm2SignatureOptions) => string;
     doVerifySignature: (
       msg: string | number[],
