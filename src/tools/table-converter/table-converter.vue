@@ -13,7 +13,7 @@ import {
   type GridOp,
   type OutFormat,
 } from './table-converter.service';
-import { gridToXlsx } from './xlsx-export';
+import { gridToXlsx } from '../xlsx-writer/xlsx-export';
 
 const { t } = useI18n();
 const { copy } = useCopy();

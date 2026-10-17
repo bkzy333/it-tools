@@ -9,7 +9,7 @@ import {
   mergeIntoGrid,
   parseToGrid,
 } from './table-converter.service';
-import { gridToXlsx } from './xlsx-export';
+import { gridToXlsx } from '../xlsx-writer/xlsx-export';
 
 describe('parseToGrid', () => {
   it('parses Excel TSV (tab separated)', () => {

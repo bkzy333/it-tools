@@ -4204,6 +4204,95 @@ tools:
       empty-results: Hash values appear here once you pick files
       error-hash-failed: "Hashing failed: {reason}"
       message-all-copied: All hash results copied
+  rent-calculator:
+    title: Rent and Utilities Calculator
+    description: Calculate rent, sanitation, electricity and water fees plus optional extras entirely in your browser. Manage multiple locations and rooms, auto-carry meter readings between periods, see monthly summaries, and export history as CSV, XLSX, TXT or JSON. Data never leaves your browser
+    texts:
+      card-manage: Locations and Rooms
+      card-bill: Current Bill
+      card-records: History and Monthly Summary
+      example-hint: First time here? Load the "Happy Community" sample data on the right to see it in action
+      confirm-overwrite-example: Loading the sample replaces all current locations, rooms and records. Continue?
+      label-location: Location
+      placeholder-location: Select a location
+      label-room: Room
+      placeholder-room: Select a room
+      label-location-defaults: Default unit prices for this location
+      hint-location-defaults: Set once per location; individual rooms can override
+      label-location-elec-price: Electricity price (per kWh)
+      label-location-water-price: Water price (per ton)
+      label-new-location: New location
+      placeholder-location-name: Location name, e.g. Happy Community
+      button-add-location: Add location
+      error-location-name: Please enter a location name
+      error-location-duplicate: A location with this name already exists
+      label-new-room: New room
+      placeholder-room-name: Room name or nickname, e.g. Bldg 3 Unit 301
+      label-room-rent: Rent (per month)
+      label-room-sanitation: Sanitation fee (per month)
+      button-add-room: Add room
+      error-no-location: Please select or create a location first
+      error-room-name: Please enter a room name
+      button-delete-room: Delete room {name}
+      confirm-delete-room: Deleting room {name} also removes its {count} records. Continue?
+      button-delete-location: Delete location {name}
+      confirm-delete-location: Deleting location {name} also removes its {rooms} rooms and {records} records. Continue?
+      empty-locations: No locations yet. Create one in the form above, or click One-click example to see a demo
+      privacy-note: All data is stored only in your own browser and never uploaded to any server. Clearing browser data wipes it too, so export backups for important records
+      empty-bill: Select a room above to calculate the current bill here
+      label-period: Billing period
+      label-rent: Rent
+      label-sanitation: Sanitation fee
+      label-elec-price: Electricity price (per kWh)
+      label-water-price: Water price (per ton)
+      label-meters: Meter readings
+      placeholder-elec-last: Previous electricity meter
+      placeholder-elec-now: Current electricity meter
+      placeholder-water-last: Previous water meter
+      placeholder-water-now: Current water meter
+      label-other: Other fees (optional)
+      placeholder-other-name: Fee name, e.g. Internet
+      label-other-amount: Amount
+      hint-auto-filled: Carried over the current reading from {period} as this period’s previous reading; the period was advanced by one month
+      warning-reversed-elec: The current electricity reading is lower than the previous one. Check for a misread or a meter replacement
+      warning-reversed-water: The current water reading is lower than the previous one. Check for a misread or a meter replacement
+      label-fee-detail: Fee breakdown
+      fee-elec: Electricity
+      fee-water: Water
+      fee-total: Total
+      hint-incomplete: The total appears once all four meter readings are filled in
+      button-save: Save this period
+      button-reset-form: Reset form
+      saved: Saved the record for {period}; the form advanced to the next period
+      error-no-room: Please select a room first
+      error-period: Period must look like YYYY-MM, e.g. 2026-10
+      error-price: Please enter both the electricity and water prices
+      error-readings: Please fill in all four meter readings
+      error-duplicate: This room already has a record for this period. Delete it first or pick another period
+      label-summary: Monthly summary
+      label-summary-hint: Per-period totals for every room in the current location
+      empty-summary: No records in this location yet. Save one to see the monthly summary
+      col-period: Period
+      col-location: Location
+      col-room: Room
+      col-rent: Rent
+      col-sanitation: Sanitation
+      col-elec: Electricity
+      col-water: Water
+      col-other: Other
+      col-total: Total
+      label-period-total: Subtotal
+      label-records: Records
+      empty-records: No records in this location yet. Calculate and save one to start
+      confirm-delete-record: Delete this record? This cannot be undone
+      button-delete-record: Delete
+      label-export-scope: Export scope
+      scope-room: Current room
+      scope-location: Current location
+      scope-all: All locations
+      button-export-xlsx: Export XLSX
+      button-export-json: Export JSON
+      label-export-hint: CSV carries a UTF-8 BOM so Excel opens it without garbled text. XLSX is generated in your browser. JSON keeps the full snapshot for backup or migration
 collapsibleToolMenu:
   text:
     expanding: Expanding...

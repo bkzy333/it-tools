@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-17T11:52:55.386Z",
+  "generatedAt": "2026-10-17T12:59:11.862Z",
   "sourceCommit": "extracted at build time",
-  "total": 118,
+  "total": 119,
   "tiers": {
-    "L1": 97,
+    "L1": 98,
     "L2": 20,
     "L3": 1
   },
@@ -2445,6 +2445,36 @@
       "description": "使用人工智能去除图像背景",
       "categoryZh": "图片处理",
       "categorySeoName": "图片在线处理工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/rent-calculator",
+      "slug": "rent-calculator",
+      "category": "Life",
+      "keywords": [
+        "rent",
+        "rent calculator",
+        "utilities",
+        "房租计算器",
+        "房租水电费计算",
+        "水电费计算器",
+        "房租水电计算器",
+        "电费计算",
+        "水费计算",
+        "房租记账",
+        "收租记账",
+        "租房成本计算",
+        "房租水电费明细",
+        "房东记账工具"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [],
+      "isExternalAccess": false,
+      "title": "房租水电计算器",
+      "description": "在浏览器本地计算房租、卫生费、电费、水费及可选其他费用，支持多位置多房间管理、电表水表读数自动衔接、月度汇总，历史记录只存本地浏览器不上传，可导出 CSV、XLSX、TXT、JSON",
+      "categoryZh": "生活工具",
+      "categorySeoName": "生活便民在线计算工具",
       "tier": "L1"
     },
     {

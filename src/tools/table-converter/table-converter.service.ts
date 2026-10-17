@@ -1,7 +1,7 @@
 /**
  * 表格转换服务：把多种输入解析成二维字符串网格，提供网格清洗/变换操作，
  * 再把网格导出成 JSON / CSV / Markdown / HTML / TSV。
- * （Excel 由独立的 xlsx-export.ts 负责，保持本文件纯文本、易单测。）
+ * （Excel 由共享模块 xlsx-writer/xlsx-export.ts 负责，保持本文件纯文本、易单测。）
  *
  * 设计要点：
  * - 网格统一是 string[][]，所有操作返回新数组（不原地改，便于 Vue 响应式替换）。

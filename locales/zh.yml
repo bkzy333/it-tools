@@ -4106,6 +4106,95 @@ tools:
       empty-results: 选好文件后，哈希值会显示在这里
       error-hash-failed: 计算失败：{reason}
       message-all-copied: 已复制全部哈希结果
+  rent-calculator:
+    title: 房租水电计算器
+    description: 在浏览器本地计算房租、卫生费、电费、水费及可选其他费用，支持多位置多房间管理、电表水表读数自动衔接、月度汇总，历史记录只存本地浏览器不上传，可导出 CSV、XLSX、TXT、JSON
+    texts:
+      card-manage: 位置与房间
+      card-bill: 本期费用
+      card-records: 历史记录与月度汇总
+      example-hint: 第一次用？点右侧载入「幸福小区」示例数据，立刻看效果
+      confirm-overwrite-example: 载入示例会覆盖当前所有位置、房间和记录，确定吗？
+      label-location: 位置
+      placeholder-location: 选择位置
+      label-room: 房间
+      placeholder-room: 选择房间
+      label-location-defaults: 位置默认单价
+      hint-location-defaults: 同小区同价只设一次，房间可单独覆盖
+      label-location-elec-price: 电费单价（元/度）
+      label-location-water-price: 水费单价（元/吨）
+      label-new-location: 新建位置
+      placeholder-location-name: 位置名称，如「幸福小区」
+      button-add-location: 添加位置
+      error-location-name: 请先填写位置名称
+      error-location-duplicate: 已有同名位置，换个名字
+      label-new-room: 新建房间
+      placeholder-room-name: 房间名称或昵称，如「3栋301」
+      label-room-rent: 房租（元/月）
+      label-room-sanitation: 卫生费（元/月）
+      button-add-room: 添加房间
+      error-no-location: 请先选择或新建一个位置
+      error-room-name: 请先填写房间名称
+      button-delete-room: 删除房间「{name}」
+      confirm-delete-room: 删除房间「{name}」会同时删除其 {count} 条记录，确定吗？
+      button-delete-location: 删除位置「{name}」
+      confirm-delete-location: 删除位置「{name}」会同时删除其 {rooms} 个房间、{records} 条记录，确定吗？
+      empty-locations: 还没有位置。在上方表单新建一个，或点右上角「一键示例」先看效果
+      privacy-note: 所有数据只保存在你自己的浏览器里，不上传任何服务器；清除浏览器数据会一并丢失，重要账目请定期导出备份
+      empty-bill: 先在上方选择房间，这里就能算当期费用
+      label-period: 账期
+      label-rent: 房租（元）
+      label-sanitation: 卫生费（元）
+      label-elec-price: 电费单价（元/度）
+      label-water-price: 水费单价（元/吨）
+      label-meters: 电表水表读数
+      placeholder-elec-last: 上次电表读数
+      placeholder-elec-now: 现在电表读数
+      placeholder-water-last: 上次水表读数
+      placeholder-water-now: 现在水表读数
+      label-other: 其他费用（选填）
+      placeholder-other-name: 费用名称，如「网费」
+      label-other-amount: 金额（元）
+      hint-auto-filled: 已自动衔接该房间 {period} 的现在读数作为本期上次读数，账期已顺推
+      warning-reversed-elec: 现在电表读数小于上次读数，请检查是否抄错或换表
+      warning-reversed-water: 现在水表读数小于上次读数，请检查是否抄错或换表
+      label-fee-detail: 费用明细
+      fee-elec: 电费
+      fee-water: 水费
+      fee-total: 总费用
+      hint-incomplete: 电表水表四次读数填齐后才会计算总费用
+      button-save: 保存本期记录
+      button-reset-form: 重置表单
+      saved: 已保存 {period} 的记录，表单已顺推到下一期
+      error-no-room: 请先选择房间
+      error-period: 账期格式应为 YYYY-MM，例如 2026-10
+      error-price: 请填写电费单价和水费单价
+      error-readings: 请把电表、水表的四次读数填齐
+      error-duplicate: 该房间本期已有一条记录，请先删除旧记录或换个账期
+      label-summary: 月度汇总
+      label-summary-hint: 按账期汇总当前位置各房间的费用
+      empty-summary: 当前位置还没有记录，保存一期后这里会出现月度汇总
+      col-period: 账期
+      col-location: 位置
+      col-room: 房间
+      col-rent: 房租
+      col-sanitation: 卫生费
+      col-elec: 电费
+      col-water: 水费
+      col-other: 其他
+      col-total: 总费用
+      label-period-total: 合计
+      label-records: 记录列表
+      empty-records: 当前位置还没有记录，算一期保存下来试试
+      confirm-delete-record: 确定删除这条记录吗？删除后不能恢复
+      button-delete-record: 删除
+      label-export-scope: 导出范围
+      scope-room: 当前房间
+      scope-location: 当前位置
+      scope-all: 全部位置
+      button-export-xlsx: 导出 XLSX
+      button-export-json: 导出 JSON
+      label-export-hint: CSV 带 UTF-8 BOM，Excel 直接打开不乱码；XLSX 在浏览器本地生成；JSON 含完整快照，方便备份或迁移
 collapsibleToolMenu:
   text:
     expanding: 正在扩展……
