@@ -24,7 +24,17 @@ export interface BatchRow {
   /** 转换结果；error 为 true 时表示本条失败，原位标红但不跳过 */
   output: string;
   error?: boolean;
+  /**
+   * 额外列的单元格（可选）：与 BatchResultTable 的 `columns` 标签一一对应。
+   *
+   * 用于「一条输入解析出一组字段」的场景（身份证 → 地区/生日/性别/年龄/生肖/星座）：
+   * 只塞成 output 一段拼接文本的话，用户没法按列对账、也没法把某一列单独拿去用。
+   * 不传就还是标准的两列（A 列输入 / B 列输出），既有工具行为完全不变。
+   * 失败行也要给满长度（缺失位置填空字符串），否则各行列会错位。
+   */
+  extra?: string[];
 }
+
 
 /** 转义正则元字符：自定义分隔符必须过这一步，否则 `.` `|` `(` 会让 new RegExp 抛错。 */
 export function escapeRegex(s: string): string {

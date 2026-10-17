@@ -1900,13 +1900,24 @@ tools:
       title-input: 输入身份证号
       placeholder-id: 请输入 18 位身份证号（15 位老号码会自动升级）
       hint-privacy: 号码只在你的浏览器里计算，不会上传到任何服务器
+      label-separator: 分隔符
+      sep-newline: 换行符（每行一个）
+      sep-comma: 逗号
+      sep-pause: 顿号
+      sep-custom: 自定义
+      placeholder-custom-separator: 输入自定义分隔符（例如 ---）
+      hint-batch: 支持一次录入多个号码：一行一个，也可以用逗号、顿号或自定义符号分隔；只有一条时显示逐字段详情
       title-result: 校验结果
       verdict-valid: 校验位正确，号码格式合法（不代表号码真实存在）
+      verdict-pass: 校验通过
       hint-upgraded: 已按规则升级为 18 位
+      col-id: 身份证号
+      col-verified: 校验结果
       label-region: 发证地区
       label-birthday: 出生日期
       label-gender: 性别
       label-age: 年龄
+      unit-age-suffix: 周岁
       label-zodiac: 生肖
       label-constellation: 星座
       title-about: 关于本工具

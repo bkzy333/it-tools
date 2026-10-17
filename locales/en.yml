@@ -2950,13 +2950,24 @@ tools:
       title-input: Input ID number
       placeholder-id: Enter an 18-digit ID number (15-digit legacy numbers are upgraded automatically)
       hint-privacy: The number is only processed in your browser and never uploaded.
+      label-separator: Separator
+      sep-newline: New line (one per line)
+      sep-comma: Comma
+      sep-pause: Enumeration comma (、)
+      sep-custom: Custom
+      placeholder-custom-separator: Enter a custom separator (e.g. ---)
+      hint-batch: Paste multiple numbers — one per line, or separated by comma / custom separator. A single number shows the field-by-field view.
       title-result: Result
       verdict-valid: Check digit is correct; the number format is valid (does not mean it really exists)
+      verdict-pass: Passes checksum
       hint-upgraded: Upgraded to 18 digits per the rules
+      col-id: ID number
+      col-verified: Check result
       label-region: Issuing region
       label-birthday: Birth date
       label-gender: Gender
       label-age: Age
+      unit-age-suffix: years old
       label-zodiac: Zodiac
       label-constellation: Constellation
       title-about: About this tool

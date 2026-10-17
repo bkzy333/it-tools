@@ -14,6 +14,10 @@ export const tool = defineTool({
     '身份证号解析',
     '行政区划代码',
     '校验位',
+    // 批量改造后用户真会这样搜（搜的是短词，FlexSearch 走前缀分词，别只写长词）
+    '身份证批量',
+    '批量校验',
+    '批量查询',
     'id card',
     'id number',
   ],
