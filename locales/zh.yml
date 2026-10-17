@@ -697,8 +697,8 @@ tools:
       placeholder-your-string-to-hash: 输入需要哈希的字符串...
       label-your-text-to-hash: 待哈希文本：
       label-digest-encoding: 摘要编码
-      tag-argon2d: 氩2d
-      tag-argon2i: 氩2i
+      tag-argon2d: Argon2d
+      tag-argon2i: Argon2i
       tag-argon2id: Argon2id
       tag-pbkdf2: PBKDF2
   json-minify:

@@ -85,7 +85,7 @@ const defaultHashWasmValues = {
 const hashWasmValues = computedAsync(async () => {
   const encodingValue = encoding.value;
   const clearTextValue = clearText.value;
-  const ret = defaultHashWasmValues;
+  const ret = { ...defaultHashWasmValues };
   for (const algo of algoWasmNames) {
     ret[algo] = formatHexWithEncoding(await algosWasm[algo](clearTextValue), encodingValue);
   }
@@ -96,6 +96,11 @@ const salt = new Uint8Array(16);
 window.crypto.getRandomValues(salt);
 const hashWasmArgon2i = computedAsync(async () => {
   const clearTextValue = clearText.value;
+  // Argon2 不接受空密码：hash-wasm 会抛 "Password must be specified"，
+  // 而 computedAsync 会把异常吞掉（不报 console 错），这一行就永远空白。空输入直接留空。
+  if (!clearTextValue) {
+    return '';
+  }
   return await argon2i({
     password: clearTextValue,
     salt,
@@ -108,6 +113,10 @@ const hashWasmArgon2i = computedAsync(async () => {
 });
 const hashWasmArgon2d = computedAsync(async () => {
   const clearTextValue = clearText.value;
+  // 同 argon2i：空密码会抛错且被 computedAsync 吞掉，空输入留空。
+  if (!clearTextValue) {
+    return '';
+  }
   return await argon2d({
     password: clearTextValue,
     salt,
@@ -120,6 +129,10 @@ const hashWasmArgon2d = computedAsync(async () => {
 });
 const hashWasmArgon2id = computedAsync(async () => {
   const clearTextValue = clearText.value;
+  // 同 argon2i：空密码会抛错且被 computedAsync 吞掉，空输入留空。
+  if (!clearTextValue) {
+    return '';
+  }
   return await argon2id({
     password: clearTextValue,
     salt,
@@ -132,6 +145,11 @@ const hashWasmArgon2id = computedAsync(async () => {
 });
 const hashWasmPBKDF2 = computedAsync(async () => {
   const clearTextValue = clearText.value;
+  // 与上面三个 Argon2 行保持一致：空输入时整组留空。
+  // （PBKDF2 其实能算空密码，但「空密码 + 随机盐」的摘要没有意义，且每次刷新都变。）
+  if (!clearTextValue) {
+    return '';
+  }
   return await pbkdf2({
     password: clearTextValue,
     salt,

@@ -571,9 +571,9 @@ const content: Record<string, ToolContent> = {
       '每行右侧可单独复制',
     ],
     tips: [
-      'Argon2 和 PBKDF2 的盐是每次打开页面时随机生成的，所以刷新页面后同样的明文会得到不同的结果，也无法在别处复现 —— 想验证要用同一页面内的结果',
+      'Argon2 和 PBKDF2 的盐是每次打开页面时随机生成的，所以刷新页面后同样的明文会得到不同的结果，也无法在别处复现 —— 想验证要用同一页面内的结果；输入框为空时这四行留空不计算（Argon2 不接受空密码）',
       '这几行的参数是页面写死的演示值：Argon2 只有 128 KiB 内存、4 次迭代、并行度 1，PBKDF2 只做 16 次迭代，都远低于生产要求（OWASP 建议 PBKDF2-HMAC-SHA256 至少 60 万次）',
-      'SHA3-256 与 KECCAK-256 结果不同：两者填充位不同，以太坊地址用的是 Keccak',
+      '本页的 SHA3 是 SHA3-512、KECCAK 是 Keccak-512，两者结果不同——SHA-3 与 Keccak 只差填充位（0x06 / 0x01），以太坊地址用的是 Keccak-256',
       'CRC32、ADLER32、XXHASH 是非加密哈希，只适合查重和校验，不能用于安全场景',
     ],
     faq: [
@@ -599,9 +599,10 @@ const content: Record<string, ToolContent> = {
       },
     ],
     example: {
-      input: 'hello',
-      output: 'MD5 5d41402abc4b2a76b9719d911017c592 ／ SHA-256 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
-      note: '默认十六进制输出',
+      input: '点「载入示例」，文本框会填入「在线工具箱 gjxtools.com」',
+      output:
+        'MD5 0d0516ae292ad3246b4cbd85625a8a56 ／ SHA-256 9053ccc0f77c0b22a9543494721b24f1eef395f73e22768cef1bc85e649b54c4',
+      note: '默认十六进制输出；示例是中文，正好能看出摘要按 UTF-8 字节计算',
     },
   },
   '/ip-geo-location': {
