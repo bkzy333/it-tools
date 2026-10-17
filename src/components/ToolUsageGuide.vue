@@ -11,6 +11,8 @@ import { getToolContent } from '@/seo/content';
 import { getRelatedToolPaths } from '@/seo/related-tools';
 import { categoryAllLabel, categoryMeta, categorySlug } from '@/seo/categories';
 import { normalizeRoutePath } from '@/seo/route-path';
+// 哪些页的说明区默认折叠 —— 和 build/seo-prerender.ts 读的是同一份名单
+import { shouldCollapseGuide } from '@/seo/guide-collapse';
 
 const route = useRoute();
 const toolStore = useToolStore();
@@ -81,6 +83,11 @@ const categoryHref = computed(() => {
   const raw = currentTool.value?.rawCategory ?? '';
   return raw ? `/category/${categorySlug(raw)}` : '';
 });
+
+// 「怎么用 / 小提示 / 相关工具 / 同类工具」这四块是长参考内容 + 内链，在部分工具页
+// 会把工具本体挤到很下面。名单命中的页面把它们收进 <details>（默认收起），正文仍在
+// DOM 里。名单来自 src/seo/guide-collapse.ts —— 静态预渲染读的是同一份，不能各写一套。
+const collapseBlocks = computed(() => shouldCollapseGuide(routePath.value));
 </script>
 
 <template>
@@ -91,12 +98,19 @@ const categoryHref = computed(() => {
       <p v-if="runsOnlyLocally" class="hint">所有计算都在你的浏览器本地完成，输入的内容不会上传到服务器。</p>
     </div>
 
-    <div class="usage-block">
-      <h2>怎么用{{ toolName }}</h2>
+    <component
+      :is="collapseBlocks ? 'details' : 'div'"
+      class="usage-block"
+      :class="{ 'usage-collapsible': collapseBlocks }"
+    >
+      <summary v-if="collapseBlocks" class="usage-summary">
+        <h2>怎么用{{ toolName }}</h2>
+      </summary>
+      <h2 v-else>怎么用{{ toolName }}</h2>
       <ol>
         <li v-for="(step, index) in steps" :key="index">{{ step }}</li>
       </ol>
-    </div>
+    </component>
 
     <div v-if="example" class="usage-block">
       <h2>示例</h2>
@@ -115,28 +129,52 @@ const categoryHref = computed(() => {
       </details>
     </div>
 
-    <div v-if="tips.length > 0" class="usage-block">
-      <h2>小提示</h2>
+    <component
+      v-if="tips.length > 0"
+      :is="collapseBlocks ? 'details' : 'div'"
+      class="usage-block"
+      :class="{ 'usage-collapsible': collapseBlocks }"
+    >
+      <summary v-if="collapseBlocks" class="usage-summary">
+        <h2>小提示</h2>
+      </summary>
+      <h2 v-else>小提示</h2>
       <ul>
         <li v-for="(tip, index) in tips" :key="index">{{ tip }}</li>
       </ul>
-    </div>
+    </component>
 
-    <div v-if="relatedTools.length > 0" class="usage-block">
-      <h2>相关工具</h2>
+    <component
+      v-if="relatedTools.length > 0"
+      :is="collapseBlocks ? 'details' : 'div'"
+      class="usage-block"
+      :class="{ 'usage-collapsible': collapseBlocks }"
+    >
+      <summary v-if="collapseBlocks" class="usage-summary">
+        <h2>相关工具</h2>
+      </summary>
+      <h2 v-else>相关工具</h2>
       <div class="related-list">
         <RouterLink v-for="tool in relatedTools" :key="tool.path" :to="tool.path" class="related-item">
           {{ tool.name }}
         </RouterLink>
       </div>
-    </div>
+    </component>
 
-    <div v-if="categoryLabel" class="usage-block">
-      <h2>同类{{ categoryLabel }}</h2>
+    <component
+      v-if="categoryLabel"
+      :is="collapseBlocks ? 'details' : 'div'"
+      class="usage-block"
+      :class="{ 'usage-collapsible': collapseBlocks }"
+    >
+      <summary v-if="collapseBlocks" class="usage-summary">
+        <h2>同类{{ categoryLabel }}</h2>
+      </summary>
+      <h2 v-else>同类{{ categoryLabel }}</h2>
       <div class="related-list">
         <RouterLink :to="categoryHref" class="related-item">查看全部{{ categoryLabel }}</RouterLink>
       </div>
-    </div>
+    </component>
   </div>
 </template>
 
@@ -216,6 +254,26 @@ const categoryHref = computed(() => {
 
 .usage-block {
   margin-bottom: 28px;
+}
+
+// 默认折叠的块：标题变成可点的 summary。
+// 箭头用浏览器原生 marker（和下面 FAQ 的折叠箭头同一套外观），不自己画 ::before ——
+// 自绘的空心三角在 12px / 半透明下缩成一个小点，看不出是能点的。
+.usage-collapsible {
+  > summary {
+    margin-bottom: 10px;
+    cursor: pointer;
+
+    h2 {
+      display: inline;
+      margin: 0;
+    }
+
+    &:hover h2 {
+      opacity: 1;
+      color: v-bind('themeVars.primaryColor');
+    }
+  }
 }
 
 .related-list {

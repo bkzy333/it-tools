@@ -510,17 +510,52 @@ async function onFileUploaded(file: File) {
 }
 
 // ——— 预览尺寸 ———
-// 三档都是真实视口宽度（1280 / 768 / 375），但预览面板只有约 570px：
-// 放不下时**整档等比缩小**去适配面板，而不是把档位宽度改小（那样档位名就成了谎话），
-// 也不加横向滚动条（那样「桌面效果」只能看到左边一小条）。
-// 缩放用 transform，所以外层 holder 要把缩放后的实际尺寸显式撑出来，否则面板高度会虚高。
+// 三档都是真实视口宽度（1280 / 768 / 375），预览面板放不下时**整档等比缩小**去适配面板，
+// 而不是把档位宽度改小（那样档位名就成了谎话），也不加横向滚动条（那样「桌面效果」
+// 只能看到左边一小条）。缩放用 transform，外层 holder 要把缩放后的实际尺寸显式撑出来。
+//
+// ⚠️ 缩放的**纵向**绝不能跟着一起缩。早先 frameHeight 写死 420 逻辑 px，桌面档再乘
+// 44% 的缩放，显示出来只剩 186px 高 —— 预览变成一张邮票，下面全是大片空白。
+// 现在倒过来算：**显示高度恒等于编辑区高度**，逻辑高度 = 显示高度 ÷ 缩放，
+// 于是桌面档的预览视口是 1280×1600 而不是 1280×420，一屏能看到接近整页。
+const MIN_WORK_HEIGHT = 480;
+const MAX_WORK_HEIGHT = 900;
+/** 编辑区底部留一点余量，别贴着视口下沿。 */
+const WORK_BOTTOM_GAP = 16;
+/** 网格内「HTML 源码 / 实时预览」那一行标签的高度，要从可用高度里扣掉。 */
+const WORK_LABEL_ROW = 24;
+/** 量不到编辑区位置时的兜底偏移（面包屑 + 头部 + 工具栏 + 标签行的实测值）。 */
+const FALLBACK_WORK_TOP = 360;
+const MIN_LOGICAL_HEIGHT = 420;
+const MAX_LOGICAL_HEIGHT = 2400;
+
+const gridEl = ref<HTMLElement | null>(null);
+const workHeight = ref(MIN_WORK_HEIGHT);
+
 const scrollEl = ref<HTMLElement | null>(null);
 const paneWidth = ref(0);
 let paneObserver: ResizeObserver | undefined;
 
+/**
+ * 页面滚动发生在 `.n-layout.content` 的原生滚动容器里而不是 window，
+ * 算编辑区顶部偏移时必须把它的 scrollTop 加回来，否则滚动过之后会越算越矮。
+ */
+function pageScrollTop(): number {
+  const scroller = document.querySelector<HTMLElement>('.n-layout.content .n-layout-scroll-container');
+
+  return Math.max(window.scrollY, scroller?.scrollTop ?? 0);
+}
+
+/** 编辑区高度跟着视口走：首屏除了头部和工具栏，剩下的都给编辑区。 */
+function updateWorkHeight() {
+  const rect = gridEl.value?.getBoundingClientRect();
+  const top = rect ? Math.round(rect.top + pageScrollTop()) : FALLBACK_WORK_TOP;
+  const available = window.innerHeight - top - WORK_LABEL_ROW - WORK_BOTTOM_GAP;
+
+  workHeight.value = Math.min(MAX_WORK_HEIGHT, Math.max(MIN_WORK_HEIGHT, Math.round(available)));
+}
+
 const currentPreset = computed(() => DEVICE_PRESETS.find(item => item.key === deviceKey.value) ?? DEVICE_PRESETS[0]);
-/** 预览 frame 的逻辑高度。窄面板下给矮一点，避免手机档上下留一大片空白。 */
-const frameHeight = computed(() => (paneWidth.value > 0 && paneWidth.value < 640 ? 420 : 600));
 const previewScale = computed(() => {
   const { width } = currentPreset.value;
 
@@ -529,6 +564,12 @@ const previewScale = computed(() => {
   }
 
   return paneWidth.value / width;
+});
+/** 逻辑高度按缩放反算，让预览「显示高度」恒等于编辑区高度（缩放只负责宽度适配）。 */
+const frameHeight = computed(() => {
+  const scale = previewScale.value || 1;
+
+  return Math.min(MAX_LOGICAL_HEIGHT, Math.max(MIN_LOGICAL_HEIGHT, Math.round(workHeight.value / scale)));
 });
 const holderStyle = computed(() => ({
   width: `${Math.round(currentPreset.value.width * previewScale.value)}px`,
@@ -541,18 +582,33 @@ const stageStyle = computed(() => ({
 }));
 const deviceWidthHint = computed(() => {
   const { width } = currentPreset.value;
+  // 带上逻辑视口高度：缩放反算之后「1280 px」不再等于屏幕上看到的宽度，两个数字都写清楚
+  const size = `${width} × ${frameHeight.value} px`;
 
-  return previewScale.value < 1 ? `${width} px · ${Math.round(previewScale.value * 100)}%` : `${width} px`;
+  return previewScale.value < 1 ? `${size} · ${Math.round(previewScale.value * 100)}%` : size;
 });
+
+// 编辑模式的两栏布局（预览 + 样式面板）比源码模式多一行提示，网格顶部一样，
+// 但预览列的实际可用高度会矮一点，进/出编辑模式时重算一次，别让预览戳出首屏。
+watch(mode, () => nextTick(updateWorkHeight));
 
 onMounted(() => {
   window.addEventListener('message', onWindowMessage);
   window.addEventListener('beforeunload', syncFromFrameNow);
+  window.addEventListener('resize', updateWorkHeight);
+  updateWorkHeight();
+  // 首帧字体和工具栏换行还没定下来，量到的顶部偏移会偏；下一帧再量一次纠正
+  requestAnimationFrame(updateWorkHeight);
 
   if (scrollEl.value) {
     paneObserver = new ResizeObserver((entries) => {
-      // clientWidth 已经排除滚动条，是缩放要适配的那个宽度
-      paneWidth.value = Math.round(entries[0].contentRect.width);
+      // clientWidth 已经排除滚动条，是缩放要适配的那个宽度。
+      // 值没变就别写：holder 高度是跟着 previewScale 算出来的，无脑写回容易自激。
+      const next = Math.round(entries[0].contentRect.width);
+
+      if (next !== paneWidth.value) {
+        paneWidth.value = next;
+      }
     });
     paneObserver.observe(scrollEl.value);
     paneWidth.value = scrollEl.value.clientWidth;
@@ -562,6 +618,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('message', onWindowMessage);
   window.removeEventListener('beforeunload', syncFromFrameNow);
+  window.removeEventListener('resize', updateWorkHeight);
   paneObserver?.disconnect();
   syncFromFrameNow();
   persistSource(htmlSource.value);
@@ -570,7 +627,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div>
+  <div class="html-editor-root">
     <div class="mb-3 flex flex-wrap items-center gap-2">
       <n-radio-group v-model:value="mode" size="small">
         <n-radio-button value="source" data-test-id="mode-source">
@@ -609,7 +666,7 @@ onBeforeUnmount(() => {
       </n-button>
     </div>
 
-    <div class="grid gap-4" :class="mode === 'source' ? 'lg:grid-cols-2' : 'mode-visual-grid'">
+    <div ref="gridEl" class="grid gap-4" :class="mode === 'source' ? 'lg:grid-cols-2' : 'mode-visual-grid'">
       <!-- 用 v-show 而不是 v-if：切换模式时不能把编辑器卸载掉，否则撤销历史和滚动位置全丢 -->
       <div v-show="mode === 'source'">
         <div class="mb-1 text-xs op-60">{{ t('tools.html-editor.texts.label-source-code') }}</div>
@@ -618,7 +675,7 @@ onBeforeUnmount(() => {
           language="html"
           editable
           copy-placement="none"
-          max-height="600px"
+          :max-height="`${workHeight}px`"
           data-test-id="html-source"
         />
       </div>
@@ -650,7 +707,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <aside v-if="mode === 'visual'" class="style-panel">
+      <aside v-if="mode === 'visual'" class="style-panel" :style="{ maxHeight: `${workHeight}px` }">
         <template v-if="hasSelection">
           <div class="style-panel-head">
             <code class="style-tag" data-test-id="style-selected-tag">{{ selectedTag }}</code>
@@ -816,6 +873,15 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* 宽屏下突破工具页的 1200px 容器：编辑区每宽一点，桌面档预览的缩放比就高一档
+   （1920 屏列宽 592 → 792，缩放 46% → 62%）。flex-basis 天然是「不超过可用宽度」，
+   窄屏不会溢出，所以不需要媒体查询。
+   类名重复一次是为了压过父级的 `.tool-content > :deep(*) { flex: 0 1 1200px }` ——
+   那条规则和单类选择器特异性相同，靠样式注入顺序分胜负太不稳。 */
+.html-editor-root.html-editor-root {
+  flex: 0 1 min(1600px, 100%);
+}
+
 /* 上传框在工具栏里要收成一个小方块，不占一整行 */
 .upload-compact {
   flex-direction: row;

@@ -173,6 +173,14 @@ const STATIC_STYLE = `
   #seo-static th,#seo-static td{border:1px solid rgba(128,128,128,.28);padding:7px 10px;text-align:left}
   #seo-static details{border:1px solid #e3e5e8;border-radius:8px;padding:10px 14px;margin-bottom:10px}
   #seo-static summary{cursor:pointer;font-weight:500;font-size:15px}
+  /* 默认折叠的说明块（.seo-fold）不是「卡片」，要长得和运行时 ToolUsageGuide.vue
+     的 .usage-collapsible 一样：无边框无内边距，箭头用浏览器原生 marker。
+     上面那条 details 通用规则给下面的 FAQ 卡片用，这里是显式覆盖。 */
+  #seo-static details.seo-fold{border:0;border-radius:0;padding:0;margin:0 0 28px}
+  #seo-static details.seo-fold>summary{margin-bottom:10px;cursor:pointer;
+    font-weight:inherit;font-size:inherit}
+  #seo-static details.seo-fold>summary h2{display:inline;margin:0}
+  #seo-static details.seo-fold>summary:hover h2{opacity:1;color:#185fa5}
   #seo-static .seo-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   #seo-static .seo-tag{display:inline-block;padding:5px 12px;border:1px solid rgba(128,128,128,.25);
     border-radius:16px;font-size:13px;text-decoration:none;color:inherit}
@@ -276,12 +284,31 @@ function breadcrumbLd(items: { name: string; href?: string }[]) {
 
 // ------------------------------------------------------------------ 页面渲染
 
+/**
+ * 说明区的一个块。
+ *
+ * 默认展开的页面原样输出 `<h2> + 正文`，和改动前逐字一致；命中小折叠名单的页面
+ * （见 `src/seo/guide-collapse.ts`）把标题挪进 `<summary>`、整块包进 `<details>` 收起。
+ * 正文一个字符都不少 —— 折叠只改展示，DOM 里照样有，爬虫照样读得到，不是隐藏内容。
+ *
+ * ⚠️ 折叠名单必须和运行时 ToolUsageGuide.vue 同源，那边读的也是同一个函数。
+ */
+function guideBlock(heading: string, body: string, collapse: boolean): string {
+  if (!collapse) {
+    return `<h2>${heading}</h2>\n${body}`;
+  }
+
+  return `<details class="seo-fold"><summary><h2>${heading}</h2></summary>${body}</details>`;
+}
+
 function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, related: ToolMeta[]): string {
   const bc = [
     { name: '首页', href: '/' },
     { name: tool.categoryZh, href: `/category/${categorySlug(tool.category)}` },
     { name: tool.title },
   ];
+
+  const fold = shouldCollapseGuide(tool.path);
 
   const parts: string[] = [breadcrumbHtml(bc), `<h1>${esc(tool.title)}</h1>`];
 
@@ -298,8 +325,11 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
 
     parts.push(`<h2>${esc(tool.title)}能做什么</h2>`, `<p>${esc(content.intro)}</p>`);
     parts.push(
-      `<h2>怎么用${esc(tool.title)}</h2>`,
-      `<ol>${content.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`,
+      guideBlock(
+        esc(`怎么用${tool.title}`),
+        `<ol>${content.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`,
+        fold,
+      ),
     );
     if (content.example) {
       parts.push(
@@ -311,8 +341,11 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
     }
     if (content.tips.length > 0) {
       parts.push(
-        `<h2>使用技巧与注意点</h2>`,
-        `<ul>${content.tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`,
+        guideBlock(
+          '使用技巧与注意点',
+          `<ul>${content.tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`,
+          fold,
+        ),
       );
     }
     if (content.faq.length > 0) {
@@ -338,17 +371,23 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
       `<p>${esc(
         `${tool.title}是一个免费的在线工具，${tool.description}打开网页就能用，不用下载安装，也不用注册。`,
       )}</p>`,
-      `<h2>怎么用</h2>`,
-      `<ol><li>在页面上方输入或上传你要处理的内容</li><li>按需要调整选项</li><li>结果会实时显示，可以直接复制或下载</li></ol>`,
+      guideBlock(
+        '怎么用',
+        `<ol><li>在页面上方输入或上传你要处理的内容</li><li>按需要调整选项</li><li>结果会实时显示，可以直接复制或下载</li></ol>`,
+        fold,
+      ),
     );
   }
 
   if (related.length > 0) {
     parts.push(
-      `<h2>相关工具</h2>`,
-      `<div class="seo-tags">${related
-        .map((t) => `<a class="seo-tag" href="${esc(href(t.path))}">${esc(t.title)}</a>`)
-        .join('')}</div>`,
+      guideBlock(
+        '相关工具',
+        `<div class="seo-tags">${related
+          .map((t) => `<a class="seo-tag" href="${esc(href(t.path))}">${esc(t.title)}</a>`)
+          .join('')}</div>`,
+        fold,
+      ),
     );
   }
 
@@ -361,8 +400,11 @@ function renderToolPage(tool: ToolMeta, content: ToolContent | undefined, relate
   });
 
   parts.push(
-    `<h2>同类${esc(catLabel)}</h2>`,
-    `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}/">查看全部${esc(catLabel)}</a></p>`,
+    guideBlock(
+      esc(`同类${catLabel}`),
+      `<p><a class="seo-link" href="/category/${categorySlug(tool.category)}/">查看全部${esc(catLabel)}</a></p>`,
+      fold,
+    ),
   );
 
   return parts.filter(Boolean).join('\n');
@@ -621,6 +663,10 @@ import { HOME_TITLE, homeDescription, homeLead, aboutDescription } from '../src/
 import { getRelatedToolPaths } from '../src/seo/related-tools';
 // 分类页的「全部XX工具」标签：和运行时 CategoryPage.vue 共用同一个函数。
 import { categoryAllLabel } from '../src/seo/categories';
+// 说明区「怎么用 / 小提示 / 相关工具 / 同类工具」是否默认折叠：和运行时
+// ToolUsageGuide.vue 读**同一份名单**。只改一边 = 爬虫看展开版、用户看折叠版，
+// 属于给两边看不同版面（cloaking）。要加页面只改 src/seo/guide-collapse.ts。
+import { shouldCollapseGuide } from '../src/seo/guide-collapse';
 
 /**
  * 核对 src/seo/guide-index.ts 和 md 原文里的标题是否一致。
