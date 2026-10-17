@@ -1991,6 +1991,65 @@ tools:
       hint-padding-none: 选了「不填充」时明文长度必须是 {block} 字节的整数倍，否则会直接报错而不是悄悄补齐。
       hint-about: sm-crypto 只实现 ECB 与 CBC 两种模式、PKCS#7 与不填充两种填充方式，所以这里没有 CTR / OFB / CFB，也没有 Zero / ISO10126 / Ansix923 —— 需要这些请用 AES 工具。密钥与 IV 不足 16 字节会在末尾补 0x00，超出 16 字节的部分会被丢弃，两种情况页面上都会写出来。
       hint-charset-binary: 密文是任意字节，用 Base64 或 Hex 表示最稳妥；如果拿 UTF-8 去解二进制密文，会直接提示换格式而不是吐一堆乱码。
+  rsa:
+    title: RSA 加解密与签名验签
+    description: 生成 RSA 密钥对（1024 / 2048 / 4096 位），或导入已有 PEM 公钥私钥做加密解密、签名验签；支持 PKCS#1 v1.5 与 OAEP（SHA-256 / SHA-1 / SHA-512），自动提示明文长度上限，全部在浏览器本地完成
+    texts:
+      tab-keys: 密钥对
+      tab-cipher: 加密解密
+      tab-sign: 签名验签
+      title-keys: 密钥对
+      title-config: 参数
+      title-encrypt: 公钥加密
+      title-decrypt: 私钥解密
+      title-sign: 私钥签名
+      title-verify: 公钥验签
+      title-error: 出错了
+      title-about: 关于 RSA
+      label-key-size: 密钥长度
+      label-public-key: 公钥（PEM）
+      label-private-key: 私钥（PEM）
+      placeholder-public-key: "粘贴 -----BEGIN PUBLIC KEY----- 开头的公钥，或只粘中间的 base64"
+      placeholder-private-key: 粘贴 BEGIN RSA PRIVATE KEY（PKCS#1）或 BEGIN PRIVATE KEY（PKCS#8）开头的私钥
+      btn-generate: 生成密钥对
+      btn-generating: 生成中…
+      hint-generate-ms: 耗时 {ms} ms
+      hint-key-size: 2048 位是目前的通用选择；1024 位只适合兼容老系统，4096 位更安全但每次运算明显更慢。点一次生成按钮就换一把全新的钥匙。
+      hint-empty-key: 还没有密钥 —— 点上面的「生成密钥对」，或把已有的 PEM 直接粘进这个框。
+      hint-public-ok: 已识别为 {bits} 位公钥
+      hint-private-ok: 已识别为 {bits} 位私钥
+      opt-show-pkcs8: 同时导出 PKCS#8 格式私钥（BEGIN PRIVATE KEY，Java / openssl genpkey 常用）
+      hint-private-warning: 私钥只留在本页内存里，刷新就没了。别把生产环境的私钥粘到任何在线工具里 —— 这个页面虽然不上传数据，但你的剪贴板历史、浏览器缓存、截图都可能留痕。
+      label-padding: 填充方式
+      padding-pkcs1: PKCS#1 v1.5（兼容老系统）
+      padding-oaep: OAEP（推荐，更安全）
+      label-oaep-hash: OAEP 摘要
+      label-cipher-format: 密文格式
+      label-ciphertext: 密文
+      label-ciphertext-in: 待解密的密文
+      label-plaintext: 明文
+      label-plaintext-out: 解密结果
+      placeholder-plaintext: 输入要加密的内容（RSA 只适合短数据，长文本请看下方说明）
+      placeholder-ciphertext: 粘贴 Base64 或 Hex 形式的 RSA 密文
+      hint-limit: 已用 {used} / 最多 {max} 字节（RSA 有硬上限，超出会直接报错）
+      hint-padding: PKCS#1 v1.5 兼容性最好但已不被推荐用于新系统；OAEP 更安全，但双方必须用同一个摘要算法 —— SHA-1 与 SHA-256 的 OAEP 互不兼容，很多「解不开」都是这里不一致。
+      btn-use-as-input: 拿去解密
+      label-sign-message: 要签名的内容
+      label-sign-hash: 签名摘要
+      label-sign-format: 签名格式
+      label-signature: 签名
+      label-verify-message: 原消息
+      label-verify-signature: 签名
+      placeholder-sign-message: 输入要签名或要验签的原始内容
+      placeholder-signature: 粘贴 Base64 或 Hex 形式的签名
+      btn-to-verify: 拿去验签
+      btn-verify: 验签
+      verify-ok: 验签通过：这段内容确实由对应私钥签出，且没有被改动
+      verify-fail: 验签失败：消息被改过、签名不完整，或者公钥与签名用的私钥不配对
+      hint-sign: 签名用私钥、验签用公钥，方向与加密相反。签名会先把内容哈希再签，所以内容多长都能签（不受 RSA 长度上限限制）；但摘要算法两端必须一致。
+      charset-base64: Base64
+      charset-hex: Hex
+      hint-about: RSA 是 1977 年提出的非对称算法，加密用公钥、解密用私钥，签名反过来。它的运算比 AES 慢几个数量级，而且能加密的数据长度受密钥长度硬限制（2048 位 PKCS#1 只有 245 字节），所以真实系统里通常做混合加密：用 AES 加密正文，再用 RSA 只加密那把 AES 密钥。本站所有计算都在浏览器本地完成，私钥不会离开这个页面。
   chinese-pinyin-converter:
     title: 汉字转拼音
     description: 把中文转成带声调、数字声调、无声调或首字母拼音，支持设置原文位置（文字在前/后/下对齐/自定义）、大小写与 ü 保留，逐字对照与多音字标注，全部在浏览器本地完成

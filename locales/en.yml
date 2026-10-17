@@ -2948,6 +2948,65 @@ tools:
       hint-padding-none: "With padding set to None the plaintext length must be a multiple of {block} bytes; anything else is rejected instead of being padded silently."
       hint-about: "sm-crypto implements only ECB and CBC, with PKCS#7 or no padding, so CTR / OFB / CFB and Zero / ISO10126 / Ansix923 are not available here — use the AES tool for those. Keys and IVs shorter than 16 bytes are zero-padded, longer ones are truncated, and the page always tells you which happened."
       hint-charset-binary: "Ciphertext is arbitrary bytes, so Base64 or Hex is the safe representation. Decoding binary as UTF-8 reports an error instead of printing garbage."
+  rsa:
+    title: RSA Encrypt, Decrypt, Sign & Verify
+    description: "Generate RSA key pairs (1024 / 2048 / 4096 bit) or import existing PEM keys to encrypt, decrypt, sign and verify. Supports PKCS#1 v1.5 and OAEP with SHA-256 / SHA-1 / SHA-512, warns about the plaintext size limit, and runs entirely in your browser."
+    texts:
+      tab-keys: Key pair
+      tab-cipher: Encrypt / Decrypt
+      tab-sign: Sign / Verify
+      title-keys: Key pair
+      title-config: Parameters
+      title-encrypt: Encrypt with public key
+      title-decrypt: Decrypt with private key
+      title-sign: Sign with private key
+      title-verify: Verify with public key
+      title-error: Something went wrong
+      title-about: About RSA
+      label-key-size: Key size
+      label-public-key: Public key (PEM)
+      label-private-key: Private key (PEM)
+      placeholder-public-key: "Paste a -----BEGIN PUBLIC KEY----- block, or just the base64 body"
+      placeholder-private-key: "Paste a BEGIN RSA PRIVATE KEY (PKCS#1) or BEGIN PRIVATE KEY (PKCS#8) block"
+      btn-generate: Generate key pair
+      btn-generating: Generating…
+      hint-generate-ms: Took {ms} ms
+      hint-key-size: "2048 bit is the usual choice; 1024 bit is only for legacy compatibility, 4096 bit is stronger but noticeably slower per operation. Each click generates a brand new key."
+      hint-empty-key: "No key yet — click Generate key pair above, or paste an existing PEM here."
+      hint-public-ok: Parsed as a {bits} bit public key
+      hint-private-ok: Parsed as a {bits} bit private key
+      opt-show-pkcs8: Also export the PKCS#8 form (BEGIN PRIVATE KEY, common in Java and openssl genpkey)
+      hint-private-warning: "The private key only lives in this page and disappears on reload. Never paste a production private key into any online tool — this page uploads nothing, but your clipboard history, browser cache and screenshots can still leak it."
+      label-padding: Padding
+      padding-pkcs1: PKCS#1 v1.5 (legacy compatible)
+      padding-oaep: OAEP (recommended, safer)
+      label-oaep-hash: OAEP digest
+      label-cipher-format: Ciphertext format
+      label-ciphertext: Ciphertext
+      label-ciphertext-in: Ciphertext to decrypt
+      label-plaintext: Plaintext
+      label-plaintext-out: Decrypted result
+      placeholder-plaintext: "Text to encrypt (RSA only suits short data — see the note below)"
+      placeholder-ciphertext: Paste the RSA ciphertext as Base64 or Hex
+      hint-limit: "{used} of at most {max} bytes used (RSA has a hard limit; exceeding it is an error)"
+      hint-padding: "PKCS#1 v1.5 has the widest compatibility but is no longer recommended for new systems. OAEP is safer, but both sides must use the same digest — SHA-1 and SHA-256 OAEP are not interchangeable, which explains most decryption failures."
+      btn-use-as-input: Use as decrypt input
+      label-sign-message: Content to sign
+      label-sign-hash: Signature digest
+      label-sign-format: Signature format
+      label-signature: Signature
+      label-verify-message: Original message
+      label-verify-signature: Signature
+      placeholder-sign-message: Content to sign or verify
+      placeholder-signature: Paste the signature as Base64 or Hex
+      btn-to-verify: Use for verification
+      btn-verify: Verify
+      verify-ok: "Signature is valid — this content was signed by the matching private key and has not been altered"
+      verify-fail: "Verification failed — the message changed, the signature is incomplete, or the public key does not match the signing key"
+      hint-sign: "Signing uses the private key and verification uses the public key — the opposite of encryption. The content is hashed before signing, so its length is unlimited; only the digest algorithm must match on both sides."
+      charset-base64: Base64
+      charset-hex: Hex
+      hint-about: "RSA (1977) is asymmetric: the public key encrypts and the private key decrypts, and signing works the other way round. It is orders of magnitude slower than AES and the amount of data it can encrypt is hard-limited by the key size (only 245 bytes for 2048 bit PKCS#1), so real systems use hybrid encryption: AES for the payload, RSA only for the AES key. Everything here runs locally in your browser; the private key never leaves the page."
   chinese-pinyin-converter:
     title: Chinese to Pinyin
     description: Convert Chinese to pinyin with tone marks, tone numbers (trailing or centered), no tone or initials. Choose where the original text goes (before / after / aligned below / custom), toggle upper case and keep ü, with per-character breakdown — all in your browser.

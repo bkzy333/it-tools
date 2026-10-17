@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-17T05:34:48.624Z",
+  "generatedAt": "2026-10-17T05:47:12.731Z",
   "sourceCommit": "extracted at build time",
-  "total": 115,
+  "total": 116,
   "tiers": {
-    "L1": 94,
+    "L1": 95,
     "L2": 20,
     "L3": 1
   },
@@ -2460,6 +2460,41 @@
       "description": "在线把数字金额转成人民币大写金额（壹贰叁肆伍陆柒捌玖拾佰仟万亿元角分），符合财务票据与凭证的填写规范，可用于报销单、发票和合同金额；同时支持英文大写金额（SAY + 币种 + ONLY）与数字英文读数互转，批量每行一条、逐行复制并可导出 Excel",
       "categoryZh": "数据处理",
       "categorySeoName": "数据格式转换工具",
+      "tier": "L1"
+    },
+    {
+      "path": "/rsa",
+      "slug": "rsa",
+      "category": "Crypto",
+      "keywords": [
+        "rsa",
+        "rsa加密",
+        "rsa解密",
+        "rsa在线",
+        "rsa密钥生成",
+        "rsa签名",
+        "rsa验签",
+        "非对称加密",
+        "公钥加密",
+        "私钥解密",
+        "密钥对",
+        "pem",
+        "pkcs1",
+        "pkcs8",
+        "oaep",
+        "jwt 签名",
+        "asymmetric"
+      ],
+      "redirectFrom": [],
+      "npmPackages": [],
+      "tags": [
+        "crypto"
+      ],
+      "isExternalAccess": false,
+      "title": "RSA 加解密与签名验签",
+      "description": "生成 RSA 密钥对（1024 / 2048 / 4096 位），或导入已有 PEM 公钥私钥做加密解密、签名验签；支持 PKCS#1 v1.5 与 OAEP（SHA-256 / SHA-1 / SHA-512），自动提示明文长度上限，全部在浏览器本地完成",
+      "categoryZh": "加密与解密",
+      "categorySeoName": "加密解密与哈希在线工具",
       "tier": "L1"
     },
     {
