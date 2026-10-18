@@ -160,7 +160,7 @@ const generated = computed<string | null>(() => {
 const text = useQueryParam({
   tool: 'qr-code-gen',
   name: 'text',
-  defaultValue: 'https://sharevb-it-tools.vercel.app',
+  defaultValue: 'https://gjxtools.com',
 });
 // 结构化模式下，把拼好的串写回渲染用的 text；text/url 模式不动（用户自由编辑）
 watch(

@@ -316,7 +316,7 @@ const examples = [
     title: 'GET GitHub API',
     desc: '获取仓库信息，带 Accept 头；需服务端代理或 GitHub 允许跨域',
     method: 'GET',
-    url: 'https://api.github.com/repos/bkzy333/it-tools',
+    url: 'https://api.github.com/repos/vuejs/core',
     headers: [{ key: 'Accept', value: 'application/vnd.github+json' }],
     query: [],
     body: '',

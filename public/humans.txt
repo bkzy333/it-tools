@@ -1,4 +1,3 @@
 /* TEAM */
-Developer: Corentin Thomasset
-Site: https://github.com/sharevb
-Twitter: @sharevb
+Site: https://gjxtools.com
+Contact: zhendafang5202023@163.com

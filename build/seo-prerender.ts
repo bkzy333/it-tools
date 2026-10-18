@@ -663,6 +663,8 @@ import { HOME_TITLE, homeDescription, homeLead, aboutDescription } from '../src/
 import { getRelatedToolPaths } from '../src/seo/related-tools';
 // 分类页的「全部XX工具」标签：和运行时 CategoryPage.vue 共用同一个函数。
 import { categoryAllLabel } from '../src/seo/categories';
+// 联系邮箱只允许在 src/seo/trust-pages.ts 里定义一次，关于页静态正文也从这里取。
+import { CONTACT_EMAIL } from '../src/seo/trust-pages';
 // 说明区「怎么用 / 小提示 / 相关工具 / 同类工具」是否默认折叠：和运行时
 // ToolUsageGuide.vue 读**同一份名单**。只改一边 = 爬虫看展开版、用户看折叠版，
 // 属于给两边看不同版面（cloaking）。要加页面只改 src/seo/guide-collapse.ts。
@@ -1014,21 +1016,32 @@ export function seoPrerender(): Plugin {
       }
 
       // ---------- 5. 关于页 ----------
-      // About.vue 带收藏导入/清除本地数据这些交互，保留原页面不动。
-      // 这里只补一段和它开头一致的静态简介，避免爬虫第一波抓到空页。
+      // About.vue 带收藏导入/导出这些交互，保留原页面不动。
+      // 这里的正文必须和 About.vue 渲染出来的卡片一一对应：Vue 挂载时会把这段静态正文整块替换掉，
+      // 两边写得不一样就等于「爬虫看一套、用户看另一套」。改 About.vue 的卡片要同步改这里。
       {
         const body = [
           breadcrumbHtml([{ name: '首页', href: '/' }, { name: '关于' }]),
           `<h1>关于${esc(SITE_NAME)}</h1>`,
           `<p class="seo-lead">${esc(
-            `${SITE_NAME}是一个完全免费的在线工具合集，收录了 ${tools.length} 个实用工具，涵盖 PDF 处理、图片编辑、文本转换、单位换算、加密解密、日期计算、网络工具等日常场景，打开网页就能用，无需注册。`,
+            `${SITE_NAME}是一个完全免费的在线工具合集，收录了 ${tools.length} 个实用工具，涵盖 PDF 处理、图片编辑、文本转换、单位换算、加密解密、日期计算、网络工具等日常场景。`,
           )}</p>`,
-          `<h2>数据怎么处理</h2>`,
-          `<p>绝大多数工具是纯前端计算，你输入的文本、上传的图片和文件都在你自己的浏览器里处理，不会上传到服务器。少数需要联网获取公开数据的工具（如汇率、IP 归属、天气）会在页面上明确标注。</p>`,
-          `<h2>开源与许可</h2>`,
-          `<p>本站基于开源项目 it-tools（GPLv3 协议）修改而来，改动清单和许可证说明见<a class="seo-link" href="/open-source">开源声明</a>。</p>`,
-          `<h2>联系与条款</h2>`,
-          `<p><a class="seo-link" href="/contact">联系我们</a>｜<a class="seo-link" href="/privacy">隐私政策</a>｜<a class="seo-link" href="/terms">使用条款</a>｜<a class="seo-link" href="/cookies">Cookie 政策</a></p>`,
+          `<p>打开网页就能用，无需注册、无需下载安装、不收取任何费用。</p>`,
+          `<h2>为什么用它</h2>`,
+          `<ul>`,
+          `<li>隐私安全：绝大多数工具直接在你的浏览器里完成计算，文件和数据不会上传到任何服务器；少数需要联网获取数据的工具（如汇率、IP 查询）会在页面上明确标注。</li>`,
+          `<li>随手可用：电脑、手机浏览器都能打开，界面自适应小屏幕。</li>`,
+          `<li>收藏功能：把常用工具加进收藏，左侧菜单置顶显示。</li>`,
+          `<li>深色模式：右上角可切换跟随系统 / 浅色 / 深色。</li>`,
+          `<li>多语言：默认简体中文，右上角可切换其他语言。</li>`,
+          `</ul>`,
+          `<h2>联系方式</h2>`,
+          `<p>站点地址：<a class="seo-link" href="${esc(SITE_URL)}" rel="noopener" target="_blank">${esc(SITE_URL)}</a></p>`,
+          `<p>问题反馈与建议：${esc(CONTACT_EMAIL)}</p>`,
+          `<h2>隐私政策</h2>`,
+          `<p>绝大多数工具在你的浏览器本地运行，文件和数据不会上传到服务器；少数需要联网的工具会在页面上标注数据去向。详细说明见<a class="seo-link" href="/privacy">隐私政策</a>。</p>`,
+          `<h2>免责声明</h2>`,
+          `<p>本站工具的计算结果仅供参考，不构成专业建议。涉及财务、医疗、法律等重要事项，请以权威机构的结果为准。</p>`,
         ].join('\n');
 
         let html = injectStyle(template);

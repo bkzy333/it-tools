@@ -4,12 +4,9 @@ import { useMessage } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { useToolStore } from '@/tools/tools.store';
 import { aboutDescription } from '@/seo/home-heading';
-
-// ===================== 上线前请改成你自己的信息 =====================
-const SITE_NAME = '在线工具箱';
-const SITE_DOMAIN = 'https://gjxtools.com';
-const CONTACT_EMAIL = 'zhendafang5202023@163.com';
-// ==================================================================
+// 站名 / 域名 / 联系邮箱只允许有一处定义（src/seo/trust-pages.ts），
+// 信任页、本页、构建期静态 HTML 都从这里取，避免哪一天改了一边、另一边还是旧值。
+import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from '@/seo/trust-pages';
 
 const toolStore = useToolStore();
 const { favoriteToolsName } = storeToRefs(toolStore);
@@ -76,7 +73,7 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
 
     <n-card title="联系方式" mx-auto mt-30px>
       <p>
-        站点地址：<c-link :href="SITE_DOMAIN" target="_blank" rel="noopener">{{ SITE_DOMAIN }}</c-link>
+        站点地址：<c-link :href="SITE_URL" target="_blank" rel="noopener">{{ SITE_URL }}</c-link>
       </p>
       <p>问题反馈与建议：{{ CONTACT_EMAIL }}</p>
       <p class="hint">
@@ -95,7 +92,6 @@ const favoritesJson = computed(() => JSON.stringify(favoriteToolsName.value));
       <p class="hint">
         本站工具的计算结果仅供参考，不构成专业建议。涉及财务、医疗、法律等重要事项，请以权威机构的结果为准。
       </p>
-      <p class="hint">本站基于开源项目 IT Tools 构建，在 GPLv3 许可下使用与修改。</p>
     </n-card>
   </div>
 </template>

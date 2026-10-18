@@ -5,8 +5,6 @@ import { useToolStore } from '@/tools/tools.store';
 import { useStyleStore } from '@/stores/style.store';
 
 import SunIcon from '~icons/mdi/white-balance-sunny';
-import GithubIcon from '~icons/mdi/github';
-import BugIcon from '~icons/mdi/bug-outline';
 import DiceIcon from '~icons/mdi/dice-5';
 import InfoIcon from '~icons/mdi/information-outline';
 import { useFlexSearch } from '@/composable/flexSearch';
@@ -53,24 +51,8 @@ export const useCommandPaletteStore = (locale: string) =>
         keywords: ['dark', 'theme', 'toggle', 'mode', 'light', 'system'],
       },
       {
-        name: t('tools.command-palette.store.texts.github-repository'),
-        href: 'https://github.com/sharevb/it-tools',
-        category: t('tools.command-palette.store.texts.external'),
-        description: t('tools.command-palette.store.texts.view-the-source-code-of-it-tools-on-github'),
-        keywords: ['github', 'repo', 'repository', 'source', 'code'],
-        icon: GithubIcon,
-      },
-      {
-        name: t('tools.command-palette.store.texts.report-a-bug-or-an-issue'),
-        description: t('tools.command-palette.store.texts.report-a-bug-or-an-issue-to-help-improve-it-tools'),
-        href: 'https://github.com/sharevb/it-tools/issues/new/choose',
-        category: t('tools.command-palette.store.texts.actions-0'),
-        keywords: ['report', 'issue', 'bug', 'problem', 'error'],
-        icon: BugIcon,
-      },
-      {
         name: t('home.nav.about'),
-        description: t('tools.command-palette.store.texts.learn-more-about-it-tools'),
+        description: t('tools.command-palette.store.texts.about-this-site'),
         to: '/about',
         category: t('tools.command-palette.store.texts.pages'),
         keywords: ['about', 'learn', 'more', 'info', 'information'],

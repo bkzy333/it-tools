@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import IconDragDrop from '~icons/tabler/drag-drop';
-import IconHeart from '~icons/tabler/heart';
 import { useHead } from '@vueuse/head';
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import Draggable from 'vuedraggable';
-import ColoredCard from '../components/ColoredCard.vue';
 import ToolCard from '../components/ToolCard.vue';
 import HomeCustom from './Home.custom.vue';
 import { useToolStore } from '@/tools/tools.store';
 import { fetchGlobalHotTools, getMostUsedPaths } from '@/composable/toolUsage';
 import type { ToolWithCategory } from '@/tools/tools.types';
-import { config } from '@/config';
 import { categoryMeta } from '@/seo/categories';
 import { GUIDE_INDEX } from '@/seo/guide-index';
 import { HOME_TITLE, homeDescription, homeLead } from '@/seo/home-heading';
@@ -214,21 +211,6 @@ onUnmounted(() => {
     <p class="home-lead">{{ leadText }}</p>
 
     <div class="grid-wrapper">
-      <div class="grid grid-cols-1 gap-12px lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ColoredCard v-if="config.showBanner" :title="$t('home.follow.title')" :icon="IconHeart">
-          {{ $t('home.follow.p1') }}
-          <a
-            href="https://github.com/sharevb/it-tools"
-            rel="noopener"
-            target="_blank"
-            :aria-label="$t('home.follow.githubRepository')"
-            >GitHub</a
-          >
-          {{ $t('home.follow.thankYou') }}
-          <n-icon :component="IconHeart" />
-        </ColoredCard>
-      </div>
-
       <transition name="height">
         <div v-if="toolStore.favoriteTools.length > 0">
           <h2 class="mb-5px mt-25px font-500 text-neutral-400 text-16px">

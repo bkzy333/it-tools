@@ -138,6 +138,14 @@ export const TRUST_PAGES: TrustPage[] = [
         ],
       },
       {
+        heading: '开源与源码',
+        paragraphs: [
+          '本站以 GNU General Public License v3.0（GPLv3）发布，许可证完整文本见 https://www.gnu.org/licenses/gpl-3.0.html',
+          '本站是在开源代码基础上修改而成的版本，相对原始版本做过改动。对应的源代码可以在 https://github.com/bkzy333/it-tools 获取。',
+          '按 GPLv3 的要求，任何通过网络使用本站的人，都可以从上述地址取得与本站运行版本相对应的源代码，无需额外付费。',
+        ],
+      },
+      {
         heading: '条款变更',
         paragraphs: ['本条款可能随站点功能调整而更新，更新后会在本页标注新的日期。继续使用本站即视为接受更新后的条款。'],
       },
