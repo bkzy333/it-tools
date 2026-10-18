@@ -48,9 +48,10 @@ const router = createRouter({
       name: 'about',
       component: () => import('./pages/About.vue'),
     },
-    // 信任页（隐私政策 / 联系我们 / 使用条款 / Cookie 政策 / 开源声明）。
+    // 信任页（隐私政策 / 联系我们 / 使用条款）。
     // AdSense 审核会逐个检查这几页是否存在且内容真实，文案统一放在 src/seo/trust-pages.ts，
     // 构建期会用同一份数据生成静态 HTML，所以改文案只需要动那一个文件。
+    // 原来的 /cookies 已并入 /privacy、/open-source 已并入 /terms，老地址在 public/_redirects 里做 301。
     {
       path: '/privacy',
       name: 'privacy',
@@ -64,16 +65,6 @@ const router = createRouter({
     {
       path: '/terms',
       name: 'terms',
-      component: () => import('./pages/TrustPage.vue'),
-    },
-    {
-      path: '/cookies',
-      name: 'cookies',
-      component: () => import('./pages/TrustPage.vue'),
-    },
-    {
-      path: '/open-source',
-      name: 'open-source',
       component: () => import('./pages/TrustPage.vue'),
     },
     // 分类聚合页 /category/<slug> 和教程页 /guide/<slug>。

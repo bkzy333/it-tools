@@ -933,3 +933,13 @@
 /text-split/   /text-format/   301
 /text-workflow /text-format/   301
 /text-workflow/ /text-format/  301
+
+# ============================================================================
+# /cookies 已并入 /privacy（Cookie 只有广告退出链接三行，其余内容原本就是重复的）；
+# /open-source 已并入 /terms 的「开源与源码」小节（GPLv3 + 源码获取地址）。
+# 两个老地址都做 301，避免老外链与搜索结果直接 404。
+# ============================================================================
+/cookies       /privacy/    301
+/cookies/      /privacy/    301
+/open-source   /terms/      301
+/open-source/  /terms/      301

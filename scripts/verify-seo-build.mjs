@@ -95,8 +95,6 @@ const samples = [
   { route: '/privacy', kind: '信任页' },
   { route: '/contact', kind: '信任页' },
   { route: '/terms', kind: '信任页' },
-  { route: '/cookies', kind: '信任页' },
-  { route: '/open-source', kind: '信任页' },
   { route: '/about', kind: '关于页' },
 ];
 

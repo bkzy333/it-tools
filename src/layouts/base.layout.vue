@@ -78,10 +78,6 @@ const tools = computed<ToolCategory[]>(() => [
           <RouterLink to="/contact">联系我们</RouterLink>
           <span mx-1 op-50>·</span>
           <RouterLink to="/terms">使用条款</RouterLink>
-          <span mx-1 op-50>·</span>
-          <RouterLink to="/cookies">Cookie</RouterLink>
-          <span mx-1 op-50>·</span>
-          <RouterLink to="/open-source">开源声明</RouterLink>
         </div>
       </div>
     </template>
