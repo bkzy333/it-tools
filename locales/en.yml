@@ -1214,12 +1214,14 @@ tools:
       sex-female: Female
       placeholder-input: Click the buttons or type directly, e.g. father's mother
       placeholder-reverse: Enter a kinship term, e.g. uncle
+      label-title-input: Kinship term
       btn-backspace: Backspace
       btn-clear: Clear
       btn-copy: Copy result
       label-also: "Also called:"
       hint-forward: Each click appends one link to the chain
-      hint-reverse: "Reverse lookup: enter a term to see how that person calls you"
+      hint-reverse: "Reverse lookup: type a term — the dropdown lists every term containing it, pick one to see how that person calls you"
+      hint-suggest-more: "{count} matches in total, keep typing to narrow down"
       hint-empty: Enter a relationship or a term above
       hint-no-result: This relationship is too complex, try a shorter chain
       copied: Result copied

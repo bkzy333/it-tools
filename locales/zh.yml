@@ -1176,12 +1176,14 @@ tools:
       sex-female: 女
       placeholder-input: 点下面的按钮或直接输入，例如：爸爸的妈妈
       placeholder-reverse: 输入一个称呼，例如：舅舅
+      label-title-input: 称呼输入框
       btn-backspace: 退格
       btn-clear: 清空
       btn-copy: 复制结果
       label-also: 也可以叫：
       hint-forward: 每点一个词就往关系链末尾加一环，比如先点「爸爸」再点「妈妈」就是「爸爸的妈妈」
-      hint-reverse: 反过来查：输入一个称呼，看看对方是怎么称呼你的
+      hint-reverse: 反过来查：输入一个称呼，下拉框会列出所有包含这几个字的说法，点一下就能查对方怎么称呼你
+      hint-suggest-more: 共 {count} 个候选，继续输入可以缩小范围
       hint-empty: 先在上面输入关系链或称呼
       hint-no-result: 这个关系太复杂，暂时算不出来，试试短一点的关系链
       copied: 结果已复制
