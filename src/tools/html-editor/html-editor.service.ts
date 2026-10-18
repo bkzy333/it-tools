@@ -22,6 +22,69 @@ export const DEVICE_PRESETS: DevicePreset[] = [
   { key: 'mobile', width: 375 },
 ];
 
+/**
+ * 预览缩放档位。
+ *
+ * 默认是「适应宽度」（面板多宽就缩到多宽，会算出 39% 这种零碎比例），用户再点 +/− 时
+ * 走这些整数档位而不是 1% 一档的微量步进：缩小是「看整体版式」，放大是「看清某个元素」，
+ * 50% / 100% / 200% 这类数更好预期，也方便口头描述给同事。
+ */
+export const ZOOM_MIN = 0.1;
+export const ZOOM_MAX = 3;
+export const ZOOM_STEPS = [0.1, 0.15, 0.2, 0.25, 0.33, 0.5, 0.67, 0.75, 0.9, 1, 1.25, 1.5, 2, 2.5, 3];
+
+/** 夹到 [ZOOM_MIN, ZOOM_MAX]。NaN / 0 / 负数一律兜回 1，别把 iframe 缩成看不见。 */
+export function clampZoom(scale: number): number {
+  if (!Number.isFinite(scale) || scale <= 0) {
+    return 1;
+  }
+
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, scale));
+}
+
+/**
+ * 当前比例的上一档 / 下一档。
+ *
+ * 当前值不一定在档位表里（「适应宽度」给的可能是 0.39），所以按「比它大一点 / 小一点」
+ * 找最近的档位；已经在表头表尾就停在端点，不返回 undefined 让调用方判空。
+ */
+export function nextZoomStep(current: number, direction: 1 | -1): number {
+  const safe = clampZoom(current);
+  const epsilon = 0.001;
+
+  if (direction > 0) {
+    return ZOOM_STEPS.find(step => step > safe + epsilon) ?? ZOOM_MAX;
+  }
+
+  return [...ZOOM_STEPS].reverse().find(step => step < safe - epsilon) ?? ZOOM_MIN;
+}
+
+/**
+ * 面板放不下档位宽度时等比缩小到刚好铺满，放得下就是 1。
+ * 上限刻意是 1 而不是「铺满面板」：375px 的手机档被放大到 800px 就不再是手机宽度了。
+ */
+export function fitScaleFor(paneWidth: number, presetWidth: number): number {
+  if (!paneWidth || !presetWidth || presetWidth <= paneWidth) {
+    return 1;
+  }
+
+  return paneWidth / presetWidth;
+}
+
+/**
+ * iframe 的逻辑视口高度（CSS 像素）。
+ *
+ * 只按「适应宽度」的比例反算，**不跟用户的缩放走**：早先的公式是「显示高度恒等于编辑区高度」，
+ * 一旦用户手动放大，这个公式会让 iframe 视口反而变矮（放大 2 倍 → 视口只剩 800px 高），
+ * 看到的内容比不放大时还少。现在逻辑高度锁死在适应宽度那一刻的值，放大只是把同一块视口
+ * 铺到更大的屏幕上、由滚动条去看局部。
+ */
+export function logicalHeightFor(workHeight: number, fitScale: number, min: number, max: number): number {
+  const scale = fitScale > 0 ? fitScale : 1;
+
+  return Math.min(max, Math.max(min, Math.round(workHeight / scale)));
+}
+
 /** 编辑模式注入到预览文档里的样式元素 id —— 序列化回源码前必须摘掉，否则会被写进用户的代码。 */
 export const EDITOR_STYLE_ID = 'gjx-html-editor-edit-style';
 

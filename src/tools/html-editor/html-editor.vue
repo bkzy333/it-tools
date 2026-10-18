@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { Base64 } from 'js-base64';
 import { useDebounceFn } from '@vueuse/core';
 import { useMessage, useThemeVars } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 import ToolExampleButton from '@/components/ToolExampleButton.vue';
 import CodeBlockCopyable from '@/components/CodeBlockCopyable.vue';
 import { useCopy } from '@/composable/copy';
@@ -16,11 +17,17 @@ import {
   EDITOR_STYLE_ID,
   FONT_SIZE_MAX,
   FONT_SIZE_MIN,
+  ZOOM_MAX,
+  ZOOM_MIN,
   clearInlineStyles,
+  clampZoom,
   decodeHtmlFile,
   describeElement,
   elementPath,
+  fitScaleFor,
+  logicalHeightFor,
   looksLikeFullDocument,
+  nextZoomStep,
   readElementStyles,
   serializeFrame,
 } from './html-editor.service';
@@ -115,6 +122,13 @@ function writeIntoWindow(target: Window, html: string) {
     target.document.open();
     target.document.write(html);
     target.document.close();
+
+    // 预览内容是写进 iframe 的，滚轮事件发生在那个文档里、不会冒泡到父窗口 ——
+    // 不在这里补一份监听，鼠标放在预览内容上时 Ctrl+滚轮缩放和普通滚动**全都毫无反应**
+    // （用户会以为放大后滚不动是坏了）。document.open() 会清掉旧监听，所以每次写完都要重挂。
+    if (frame.value && target === frame.value.contentWindow) {
+      target.document.addEventListener('wheel', onFrameWheel, { passive: false, capture: true });
+    }
   } catch (error) {
     console.error('[html-editor] 写入预览失败', error);
   }
@@ -511,13 +525,15 @@ async function onFileUploaded(file: File) {
 
 // ——— 预览尺寸 ———
 // 三档都是真实视口宽度（1280 / 768 / 375），预览面板放不下时**整档等比缩小**去适配面板，
-// 而不是把档位宽度改小（那样档位名就成了谎话），也不加横向滚动条（那样「桌面效果」
-// 只能看到左边一小条）。缩放用 transform，外层 holder 要把缩放后的实际尺寸显式撑出来。
+// 而不是把档位宽度改小（那样档位名就成了谎话）。缩放用 transform，外层 holder 要把
+// 缩放后的实际尺寸显式撑出来（transform 不影响布局盒，滚动条量不到真实内容）。
 //
 // ⚠️ 缩放的**纵向**绝不能跟着一起缩。早先 frameHeight 写死 420 逻辑 px，桌面档再乘
 // 44% 的缩放，显示出来只剩 186px 高 —— 预览变成一张邮票，下面全是大片空白。
-// 现在倒过来算：**显示高度恒等于编辑区高度**，逻辑高度 = 显示高度 ÷ 缩放，
+// 现在倒过来算：**适应宽度时显示高度恒等于编辑区高度**，逻辑高度 = 显示高度 ÷ 适应比例，
 // 于是桌面档的预览视口是 1280×1600 而不是 1280×420，一屏能看到接近整页。
+//
+// 用户手动缩放（见下面的「预览缩放」）只放大画面，不重算这个逻辑高度。
 const MIN_WORK_HEIGHT = 480;
 const MAX_WORK_HEIGHT = 900;
 /** 编辑区底部留一点余量，别贴着视口下沿。 */
@@ -556,41 +572,189 @@ function updateWorkHeight() {
 }
 
 const currentPreset = computed(() => DEVICE_PRESETS.find(item => item.key === deviceKey.value) ?? DEVICE_PRESETS[0]);
-const previewScale = computed(() => {
-  const { width } = currentPreset.value;
 
-  if (!paneWidth.value || width <= paneWidth.value) {
-    return 1;
-  }
+/** 手动缩放比例；`null` = 适应宽度（跟着面板宽度自动算）。 */
+const zoomScale = ref<number | null>(null);
+const isZoomFit = computed(() => zoomScale.value === null);
+/** 「适应宽度」算出来的比例；面板比档位宽时是 1（不放大，375 的手机档被拉大就不是手机了）。 */
+const fitScale = computed(() => fitScaleFor(paneWidth.value, currentPreset.value.width));
+const previewScale = computed(() => zoomScale.value ?? fitScale.value);
+const zoomPercent = computed(() => Math.round(previewScale.value * 100));
 
-  return paneWidth.value / width;
-});
-/** 逻辑高度按缩放反算，让预览「显示高度」恒等于编辑区高度（缩放只负责宽度适配）。 */
-const frameHeight = computed(() => {
-  const scale = previewScale.value || 1;
-
-  return Math.min(MAX_LOGICAL_HEIGHT, Math.max(MIN_LOGICAL_HEIGHT, Math.round(workHeight.value / scale)));
-});
+/** 逻辑视口高度锁在「适应宽度」那一刻：手动放大只放大画面，不改 iframe 视口（否则一放大可视内容反而变少）。 */
+const frameHeight = computed(() =>
+  logicalHeightFor(workHeight.value, fitScale.value, MIN_LOGICAL_HEIGHT, MAX_LOGICAL_HEIGHT),
+);
 const holderStyle = computed(() => ({
   width: `${Math.round(currentPreset.value.width * previewScale.value)}px`,
-  height: `${Math.round(frameHeight.value * previewScale.value)}px`,
+  // floor 一点：四舍五入多出来的 1px 会让「适应宽度」凭空多出一条纵向滚动条
+  height: `${Math.floor(frameHeight.value * previewScale.value)}px`,
 }));
 const stageStyle = computed(() => ({
   width: `${currentPreset.value.width}px`,
   height: `${frameHeight.value}px`,
   transform: `translateX(-50%) scale(${previewScale.value})`,
 }));
-const deviceWidthHint = computed(() => {
-  const { width } = currentPreset.value;
-  // 带上逻辑视口高度：缩放反算之后「1280 px」不再等于屏幕上看到的宽度，两个数字都写清楚
-  const size = `${width} × ${frameHeight.value} px`;
+const deviceWidthHint = computed(() => `${currentPreset.value.width} × ${frameHeight.value} px`);
 
-  return previewScale.value < 1 ? `${size} · ${Math.round(previewScale.value * 100)}%` : size;
-});
+// ——— 预览缩放 ———
+// 三个入口（+/− 按钮、百分比下拉、Ctrl/⌘ + 滚轮）全部走 applyZoomAt 一条路，
+// 免得各算一套比例，出现「点 + 反而变小」这种自相矛盾的档位。
+const ZOOM_MENU_PERCENTS = [50, 75, 100, 125, 150, 200] as const;
+
+/** 缩放时保持光标/面板中心那个内容点不动；不锚定的话每滚一格画面就往左上跑，想细看的位置立刻丢。 */
+async function applyZoomAt(nextScale: number, anchor?: { x: number; y: number }) {
+  const target = clampZoom(nextScale);
+  const before = previewScale.value;
+
+  if (Math.abs(target - before) < 0.001) {
+    return;
+  }
+
+  const el = scrollEl.value;
+  const rect = el?.getBoundingClientRect();
+  const offsetX = anchor && rect ? anchor.x - rect.left : 0;
+  const offsetY = anchor && rect ? anchor.y - rect.top : 0;
+  const contentWidth = currentPreset.value.width * before;
+  const contentHeight = frameHeight.value * before;
+  // 内容比容器窄时是居中的、没有横向可滚量，按中点对齐就够
+  const ratioX = el && contentWidth > el.clientWidth ? (el.scrollLeft + offsetX) / contentWidth : 0.5;
+  const ratioY = el && contentHeight > 0 ? (el.scrollTop + offsetY) / contentHeight : 0;
+
+  zoomScale.value = target;
+
+  if (!el || !anchor) {
+    return;
+  }
+
+  await nextTick();
+  el.scrollLeft = Math.max(0, ratioX * currentPreset.value.width * target - offsetX);
+  el.scrollTop = Math.max(0, ratioY * frameHeight.value * target - offsetY);
+}
+
+function paneCenterAnchor() {
+  const el = scrollEl.value;
+
+  if (!el) {
+    return undefined;
+  }
+
+  const rect = el.getBoundingClientRect();
+
+  return { x: rect.left + el.clientWidth / 2, y: rect.top + el.clientHeight / 2 };
+}
+
+const zoomIn = () => applyZoomAt(nextZoomStep(previewScale.value, 1), paneCenterAnchor());
+const zoomOut = () => applyZoomAt(nextZoomStep(previewScale.value, -1), paneCenterAnchor());
+
+/** 回到适应宽度：直接清空手动比例，不写 fitScale 的数值，避免被上下限夹出偏差 */
+function fitZoom() {
+  zoomScale.value = null;
+}
+
+const zoomMenuOptions = computed<DropdownOption[]>(() => [
+  { label: t('tools.html-editor.texts.zoom-fit'), key: 'fit' },
+  { type: 'divider', key: 'sep-1' },
+  ...ZOOM_MENU_PERCENTS.map(percent => ({ label: `${percent}%`, key: String(percent) })),
+  { type: 'divider', key: 'sep-2' },
+  // 快捷键得写出来：不加提示没人猜得到 Ctrl + 滚轮能连续缩放
+  { label: t('tools.html-editor.texts.zoom-wheel-hint'), key: 'wheel-hint', disabled: true },
+]);
+
+function onZoomMenuSelect(key: string | number) {
+  if (key === 'fit') {
+    fitZoom();
+
+    return;
+  }
+
+  const percent = Number(key);
+
+  if (Number.isFinite(percent) && percent > 0) {
+    applyZoomAt(percent / 100, paneCenterAnchor());
+  }
+}
+
+/**
+ * Ctrl/⌘ + 滚轮缩放。
+ * 必须 preventDefault：浏览器默认把 Ctrl+滚轮 当整页缩放，不拦的话预览和整个界面一起变大，
+ * 用户以为「这个工具缩放坏了」。
+ *
+ * `anchor` 是缩放要钉住的那个点，坐标必须是**父文档**坐标系；从 iframe 里传进来的
+ * clientX/clientY 属于子文档，得先换算，否则缩放会围着错误的点跳。
+ */
+function onPreviewWheel(event: WheelEvent, anchor?: { x: number; y: number }) {
+  if (!event.ctrlKey && !event.metaKey) {
+    return;
+  }
+
+  event.preventDefault();
+  // deltaMode 1 = 按行滚（Firefox 鼠标滚轮），换算成像素，否则一格只缩 0.5%
+  const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+  const factor = Math.exp(-delta * 0.0015);
+
+  applyZoomAt(previewScale.value * factor, anchor ?? { x: event.clientX, y: event.clientY });
+}
+
+/**
+ * iframe 内部的滚轮。
+ *
+ * 两种情况必须在这里处理，父容器的监听都收不到：
+ * 1. 按住 Ctrl/⌘ —— 交给缩放，坐标从子文档换算到父文档（iframe 有 1px 边框，要补上）；
+ * 2. 普通滚动 —— iframe 的视口高度就是内容高度，子文档通常没得滚，如果不把滚动转给预览容器，
+ *    放大后鼠标停在页面内容上滚轮就是「一动不动」。
+ * 子文档自己还能滚（用户页面比视口高）时先让它滚，滚到头再交给容器，符合正常的滚动链手感。
+ */
+function onFrameWheel(event: WheelEvent) {
+  const frameEl = frame.value;
+
+  if (!frameEl) {
+    return;
+  }
+
+  if (event.ctrlKey || event.metaKey) {
+    const rect = frameEl.getBoundingClientRect();
+    const scale = previewScale.value;
+
+    onPreviewWheel(event, {
+      x: rect.left + frameEl.clientLeft + event.clientX * scale,
+      y: rect.top + frameEl.clientTop + event.clientY * scale,
+    });
+
+    return;
+  }
+
+  const el = scrollEl.value;
+  const scroller = frameEl.contentDocument?.scrollingElement as HTMLElement | null;
+
+  if (!el || !scroller) {
+    return;
+  }
+
+  const innerCanScroll
+    = (event.deltaY < 0 && scroller.scrollTop > 0)
+      || (event.deltaY > 0 && scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1);
+
+  if (innerCanScroll) {
+    return;
+  }
+
+  event.preventDefault();
+  el.scrollTop += event.deltaY;
+  el.scrollLeft += event.deltaX;
+}
 
 // 编辑模式的两栏布局（预览 + 样式面板）比源码模式多一行提示，网格顶部一样，
 // 但预览列的实际可用高度会矮一点，进/出编辑模式时重算一次，别让预览戳出首屏。
 watch(mode, () => nextTick(updateWorkHeight));
+
+// 换档位回到「适应宽度」：桌面档放大到 150% 再切手机，如果还留着 150%，375 宽会被撑成 562px，
+// 反而比面板宽 —— 用户只会觉得「切了手机怎么还得横着滚」。
+watch(deviceKey, () => {
+  zoomScale.value = null;
+});
+
+let wheelTarget: HTMLElement | null = null;
 
 onMounted(() => {
   window.addEventListener('message', onWindowMessage);
@@ -601,17 +765,21 @@ onMounted(() => {
   requestAnimationFrame(updateWorkHeight);
 
   if (scrollEl.value) {
-    paneObserver = new ResizeObserver((entries) => {
+    paneObserver = new ResizeObserver(() => {
       // clientWidth 已经排除滚动条，是缩放要适配的那个宽度。
       // 值没变就别写：holder 高度是跟着 previewScale 算出来的，无脑写回容易自激。
-      const next = Math.round(entries[0].contentRect.width);
+      const next = scrollEl.value?.clientWidth ?? 0;
 
-      if (next !== paneWidth.value) {
+      if (next && next !== paneWidth.value) {
         paneWidth.value = next;
       }
     });
     paneObserver.observe(scrollEl.value);
     paneWidth.value = scrollEl.value.clientWidth;
+
+    // passive: false 才能 preventDefault —— 不拦的话 Ctrl+滚轮是浏览器自己的整页缩放
+    wheelTarget = scrollEl.value;
+    wheelTarget.addEventListener('wheel', onPreviewWheel, { passive: false });
   }
 });
 
@@ -619,6 +787,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('message', onWindowMessage);
   window.removeEventListener('beforeunload', syncFromFrameNow);
   window.removeEventListener('resize', updateWorkHeight);
+  wheelTarget?.removeEventListener('wheel', onPreviewWheel);
   paneObserver?.disconnect();
   syncFromFrameNow();
   persistSource(htmlSource.value);
@@ -667,8 +836,11 @@ onBeforeUnmount(() => {
     </div>
 
     <div ref="gridEl" class="grid gap-4" :class="mode === 'source' ? 'lg:grid-cols-2' : 'mode-visual-grid'">
+      <!-- 两列都要 min-w-0：grid item 默认 min-width:auto，预览的 holder 是固定像素宽
+           （桌面档 1280），不归零会把整列撑到 1280 —— 手机上整页横向溢出，预览只剩左边一截，
+           而且 fit 比例按这个假宽度算出来恒等于 100%。 -->
       <!-- 用 v-show 而不是 v-if：切换模式时不能把编辑器卸载掉，否则撤销历史和滚动位置全丢 -->
-      <div v-show="mode === 'source'">
+      <div v-show="mode === 'source'" class="min-w-0">
         <div class="mb-1 text-xs op-60">{{ t('tools.html-editor.texts.label-source-code') }}</div>
         <CodeBlockCopyable
           v-model:value="htmlSource"
@@ -680,17 +852,69 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <div>
-        <div class="mb-1 flex items-baseline justify-between gap-2 text-xs op-60">
-          <span>{{ t('tools.html-editor.texts.label-preview') }}</span>
-          <span>{{ deviceWidthHint }}</span>
+      <div class="min-w-0">
+        <div class="mb-1 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="op-60">{{ t('tools.html-editor.texts.label-preview') }}</span>
+
+          <div class="preview-toolbar">
+            <span class="preview-size">{{ deviceWidthHint }}</span>
+
+            <div class="zoom-group" data-test-id="preview-zoom">
+              <button
+                type="button"
+                class="zoom-btn"
+                data-test-id="zoom-out"
+                :disabled="previewScale <= ZOOM_MIN"
+                :aria-label="t('tools.html-editor.texts.zoom-out')"
+                :title="t('tools.html-editor.texts.zoom-out')"
+                @click="zoomOut"
+              >
+                −
+              </button>
+
+              <n-dropdown trigger="click" placement="bottom-end" :options="zoomMenuOptions" @select="onZoomMenuSelect">
+                <button
+                  type="button"
+                  class="zoom-value"
+                  data-test-id="zoom-value"
+                  :aria-label="t('tools.html-editor.texts.zoom-menu-hint')"
+                  :title="t('tools.html-editor.texts.zoom-menu-hint')"
+                >
+                  {{ zoomPercent }}%
+                </button>
+              </n-dropdown>
+
+              <button
+                type="button"
+                class="zoom-btn"
+                data-test-id="zoom-in"
+                :disabled="previewScale >= ZOOM_MAX"
+                :aria-label="t('tools.html-editor.texts.zoom-in')"
+                :title="t('tools.html-editor.texts.zoom-in')"
+                @click="zoomIn"
+              >
+                +
+              </button>
+
+              <button
+                type="button"
+                class="zoom-fit"
+                data-test-id="zoom-fit"
+                :class="{ 'is-active': isZoomFit }"
+                :disabled="isZoomFit"
+                @click="fitZoom"
+              >
+                {{ t('tools.html-editor.texts.zoom-fit') }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <p v-if="mode === 'visual'" class="mb-2 text-xs op-70">
           {{ t('tools.html-editor.texts.hint-visual-mode') }}
         </p>
 
-        <div ref="scrollEl" class="preview-scroll">
+        <div ref="scrollEl" class="preview-scroll" :style="{ height: `${workHeight}px` }">
           <div class="preview-holder" :style="holderStyle">
             <div class="preview-stage" :style="stageStyle">
               <iframe
@@ -889,8 +1113,87 @@ onBeforeUnmount(() => {
   border-width: 1px;
 }
 
+/* 手动放大后要能在预览区内部滚动，所以从 hidden 改成 auto；高度由 JS 固定成编辑区高度，
+   内容再高也只在框里滚，不会把整页撑长。
+   scrollbar-gutter: stable 让滚动条槽常驻 —— 滚动条一出现 clientWidth 就变小，而「适应宽度」
+   的比例正是拿 clientWidth 算的，槽一放宽窄会来回抖（变窄→滚动条消失→变宽→又出现）。 */
 .preview-scroll {
+  overflow: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+/* 缩放工具条：尺寸数字 + 「− 39% + 适应」，跟标签同一行，窄屏自动换行 */
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-size {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+}
+
+.zoom-group {
+  display: flex;
+  align-items: stretch;
   overflow: hidden;
+  border: 1px solid v-bind('themeVars.borderColor');
+  border-radius: 6px;
+}
+
+.zoom-btn,
+.zoom-value,
+.zoom-fit {
+  height: 22px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.zoom-btn {
+  width: 22px;
+  padding: 0;
+  font-size: 14px;
+}
+
+.zoom-value {
+  min-width: 42px;
+  font-variant-numeric: tabular-nums;
+}
+
+.zoom-fit {
+  border-left: 1px solid v-bind('themeVars.borderColor');
+}
+
+.zoom-btn:not(:disabled):hover,
+.zoom-value:hover,
+.zoom-fit:not(:disabled):hover {
+  background: rgba(24, 160, 88, 0.14);
+}
+
+.zoom-btn:focus-visible,
+.zoom-value:focus-visible,
+.zoom-fit:focus-visible {
+  outline: 2px solid v-bind('themeVars.primaryColor');
+  outline-offset: -2px;
+}
+
+.zoom-btn:disabled,
+.zoom-fit:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.zoom-fit.is-active {
+  opacity: 0.45;
 }
 
 /* 缩放后占位的实际尺寸由 JS 撑出来（transform 不影响布局盒，不能靠它压高度） */

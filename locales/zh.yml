@@ -1406,7 +1406,7 @@ tools:
       an-error-occured-processing-heic-heif-is-invalid: 处理过程中发生错误：HEIC/HEIF 无效。
   html-editor:
     title: HTML在线编辑器
-    description: 左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。
+    description: 左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览并自由缩放看细节，以及一键复制源码、下载 HTML 文件、新标签打开预览。
     texts:
       mode-source: 源码模式
       mode-visual: 编辑模式
@@ -1420,6 +1420,11 @@ tools:
       button-clear: 清空
       label-source-code: HTML 源码
       label-preview: 实时预览
+      zoom-out: 缩小
+      zoom-in: 放大
+      zoom-fit: 适应宽度
+      zoom-menu-hint: 调整预览缩放比例
+      zoom-wheel-hint: 按住 Ctrl（Mac 为 ⌘）滚动滚轮可连续缩放
       hint-visual-mode: 点文字直接改，点元素改它的样式（颜色 / 字号 / 内外边距），缩小时可用上方面包屑跳到想改的那一层；编辑时链接不会跳转，想试交互请切回源码模式。
       toast-copied: 已复制
       toast-uploaded: "已载入 {name}"

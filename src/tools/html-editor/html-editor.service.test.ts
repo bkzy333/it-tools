@@ -4,12 +4,16 @@ import {
   DEVICE_PRESETS,
   EDITOR_SELECTED_ATTR,
   EDITOR_STYLE_ID,
+  clampZoom,
   clearInlineStyles,
   decodeHtmlFile,
   describeElement,
   detectDeclaredCharset,
   elementPath,
+  fitScaleFor,
+  logicalHeightFor,
   looksLikeFullDocument,
+  nextZoomStep,
   normalizeFontWeight,
   normalizeTextAlign,
   parsePixelValue,
@@ -291,5 +295,54 @@ describe('readElementStyles', () => {
     expect(Object.keys(values.padding).sort()).toEqual(['bottom', 'left', 'right', 'top']);
     expect(Object.keys(values.margin).sort()).toEqual(['bottom', 'left', 'right', 'top']);
     expect(values.padding.top).toBe(0);
+  });
+});
+
+
+describe('预览缩放', () => {
+  it('适应宽度：面板比档位窄按比例缩，比档位宽不放大', () => {
+    expect(fitScaleFor(400, 1280)).toBeCloseTo(0.3125);
+    // 375 的手机档在 800px 面板里不往外扩，否则「手机宽度」就成了假话
+    expect(fitScaleFor(800, 375)).toBe(1);
+    expect(fitScaleFor(0, 1280)).toBe(1);
+  });
+
+  it('逻辑视口高度按适应比例反算，并钳在上下限里', () => {
+    expect(logicalHeightFor(640, 0.5, 420, 2400)).toBe(1280);
+    expect(logicalHeightFor(640, 1, 420, 2400)).toBe(640);
+    expect(logicalHeightFor(640, 0.1, 420, 2400)).toBe(2400);
+    expect(logicalHeightFor(200, 1, 420, 2400)).toBe(420);
+    // 比例异常（0 / 负数）兜回 1，别算出 Infinity 高度把 iframe 撑爆
+    expect(logicalHeightFor(640, 0, 420, 2400)).toBe(640);
+  });
+
+  it('不在档位表里的比例（适应宽度给的 0.39）也能走到相邻档位', () => {
+    expect(nextZoomStep(0.39, 1)).toBe(0.5);
+    expect(nextZoomStep(0.39, -1)).toBe(0.33);
+    expect(nextZoomStep(1, 1)).toBe(1.25);
+    expect(nextZoomStep(1, -1)).toBe(0.9);
+  });
+
+  it('档位走到头停在边界，不返回 undefined', () => {
+    expect(nextZoomStep(3, 1)).toBe(3);
+    expect(nextZoomStep(0.1, -1)).toBe(0.1);
+    expect(nextZoomStep(2.9, 1)).toBe(3);
+    expect(nextZoomStep(0.11, -1)).toBe(0.1);
+  });
+
+  it('比例夹在 10%~300%，非法值兜回 100%', () => {
+    expect(clampZoom(0.01)).toBe(0.1);
+    expect(clampZoom(99)).toBe(3);
+    expect(clampZoom(Number.NaN)).toBe(1);
+    expect(clampZoom(0)).toBe(1);
+  });
+
+  it('放大只放大画面：iframe 视口高度不跟着缩小，能看到的内容不会变少', () => {
+    const fit = fitScaleFor(500, 1280);
+    const logical = logicalHeightFor(640, fit, 420, 2400);
+
+    expect(logical).toBe(Math.round(640 / fit));
+    // 早先的写法是「显示高度恒定」，放大 200% 后视口会只剩 320px —— 这里必须比编辑区高
+    expect(logical).toBeGreaterThan(640);
   });
 });

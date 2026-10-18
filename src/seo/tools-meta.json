@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T23:38:43.550Z",
+  "generatedAt": "2026-10-18T01:36:58.195Z",
   "sourceCommit": "extracted at build time",
   "total": 119,
   "tiers": {
@@ -1231,7 +1231,7 @@
       ],
       "isExternalAccess": false,
       "title": "HTML在线编辑器",
-      "description": "左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览，以及一键复制源码、下载 HTML 文件、新标签打开预览。",
+      "description": "左边写 HTML 代码，右边实时预览渲染效果；能直接编辑渲染后的页面、点选元素调整颜色与字号内外边距，支持上传 HTML 文件、桌面/平板/手机尺寸预览并自由缩放看细节，以及一键复制源码、下载 HTML 文件、新标签打开预览。",
       "categoryZh": "网页工具",
       "categorySeoName": "网页与 URL 在线工具",
       "tier": "L1"
