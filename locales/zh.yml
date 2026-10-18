@@ -4119,13 +4119,11 @@ tools:
     texts:
       card-config: 配置
       card-bill: 本期费用
-      config-hint: 水电单价在这里设一次，下面的房间就都按这个价算；房租按每期实际金额填写
+      config-hint: 先建位置、再建房间。水电单价按位置设一次，房间都按这个价算；房租在新增房间时录一次，之后每期只管抄表
       example-hint: 第一次用？点右上角「一键示例」载入「幸福小区」 demo，立刻看效果
       confirm-overwrite-example: 载入示例会覆盖当前所有位置、房间和记录，确定吗？
       label-location: 位置
       placeholder-location: 选择位置
-      label-location-name: 位置名称
-      hint-location-rename: 改名后立刻保存
       label-location-defaults: 默认水电单价
       hint-location-defaults: 同位置水电价一样就只设一次，房间可单独覆盖
       label-location-elec-price: 电费单价（元/度）
@@ -4133,6 +4131,7 @@ tools:
       label-new-location: 新增位置
       placeholder-location-name: 位置名称，如「幸福小区」
       button-add-location: 添加位置
+      hint-new-location: 位置名建好后不能改，写错了删掉重建一个即可
       error-location-name: 请填写位置名称
       error-location-duplicate: 已有同名位置，换个名字
       label-room: 房间
@@ -4140,14 +4139,22 @@ tools:
       label-new-room: 新增房间
       placeholder-room-name: 房间名称或昵称，如「3栋301」
       button-add-room: 添加房间
+      label-new-room-target: 添加到「{name}」
+      label-room-rent: 月房租（元）
+      hint-new-room: 房租这笔账比较固定，先在这里录一次；之后每月只管抄电表水表读数
+      hint-add-location-first: 先在上面「新增位置」建一个位置，才能往里面加房间
+      room-option-label: '{name}（房租 {rent}）'
+      label-current-selection: 当前使用
+      button-delete-location: 删除位置
+      confirm-delete-location: 删除位置「{name}」会同时删掉它的 {rooms} 个房间和 {records} 条记录，确定吗？
       error-no-location: 请先在上方新增一个位置
       error-room-name: 请填写房间名称
       error-room-duplicate: 当前位置下已有同名房间
-      button-delete-room: 删除房间「{name}」
+      button-delete-room: 删除房间
       confirm-delete-room: 删除房间「{name}」会同时删除其 {count} 条记录，确定吗？
-      empty-locations: 还没有位置。在上方新增一个，或点右上角「一键示例」先看效果
+      empty-locations: 还没有位置。在最上方「新增位置」填一个名字就能开始，或点右上角「一键示例」先看效果
       privacy-note: 所有数据只保存在你自己的浏览器里，不上传任何服务器；清除浏览器数据会一并丢失，重要账目请定期导出备份
-      empty-bill: 先在上方配置区选中房间，这里就能算当期费用
+      empty-bill: 先在配置区选好位置和房间，这里就能算当期费用
       label-period: 账期
       label-rent: 房租（元）
       label-elec-price: 电费单价（元/度）

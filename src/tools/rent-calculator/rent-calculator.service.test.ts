@@ -5,6 +5,7 @@ import {
   buildTxtReport,
   comparePeriod,
   computeFees,
+  countRecordsForLocation,
   createExampleState,
   currentPeriod,
   filterRecords,
@@ -17,6 +18,8 @@ import {
   parseNum,
   recordsForLocation,
   recordsForRoom,
+  removeLocation,
+  removeRoom,
   resolvePrices,
   round2,
   sanitizeState,
@@ -601,5 +604,59 @@ describe('createExampleState', () => {
   it('sanitize 后示例仍完整（存取链路）', () => {
     const s = sanitizeState(JSON.parse(JSON.stringify(createExampleState())));
     expect(s.records).toHaveLength(2);
+  });
+});
+
+
+/* ------------------------------------------------------------ 级联删除 */
+
+describe('删除位置 / 删除房间', () => {
+  /** 两个位置：幸福小区（示例房间 + 2 条记录）+ 三屯（1 房间 1 记录） */
+  function twoLocationState(): RentState {
+    const s = createExampleState();
+    s.locations.push({ id: 'loc-2', name: '三屯', elecPrice: 1, waterPrice: 4 });
+    s.rooms.push({ id: 'room-2', locationId: 'loc-2', name: 'A栋201', rent: 900 });
+    s.records.push({ ...s.records[0]!, id: 'rec-2', roomId: 'room-2' });
+    return s;
+  }
+
+  it('countRecordsForLocation 只数自己位置下房间的记录', () => {
+    const s = twoLocationState();
+    expect(countRecordsForLocation(s, 'loc-example-1')).toBe(2);
+    expect(countRecordsForLocation(s, 'loc-2')).toBe(1);
+    expect(countRecordsForLocation(s, 'loc-none')).toBe(0);
+  });
+
+  it('removeLocation 连带房间和记录一起删，别的位置不受影响', () => {
+    const s = twoLocationState();
+    const next = removeLocation(s, 'loc-example-1');
+    expect(next.locations.map((l) => l.id)).toEqual(['loc-2']);
+    expect(next.rooms.map((r) => r.id)).toEqual(['room-2']);
+    expect(next.records.map((r) => r.id)).toEqual(['rec-2']);
+  });
+
+  it('removeLocation 不改入参（返回新对象）', () => {
+    const s = twoLocationState();
+    removeLocation(s, 'loc-example-1');
+    expect(s.locations).toHaveLength(2);
+    expect(s.rooms).toHaveLength(2);
+    expect(s.records).toHaveLength(3);
+  });
+
+  it('removeRoom 只带走自己的记录，同位置其他房间留着', () => {
+    const s = twoLocationState();
+    const next = removeRoom(s, 'room-2');
+    expect(next.rooms.map((r) => r.id)).toEqual(['room-example-1']);
+    expect(next.records).toHaveLength(2);
+    expect(next.locations).toHaveLength(2);
+  });
+
+  it('位置全删光后仍是合法空存档（sanitize 不崩、不复活孤儿）', () => {
+    const s = twoLocationState();
+    const next = removeLocation(removeLocation(s, 'loc-example-1'), 'loc-2');
+    expect(next.locations).toHaveLength(0);
+    expect(next.rooms).toHaveLength(0);
+    expect(next.records).toHaveLength(0);
+    expect(sanitizeState(JSON.parse(JSON.stringify(next)))).toEqual(next);
   });
 });

@@ -6,20 +6,21 @@
  * 现实改写（服务端 lowdb → localStorage，服务端 ExcelJS → 客户端零依赖 xlsx），
  * 逐条决策见 rent-calculator.service.ts 头部注释与 2026-10-17 工作日志第七轮。
  *
- * 页面结构（三卡片，2026-10-18 按用户要求重排）：
- *   ① 配置     —— 页面最上方：位置（新增/改名/默认水电单价）+ 房间（新增/删除）
+ * 页面结构（三卡片）：
+ *   ① 配置     —— 页面最上方，且**先建后选**：新增位置 → 新增房间（顺手录房租）→
+ *                 分隔线下才是「当前使用」的位置/房间选择、默认水电单价、删除入口
  *   ② 本期费用 —— 选中房间自动衔接上期读数 + 顺推账期，实时费用明细，保存本期记录
  *   ③ 记录明细 —— 取代原「月度汇总」：全部房间按账期倒序铺平一行一记录 + 房间筛选 +
  *                 四格式导出（范围三档）
  *
- * 2026-10-18 四处改动（用户原文）：
- *   1. 删掉「删除位置」「新增位置」那套分散的管理入口，位置改在配置区统一新增/编辑；
- *      删掉卫生费（它可以由带名称的「其他费用」代替）
- *   2. 页面最上方是配置区，专门配房间名和默认水电单价
- *   3. 月度汇总改成记录明细：账期/位置/房间/房租/电表水表读数（上次+现在）/电费/水费/
- *      其他费用/总费用
- *   4. 费用明细的三个结果框不再撑长：改用固定三列网格（标签｜金额｜算式），
- *      总费用的算式整行放到下方
+ * 2026-10-18 第二轮改动（用户原文）：
+ *   1. 新增位置、新增房间挪到配置区最上方 —— 先把位置和房间配好，再谈记账
+ *   2. 删掉「位置名称」那个改名输入框：位置建好后不允许改名，写错了删掉重建
+ *      （原来的 @update:value 是逐字符提交，打到一半就会被写进存档，还可能是重名）
+ *   3. 新增房间时把房租一起录进来（房租比水电表读数稳定得多），
+ *      并且保存本期账单时把房租回流到房间档案，下一期不用重填
+ *
+ * 上一轮（同日）改动：删卫生费、月度汇总改记录明细、费用明细改三列网格。详见下方注释。
  *
  * 与静态 HTML 同源红线：本页所有数字都来自 service 层纯函数，构建期不预计算任何
  * 费用值（页面打开时是空表单，没有可预计算的确定性结果）。
@@ -36,6 +37,7 @@ import {
   buildJsonReport,
   buildTxtReport,
   computeFees,
+  countRecordsForLocation,
   createExampleState,
   currentPeriod,
   filterRecords,
@@ -44,6 +46,8 @@ import {
   latestRecordForRoom,
   loadState,
   PERIOD_RE,
+  removeLocation,
+  removeRoom,
   resolvePrices,
   saveState,
   shiftPeriod,
@@ -64,10 +68,11 @@ const selectedLocationId = ref<string | null>(null);
 const selectedRoomId = ref<string | null>(null);
 
 /**
- * 位置改名的草稿：输入框绑它，校验通过才写进 store。
- * 直接双向绑 currentLocation.name 的话，改一半（重名 / 清空）会被存进去还不报错。
+ * 明细表房间筛选：null = 全部房间。
+ * 声明放在这里而不是「③ 记录明细」段里，是因为删位置/删房间时要顺手把它清掉
+ * （filter 指向已删的房间会让下拉显示一个不存在的值），那两个函数在上面的配置区。
  */
-const locationNameDraft = ref('');
+const detailRoomFilter = ref<string | null>(null);
 
 /** 本期账单表单 */
 interface BillForm {
@@ -202,7 +207,6 @@ function prefillFromRoom(roomId: string | null) {
 }
 
 watch(selectedLocationId, (id) => {
-  locationNameDraft.value = state.value.locations.find((l) => l.id === id)?.name ?? '';
   const rooms = state.value.rooms.filter((r) => r.locationId === id);
   selectedRoomId.value = rooms.length > 0 ? rooms[0]!.id : null;
 });
@@ -216,16 +220,19 @@ watch(selectedRoomId, (roomId) => {
 onMounted(() => {
   if (state.value.locations.length > 0 && !selectedLocationId.value) {
     selectedLocationId.value = state.value.locations[0]!.id;
-  } else {
-    locationNameDraft.value = currentLocation.value?.name ?? '';
   }
 });
 
 /* ----------------------------------------------------- ① 配置区：位置与房间 */
 
 const newLocation = ref({ name: '', elecPrice: null as number | null, waterPrice: null as number | null });
-const newRoom = ref({ name: '' });
+const newRoom = ref({ name: '', rent: null as number | null });
 const manageError = ref('');
+
+/** 删除位置确认文案要报的账（房间数 + 记录数） */
+const locationRecords = computed(() =>
+  currentLocation.value ? countRecordsForLocation(state.value, currentLocation.value.id) : 0,
+);
 
 function persist() {
   saveState(state.value);
@@ -249,29 +256,34 @@ function addLocation() {
     waterPrice: newLocation.value.waterPrice ?? 0,
   };
   state.value.locations.push(location);
-  selectedLocationId.value = location.id; // 触发 watch → 房间联动 + 改名草稿同步
+  selectedLocationId.value = location.id; // 触发 watch → 房间联动 + 预填
   newLocation.value = { name: '', elecPrice: null, waterPrice: null };
   persist();
 }
 
-/** 位置改名：空值或重名都拒绝写入（store 里永远是合法值，输入框保留用户打的字） */
-function commitLocationName(next: string | null) {
+/**
+ * 删除位置：连带房间和记录一起删（移除逻辑在 service 里，见 removeLocation）。
+ *
+ * 这是「位置不能改名」的配套出口 —— 名字写错了删掉重建，而不是给一个改一半的输入框。
+ */
+function deleteLocation() {
   const loc = currentLocation.value;
   if (!loc) {
     return;
   }
-  const name = String(next ?? '').trim();
-  if (!name) {
-    manageError.value = t('tools.rent-calculator.texts.error-location-name');
-    return;
-  }
-  if (state.value.locations.some((l) => l.id !== loc.id && l.name === name)) {
-    manageError.value = t('tools.rent-calculator.texts.error-location-duplicate');
-    return;
+  state.value = removeLocation(state.value, loc.id);
+  if (detailRoomFilter.value && !state.value.rooms.some((r) => r.id === detailRoomFilter.value)) {
+    detailRoomFilter.value = null;
   }
   manageError.value = '';
-  loc.name = name;
-  locationNameDraft.value = name;
+  const next = state.value.locations[0];
+  if (next) {
+    selectedLocationId.value = next.id; // watch 负责选房 + 预填
+  } else {
+    selectedLocationId.value = null;
+    selectedRoomId.value = null;
+    form.value = emptyBillForm();
+  }
   persist();
 }
 
@@ -294,19 +306,23 @@ function addRoom() {
     id: `room-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     locationId: currentLocation.value.id,
     name,
-    rent: 0,
+    rent: newRoom.value.rent ?? 0,
   };
   state.value.rooms.push(room);
-  selectedRoomId.value = room.id; // 触发预填
-  newRoom.value = { name: '' };
+  selectedRoomId.value = room.id; // 触发预填（房租也就跟着填进本期账单）
+  // 房间名清空、房租留着：同一位置下的房间房租常常一样，连着录几间时少打一遍
+  newRoom.value = { name: '', rent: newRoom.value.rent };
   persist();
 }
 
 function deleteRoom(id: string) {
-  state.value.rooms = state.value.rooms.filter((r) => r.id !== id);
-  state.value.records = state.value.records.filter((rec) => rec.roomId !== id);
+  state.value = removeRoom(state.value, id);
+  if (detailRoomFilter.value === id) {
+    detailRoomFilter.value = null;
+  }
   if (selectedRoomId.value === id) {
     selectedRoomId.value = null;
+    form.value = emptyBillForm();
   }
   persist();
 }
@@ -381,6 +397,11 @@ function saveRecord() {
     createdAt: new Date().toISOString(),
   };
   state.value.records.push(record);
+  // 房租回流到房间档案：下一期切到这个房间时「房租」直接带上这次的金额，
+  // 不必每期重打一遍（房间表里的 rent 就是「上次实际交的房租」这个口径）。
+  if (room.rent !== record.rent) {
+    room.rent = record.rent;
+  }
   persist();
 
   // 保存成功 → 表单顺势滚到下一期：账期 +1，本期「现在读数」变下期「上次读数」
@@ -421,15 +442,11 @@ function applyExample() {
   state.value = createExampleState();
   persist();
   selectedLocationId.value = state.value.locations[0]!.id; // 联动链自动选房并预填
-  locationNameDraft.value = state.value.locations[0]!.name;
   notice.value = '';
   billError.value = '';
 }
 
 /* --------------------------------------------------------- ③ 记录明细 */
-
-/** 明细表房间筛选：null = 全部房间 */
-const detailRoomFilter = ref<string | null>(null);
 
 const roomNameOf = (roomId: string): string => state.value.rooms.find((r) => r.id === roomId)?.name ?? roomId;
 
@@ -518,7 +535,13 @@ function exportJson() {
 }
 
 const locationOptions = computed(() => state.value.locations.map((l) => ({ label: l.name, value: l.id })));
-const roomOptions = computed(() => locationRooms.value.map((r) => ({ label: r.name, value: r.id })));
+/** 房间下拉带上房租：选房子的时候一眼能看出哪间是哪间、房租多少 */
+const roomOptions = computed(() =>
+  locationRooms.value.map((r) => ({
+    label: t('tools.rent-calculator.texts.room-option-label', { name: r.name, rent: formatMoney(r.rent) }),
+    value: r.id,
+  })),
+);
 
 /** 当前房间的读数衔接提示（切房间时自动填了上期读数才显示） */
 const carryOverHint = computed(() => {
@@ -559,76 +582,34 @@ function onPeriodChange(ts: number | null) {
   <div flex flex-col gap-4>
     <!-- ① 配置区（页面最上方） -->
     <c-card :title="t('tools.rent-calculator.texts.card-config')">
-      <div mb-3 flex items-center justify-between gap-2>
-        <span text-sm op-60>{{ t('tools.rent-calculator.texts.example-hint') }}</span>
-        <n-popconfirm
-          v-if="exampleArmed"
-          @positive-click="applyExample"
-        >
-          <span>{{ t('tools.rent-calculator.texts.confirm-overwrite-example') }}</span>
-          <template #trigger>
-            <ToolExampleButton @click="onExampleClick" />
-          </template>
-        </n-popconfirm>
-        <ToolExampleButton v-else @click="onExampleClick" />
+      <div mb-3 flex flex-wrap items-center justify-between gap-2>
+        <span min-w-0 flex-1 text-sm op-60>{{ t('tools.rent-calculator.texts.example-hint') }}</span>
+        <!-- 外层再包一层 shrink-0：tooltip 的触发元素才是 flex item，光给按钮自己加
+             flex-shrink:0 不管用，窄屏下「一键示例」会被挤成竖排三个字 -->
+        <div shrink-0>
+          <n-popconfirm
+            v-if="exampleArmed"
+            @positive-click="applyExample"
+          >
+            <span>{{ t('tools.rent-calculator.texts.confirm-overwrite-example') }}</span>
+            <template #trigger>
+              <ToolExampleButton @click="onExampleClick" />
+            </template>
+          </n-popconfirm>
+          <ToolExampleButton v-else @click="onExampleClick" />
+        </div>
       </div>
 
       <n-alert v-if="manageError" mb-3 type="error" closable @close="manageError = ''">{{ manageError }}</n-alert>
 
-      <!-- 位置：选择 + 新增 -->
-      <div mb-3 grid gap-2 md:grid-cols-2>
-        <div>
-          <div mb-1 text-sm font-medium>{{ t('tools.rent-calculator.texts.label-location') }}</div>
-          <n-select
-            v-model:value="selectedLocationId"
-            :options="locationOptions"
-            :placeholder="t('tools.rent-calculator.texts.placeholder-location')"
-            clearable
-          />
-        </div>
-        <div v-if="currentLocation">
-          <div mb-1 text-sm font-medium>
-            {{ t('tools.rent-calculator.texts.label-location-name') }}
-            <span ml-1 op-50>{{ t('tools.rent-calculator.texts.hint-location-rename') }}</span>
-          </div>
-          <n-input v-model:value="locationNameDraft" @update:value="commitLocationName" />
-        </div>
-      </div>
-
-      <!-- 当前位置的默认水电单价 -->
-      <div v-if="currentLocation" mb-3>
-        <div mb-1 text-sm font-medium>
-          {{ t('tools.rent-calculator.texts.label-location-defaults') }}
-          <span ml-1 op-50>{{ t('tools.rent-calculator.texts.hint-location-defaults') }}</span>
-        </div>
-        <div grid gap-2 md:grid-cols-2>
-          <n-input-number-i18n
-            v-model:value="currentLocation.elecPrice"
-            :min="0"
-            :precision="2"
-            :step="0.1"
-            :placeholder="t('tools.rent-calculator.texts.label-location-elec-price')"
-            @update:value="onLocationPriceUpdate"
-          />
-          <n-input-number-i18n
-            v-model:value="currentLocation.waterPrice"
-            :min="0"
-            :precision="2"
-            :step="0.1"
-            :placeholder="t('tools.rent-calculator.texts.label-location-water-price')"
-            @update:value="onLocationPriceUpdate"
-          />
-        </div>
-      </div>
-
-      <!-- 新增位置 -->
+      <!-- 第一步：新增位置（配置区最上方，先把位置建出来再谈房间） -->
       <div mb-3>
         <div mb-1 text-sm font-medium>{{ t('tools.rent-calculator.texts.label-new-location') }}</div>
         <div flex flex-wrap items-center gap-2>
           <n-input
             v-model:value="newLocation.name"
             :placeholder="t('tools.rent-calculator.texts.placeholder-location-name')"
-            class="min-w-40 flex-1"
+            class="w-full min-w-0 sm:w-auto sm:min-w-40 sm:flex-1"
             @keyup.enter="addLocation"
           />
           <n-input-number-i18n
@@ -649,45 +630,104 @@ function onPeriodChange(ts: number | null) {
           />
           <c-button size="small" secondary @click="addLocation">{{ t('tools.rent-calculator.texts.button-add-location') }}</c-button>
         </div>
+        <p mt-1 text-xs op-50>{{ t('tools.rent-calculator.texts.hint-new-location') }}</p>
       </div>
 
-      <n-divider v-if="currentLocation" />
+      <!-- 第二步：新增房间（顺手把房租录进来，之后只管抄表） -->
+      <div mb-3>
+        <div mb-1 flex flex-wrap items-baseline gap-x-2 text-sm font-medium>
+          <span>{{ t('tools.rent-calculator.texts.label-new-room') }}</span>
+          <span v-if="currentLocation" text-xs font-normal op-50>
+            {{ t('tools.rent-calculator.texts.label-new-room-target', { name: currentLocation.name }) }}
+          </span>
+        </div>
+        <div flex flex-wrap items-center gap-2>
+          <n-input
+            v-model:value="newRoom.name"
+            :placeholder="t('tools.rent-calculator.texts.placeholder-room-name')"
+            :disabled="!currentLocation"
+            class="w-full min-w-0 sm:w-auto sm:min-w-40 sm:flex-1"
+            @keyup.enter="addRoom"
+          />
+          <n-input-number-i18n
+            v-model:value="newRoom.rent"
+            :min="0"
+            :precision="2"
+            :step="100"
+            :disabled="!currentLocation"
+            :placeholder="t('tools.rent-calculator.texts.label-room-rent')"
+            class="w-32"
+          />
+          <c-button size="small" secondary :disabled="!currentLocation" @click="addRoom">
+            {{ t('tools.rent-calculator.texts.button-add-room') }}
+          </c-button>
+        </div>
+        <p mt-1 text-xs op-50>
+          {{ currentLocation ? t('tools.rent-calculator.texts.hint-new-room') : t('tools.rent-calculator.texts.hint-add-location-first') }}
+        </p>
+      </div>
 
-      <!-- 房间：选择 + 新增 + 删除 -->
+      <n-divider v-if="currentLocation" title-placement="left">{{ t('tools.rent-calculator.texts.label-current-selection') }}</n-divider>
+
+      <!-- 当前位置：选择 + 删除 + 默认水电单价 -->
       <template v-if="currentLocation">
-        <div mb-3 grid gap-2 md:grid-cols-2>
+        <div mb-3 grid gap-3 md:grid-cols-2>
+          <div>
+            <div mb-1 text-sm font-medium>{{ t('tools.rent-calculator.texts.label-location') }}</div>
+            <div flex items-center gap-2>
+              <n-select
+                v-model:value="selectedLocationId"
+                :options="locationOptions"
+                :placeholder="t('tools.rent-calculator.texts.placeholder-location')"
+                class="min-w-0 flex-1"
+              />
+              <n-popconfirm @positive-click="deleteLocation">
+                <span>{{ t('tools.rent-calculator.texts.confirm-delete-location', { name: currentLocation.name, rooms: locationRooms.length, records: locationRecords }) }}</span>
+                <template #trigger>
+                  <c-button size="small" secondary>{{ t('tools.rent-calculator.texts.button-delete-location') }}</c-button>
+                </template>
+              </n-popconfirm>
+            </div>
+          </div>
           <div>
             <div mb-1 text-sm font-medium>
-              {{ t('tools.rent-calculator.texts.label-room') }}
-              <span ml-1 op-50>（{{ currentLocation.name }}）</span>
+              {{ t('tools.rent-calculator.texts.label-location-defaults') }}
+              <span ml-1 text-xs font-normal op-50>{{ t('tools.rent-calculator.texts.hint-location-defaults') }}</span>
             </div>
-            <n-select
-              v-model:value="selectedRoomId"
-              :options="roomOptions"
-              :placeholder="t('tools.rent-calculator.texts.placeholder-room')"
-              clearable
-            />
+            <div grid gap-2 sm:grid-cols-2>
+              <n-input-number-i18n
+                v-model:value="currentLocation.elecPrice"
+                :min="0"
+                :precision="2"
+                :step="0.1"
+                :placeholder="t('tools.rent-calculator.texts.label-location-elec-price')"
+                @update:value="onLocationPriceUpdate"
+              />
+              <n-input-number-i18n
+                v-model:value="currentLocation.waterPrice"
+                :min="0"
+                :precision="2"
+                :step="0.1"
+                :placeholder="t('tools.rent-calculator.texts.label-location-water-price')"
+                @update:value="onLocationPriceUpdate"
+              />
+            </div>
           </div>
         </div>
 
-        <div mb-3>
-          <div mb-1 text-sm font-medium>{{ t('tools.rent-calculator.texts.label-new-room') }}</div>
-          <div flex flex-wrap items-center gap-2>
-            <n-input
-              v-model:value="newRoom.name"
-              :placeholder="t('tools.rent-calculator.texts.placeholder-room-name')"
-              class="min-w-40 flex-1"
-              @keyup.enter="addRoom"
-            />
-            <c-button size="small" secondary @click="addRoom">{{ t('tools.rent-calculator.texts.button-add-room') }}</c-button>
-          </div>
-        </div>
-
-        <div v-if="currentRoom">
-          <n-popconfirm @positive-click="deleteRoom(currentRoom.id)">
+        <!-- 当前房间：选择 + 删除 -->
+        <div mb-1 text-sm font-medium>{{ t('tools.rent-calculator.texts.label-room') }}</div>
+        <div flex items-center gap-2>
+          <n-select
+            v-model:value="selectedRoomId"
+            :options="roomOptions"
+            :placeholder="t('tools.rent-calculator.texts.placeholder-room')"
+            class="min-w-0 flex-1"
+          />
+          <n-popconfirm v-if="currentRoom" @positive-click="deleteRoom(currentRoom.id)">
             <span>{{ t('tools.rent-calculator.texts.confirm-delete-room', { name: currentRoom.name, count: roomRecords.length }) }}</span>
             <template #trigger>
-              <c-button size="small" secondary>{{ t('tools.rent-calculator.texts.button-delete-room', { name: currentRoom.name }) }}</c-button>
+              <c-button size="small" secondary>{{ t('tools.rent-calculator.texts.button-delete-room') }}</c-button>
             </template>
           </n-popconfirm>
         </div>

@@ -19,10 +19,15 @@
  *
  * 数据结构（两级：位置 → 房间，记录挂房间）：
  * - 位置（RentLocation）：名字 + 默认电/水单价。单价在页面顶部的「配置」区统一设置，
- *   房间不必再逐个填。改动历史见下面的版本迁移说明。
+ *   房间不必再逐个填。**名字建好之后不允许改**（2026-10-18 用户要求）：改名会牵动
+ *   导出文件、历史对账里的叫法，与其做一套「改一半」的校验，不如删掉重建。
  * - 房间（RentRoom）：名字/昵称 + 房租 + 可选的单价覆盖（不填继承位置默认）。
+ *   房租在新增房间时先录一次（比水电表读数稳定得多），之后每期保存账单时会同步回来，
+ *   下次切到这个房间就不用再填。
  * - 记录（RentRecord）：一期账单的快照 —— 房租/单价/读数/费用全部定格，
  *   改默认值不会污染历史。
+ * - 删除是级联的：删位置带走它的房间和记录，删房间带走它的记录（removeLocation /
+ *   removeRoom）。孤儿数据不留在存档里，跟 sanitizeState 的清洗口径保持一致。
  *
  * ── 版本迁移（version 1 → 2，2026-10-18 用户要求）──
  * v1 的房间和记录各带一个「卫生费」字段，现已被删掉：用户说卫生费可以用「其他费用」
@@ -437,6 +442,38 @@ export function recordsForLocation(state: RentState, locationId: string): RentRe
 /** 房间最近一期记录（自动衔接读数的数据源）。 */
 export function latestRecordForRoom(records: RentRecord[], roomId: string): RentRecord | null {
   return recordsForRoom(records, roomId)[0] ?? null;
+}
+
+/** 某位置下的记录条数（删除位置的确认文案要用，页面不自己数）。 */
+export function countRecordsForLocation(state: RentState, locationId: string): number {
+  const roomIds = new Set(state.rooms.filter((r) => r.locationId === locationId).map((r) => r.id));
+  return state.records.filter((r) => roomIds.has(r.roomId)).length;
+}
+
+/**
+ * 删除位置：连带它下面的房间和这些房间的记录一起清掉。
+ *
+ * 返回新对象而不是原地改 —— 页面拿返回值替换 `state`，Vue 的响应式链路、
+ * 以及「改坏了能不能回滚」都清楚。孤儿数据一律不留在存档里，
+ * 否则 sanitizeState 下次加载时也会把它们当垃圾清掉（两处口径必须一致）。
+ */
+export function removeLocation(state: RentState, locationId: string): RentState {
+  const roomIds = new Set(state.rooms.filter((r) => r.locationId === locationId).map((r) => r.id));
+  return {
+    ...state,
+    locations: state.locations.filter((l) => l.id !== locationId),
+    rooms: state.rooms.filter((r) => !roomIds.has(r.id)),
+    records: state.records.filter((rec) => !roomIds.has(rec.roomId)),
+  };
+}
+
+/** 删除房间：连带它的记录一起清掉。 */
+export function removeRoom(state: RentState, roomId: string): RentState {
+  return {
+    ...state,
+    rooms: state.rooms.filter((r) => r.id !== roomId),
+    records: state.records.filter((rec) => rec.roomId !== roomId),
+  };
 }
 
 /** 导出范围过滤，结果按账期倒序。 */
